@@ -10,7 +10,9 @@
 # Usage in GEMSEO scenarios
 
 Both formulations build an ordinary GEMSEO scenario with the `Benders`
-formulation, and are solved by the `BiLevelMasterOuterApproximation` algorithm.
+formulation, and are solved by default by the `BiLevelMasterOuterApproximation`
+algorithm over SLSQP. Both algorithms are
+[settings like the rest](#the-algorithm-of-each-of-the-two-levels).
 
 ## The entry point
 
@@ -77,6 +79,51 @@ BoxSubdivisionSettings(mechanism="convexification", convexification_constant=50.
 
 Choosing one switches the other's constant off, so a run always measures one
 mechanism rather than an average of two.
+
+## The algorithm of each of the two levels
+
+A run is two algorithms: a master deciding which box to look into, and a solver
+running inside the box it chose. Both are named by the same settings class, with
+whatever else each one takes:
+
+```python
+BoxSubdivisionSettings(
+    # The master, and anything else it takes under its own name.
+    master_algo_name="BILEVEL_MASTER_OUTER_APPROXIMATION",
+    master_algo_settings={"upper_bound_stall": 20},
+    # The solver of each sub-problem, and its own settings.
+    sub_problem_algo_name="NLOPT_COBYLA",
+    sub_problem_algo_settings={"ftol_rel": 1e-8},
+)
+```
+
+The defaults are the pair every result reported here was measured with, the
+outer-approximation master over SLSQP, and the two pass-throughs win over the
+settings the class translates: a `max_step` in `master_algo_settings` overrides
+`trust_region_radius`, and a `max_iter` in `sub_problem_algo_settings` overrides
+`sub_problem_max_iter`. A name no GEMSEO library provides, and a setting the
+algorithm named does not have, are both refused when the settings are built
+rather than in the middle of a run.
+
+What each of the two is free to be is not the same thing:
+
+`sub_problem_algo_name`
+: any GEMSEO optimizer. A box is a continuous problem with bounds, which is what
+  SLSQP suits; a derivative-free solver such as `NLOPT_COBYLA` is the reasonable
+  choice for an objective whose gradient is unavailable or noisy, and nothing
+  here measures one. What the method needs of it is a **local optimum of the
+  box**: the cut of a box is built at the point it returns, so a solver stopping
+  early leaves that cut wrong rather than merely loose, and its iteration budget
+  is a setting of the method rather than a detail.
+
+`master_algo_name`
+: an algorithm taking the settings of the outer approximation, which means one of
+  those of `gemseo-bilevel-outer-approximation`. Changing it changes the method
+  rather than its tuning, and an ordinary optimizer is refused outright, taking
+  none of those settings. `master_algo_settings` is the useful half of this pair:
+  it reaches every setting of the master that
+  [the table below](#the-settings-of-the-master-in-their-own-terms) names and
+  this class does not.
 
 ## Which methodology to set up
 
