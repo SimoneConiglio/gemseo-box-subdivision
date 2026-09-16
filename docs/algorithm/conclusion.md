@@ -39,6 +39,14 @@ a radius of about two. Weighing the subdivisions by their own indexes, which the
 upstream design space does by default for a numeric catalogue, is not a distance
 at all, and it cost this method its best result until it was found.
 
+Of those two, the guard is the one the method should stop asking for, and a
+prototype says it can: sweeping a ladder of convexity values across the parallel
+probes the master already runs reaches the optimum on Rastrigin and on Ackley
+from every starting point, with no value supplied at all, where no single margin
+serves both. It is measured on two problems in two dimensions and it runs through
+a stub, so it is a direction rather than a result, see
+[annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
+
 ## What is established, and what is not
 
 Established:
@@ -118,7 +126,7 @@ Not established:
 
 ## Where this can go
 
-Four directions follow from the measurements above, in the order in which they
+Five directions follow from the measurements above, in the order in which they
 would pay.
 
 **A subdivision that follows the basins.** Everything on this page turns on the
@@ -127,6 +135,20 @@ knowing their spacing. Estimating it, from the curvature at a first sampling or
 from the failures of the local solves themselves, would replace the one setting
 that is tuned by hand and would say, at the same time, which variables deserve
 subdividing at all.
+
+**A convexity nobody has to calibrate.** The margin and the constant are
+absolute quantities in the units of the objective, and that is the criticism this
+method has not answered. Sweeping them instead of choosing them costs nothing the
+master is not already paying: its parallel points are a sweep of the
+trust-region radius, and the same probes can carry a ladder of convexity values,
+one iteration then returning the box next door and the box across the design
+space at once, with every probe that proposes nothing new redeployed a rung
+higher. The prototype of `benchmarks/convexity_sweep.py` solves both
+two-dimensional problems from every starting point without being given a value,
+which no fixed margin does. What it needs to become a result is the iteration
+loop of the master, which lives upstream, and a held-out problem: the decade of
+headroom its unbounded form needs was itself chosen on the two problems it is
+reported on.
 
 **A master that keeps its cuts while the boxes change.** The hierarchies all
 restart a master per node, which is what makes them lose. A master over a

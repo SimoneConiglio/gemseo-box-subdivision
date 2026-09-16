@@ -26,6 +26,38 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- A **sweep of the convexity setting**, so that a run no longer needs a margin
+  calibrated in the units of its objective, which is the standing criticism of
+  the method. The master already probes one trust-region radius per parallel
+  point; the same probes now sweep a ladder of convexity values, the low rungs
+  proposing the box next door and the high rungs the box across the design
+  space, so one iteration returns the exploitation and the exploration rather
+  than several probes of one regime. A probe whose rung proposes a box already
+  solved is redeployed one rung up until it proposes a new one or the ladder is
+  exhausted, which costs a mixed-integer solve and no objective evaluation.
+  Every probe exhausting the ladder is the stopping criterion, and it says that
+  no value up to the upper bound proposes anything new.
+
+  The user supplies an upper bound and a number of points,
+  `ConvexitySweepSettings(max_value=100.0)`, or nothing at all,
+  `ConvexitySweepSettings()`, the bound then following the spread of the
+  objective over the boxes already solved, with a decade of headroom. On
+  Rastrigin and Ackley in two dimensions, whose objectives differ by a factor of
+  four in scale, the unbounded sweep reaches the optimum from every starting
+  point on both, which no single margin does, and the bounded sweep is
+  insensitive to a bound ten times too large. See
+  `benchmarks/convexity_sweep.py` and annex C.
+
+  The policy is in `gemseo_box_subdivision.convexity_sweep` and is free of
+  GEMSEO, so that it can move into `gemseo-bilevel-outer-approximation`, where
+  the iteration loop lives. Only the wiring to the released master is stubbed,
+  in the benchmarks; a scenario given these settings and run against the
+  released master falls back to the top rung of the ladder.
+
 ## 0.1.0 (2026-09-15)
 
 First public release.
