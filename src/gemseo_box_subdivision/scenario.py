@@ -35,10 +35,6 @@ from typing import Any
 from gemseo.core.chains.chain import MDOChain
 from gemseo.scenarios.mdo_scenario import MDOScenario
 from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
-from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
-)
 
 from gemseo_box_subdivision.design_spaces import create_box_design_space
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
@@ -82,6 +78,13 @@ class BoxSubdivisionScenario(MDOScenario):
     Executing it without arguments uses the settings it was built with, so the
     master of the outer approximation never has to be configured by hand. Passing
     settings explicitly overrides them, as for any scenario.
+
+    The algorithm of each of the two levels, and its settings, come from
+    :class:`.BoxSubdivisionSettings`: the master from
+    :attr:`~.BoxSubdivisionSettings.master_algo_name` and
+    :attr:`~.BoxSubdivisionSettings.master_algo_settings`, each sub-problem from
+    :attr:`~.BoxSubdivisionSettings.sub_problem_algo_name` and
+    :attr:`~.BoxSubdivisionSettings.sub_problem_algo_settings`.
 
     The four constructions share this one entry point:
 
@@ -145,7 +148,9 @@ class BoxSubdivisionScenario(MDOScenario):
                 weigh every subdivision alike, so that the distance is the
                 number of components a candidate changes. This is the metric the
                 measurements support; the alternative exists to be swept.
-            settings: The settings of the run. If ``None``, use the defaults of
+            settings: The settings of the run, including the algorithm solving
+                the master problem and the one solving each sub-problem, with
+                their own settings. If ``None``, use the defaults of
                 :class:`.BoxSubdivisionSettings`, whose convexity margin only
                 suits an objective of the scale of the benchmark.
             name: The name of the scenario.
@@ -193,8 +198,8 @@ class BoxSubdivisionScenario(MDOScenario):
             "main_problem_design_variables": list(
                 self.subdivision.get_one_hot_names({}).values()
             ),
-            "sub_problem_algo_settings": SLSQP_Settings(
-                max_iter=self.box_settings.sub_problem_max_iter
+            "sub_problem_algo_settings": (
+                self.box_settings.create_sub_problem_settings_model()
             ),
             "sub_problem_formulation_settings": DisciplinaryOpt_Settings(),
         }
@@ -279,8 +284,8 @@ class BoxSubdivisionScenario(MDOScenario):
                 for variable_name in names
                 for level in range(1, levels + 1)
             ],
-            sub_problem_algo_settings=SLSQP_Settings(
-                max_iter=self.box_settings.sub_problem_max_iter
+            sub_problem_algo_settings=(
+                self.box_settings.create_sub_problem_settings_model()
             ),
             sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
         )
@@ -288,15 +293,15 @@ class BoxSubdivisionScenario(MDOScenario):
     def execute(self, algo_settings_model: Any = None, **algo_settings: Any) -> None:
         """Execute the scenario.
 
-        Without arguments, run the master with the settings the scenario was
-        built with, the radius of the trust region scaled where the distance
-        counts something other than design variables: the multi-resolution
-        encoding has one one-hot group per level per variable, so two whole
-        variables is twice the number of levels.
+        Without arguments, run the master named by the settings the scenario was
+        built with, with those settings, the radius of the trust region scaled
+        where the distance counts something other than design variables: the
+        multi-resolution encoding has one one-hot group per level per variable,
+        so two whole variables is twice the number of levels.
 
         Args:
             algo_settings_model: The settings of the master, overriding those of
-                the scenario.
+                the scenario, the model naming the algorithm to execute.
             **algo_settings: The settings of the master, as keyword arguments.
 
         Returns:
@@ -307,8 +312,13 @@ class BoxSubdivisionScenario(MDOScenario):
             if isinstance(self.subdivision, MultiResolution):
                 radius = self.box_settings.trust_region_radius * self.subdivision.levels
 
-            algo_settings_model = BiLevelMasterOuterApproximation_Settings(
-                **self.box_settings.to_master_settings(radius)
+            # The master is selected by its name rather than by a settings
+            # model: a model names the algorithm to execute itself, and the
+            # settings of ``OUTER_APPROXIMATION`` name one no library provides,
+            # so a model would not run ``master_algo_name``.
+            return super().execute(
+                algo_name=self.box_settings.master_algo_name,
+                **self.box_settings.to_master_settings(radius),
             )
 
         return super().execute(algo_settings_model, **algo_settings)

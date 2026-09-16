@@ -42,6 +42,19 @@ changed rather than a `max_step` in unexplained units, and its
 two mechanisms are kept apart: choosing one zeroes the other's constant, so a run
 can never measure an average of the two.
 
+The algorithm of each of the two levels is a setting of the same class, and each
+is delivered where its level expects it. The master is executed **by its name**,
+`master_algo_name` with the settings `to_master_settings` returns, rather than
+through a settings model: a GEMSEO settings model names the algorithm it selects,
+and the settings of `OUTER_APPROXIMATION` name one no library provides, so a
+model would run something other than the algorithm asked for. The sub-problem
+solver is the other way round, the `Benders` formulation taking a settings model,
+which `create_sub_problem_settings_model` builds from `sub_problem_algo_name`
+and `to_sub_problem_settings`. Both names are checked against what the algorithm
+declares when the settings are built, so a setting one level's algorithm does not
+have, or a name no library provides, is refused where it is written rather than
+in the middle of a run.
+
 Everything below those two is public and usable on its own, which is what
 [Usage](usage.md) calls composing by hand.
 

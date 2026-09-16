@@ -24,14 +24,17 @@ from __future__ import annotations
 import pytest
 from numpy import inf
 from numpy import nan
+from pydantic import create_model
 
 from gemseo_box_subdivision import BoxSubdivisionSettings
 from gemseo_box_subdivision import ConvexitySweepSettings
 from gemseo_box_subdivision import convexity_sweep as policy
+from gemseo_box_subdivision import settings as settings_module
 from gemseo_box_subdivision._convexity_sweep_fallback import LADDER_DECADES
 from gemseo_box_subdivision._convexity_sweep_fallback import ConvexitySweep
 from gemseo_box_subdivision._convexity_sweep_fallback import convexity_ladder
 from gemseo_box_subdivision._convexity_sweep_fallback import objective_scale
+from gemseo_box_subdivision.settings import MASTER_ALGO_NAME
 
 
 def test_ladder_ends_at_the_upper_bound() -> None:
@@ -241,11 +244,40 @@ def test_no_sweep_leaves_the_settings_alone() -> None:
     assert "convexity_sweep_points" not in master_settings
 
 
+def _install_a_sweeping_master(monkeypatch) -> None:
+    """Make the master of the settings a master that sweeps the convexity.
+
+    Two things say whether the installed master sweeps, and a simulated one has
+    to say both: :data:`.MASTER_SWEEPS_CONVEXITY`, which decides whether the
+    settings are passed at all, and the settings the master declares, against
+    which they are checked when :class:`.BoxSubdivisionSettings` is built. The
+    released master has neither, so patching the flag alone would ask it for
+    settings it does not take.
+    """
+    monkeypatch.setattr(policy, "MASTER_SWEEPS_CONVEXITY", True)
+
+    master_settings_class = create_model(
+        "SweepingMaster_Settings",
+        __base__=settings_module._get_settings_class(MASTER_ALGO_NAME),
+        convexity_sweep_points=(int, 0),
+        convexity_sweep_max=(float, 0.0),
+    )
+    get_settings_class = settings_module._get_settings_class
+
+    def _get_settings_class(algo_name: str):
+        if algo_name == MASTER_ALGO_NAME:
+            return master_settings_class
+
+        return get_settings_class(algo_name)
+
+    monkeypatch.setattr(settings_module, "_get_settings_class", _get_settings_class)
+
+
 def test_a_sweep_reaches_the_master(monkeypatch) -> None:
     """Check that a sweep is passed on, with the top rung for the iterations
     before the master has a ladder of its own.
     """  # noqa: D205
-    monkeypatch.setattr(policy, "MASTER_SWEEPS_CONVEXITY", True)
+    _install_a_sweeping_master(monkeypatch)
     settings = BoxSubdivisionSettings(
         convexity_margin=1.0,
         convexity_sweep=ConvexitySweepSettings(max_value=100.0, n_points=3),
