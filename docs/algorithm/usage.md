@@ -104,13 +104,16 @@ the unbounded sweep reaches the optimum from every starting point on both, which
 no single margin does, see
 [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
+The sweep is the **master's**, under its settings `convexity_sweep_points` and
+`convexity_sweep_max`, and the two numbers above are turned into those.
+
 :::{warning}
-The sweep is **not a setting of the released master**, which takes one value per
-run: it needs the iteration loop of `gemseo-bilevel-outer-approximation`, and
-until it lands there it is driven by the stub of
-`benchmarks/convexity_sweep.py`. A scenario given these settings and run against
-the released master falls back to the **top rung** of the ladder, which is the
+A master predating the sweep does not have those settings, and a scenario given
+these settings then falls back to the **top rung** of the ladder, which is the
 conservative end and not the margin it was going to replace.
+{py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
+which master is installed, and the stub of `benchmarks/convexity_sweep.py` drives
+the older one from outside, for the measurements.
 :::
 
 ## Which methodology to set up

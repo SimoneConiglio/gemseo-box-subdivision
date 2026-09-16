@@ -30,33 +30,35 @@ and this project adheres to
 
 ### Added
 
-- A **sweep of the convexity setting**, so that a run no longer needs a margin
-  calibrated in the units of its objective, which is the standing criticism of
-  the method. The master already probes one trust-region radius per parallel
-  point; the same probes now sweep a ladder of convexity values, the low rungs
-  proposing the box next door and the high rungs the box across the design
-  space, so one iteration returns the exploitation and the exploration rather
-  than several probes of one regime. A probe whose rung proposes a box already
-  solved is redeployed one rung up until it proposes a new one or the ladder is
-  exhausted, which costs a mixed-integer solve and no objective evaluation.
-  Every probe exhausting the ladder is the stopping criterion, and it says that
-  no value up to the upper bound proposes anything new.
+- Settings asking the master to **sweep the convexity**, so that a run no longer
+  needs a margin calibrated in the units of its objective, which is the standing
+  criticism of the method. The master probes one trust-region radius per
+  parallel point; the same probes can carry a ladder of convexity values, the
+  low rungs proposing the box next door and the high rungs the box across the
+  design space, with every probe that proposes nothing new redeployed a rung
+  higher until it proposes a new box or the ladder is exhausted.
 
-  The user supplies an upper bound and a number of points,
-  `ConvexitySweepSettings(max_value=100.0)`, or nothing at all,
+  `BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings(...))` asks for
+  it, with an upper bound and a number of points,
+  `ConvexitySweepSettings(max_value=100.0)`, or with nothing at all,
   `ConvexitySweepSettings()`, the bound then following the spread of the
-  objective over the boxes already solved, with a decade of headroom. On
-  Rastrigin and Ackley in two dimensions, whose objectives differ by a factor of
-  four in scale, the unbounded sweep reaches the optimum from every starting
-  point on both, which no single margin does, and the bounded sweep is
-  insensitive to a bound ten times too large. See
-  `benchmarks/convexity_sweep.py` and annex C.
+  objective over the boxes already solved, with a decade of headroom.
 
-  The policy is in `gemseo_box_subdivision.convexity_sweep` and is free of
-  GEMSEO, so that it can move into `gemseo-bilevel-outer-approximation`, where
-  the iteration loop lives. Only the wiring to the released master is stubbed,
-  in the benchmarks; a scenario given these settings and run against the
-  released master falls back to the top rung of the ladder.
+  On Rastrigin and Ackley in two dimensions, whose objectives differ by a factor
+  of four in scale, the unbounded sweep reaches the optimum from every starting
+  point on both, which no fixed margin among those tried does, and a bound ten
+  times too large costs a starting point where a margin ten times too small
+  costs the run. See `benchmarks/convexity_sweep.py` and annex C.
+
+  **The sweep belongs to the master**, and it is implemented in
+  `gemseo-bilevel-outer-approximation`, under `convexity_sweep_points` and
+  `convexity_sweep_max`; this package turns its two settings into those. Against
+  a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False`, the settings
+  fall back to the top rung of the ladder, which is the conservative end, and
+  `benchmarks/convexity_sweep.py` drives that master from outside so that the
+  measurement stays reproducible. Both that stub and
+  `_convexity_sweep_fallback` are temporary and go once the master ships the
+  sweep.
 
 ## 0.1.0 (2026-09-15)
 

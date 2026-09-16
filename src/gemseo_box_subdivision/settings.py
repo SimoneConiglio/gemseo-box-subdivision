@@ -198,14 +198,21 @@ class BoxSubdivisionSettings:
         The mechanism decides which of the two constants is passed and which is
         switched off, so that the two can never be active at once.
 
-        A sweep of the convexity is **not** a setting of the released master,
-        which takes one value. It degrades here to the top rung of the ladder,
-        the conservative end: the tuning says an over-large margin costs
-        sub-problems rather than quality, so a run that loses the sweep loses
-        the cheap rungs rather than the result. Where the master does support
-        the sweep, it reads :attr:`.convexity_sweep` instead of this value. A
-        sweep whose upper bound is read off the objective has no ladder until a
-        run is under way, so it degrades to the value of the mechanism.
+        A sweep of the convexity is the master's own, under the settings
+        ``convexity_sweep_points`` and ``convexity_sweep_max``, and
+        :attr:`.convexity_sweep` is turned into those here. The value passed to
+        the mechanism is then the **top rung**, which is what the master uses in
+        the first iterations, before it has solved enough boxes to have a ladder
+        at all; for a sweep whose bound is read off the objective, and which
+        therefore has no ladder offline, it is the value of the mechanism.
+
+        Against a master that predates the sweep, see
+        :data:`.MASTER_SWEEPS_CONVEXITY`, those two settings would be rejected
+        and are not passed. What is left is the top rung, the conservative end:
+        the tuning says an over-large margin costs sub-problems rather than
+        quality, so a run that loses the sweep loses the cheap rungs rather than
+        the result. Driving such a master is what the stub of
+        ``benchmarks/convexity_sweep.py`` is for.
 
         Asking for a sweep also keeps :attr:`.n_parallel_points` under the pure
         convexification, which otherwise probes a single point. A probe per rung
@@ -221,10 +228,11 @@ class BoxSubdivisionSettings:
             The settings of the master problem.
         """
         adaptive = self.mechanism == "adaptive"
+        swept = self.convexity_sweep is not None
         value = self.convexity_value
-        sweep = self.create_convexity_sweep()
-        if sweep is not None:
-            value = sweep.max_value
+        ladder = self.create_convexity_sweep()
+        if ladder is not None:
+            value = ladder.max_value
 
         settings = {
             "max_iter": self.max_iter,
@@ -233,9 +241,12 @@ class BoxSubdivisionSettings:
             "min_dfk": value if adaptive else 0.0,
             "convexification_constant": 0.0 if adaptive else value,
             "number_of_parallel_points": (
-                self.n_parallel_points if adaptive or sweep is not None else 1
+                self.n_parallel_points if adaptive or swept else 1
             ),
             "max_step": self.trust_region_radius if radius is None else radius,
         }
+        if swept:
+            settings.update(self.convexity_sweep.to_master_settings())
+
         settings.update(self.options)
         return settings

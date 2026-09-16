@@ -126,8 +126,10 @@ BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings())
 
 On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
 that reaches the optimum from every starting point on both, which no single
-margin does. It needs the iteration loop of the master, so until it lands
-upstream it runs through the stub of `benchmarks/convexity_sweep.py`; see
+margin does. The sweep itself belongs to the master, under its settings
+`convexity_sweep_points` and `convexity_sweep_max`; against a master predating
+them the settings fall back to the conservative end of the ladder, and the
+benchmarks drive it from outside instead. See
 [annex C](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/tuning.html#sweeping-the-convexity-instead-of-calibrating-it).
 
 ## Beyond a flat subdivision

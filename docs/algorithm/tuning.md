@@ -194,9 +194,8 @@ does not answer it.
 
 Not choosing does. The master already refuses to choose its trust-region radius:
 it probes one radius per parallel point, over `geomspace(step / 2, step)`, so
-**the parallel points are a sweep and not a batch**. The same machinery can sweep
-the convexity, and `benchmarks/convexity_sweep.py` stubs it into the released
-master the way `benchmarks/trust_region.py` stubs the proximity constraint:
+**the parallel points are a sweep and not a batch**. The same probes can carry a
+ladder of convexity values:
 
 - probe $k$ of an iteration solves the master at rung $k$ of a **ladder**
   $\kappa_1 < \dots < \kappa_N$, geometric over two decades below its upper
@@ -217,35 +216,43 @@ What the user supplies is then an **upper bound** and a number of points. Erring
 high on the bound is safe in a way that erring high on a single margin is not,
 because the low rungs stay on the ladder either way.
 
+:::{note}
+This loop belongs to the master rather than to this package, and it is
+implemented there, in `gemseo-bilevel-outer-approximation`, under the settings
+`convexity_sweep_points` and `convexity_sweep_max`. What this package holds is
+[`ConvexitySweepSettings`](usage.md#not-choosing-the-convexity-at-all), which
+turns into those two, and the stub of `benchmarks/convexity_sweep.py`, which
+drives a master predating them from outside so that the measurement below is
+reproducible against either.
+:::
+
 #### What it measures
 
 Rastrigin and Ackley in two dimensions, ten subdivisions, a budget of $1000$,
 six starting points, the adaptive repair. The median gap, the median cost and
 the number of starting points from which the optimum is reached. The first three
 rows are the ladder walked one rung at a time, which is what calibrating the
-margin by hand amounts to:
+margin by hand amounts to; the swept rows are given **no margin at all**:
 
 | convexity | Rastrigin, spans $\approx 80$ | Ackley, spans $\approx 22$ |
 |-----------|-------------------------------|----------------------------|
 | fixed, margin $1$ | $2.487$ · 91 · 1/6 | $10.415$ · 188 · 1/6 |
 | fixed, margin $10$ | $0.000$ · 226 · 4/6 | $10.415$ · 208 · 1/6 |
 | fixed, margin $100$ | $0.000$ · 543 · 6/6 | $0.000$ · 428 · 4/6 |
-| sweep, $\kappa_{\max} = 100$ | $0.000$ · 491 · 6/6 | $0.000$ · 517 · 5/6 |
-| sweep, $\kappa_{\max} = 1000$ | $0.000$ · 532 · 6/6 | $0.000$ · 554 · 5/6 |
-| sweep, observed spread | $0.000$ · **361** · 6/6 | $10.415$ · 234 · 1/6 |
+| sweep, $\kappa_{\max} = 100$ | $0.000$ · 491 · 6/6 | $0.000$ · 517 · 6/6 |
+| sweep, $\kappa_{\max} = 1000$ | $0.000$ · 532 · 6/6 | $0.000$ · 534 · 4/6 |
+| sweep, observed spread | $0.000$ · **361** · 6/6 | $3.814$ · 315 · 3/6 |
 | **sweep, observed spread $\times 10$** | **$0.000$ · 489 · 6/6** | **$0.000$ · 601 · 6/6** |
 
 **No fixed margin is good on both problems and the sweep is.** The margin the
 tuning above settled on, $100$, is the best fixed row and it still reaches Ackley
-from four starting points out of six; every sweep reaches it from five or six.
-And the sweep is **insensitive to its bound**: ten times too large costs $532$
-against $491$ on Rastrigin and changes nothing that is reached. That is the
-property a single margin does not have, where ten times too small is 1/6 and the
-right value is 6/6.
-
-The redeployment is not decoration. Between $19\%$ and $59\%$ of the boxes an
-iteration proposes come from a rung **above** the probe's own, which is to say
-they would not have been proposed at all by a master probing one value.
+from four starting points out of six; the sweep at the same bound reaches it from
+six. And the sweep is **forgiving of its bound**: ten times too large costs $532$
+against $491$ on Rastrigin and changes nothing that is reached there, which is
+the property a single margin does not have, where ten times too small is 1/6 and
+the right value is 6/6. On Ackley the same over-estimate does cost a starting
+point, $4/6$ against $6/6$, so the bound is not free — it is merely forgiving
+where the margin is brittle.
 
 #### Reading the bound off the objective, and the headroom it needs
 
@@ -256,21 +263,20 @@ that variation as it solves boxes. Taking $\kappa_{\max}$ from the spread of the
 objective over the boxes already solved asks for nothing at all.
 
 Taken literally it fails, and the failure is instructive: Rastrigin 6/6 for
-$361$ evaluations, the cheapest cell of the table, and Ackley 1/6. The spread
-over the boxes **already solved** is a lower estimate of the spread over the
-design space, and badly so in the first iterations, when the boxes solved are
-the handful the first iterations proposed. On a landscape whose first boxes look
-alike, which is exactly Ackley's broad basin, the estimate is circular: the
-scale that would buy the exploration is the one the exploration would reveal, and
-the run never escapes.
+$361$ evaluations, the cheapest cell of the table, and Ackley $3.814$ from three
+starting points out of six. The spread over the boxes **already solved** is a
+lower estimate of the spread over the design space, and badly so in the first
+iterations, when the boxes solved are the handful the first iterations proposed.
+On a landscape whose first boxes look alike, which is exactly Ackley's broad
+basin, the estimate is circular: the scale that would buy the exploration is the
+one the exploration would reveal, and the run never escapes.
 
 One decade of **headroom** on the observed spread fixes it, and the fix costs
-nothing on the problem that did not need it: Ackley 6/6, the only row of this
-table that reaches it from every starting point, and Rastrigin 6/6 for $489$
-evaluations against $543$ for the calibrated margin. A factor is not the quantity
-the criticism is about: it is **dimensionless**, so it transfers between problems
-where an absolute margin does not, and erring high on it spends the low rungs
-rather than the result.
+nothing on the problem that did not need it: Ackley 6/6, and Rastrigin 6/6 for
+$489$ evaluations against $543$ for the calibrated margin. A factor is not the
+quantity the criticism is about: it is **dimensionless**, so it transfers between
+problems where an absolute margin does not, and erring high on it spends the low
+rungs rather than the result.
 
 :::{warning}
 The factor of ten was chosen on these two problems, which is the same thing this
@@ -279,6 +285,16 @@ about these landscapes, not a rule. The honest reading of the table is that the
 **bounded** sweep is what is measured here, over bounds spanning a factor of ten,
 and that the unbounded sweep works on both problems once the estimate has
 headroom. Two problems in two dimensions do not establish a factor.
+:::
+
+:::{note}
+The table above is the master doing the sweeping. Driven instead by the stub,
+against a master predating the sweep, every Rastrigin row is identical and three
+Ackley rows differ by a starting point or two: $5/6$ rather than $6/6$ at
+$\kappa_{\max} = 100$, $5/6$ rather than $4/6$ at $\kappa_{\max} = 1000$, and
+$1/6$ rather than $3/6$ with no headroom. Patching the master from outside cannot
+reach the solves it makes outside its probing loop, which is where the difference
+is. The conclusions are the same either way.
 :::
 
 #### What the sweep does not fix
@@ -295,21 +311,16 @@ a ladder of one mechanism measured through the other measures neither.
 
 **It needs more than one parallel point**, and the table above is the adaptive
 repair, which has four. A probe per rung is the whole construction; with a single
-probe there is no ladder to span, and the stub gives it the top rung rather than
-the bottom, the conservative end being where a lone value belongs. That matters
-for the pure convexification, whose configuration here probes one point: swept
-from a single probe it returns what the calibrated constant returns, $0.995$ for
-$335$ evaluations against $0.995$ for $304$, and swept over four probes it
-reaches the optimum for $553$ evaluations where the calibrated constant needs
-$937$. That is one starting point, so it is a probe and not a measurement, and
-the constant passing through a window rather than saturating is a reason to
-expect the ladder to behave differently there. **What the table establishes is
-the sweep of the adaptive repair.**
-
-The policy is in {py:mod}`gemseo_box_subdivision.convexity_sweep`, free of
-GEMSEO so that it can be tested on its own and moved into
-`gemseo-bilevel-outer-approximation`, where the iteration loop lives. Only the
-wiring to the released master is a stub.
+probe there is no ladder to span, and the top rung is used rather than the
+bottom, the conservative end being where a lone value belongs. That matters for
+the pure convexification, whose configuration here probes one point: swept from a
+single probe it returns what the calibrated constant returns, $0.995$ for $335$
+evaluations against $0.995$ for $304$, and swept over four probes it reaches the
+optimum for $553$ evaluations where the calibrated constant needs $937$. That is
+one starting point, so it is a probe and not a measurement, and the constant
+passing through a window rather than saturating is a reason to expect the ladder
+to behave differently there. **What the table establishes is the sweep of the
+adaptive repair.**
 
 ## The trust region, and the metric it should measure
 
