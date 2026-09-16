@@ -26,6 +26,41 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- The algorithm of each of the two levels is a setting, with its own settings:
+  `BoxSubdivisionSettings.master_algo_name` and `master_algo_settings` for the
+  master, `sub_problem_algo_name` and `sub_problem_algo_settings` for the solver
+  running inside a box. The defaults are the pair every reported result was
+  measured with, the outer-approximation master over SLSQP, so a sub-problem is
+  no longer solved by SLSQP with nothing but its iteration count to configure it.
+  A derivative-free solver of the sub-problem is now a setting rather than a fork
+  of the scenario; nothing here measures one, and what the method needs of a
+  sub-problem solver is a local optimum of its box, the cut of that box being
+  built at the point it returns.
+- Both names are checked against what the algorithm declares when the settings
+  are built: a name no GEMSEO library provides, a setting the algorithm named does
+  not have, and an ordinary optimizer named as the master, which takes none of the
+  settings of the outer approximation, are all refused where they are written
+  rather than in the middle of a run.
+
+### Changed
+
+- The master is executed by its name with the settings `to_master_settings`
+  returns, rather than through a `BiLevelMasterOuterApproximation_Settings` model.
+  A GEMSEO settings model names the algorithm it selects, and the settings of
+  `OUTER_APPROXIMATION` name one no library provides, so a model would have run an
+  algorithm other than the one `master_algo_name` asks for. That mismatch is a
+  defect of the plugin declaring those settings, not of the algorithm.
+
+### Deprecated
+
+- `BoxSubdivisionSettings.options`, the pass-through to the master, is
+  `master_algo_settings`, which says which of the two levels it configures. The
+  old name still works, and warns; given both, `master_algo_settings` wins.
+
 ## 0.1.0 (2026-09-15)
 
 First public release.
