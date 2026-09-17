@@ -45,6 +45,35 @@ and this project adheres to
   not have, and an ordinary optimizer named as the master, which takes none of the
   settings of the outer approximation, are all refused where they are written
   rather than in the middle of a run.
+- Settings asking the master to **sweep the convexity**, so that a run no longer
+  needs a margin calibrated in the units of its objective, which is the standing
+  criticism of the method. The master probes one trust-region radius per
+  parallel point; the same probes can carry a ladder of convexity values, the
+  low rungs proposing the box next door and the high rungs the box across the
+  design space, with every probe that proposes nothing new redeployed a rung
+  higher until it proposes a new box or the ladder is exhausted.
+
+  `BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings(...))` asks for
+  it, with an upper bound and a number of points,
+  `ConvexitySweepSettings(max_value=100.0)`, or with nothing at all,
+  `ConvexitySweepSettings()`, the bound then following the spread of the
+  objective over the boxes already solved, with a decade of headroom.
+
+  On Rastrigin and Ackley in two dimensions, whose objectives differ by a factor
+  of four in scale, the unbounded sweep reaches the optimum from every starting
+  point on both, which no fixed margin among those tried does, and a bound ten
+  times too large costs a starting point where a margin ten times too small
+  costs the run. See `benchmarks/convexity_sweep.py` and annex C.
+
+  **The sweep belongs to the master**, and it is implemented in
+  `gemseo-bilevel-outer-approximation`, under `convexity_sweep_points` and
+  `convexity_sweep_max`; this package turns its two settings into those. Against
+  a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False`, the settings
+  fall back to the top rung of the ladder, which is the conservative end, and
+  `benchmarks/convexity_sweep.py` drives that master from outside so that the
+  measurement stays reproducible. Both that stub and
+  `_convexity_sweep_fallback` are temporary and go once the master ships the
+  sweep.
 
 ### Changed
 

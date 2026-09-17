@@ -32,11 +32,18 @@ One entry point covers every shape of run:
 
 The settings that decide whether a run works are the density of the subdivision
 and the convexity margin, which is in the units of the objective. Everything else
-the entry point owns.
+the entry point owns. The margin need not be chosen at all: see
+:mod:`~gemseo_box_subdivision.convexity_sweep`, which sweeps a ladder of values
+across the parallel probes the master already runs.
 """
 
 from __future__ import annotations
 
+from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
+from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
+from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
+from gemseo_box_subdivision.convexity_sweep import convexity_ladder
+from gemseo_box_subdivision.convexity_sweep import objective_scale
 from gemseo_box_subdivision.design_spaces import create_box_design_space
 from gemseo_box_subdivision.design_spaces import create_box_samples
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
@@ -63,6 +70,7 @@ from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
 
 __all__ = [
+    "MASTER_SWEEPS_CONVEXITY",
     "RANKINGS",
     "SHAPES",
     "BoxConstraint",
@@ -70,15 +78,19 @@ __all__ = [
     "BoxSubdivision",
     "BoxSubdivisionScenario",
     "BoxSubdivisionSettings",
+    "ConvexitySweep",
+    "ConvexitySweepSettings",
     "MultiResolution",
     "MultiResolutionMapping",
     "SolvedBox",
     "compute_cut_model",
+    "convexity_ladder",
     "create_box_design_space",
     "create_box_samples",
     "create_box_start_adapter_class",
     "create_box_subdivision_scenario",
     "create_normalized_box_design_space",
+    "objective_scale",
     "read_solved_boxes",
     "refine_deep",
     "refine_frontier",

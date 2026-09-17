@@ -108,6 +108,30 @@ subdivision being weighed alike. Keep it small: widening it to the diameter of
 the design space loses Rastrigin at five variables, and removing the region is
 worse still.
 
+### Or let the margin sweep itself
+
+The margin is absolute, so calibrating it is the standing criticism of the
+method. The master already probes a ladder of trust-region radii per iteration,
+one per parallel point; the same probes can sweep a ladder of **convexity**
+values, the low rungs proposing the box next door and the high rungs the box
+across the design space, with every probe that proposes nothing new redeployed a
+rung higher. The user then supplies an upper bound and a number of points, or
+nothing at all:
+
+```python
+from gemseo_box_subdivision import ConvexitySweepSettings
+
+BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings())
+```
+
+On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
+that reaches the optimum from every starting point on both, which no single
+margin does. The sweep itself belongs to the master, under its settings
+`convexity_sweep_points` and `convexity_sweep_max`; against a master predating
+them the settings fall back to the conservative end of the ladder, and the
+benchmarks drive it from outside instead. See
+[annex C](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/tuning.html#sweeping-the-convexity-instead-of-calibrating-it).
+
 ## Beyond a flat subdivision
 
 The same entry point covers the constructions, each answering one reason for a

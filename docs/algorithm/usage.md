@@ -80,6 +80,44 @@ BoxSubdivisionSettings(mechanism="convexification", convexification_constant=50.
 Choosing one switches the other's constant off, so a run always measures one
 mechanism rather than an average of two.
 
+### Not choosing the convexity at all
+
+Both are absolute quantities in the units of the objective, which is the one
+thing about this method that does not transfer between problems. The way out is
+to stop supplying a value. The master already probes a **ladder** of
+trust-region radii per iteration, one per parallel point; the same probes can
+sweep a ladder of convexity values, the low rungs proposing the box next door
+and the high rungs the box across the design space, with every probe that
+proposes nothing new redeployed a rung higher. What is then asked of you is an
+upper bound and a number of points, or nothing at all:
+
+```python
+from gemseo_box_subdivision import ConvexitySweepSettings
+
+# An upper bound and a number of points, instead of a calibrated margin.
+BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings(max_value=100.0))
+
+# Or nothing at all: the bound follows the objective as the run observes it.
+BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings())
+```
+
+On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
+the unbounded sweep reaches the optimum from every starting point on both, which
+no single margin does, see
+[annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
+
+The sweep is the **master's**, under its settings `convexity_sweep_points` and
+`convexity_sweep_max`, and the two numbers above are turned into those.
+
+:::{warning}
+A master predating the sweep does not have those settings, and a scenario given
+these settings then falls back to the **top rung** of the ladder, which is the
+conservative end and not the margin it was going to replace.
+{py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
+which master is installed, and the stub of `benchmarks/convexity_sweep.py` drives
+the older one from outside, for the measurements.
+:::
+
 ## The algorithm of each of the two levels
 
 A run is two algorithms: a master deciding which box to look into, and a solver
@@ -380,6 +418,10 @@ relaxed problem, and they are not meant to be combined:
 | `max_step` | $2$ | the radius of the trust region of the master, counted in **components changed**, the design spaces of this package weighing every subdivision alike. Keep it small: widening it to {py:attr}`~gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step`, where the region stops constraining, loses Rastrigin at five variables, and removing the region is worse still, see [annex C](tuning.md#how-wide-the-radius-should-be) |
 | `ub_tol` | $10^{-4}$ | convergence tolerance on the upper bound |
 | `max_iter` | $\ge 80$ | master iterations, not sub-problem iterations |
+
+The first two rows are the ones with no transferable value, and
+[the sweep](#not-choosing-the-convexity-at-all) is how a run avoids choosing
+either.
 
 And one choice that is not a setting of the algorithm but of the subdivision:
 

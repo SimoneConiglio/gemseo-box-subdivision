@@ -20,6 +20,10 @@ whose unit is not obvious, and a convexity margin in the units of the objective.
 This module names them in the terms the methodology uses and rejects the
 combinations that measure nothing.
 
+The convexity margin is the one with no value that transfers between problems,
+and :attr:`.BoxSubdivisionSettings.convexity_sweep` is how a run avoids choosing
+it; see :mod:`~gemseo_box_subdivision.convexity_sweep`.
+
 The two levels are solved by two algorithms, and both are settings like the
 rest: :attr:`.BoxSubdivisionSettings.master_algo_name` and
 :attr:`.BoxSubdivisionSettings.sub_problem_algo_name` name them, and
@@ -46,6 +50,9 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from gemseo.algos.base_algorithm_settings import BaseAlgorithmSettings
+
+    from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
+    from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
 
 TRUST_REGION_RADIUS: int = 2
 """The default radius of the trust region, in components changed.
@@ -126,6 +133,23 @@ class BoxSubdivisionSettings:
 
     convexification_constant: float = CONVEXITY_MARGIN
     """The constant of the convexification, in the units of the objective."""
+
+    convexity_sweep: ConvexitySweepSettings | None = None
+    """How to sweep the convexity setting, instead of calibrating one value.
+
+    The two settings above are the ones that do not transfer between problems.
+    Rather than choosing either, the master can probe a **ladder** of values per
+    iteration, the way it already probes a ladder of trust-region radii, and
+    redeploy at a higher rung every probe that proposes no new box. The user then
+    supplies an upper bound and a number of points, or nothing at all: see
+    :class:`.ConvexitySweepSettings`.
+
+    Setting this asks for the sweep where the master supports it, which today is
+    the stub of ``benchmarks/convexity_sweep.py`` rather than the released
+    master. Where it does not, :meth:`.to_master_settings` falls back to the
+    **top rung**, which is the conservative end of the ladder and the one the
+    tuning says errs safely for the adaptive repair.
+    """
 
     trust_region_radius: int = TRUST_REGION_RADIUS
     """The radius of the trust region of the master, in components changed."""
@@ -222,11 +246,73 @@ class BoxSubdivisionSettings:
         )
         _check_sub_problem_settings_model(self.sub_problem_algo_name)
 
+    @property
+    def convexity_setting_name(self) -> str:
+        """The name of the master setting the mechanism calibrates.
+
+        The adaptive repair reads the convexity margin under ``"min_dfk"``, the
+        pure convexification its constant under ``"convexification_constant"``.
+        This is what a sweep of the convexity varies, and naming it here keeps
+        the sweep from having to know which mechanism is active.
+        """
+        if self.mechanism == "adaptive":
+            return "min_dfk"
+
+        return "convexification_constant"
+
+    @property
+    def convexity_value(self) -> float:
+        """The value of the convexity setting the mechanism calibrates."""
+        if self.mechanism == "adaptive":
+            return self.convexity_margin
+
+        return self.convexification_constant
+
+    def create_convexity_sweep(
+        self, observed_scale: float = 0.0
+    ) -> ConvexitySweep | None:
+        """Return the sweep of the convexity setting, if one is asked for.
+
+        Args:
+            observed_scale: The variation of the objective over the boxes
+                already solved, which is the upper bound of a sweep that was
+                given none. See :func:`.objective_scale`.
+
+        Returns:
+            The sweep, or ``None`` when none is asked for, or when its upper
+            bound is neither given nor observed yet.
+        """
+        if self.convexity_sweep is None:
+            return None
+
+        return self.convexity_sweep.create_sweep(observed_scale)
+
     def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
         """Return the settings of the master problem.
 
         The mechanism decides which of the two constants is passed and which is
         switched off, so that the two can never be active at once.
+
+        A sweep of the convexity is the master's own, under the settings
+        ``convexity_sweep_points`` and ``convexity_sweep_max``, and
+        :attr:`.convexity_sweep` is turned into those here. The value passed to
+        the mechanism is then the **top rung**, which is what the master uses in
+        the first iterations, before it has solved enough boxes to have a ladder
+        at all; for a sweep whose bound is read off the objective, and which
+        therefore has no ladder offline, it is the value of the mechanism.
+
+        Against a master that predates the sweep, see
+        :data:`.MASTER_SWEEPS_CONVEXITY`, those two settings would be rejected
+        and are not passed. What is left is the top rung, the conservative end:
+        the tuning says an over-large margin costs sub-problems rather than
+        quality, so a run that loses the sweep loses the cheap rungs rather than
+        the result. Driving such a master is what the stub of
+        ``benchmarks/convexity_sweep.py`` is for.
+
+        Asking for a sweep also keeps :attr:`.n_parallel_points` under the pure
+        convexification, which otherwise probes a single point. A probe per rung
+        is what makes an iteration span the ladder, so a sweep of a single probe
+        is not one.
 
         Args:
             radius: The radius of the trust region, overriding
@@ -237,17 +323,26 @@ class BoxSubdivisionSettings:
             The settings of the master problem.
         """
         adaptive = self.mechanism == "adaptive"
+        swept = self.convexity_sweep is not None
+        value = self.convexity_value
+        ladder = self.create_convexity_sweep()
+        if ladder is not None:
+            value = ladder.max_value
+
         settings = {
             "max_iter": self.max_iter,
             "ub_tol": self.tolerance,
             "adapt": adaptive,
-            "min_dfk": self.convexity_margin if adaptive else 0.0,
-            "convexification_constant": (
-                0.0 if adaptive else self.convexification_constant
+            "min_dfk": value if adaptive else 0.0,
+            "convexification_constant": 0.0 if adaptive else value,
+            "number_of_parallel_points": (
+                self.n_parallel_points if adaptive or swept else 1
             ),
-            "number_of_parallel_points": self.n_parallel_points if adaptive else 1,
             "max_step": self.trust_region_radius if radius is None else radius,
         }
+        if swept:
+            settings.update(self.convexity_sweep.to_master_settings())
+
         settings.update(self.master_algo_settings)
         return settings
 
