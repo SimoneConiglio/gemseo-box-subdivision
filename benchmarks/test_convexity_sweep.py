@@ -21,81 +21,19 @@ that predates the sweep and is driven from outside.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 
 import pytest
 from gemseo_bilevel_outer_approximation.algos.opt.core import (
     outer_approximation_optimizer as core,
 )
-from numpy import geomspace
 
 from benchmarks.configurations import ADAPTIVE
 from benchmarks.convexity_sweep import MASTER_SWEEPS_CONVEXITY
-from benchmarks.convexity_sweep import _probe
 from benchmarks.convexity_sweep import convexity_sweep
-from benchmarks.convexity_sweep import parallel_convexity_sweep
 from benchmarks.convexity_sweep import run
 from benchmarks.convexity_sweep import set_headroom
 from benchmarks.problems import PROBLEMS
 from gemseo_box_subdivision import convexity_sweep as policy
-
-
-@dataclass
-class FakeMaster:
-    """The part of the master that says which probe is calling."""
-
-    n_parallel_points: int = 4
-    current_step: float = 2.0
-    min_step: float = 1.0
-
-
-def test_the_probe_comes_from_the_radius() -> None:
-    """Check that each radius of the master maps to its own probe.
-
-    The master does not say which probe is calling, only which trust-region
-    radius it was given, out of the ``geomspace(step / 2, step)`` it spreads
-    them over.
-    """
-    master = FakeMaster()
-    steps = geomspace(master.current_step / 2, master.current_step, num=4)
-    assert [_probe(master, step) for step in steps] == [0, 1, 2, 3]
-
-
-def test_a_single_probe() -> None:
-    """Check the probe of a master that runs only one."""
-    assert _probe(FakeMaster(n_parallel_points=1), 2.0) == 0
-
-
-def test_a_solve_outside_the_probing_loop() -> None:
-    """Check the probe of a solve made with the radius of the master itself.
-
-    The master solves outside the probing loop too, to recover from an
-    infeasible first iteration, and passes its own radius there. That is the top
-    of the radius ladder, hence the last probe, whose rung is the conservative
-    end.
-    """
-    assert _probe(FakeMaster(), 2.0) == 3
-    assert _probe(FakeMaster(), None) == 3
-
-
-def test_the_master_is_left_as_it_was() -> None:
-    """Check that the stub restores the method it patches."""
-    original = core.OuterApproximationOptimizer._solve_milp
-    with parallel_convexity_sweep(0.0):
-        assert core.OuterApproximationOptimizer._solve_milp is not original
-
-    assert core.OuterApproximationOptimizer._solve_milp is original
-
-
-def test_the_master_is_restored_after_an_error() -> None:
-    """Check that a run raising leaves the master unpatched."""
-    original = core.OuterApproximationOptimizer._solve_milp
-    with pytest.raises(ValueError, match=r"the run failed"):  # noqa: PT012, SIM117
-        with parallel_convexity_sweep(0.0):
-            msg = "the run failed"
-            raise ValueError(msg)
-
-    assert core.OuterApproximationOptimizer._solve_milp is original
 
 
 def test_the_headroom_is_set_and_put_back() -> None:

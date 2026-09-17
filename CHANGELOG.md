@@ -71,12 +71,12 @@ and this project adheres to
   **The sweep belongs to the master**, and it is implemented in
   `gemseo-bilevel-outer-approximation`, under `convexity_sweep_points` and
   `convexity_sweep_max`; this package turns its two settings into those. Against
-  a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False`, a bounded sweep
-  falls back to the top rung of the ladder, which is the conservative end, an
-  unbounded one gives the master no value at all rather than a guard of zero and
-  leaves it the one it uses by default until the bound is computed, and
-  `benchmarks/convexity_sweep.py` drives that master from outside so that the
-  measurement stays reproducible. Both that stub and
+  a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False` and the package
+  drives the ladder itself, around the master's mixed-integer solve, computing
+  the bound from the objective as the master would. That is what makes the
+  unbounded form work against any master: the master's own convexity defaults to
+  zero, so leaving it there would be a run with its cuts unguarded rather than a
+  run without a sweep. Both `_convexity_sweep_driver` and
   `_convexity_sweep_fallback` are temporary and go once the master ships the
   sweep.
 

@@ -122,13 +122,15 @@ The sweep is the **master's**, under its settings `convexity_sweep_points` and
 the upper bound.
 
 :::{warning}
-A master predating the sweep does not have those settings. A bounded run against
-it falls back to the **top rung** of the ladder, which is the conservative end
-and not the margin it was going to replace. An unbounded run against it has no
-value to fall back to, so it gives the master none and leaves it the one it uses
-by default: an unknown bound is not a guard of zero, which would be a run with
-its cuts unguarded. The bound is then computed by whatever drives the ladder, the
-master itself where it sweeps and the stub otherwise.
+A master predating the sweep does not have those settings, so the package
+**drives the ladder itself**, around the master's mixed-integer solve, computing
+the bound from the objective exactly as the master would. That is what makes the
+unbounded form work against any master: the master's own convexity defaults to
+zero, and leaving it there would be a run with its cuts unguarded rather than a
+run without a sweep.
+{py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
+which master is installed, and the driving stops the day it says the master
+sweeps.
 {py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
 which master is installed, and the stub of `benchmarks/convexity_sweep.py` drives
 the older one from outside, for the measurements.

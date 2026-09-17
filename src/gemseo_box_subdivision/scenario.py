@@ -320,10 +320,11 @@ class BoxSubdivisionScenario(MDOScenario):
             # model: a model names the algorithm to execute itself, and the
             # settings of ``OUTER_APPROXIMATION`` name one no library provides,
             # so a model would not run ``master_algo_name``.
-            return super().execute(
-                algo_name=self.box_settings.master_algo_name,
-                **self.box_settings.to_master_settings(radius),
-            )
+            with self.box_settings.drive_the_master():
+                return super().execute(
+                    algo_name=self.box_settings.master_algo_name,
+                    **self.box_settings.to_master_settings(radius),
+                )
 
         return super().execute(algo_settings_model, **algo_settings)
 

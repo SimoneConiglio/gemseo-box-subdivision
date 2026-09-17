@@ -44,8 +44,9 @@ probe loop beside it, under the settings ``convexity_sweep_points`` and
 predates the sweep, the settings above are not accepted and the ladder is not
 there to import: the package then falls back to
 ``_convexity_sweep_fallback`` and to the stub of
-``benchmarks/convexity_sweep.py``, which drives the released master from
-outside. Both are temporary, and both go when the master ships the sweep.
+:mod:`~gemseo_box_subdivision._convexity_sweep_driver`, which sweeps the
+ladder around the solves of the released master. Both are temporary, and both go
+when the master ships the sweep.
 """
 
 from __future__ import annotations

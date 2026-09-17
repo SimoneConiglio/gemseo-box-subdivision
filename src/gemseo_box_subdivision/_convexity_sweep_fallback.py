@@ -18,7 +18,8 @@ r"""The convexity ladder, for a master that does not carry one yet.
 approximation, and it is implemented there, in
 ``gemseo_bilevel_outer_approximation.algos.opt.core.convexity_sweep``. What is
 here is the same policy, carried so that the stub of
-``benchmarks/convexity_sweep.py`` can drive a released master that predates it.
+:mod:`~gemseo_box_subdivision._convexity_sweep_driver` can drive a released
+master that predates it.
 :mod:`~gemseo_box_subdivision.convexity_sweep` prefers the master's own copy and
 falls back to this one, so **delete this module** once the sweep ships upstream.
 

@@ -223,9 +223,9 @@ This loop belongs to the master rather than to this package, and it is
 implemented there, in `gemseo-bilevel-outer-approximation`, under the settings
 `convexity_sweep_points` and `convexity_sweep_max`. What this package holds is
 [`SweptBoxSubdivisionSettings`](usage.md#not-choosing-the-convexity-at-all), which
-turns into those two, and the stub of `benchmarks/convexity_sweep.py`, which
-drives a master predating them from outside so that the measurement below is
-reproducible against either.
+turns into those two, and the driver that sweeps from outside a master
+predating them, so that the measurement below is reproducible against either and
+a run against either is guarded.
 :::
 
 #### What it measures

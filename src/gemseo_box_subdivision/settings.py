@@ -40,6 +40,7 @@ from __future__ import annotations
 
 from abc import ABC
 from abc import abstractmethod
+from contextlib import contextmanager
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import fields
@@ -56,6 +57,7 @@ from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
 from gemseo_box_subdivision.convexity_sweep import convexity_ladder
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from collections.abc import Mapping
 
     from gemseo.algos.base_algorithm_settings import BaseAlgorithmSettings
@@ -299,6 +301,19 @@ class BaseBoxSubdivisionSettings(ABC):
             The settings of the master problem.
         """
         raise NotImplementedError
+
+    @contextmanager
+    def drive_the_master(self) -> Iterator[None]:
+        """Run the master under whatever this construction has to supply it.
+
+        A master configured entirely by its settings needs nothing, which is the
+        general case and what this yields. The swept construction overrides it
+        where the installed master does not sweep on its own.
+
+        Yields:
+            Nothing.
+        """
+        yield
 
     def to_sub_problem_settings(self) -> dict[str, Any]:
         """Return the settings of a sub-problem.
@@ -567,6 +582,31 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         whatever it uses by default until :meth:`.create_sweep` can compute one.
         """
         return self.max_value or None
+
+    @contextmanager
+    def drive_the_master(self) -> Iterator[None]:
+        """Sweep the convexity from outside a master that does not sweep.
+
+        Where :data:`.MASTER_SWEEPS_CONVEXITY` is ``True`` the master varies the
+        setting itself and this yields as the base does. Where it is ``False``,
+        leaving the master to its own value would leave it at zero, which is a
+        run with its cuts unguarded rather than a run without a sweep, so the
+        ladder is driven around its mixed-integer solve instead; see
+        :mod:`.._convexity_sweep_driver`.
+
+        Yields:
+            Nothing.
+        """
+        if MASTER_SWEEPS_CONVEXITY:
+            yield
+            return
+
+        # Imported here: it patches the master, which nothing else needs, and
+        # both it and the patching go when the master ships the sweep.
+        from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
+
+        with drive_the_sweep(self.max_value, self.convexity_setting_name):
+            yield
 
     def create_sweep(self, observed_scale: float = 0.0) -> ConvexitySweep | None:
         """Return the ladder this run asks for.
