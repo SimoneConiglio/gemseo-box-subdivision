@@ -78,6 +78,7 @@ from numpy import atleast_2d
 from numpy import geomspace
 
 from benchmarks.baselines import run_box_subdivision
+from benchmarks.configurations import ADAPTIVE
 from benchmarks.configurations import TRUST_REGION_RADIUS
 from benchmarks.problems import PROBLEMS
 from gemseo_box_subdivision import convexity_sweep as policy
@@ -213,7 +214,9 @@ def parallel_convexity_sweep(
         current_step = kwargs.get(
             "current_step", args[_CURRENT_STEP] if len(args) > _CURRENT_STEP else None
         )
-        bound = max_value or objective_scale(fopt_hist) * HEADROOM
+        # policy.HEADROOM rather than the name imported above: set_headroom
+        # patches the module, and a bound read here has to see the patch.
+        bound = max_value or objective_scale(fopt_hist) * policy.HEADROOM
         sweep = (
             ConvexitySweep.from_bounds(bound, self.n_parallel_points)
             if bound > 0.0
@@ -316,7 +319,13 @@ def convexity_sweep(
     if MASTER_SWEEPS_CONVEXITY:
         # The rungs are the probes, which the master knows; only the bound is
         # asked of it, a bound of zero being the one it reads off the objective.
-        yield {"convexity_sweep_max": max_value}, []
+        yield (
+            {
+                "convexity_sweep_max": max_value,
+                "convexity_sweep_points": ADAPTIVE["number_of_parallel_points"],
+            },
+            [],
+        )
         return
 
     with parallel_convexity_sweep(max_value) as trace:

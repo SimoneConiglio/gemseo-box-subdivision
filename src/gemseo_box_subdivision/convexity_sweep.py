@@ -34,9 +34,9 @@ nothing at all.
 probe loop beside it, under the settings ``convexity_sweep_points`` and
 ``convexity_sweep_max``. What this module holds is what is this package's own:
 
-- :class:`.ConvexitySweepSettings`, the two numbers a run of this package asks
-  for, which :meth:`.BoxSubdivisionSettings.to_master_settings` turns into those
-  two settings of the master;
+- the translation of what a run asks for into those two settings of the master,
+  which :meth:`.SweptBoxSubdivisionSettings.to_master_settings` does: the upper
+  bound as it is given, and the rungs from the parallel points;
 - the ladder itself, **re-exported** from the master, so that the rest of the
   package has one name for it wherever it lives.
 

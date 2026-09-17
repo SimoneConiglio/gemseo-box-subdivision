@@ -255,6 +255,19 @@ def test_the_rungs_are_the_probes(monkeypatch) -> None:
         assert len(settings.create_sweep().ladder) == n_points
 
 
+def _install_a_master_that_does_not_sweep(monkeypatch) -> None:
+    """Make the installed master one predating the sweep.
+
+    Both modules have to say so: :mod:`~gemseo_box_subdivision.settings` imported
+    the flag at module scope, so it reads its own binding and not the one of
+    :mod:`~gemseo_box_subdivision.convexity_sweep`. Patching the latter alone
+    leaves the settings reading whatever the installed master happens to give,
+    which is what a test of the fallback must not depend on.
+    """
+    monkeypatch.setattr(policy, "MASTER_SWEEPS_CONVEXITY", False)
+    monkeypatch.setattr(settings_module, "MASTER_SWEEPS_CONVEXITY", False)
+
+
 def test_a_sweep_degrades_to_its_top_rung(monkeypatch) -> None:
     """Check the fallback of a master that does not sweep.
 
@@ -262,7 +275,7 @@ def test_a_sweep_degrades_to_its_top_rung(monkeypatch) -> None:
     conservative end of the ladder rather than the margin it was going to
     replace: an over-large margin costs sub-problems, not quality.
     """
-    monkeypatch.setattr(policy, "MASTER_SWEEPS_CONVEXITY", False)
+    _install_a_master_that_does_not_sweep(monkeypatch)
     master_settings = SweptBoxSubdivisionSettings(max_value=100.0).to_master_settings()
     assert master_settings["min_dfk"] == pytest.approx(100.0)
     assert "convexity_sweep_points" not in master_settings
@@ -270,7 +283,7 @@ def test_a_sweep_degrades_to_its_top_rung(monkeypatch) -> None:
 
 def test_a_sweep_of_the_convexification_degrades_too(monkeypatch) -> None:
     """Check the same fallback for the other mechanism."""
-    monkeypatch.setattr(policy, "MASTER_SWEEPS_CONVEXITY", False)
+    _install_a_master_that_does_not_sweep(monkeypatch)
     master_settings = SweptBoxSubdivisionSettings(
         mechanism="convexification", max_value=50.0
     ).to_master_settings()

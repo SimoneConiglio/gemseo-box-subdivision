@@ -21,8 +21,9 @@ This module names them in the terms the methodology uses and rejects the
 combinations that measure nothing.
 
 The convexity margin is the one with no value that transfers between problems,
-and :attr:`.BoxSubdivisionSettings.convexity_sweep` is how a run avoids choosing
-it; see :mod:`~gemseo_box_subdivision.convexity_sweep`.
+and :class:`.SweptBoxSubdivisionSettings` is the entry point that avoids choosing
+it, sweeping a ladder of values instead; see
+:mod:`~gemseo_box_subdivision.convexity_sweep`.
 
 The two levels are solved by two algorithms, and both are settings like the
 rest: :attr:`.BoxSubdivisionSettings.master_algo_name` and
@@ -37,6 +38,8 @@ have is refused when the settings are built rather than when the run starts.
 
 from __future__ import annotations
 
+from abc import ABC
+from abc import abstractmethod
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import fields
@@ -103,7 +106,7 @@ objective whose gradient is unavailable or noisy, but nothing here measures one.
 
 
 @dataclass
-class BaseBoxSubdivisionSettings:
+class BaseBoxSubdivisionSettings(ABC):
     r"""What every box-subdivision run needs, whichever master drives it.
 
     A run is two algorithms: a master deciding which box to look into, and a
@@ -221,6 +224,7 @@ class BaseBoxSubdivisionSettings:
         return "convexification_constant"
 
     @property
+    @abstractmethod
     def convexity_value(self) -> float | None:
         """The value the mechanism calibrates, or ``None`` when it is not known.
 
@@ -272,6 +276,7 @@ class BaseBoxSubdivisionSettings:
 
         return settings
 
+    @abstractmethod
     def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
         """Return the settings of the master problem.
 
@@ -571,8 +576,10 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         The sweep is asked for under the master's own two settings, the rungs
         being the parallel points. Against a master predating the sweep, see
         :data:`.MASTER_SWEEPS_CONVEXITY`, those two are not declared and are not
-        passed; what is left is the top rung, the conservative end, so a run that
-        loses the sweep loses the cheap rungs rather than the result.
+        passed. A bounded sweep is then left with its top rung, the conservative
+        end, so it loses the cheap rungs rather than the result; an unbounded one
+        has no rung to be left with and gives the master nothing rather than a
+        guard of zero, as :attr:`.convexity_value` describes.
 
         Args:
             radius: The radius of the trust region, overriding
