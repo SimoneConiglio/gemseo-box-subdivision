@@ -14,19 +14,26 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """Tests that the documentation keeps saying what the code does.
 
-The usage chapter enumerates every setting of the class, and a table claiming to
-be exhaustive is worth only what keeps it so: a setting added, renamed or
-dropped has to reach that table in the same commit.
+Every check here was first run by hand, and each one caught something: a table
+claiming to be exhaustive that had stopped being so, a mechanism labelled by a
+name the setting refuses, an example whose keyword no longer existed, a
+cross-reference to a class that had been deleted. A check run by hand is a check
+that runs once, so they run here instead, over the chapters, the README and the
+docstrings alike.
 """
 
 from __future__ import annotations
 
+import ast
+import builtins
 import re
 from dataclasses import fields
+from dataclasses import is_dataclass
 from pathlib import Path
 
 import pytest
 
+import gemseo_box_subdivision
 from gemseo_box_subdivision import BoxSubdivisionSettings
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
@@ -38,6 +45,59 @@ SECTION = "## Every setting, and what it defaults to"
 
 MECHANISM_LABEL = r"^`([a-z_]*(?:convexification|adaptive)[a-z_]*)`$"
 """A definition-list term naming a mechanism, whatever it names it."""
+
+ROOT = Path(__file__).parent.parent
+"""The repository, whose chapters and sources are read together."""
+
+CHAPTERS = (*sorted((ROOT / "docs").rglob("*.md")), ROOT / "README.md")
+"""Everything written for a reader, the README included."""
+
+SOURCES = tuple(sorted((ROOT / "src").rglob("*.py")))
+"""The modules, whose docstrings are documentation too."""
+
+WITHDRAWN = (
+    "ConvexitySweepSettings",
+    "N_CONVEXITY_POINTS",
+    "create_convexity_sweep",
+    "convexity_sweep=",
+    "BoxSubdivisionSettings.convexity_sweep",
+)
+"""Names this package has removed, which nothing may still promise a reader.
+
+They are listed rather than derived because the point is what is *absent* from
+the code: an audit of the chapters alone missed the ones left in the docstrings.
+"""
+
+
+def _code_blocks(text: str) -> list[str]:
+    """Return the Python examples of a chapter.
+
+    Args:
+        text: The text of the chapter.
+
+    Returns:
+        The body of each fenced ``python`` block.
+    """
+    return re.findall(r"```python\n(.*?)```", text, re.DOTALL)
+
+
+def _headings(page: Path) -> set[str]:
+    """Return the anchors a chapter offers, as a Markdown renderer slugs them.
+
+    Args:
+        page: The chapter to read.
+
+    Returns:
+        One slug per heading.
+    """
+    anchors = set()
+    for line in page.read_text(encoding="utf-8").splitlines():
+        heading = re.match(r"^#{1,6}\s+(.*?)\s*$", line)
+        if heading:
+            slug = re.sub(r"[`*_]", "", heading.group(1)).lower()
+            anchors.add(re.sub(r"\s+", "-", re.sub(r"[^\w\s-]", "", slug).strip()))
+
+    return anchors
 
 
 def _documented_settings() -> list[str]:
@@ -103,3 +163,129 @@ def test_the_swept_entry_point_is_not_offered_what_it_drops() -> None:
     dropped = {field.name for field in fields(BoxSubdivisionSettings)} - swept
     assert rows <= swept
     assert not rows & dropped
+
+
+@pytest.mark.parametrize("chapter", CHAPTERS, ids=lambda path: path.name)
+def test_every_example_passes_settings_that_exist(chapter) -> None:
+    """Check that every keyword of every example is a setting of its class.
+
+    An example is the first thing a reader copies, and a keyword the class no
+    longer takes fails at the first line they run.
+
+    Args:
+        chapter: The chapter to read.
+    """
+    for block in _code_blocks(chapter.read_text(encoding="utf-8")):
+        for node in ast.walk(ast.parse(block)):
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                continue
+
+            cls = getattr(gemseo_box_subdivision, node.func.id, None)
+            if cls is None or not is_dataclass(cls):
+                continue
+
+            accepted = {field.name for field in fields(cls)}
+            given = {keyword.arg for keyword in node.keywords if keyword.arg}
+            assert given <= accepted, (
+                f"{chapter.name}: {cls.__name__} takes no {given - accepted}"
+            )
+
+
+@pytest.mark.parametrize("chapter", CHAPTERS, ids=lambda path: path.name)
+def test_every_self_contained_example_runs(chapter) -> None:
+    """Check that an example needing nothing of its own executes.
+
+    Reading an example proves it parses. Only running it proves the behaviour it
+    shows is the behaviour the package has, which is how a refusal added for
+    safety was caught turning the documented form of a sweep into an error.
+
+    Args:
+        chapter: The chapter to read.
+    """
+    # What import * binds, which is the public API and not the submodules:
+    # dir would offer 'scenario', and a snippet continuing an earlier block
+    # would look self-contained.
+    available = set(gemseo_box_subdivision.__all__) | set(dir(builtins))
+    for block in _code_blocks(chapter.read_text(encoding="utf-8")):
+        tree = ast.parse(block)
+        used = {
+            node.id
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
+        }
+        bound = {
+            target.id
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Assign)
+            for target in node.targets
+            if isinstance(target, ast.Name)
+        } | {
+            alias.asname or alias.name
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.Import, ast.ImportFrom))
+            for alias in node.names
+        }
+        if used - bound - available:
+            # It needs a design space, a discipline or an earlier block.
+            continue
+
+        exec(  # noqa: S102
+            compile(
+                f"from {gemseo_box_subdivision.__name__} import *\n{block}",
+                str(chapter),
+                "exec",
+            ),
+            {},
+        )
+
+
+@pytest.mark.parametrize("page", CHAPTERS + SOURCES, ids=lambda path: path.name)
+def test_nothing_still_promises_what_was_withdrawn(page) -> None:
+    """Check that no chapter or docstring names something the package removed.
+
+    Args:
+        page: The chapter or module to read.
+    """
+    text = page.read_text(encoding="utf-8")
+    named = [name for name in WITHDRAWN if name in text]
+    assert not named, f"{page.name} still names {named}"
+
+
+@pytest.mark.parametrize("chapter", CHAPTERS, ids=lambda path: path.name)
+def test_every_internal_link_resolves(chapter) -> None:
+    """Check that every link between chapters, and every anchor, has a target.
+
+    Args:
+        chapter: The chapter to read.
+    """
+    for link in re.findall(r"\]\(([^)]+)\)", chapter.read_text(encoding="utf-8")):
+        if link.startswith(("http", "mailto")):
+            continue
+
+        path, _, anchor = link.partition("#")
+        target = (chapter.parent / path) if path else chapter
+        assert target.exists(), f"{chapter.name}: {link} has no file"
+        if anchor:
+            assert anchor in _headings(target), f"{chapter.name}: {link} has no heading"
+
+
+@pytest.mark.parametrize("chapter", CHAPTERS, ids=lambda path: path.name)
+def test_the_headings_make_an_outline(chapter) -> None:
+    """Check that no heading level is skipped, so the outline stays readable.
+
+    Args:
+        chapter: The chapter to read.
+    """
+    previous = 0
+    fenced = False
+    for line in chapter.read_text(encoding="utf-8").splitlines():
+        if line.startswith("```"):
+            fenced = not fenced
+        if fenced:
+            continue
+
+        heading = re.match(r"^(#{1,6})\s", line)
+        if heading:
+            level = len(heading.group(1))
+            assert not previous or level <= previous + 1, f"{chapter.name}: {line}"
+            previous = level

@@ -225,6 +225,17 @@ class BaseBoxSubdivisionSettings(ABC):
 
     @property
     @abstractmethod
+    def master_algo_name(self) -> str:
+        """The name of the algorithm solving the master problem.
+
+        Every run needs one, and the scenario executes it by this name, so it is
+        part of the contract rather than of either construction: the general one
+        takes it as a setting, the swept one pins it to the master implementing
+        the sweep.
+        """
+
+    @property
+    @abstractmethod
     def convexity_value(self) -> float | None:
         """The value the mechanism calibrates, or ``None`` when it is not known.
 
@@ -417,6 +428,10 @@ class BoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         setting one is a contradiction, and it is refused here rather than
         dropped silently on the way to a master that never sees it.
 
+        What counts as *set* is a value differing from the default, which is all
+        a dataclass can tell: passing a default explicitly is indistinguishable
+        from not passing it, and is dropped rather than refused.
+
         Raises:
             ValueError: When the master does not declare a setting that was set.
         """
@@ -445,9 +460,10 @@ class BoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         into the master's own terms, the mechanism deciding which of the two
         constants is passed and which is switched off, so that the two can never
         be active at once. For any other master, none of them is: it is driven by
-        :attr:`.master_algo_settings` alone, and the iteration count and the
-        tolerance, which an ordinary optimizer takes too, follow the names it
-        declares.
+        :attr:`.master_algo_settings` alone. ``max_iter`` and ``ub_tol`` are sent
+        under those names or not at all, so a master calling its iteration count
+        or its tolerance anything else takes them from
+        :attr:`.master_algo_settings` like the rest.
 
         Args:
             radius: The radius of the trust region, overriding

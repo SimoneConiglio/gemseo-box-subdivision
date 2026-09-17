@@ -29,6 +29,7 @@ from gemseo_bilevel_outer_approximation.algos.opt.core import (
 )
 from numpy import geomspace
 
+from benchmarks.configurations import ADAPTIVE
 from benchmarks.convexity_sweep import MASTER_SWEEPS_CONVEXITY
 from benchmarks.convexity_sweep import _probe
 from benchmarks.convexity_sweep import convexity_sweep
@@ -120,8 +121,12 @@ def test_the_sweep_goes_to_the_master_that_can_do_it() -> None:
     original = core.OuterApproximationOptimizer._solve_milp
     with convexity_sweep(100.0) as (settings, _):
         if MASTER_SWEEPS_CONVEXITY:
-            # The rungs are the probes, which the master knows already.
-            assert settings == {"convexity_sweep_max": 100.0}
+            # The rungs are the probes, and the ladder the stub builds has to be
+            # the ladder a sweeping master is asked for, so both are sent.
+            assert settings == {
+                "convexity_sweep_max": 100.0,
+                "convexity_sweep_points": ADAPTIVE["number_of_parallel_points"],
+            }
             assert core.OuterApproximationOptimizer._solve_milp is original
         else:
             assert settings == {}
