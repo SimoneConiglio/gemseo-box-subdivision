@@ -38,7 +38,7 @@ measuring them together measures neither.
 ```
 
 
-`pure_convexification`
+`convexification`
 : adds to the objective a convex term vanishing at the integer points. Once its
   constant dominates the concavity of the relaxed problem, the relaxation is
   convex and the outer approximation converges. Driven by
@@ -250,8 +250,8 @@ from four starting points out of six; the sweep at the same bound reaches it fro
 six. And the sweep is **forgiving of its bound**: ten times too large costs $532$
 against $491$ on Rastrigin and changes nothing that is reached there, which is
 the property a single margin does not have, where ten times too small is 1/6 and
-the right value is 6/6. On Ackley the same over-estimate does cost a starting
-point, $4/6$ against $6/6$, so the bound is not free — it is merely forgiving
+the right value is 6/6. On Ackley the same over-estimate does cost two starting
+points, $4/6$ against $6/6$, so the bound is not free — it is merely forgiving
 where the margin is brittle.
 
 #### Reading the bound off the objective, and the headroom it needs

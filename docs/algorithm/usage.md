@@ -403,7 +403,7 @@ relaxed problem, and they are not meant to be combined:
   master repairs its cut slopes against the boxes it has already solved. This is
   the recommended configuration.
 
-`pure_convexification`
+`convexification`
 : `adapt=False` with `convexification_constant` $\kappa > 0$, the margin left at
   zero. The master adds $\kappa\, C(\alpha)$ to the relaxed problem, which is the
   configuration carrying the convergence guarantee, at the price of a lower bound

@@ -62,7 +62,7 @@ and this project adheres to
   On Rastrigin and Ackley in two dimensions, whose objectives differ by a factor
   of four in scale, the unbounded sweep reaches the optimum from every starting
   point on both, which no fixed margin among those tried does, and a bound ten
-  times too large costs a starting point where a margin ten times too small
+  times too large costs two starting points where a margin ten times too small
   costs the run. See `benchmarks/convexity_sweep.py` and annex C.
 
   **The sweep belongs to the master**, and it is implemented in
