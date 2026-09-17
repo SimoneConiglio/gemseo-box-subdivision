@@ -112,7 +112,9 @@ where the method's case actually rests.
 margin and the number of subdivisions were tuned on these very problems, and the
 margin is an absolute quantity in the units of the objective, so it does not even
 transfer between them unchanged. A claim about the method needs a held-out set of
-problems and a protocol fixed in advance.
+problems and a protocol fixed in advance. Sweeping the margin rather than
+supplying it is how a run avoids choosing that value at all, measured in
+[annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 :::
 
 ## At a budget every method can afford

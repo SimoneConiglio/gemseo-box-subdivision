@@ -68,7 +68,7 @@ what the measurements say decides a run.
 On Rastrigin in two dimensions over $100$ boxes it reaches the optimum after
 solving twenty to thirty-six of them, about three times cheaper than solving all
 of them. In five dimensions, with ten subdivisions per variable, it reaches the
-optimum from **every starting point** for some $2100$ evaluations, which no
+optimum from **every starting point** for $1920$ evaluations, which no
 baseline here does at any budget tried.
 
 The subdivision has to **resolve the basins** of the landscape, and it can afford

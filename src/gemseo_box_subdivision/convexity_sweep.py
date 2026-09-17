@@ -43,7 +43,7 @@ probe loop beside it, under the settings ``convexity_sweep_points`` and
 :data:`.MASTER_SWEEPS_CONVEXITY` says which master is installed. Against one that
 predates the sweep, the settings above are not accepted and the ladder is not
 there to import: the package then falls back to
-:mod:`~gemseo_box_subdivision._convexity_sweep_fallback` and to the stub of
+``_convexity_sweep_fallback`` and to the stub of
 ``benchmarks/convexity_sweep.py``, which drives the released master from
 outside. Both are temporary, and both go when the master ships the sweep.
 """
@@ -118,8 +118,8 @@ class ConvexitySweepSettings:
         single value the master takes without a sweep.
 
     The span of the ladder and the headroom of an observed bound are **not**
-    settings: they are constants of the master, :data:`.LADDER_DECADES` and
-    :data:`.HEADROOM`, one dimensionless and one a count of decades, neither in
+    settings: they are constants of the master, ``LADDER_DECADES`` and
+    ``HEADROOM``, one dimensionless and one a count of decades, neither in
     the units of anybody's objective.
     """
 

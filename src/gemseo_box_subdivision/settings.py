@@ -196,7 +196,7 @@ class BoxSubdivisionSettings:
 
     Any GEMSEO optimizer, its name as the library factory knows it. The
     sub-problem is continuous and bounded, which is what
-    :attr:`.SUB_PROBLEM_ALGO_NAME` suits; a solver returning a point far from a
+    :data:`.SUB_PROBLEM_ALGO_NAME` suits; a solver returning a point far from a
     local optimum of its box leaves the cut of that box wrong, rather than merely
     loose.
     """
