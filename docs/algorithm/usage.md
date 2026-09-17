@@ -44,7 +44,9 @@ subdivision it built, and everything else about it works as usual.
 
 ## The settings that are yours to choose
 
-Two, and neither has a default that transfers between problems:
+Two, and neither has a default that transfers between problems. The class holds
+more, and [every one of them is listed below](#every-setting-and-what-it-defaults-to);
+these are the two that a new problem actually asks of you:
 
 ```python
 from gemseo_box_subdivision import BoxSubdivisionSettings
@@ -162,6 +164,35 @@ What each of the two is free to be is not the same thing:
   it reaches every setting of the master that
   [the table below](#the-settings-of-the-master-in-their-own-terms) names and
   this class does not.
+
+## Every setting, and what it defaults to
+
+The sections above take the settings worth a decision. This is the whole class,
+for reference; the defaults are the pair every result reported here was measured
+with.
+
+| setting | default | what it is |
+|---------|---------|------------|
+| `mechanism` | `"adaptive"` | which guard against the non-convexity of the relaxed problem, `adaptive` or `convexification`, never both. [Above](#the-settings-that-are-yours-to-choose) |
+| `convexity_margin` | $100.0$ | the margin the adaptive repair enforces, **in the units of the objective** |
+| `convexification_constant` | $100.0$ | the constant the pure convexification adds, **in the units of the objective** |
+| `convexity_sweep` | `None` | sweep the convexity rather than calibrate it, which is how a run supplies neither of the two above. [Above](#not-choosing-the-convexity-at-all) |
+| `trust_region_radius` | $2$ | the radius of the trust region of the master, counted in **components changed** |
+| `n_parallel_points` | $4$ | the trust-region radii the master probes per iteration, one per parallel point. A sweep spreads its rungs over these, so a single point is not a sweep |
+| `max_iter` | $80$ | iterations of the **master**, not of the sub-problems |
+| `sub_problem_max_iter` | $40$ | iterations of each sub-problem |
+| `tolerance` | $10^{-4}$ | the tolerance on the upper bound of the master |
+| `master_algo_name` | `"BILEVEL_MASTER_OUTER_APPROXIMATION"` | the algorithm solving the master. [Above](#the-algorithm-of-each-of-the-two-levels) |
+| `master_algo_settings` | `{}` | anything else the master takes, passed through; it wins over the settings this class translates for it |
+| `sub_problem_algo_name` | `"SLSQP"` | the algorithm solving each sub-problem inside its box |
+| `sub_problem_algo_settings` | `{}` | anything else that solver takes, passed through; it wins over `sub_problem_max_iter` |
+| `options` | `{}` | **deprecated**, use `master_algo_settings`, which says which of the two levels it configures. It still works and warns, and `master_algo_settings` wins when both are given |
+
+Two things a reader looks for here and does not find. `n_subdivisions` is an
+argument of the scenario rather than a setting of this class, since it defines
+the boxes rather than how they are searched. And the settings of the master
+under **its own** names, which `master_algo_settings` reaches, are
+[a table of their own](#the-settings-of-the-master-in-their-own-terms).
 
 ## Which methodology to set up
 
