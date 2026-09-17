@@ -77,9 +77,11 @@ MASTER_ALGO_NAME: str = "BILEVEL_MASTER_OUTER_APPROXIMATION"
 """The default algorithm solving the master problem.
 
 The master decides which box to look into, so it is the outer approximation
-itself rather than an ordinary optimizer: it has to be one of the algorithms
-taking the settings :meth:`.BoxSubdivisionSettings.to_master_settings`
-translates, which the plugin ``gemseo-bilevel-outer-approximation`` provides.
+itself rather than an ordinary optimizer, and this is the one the plugin
+``gemseo-bilevel-outer-approximation`` provides. Another master is allowed, any
+that handles integer variables, but only this one takes the settings
+:meth:`.BoxSubdivisionSettings.to_master_settings` translates; the rest are
+driven by :attr:`.BoxSubdivisionSettings.master_algo_settings`.
 """
 
 N_PARALLEL_POINTS: int = 4

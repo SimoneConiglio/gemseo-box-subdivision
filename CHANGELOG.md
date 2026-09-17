@@ -42,9 +42,9 @@ and this project adheres to
   built at the point it returns.
 - Both names are checked against what the algorithm declares when the settings
   are built: a name no GEMSEO library provides, a setting the algorithm named does
-  not have, and an ordinary optimizer named as the master, which takes none of the
-  settings of the outer approximation, are all refused where they are written
-  rather than in the middle of a run.
+  not have, and an ordinary optimizer named as the master, which cannot hold the
+  integers a box is made of, are all refused where they are written rather than in
+  the middle of a run.
 - Settings asking the master to **sweep the convexity**, so that a run no longer
   needs a margin calibrated in the units of its objective, which is the standing
   criticism of the method. The master probes one trust-region radius per

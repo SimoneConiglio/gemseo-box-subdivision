@@ -101,10 +101,12 @@ from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
 # An upper bound, instead of a calibrated margin.
 SweptBoxSubdivisionSettings(max_value=100.0)
-
-# Or nothing at all: the master reads the bound off the objective as it goes.
-SweptBoxSubdivisionSettings()
 ```
+
+Or nothing at all, `SweptBoxSubdivisionSettings()`, which asks the master for the
+bound it observes. Only the master sees the objective, so that form needs a master
+that sweeps; against one that does not it is refused rather than run, see the
+warning below.
 
 The rungs are the **parallel points**, `n_parallel_points`, which are the probes
 the master already spends on trust-region radii: a probe per rung is the whole
@@ -134,7 +136,7 @@ the older one from outside, for the measurements.
 ## The algorithm of each of the two levels
 
 A run is two algorithms: a master deciding which box to look into, and a solver
-running inside the box it chose. Both are named by the same settings class, with
+running inside the box it chose. The general construction names both, with
 whatever else each one takes:
 
 ```python
@@ -168,13 +170,18 @@ What each of the two is free to be is not the same thing:
   is a setting of the method rather than a detail.
 
 `master_algo_name`
-: an algorithm taking the settings of the outer approximation, which means one of
-  those of `gemseo-bilevel-outer-approximation`. Changing it changes the method
-  rather than its tuning, and an ordinary optimizer is refused outright, taking
-  none of those settings. `master_algo_settings` is the useful half of this pair:
-  it reaches every setting of the master that
-  [the table below](#the-settings-of-the-master-in-their-own-terms) names and
-  this class does not.
+: any algorithm that can **choose a box**, which means one handling integer
+  variables: the master problem is a relaxable mixed-integer non-linear one, and
+  an ordinary optimizer would return its relaxation rather than a box, so it is
+  refused outright. Changing it changes the method rather than its tuning. The
+  settings this class names in the method's terms — the mechanism, the convexity,
+  the trust region, the parallel points — belong to the **outer approximation**,
+  and they reach only a master declaring them; naming another master while
+  setting one of them is refused where it is written. Such a master is driven by
+  `master_algo_settings` alone, which reaches every setting it declares, among
+  them those
+  [the table below](#the-settings-of-the-master-in-their-own-terms) names for the
+  outer approximation.
 
 ## Every setting, and what it defaults to
 
@@ -485,7 +492,11 @@ relaxed problem, and they are not meant to be combined:
 
 The first two rows are the ones with no transferable value, and
 [the sweep](#not-choosing-the-convexity-at-all) is how a run avoids choosing
-either.
+either. A master that sweeps takes two settings more, `convexity_sweep_points`
+and `convexity_sweep_max`, which `SweptBoxSubdivisionSettings` fills from the
+parallel points and the upper bound;
+{py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
+whether the installed master declares them.
 
 And one choice that is not a setting of the algorithm but of the subdivision:
 

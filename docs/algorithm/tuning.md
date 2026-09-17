@@ -212,9 +212,11 @@ ladder of convexity values:
   than a single value not proposing anything: *no value up to $\kappa_{\max}$
   proposes a box that has not been solved.*
 
-What the user supplies is then an **upper bound** and a number of points. Erring
-high on the bound is safe in a way that erring high on a single margin is not,
-because the low rungs stay on the ladder either way.
+What the user supplies is then an **upper bound**, and nothing else: $N$, the
+number of rungs, is the number of parallel points, since probe $k$ takes rung $k$
+and a rung count of its own could only disagree with the probes it is spread
+over. Erring high on the bound is safe in a way that erring high on a single
+margin is not, because the low rungs stay on the ladder either way.
 
 :::{note}
 This loop belongs to the master rather than to this package, and it is
