@@ -221,8 +221,15 @@ class BaseBoxSubdivisionSettings:
         return "convexification_constant"
 
     @property
-    def convexity_value(self) -> float:
-        """The value of the convexity setting the mechanism calibrates."""
+    def convexity_value(self) -> float | None:
+        """The value the mechanism calibrates, or ``None`` when it is not known.
+
+        A sweep reading its bound off the objective has none to give before the
+        run has solved anything: only the master, which observes the objective,
+        can compute one. ``None`` then leaves the master its own value rather
+        than overwriting it, an unknown guard being no reason to impose a guard
+        of zero.
+        """
         raise NotImplementedError
 
     def _to_outer_approximation_settings(
@@ -246,18 +253,24 @@ class BaseBoxSubdivisionSettings:
             The settings of the master, under the names it declares.
         """
         adaptive = self.mechanism == "adaptive"
-        value = self.convexity_value
-        return {
+        settings = {
             "max_iter": self.max_iter,
             "ub_tol": self.tolerance,
             "adapt": adaptive,
-            "min_dfk": value if adaptive else 0.0,
-            "convexification_constant": 0.0 if adaptive else value,
+            # Choosing one mechanism switches the other off, whatever the value
+            # of the chosen one turns out to be.
+            "convexification_constant" if adaptive else "min_dfk": 0.0,
             "number_of_parallel_points": (
                 self.n_parallel_points if adaptive or swept else 1
             ),
             "max_step": self.trust_region_radius if radius is None else radius,
         }
+
+        value = self.convexity_value
+        if value is not None:
+            settings["min_dfk" if adaptive else "convexification_constant"] = value
+
+        return settings
 
     def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
         """Return the settings of the master problem.
@@ -503,15 +516,6 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
             )
             raise ValueError(msg)
 
-        if not self.max_value and not MASTER_SWEEPS_CONVEXITY:
-            msg = (
-                "The bound of an unbounded sweep is read off the objective by the "
-                "master, and the installed master does not sweep the convexity, so "
-                "it would be left with no guard at all rather than with the top "
-                "rung; give 'max_value', or install a master that sweeps."
-            )
-            raise ValueError(msg)
-
         _check_the_master_can_solve_it(self.master_algo_name)
         _check_settings_names(
             self.master_algo_name, self.to_master_settings(), "master problem"
@@ -528,16 +532,20 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         return MASTER_ALGO_NAME
 
     @property
-    def convexity_value(self) -> float:
+    def convexity_value(self) -> float | None:
         """The value the mechanism takes before the ladder is there.
 
-        The **top rung**, which is what the master uses in the first iterations,
-        before it has solved enough boxes to have a ladder at all, and what a
-        master predating the sweep uses throughout. The tuning says an over-large
-        margin costs sub-problems rather than quality, so the conservative end is
-        where a lone value belongs.
+        The **top rung** of a bounded sweep, which is what the master uses in the
+        first iterations, before it has solved enough boxes to have a ladder at
+        all, and what a master predating the sweep uses throughout. The tuning
+        says an over-large margin costs sub-problems rather than quality, so the
+        conservative end is where a lone value belongs.
+
+        An unbounded sweep has no such value: its bound is the spread of the
+        objective, which the run has not measured yet, so the master keeps
+        whatever it uses by default until :meth:`.create_sweep` can compute one.
         """
-        return self.max_value
+        return self.max_value or None
 
     def create_sweep(self, observed_scale: float = 0.0) -> ConvexitySweep | None:
         """Return the ladder this run asks for.

@@ -296,18 +296,55 @@ def test_a_sweep_keeps_the_probes_the_convexification_would_drop() -> None:
     )
 
 
-def test_an_unbounded_sweep_needs_a_master_that_sweeps(monkeypatch) -> None:
-    """Check that only the master can read the bound off the objective.
+def test_an_unbounded_sweep_computes_its_bound() -> None:
+    """Check that a sweep given no bound reads one off the objective.
 
-    A bound left unset asks the master for the spread it observes. A master that
-    does not sweep observes nothing, and would be left with no guard rather than
-    with the top rung, so the combination is refused where it is written.
+    That is the form the method exists for: the user supplies nothing, and the
+    bound follows the spread of the objective over the boxes already solved,
+    lifted by the headroom, since the spread is a lower estimate of the spread
+    over the design space.
     """
-    monkeypatch.setattr(policy, "MASTER_SWEEPS_CONVEXITY", False)
-    with pytest.raises(ValueError, match=r"unbounded sweep is read off the objective"):
-        SweptBoxSubdivisionSettings()
-
-    _install_a_sweeping_master(monkeypatch)
     settings = SweptBoxSubdivisionSettings()
-    assert settings.create_sweep() is None
-    assert settings.to_master_settings()["convexity_sweep_max"] == pytest.approx(0.0)
+    assert settings.create_sweep() is None, "nothing solved yet, so nothing to read"
+
+    sweep = settings.create_sweep(objective_scale((3.0, 11.0)))
+    assert sweep.max_value == pytest.approx(8.0 * policy.HEADROOM)
+    assert len(sweep.ladder) == settings.n_parallel_points
+
+
+def test_an_unbounded_sweep_leaves_the_master_its_own_value() -> None:
+    """Check that an unknown bound is not sent to the master as a guard of zero.
+
+    Before anything is solved there is no value to give, and a margin of zero is
+    not "no value": it is a run with its cuts unguarded, which converges after
+    two or three boxes and reports success far from the optimum. The master keeps
+    what it uses by default until the bound can be computed.
+    """
+    master_settings = SweptBoxSubdivisionSettings().to_master_settings()
+    assert "min_dfk" not in master_settings
+    # The other mechanism is still switched off, so the two are never both live.
+    assert master_settings["convexification_constant"] == pytest.approx(0.0)
+
+    swept = SweptBoxSubdivisionSettings(mechanism="convexification")
+    master_settings = swept.to_master_settings()
+    assert "convexification_constant" not in master_settings
+    assert master_settings["min_dfk"] == pytest.approx(0.0)
+
+
+def test_a_bounded_sweep_gives_the_master_its_top_rung() -> None:
+    """Check that a bound, unlike no bound, is a value the master can be given."""
+    assert SweptBoxSubdivisionSettings(max_value=100.0).to_master_settings()[
+        "min_dfk"
+    ] == pytest.approx(100.0)
+
+
+def test_an_unbounded_sweep_asks_the_master_for_the_bound(monkeypatch) -> None:
+    """Check that a sweeping master is told to read the bound off the objective.
+
+    A bound of zero is what asks it to, which is the same instruction the
+    unbounded form gives the stub driving an older master.
+    """
+    _install_a_sweeping_master(monkeypatch)
+    master_settings = SweptBoxSubdivisionSettings().to_master_settings()
+    assert master_settings["convexity_sweep_max"] == pytest.approx(0.0)
+    assert master_settings["convexity_sweep_points"] == 4

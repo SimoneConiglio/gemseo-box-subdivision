@@ -117,18 +117,17 @@ values, the low rungs proposing the box next door and the high rungs the box
 across the design space, with every probe that proposes nothing new redeployed a
 rung higher. That is a separate entry point rather than a setting: a run that
 sweeps has no convexity to calibrate, and its rungs are the parallel points the
-master already probes. The user supplies an upper bound:
+master already probes. The user supplies an upper bound, or nothing at all:
 
 ```python
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
-SweptBoxSubdivisionSettings(max_value=100.0)
+SweptBoxSubdivisionSettings()
 ```
 
-or nothing at all, `SweptBoxSubdivisionSettings()`, wherever the installed master
-sweeps on its own: the bound is then the spread of the objective over the boxes
-already solved, which only the master observes, so that form needs a master that
-does.
+Given nothing, the bound is computed from the objective as the run observes it:
+the spread over the boxes already solved, lifted by a decade of headroom, so no
+number in the units of the objective is ever asked for.
 
 On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
 that reaches the optimum from every starting point on both, which no single

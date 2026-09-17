@@ -73,8 +73,8 @@ and this project adheres to
   `convexity_sweep_max`; this package turns its two settings into those. Against
   a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False`, a bounded sweep
   falls back to the top rung of the ladder, which is the conservative end, an
-  unbounded one is refused since only the master can read a bound off the
-  objective, and
+  unbounded one gives the master no value at all rather than a guard of zero and
+  leaves it the one it uses by default until the bound is computed, and
   `benchmarks/convexity_sweep.py` drives that master from outside so that the
   measurement stays reproducible. Both that stub and
   `_convexity_sweep_fallback` are temporary and go once the master ships the
