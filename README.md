@@ -115,13 +115,14 @@ method. The master already probes a ladder of trust-region radii per iteration,
 one per parallel point; the same probes can sweep a ladder of **convexity**
 values, the low rungs proposing the box next door and the high rungs the box
 across the design space, with every probe that proposes nothing new redeployed a
-rung higher. The user then supplies an upper bound and a number of points, or
-nothing at all:
+rung higher. That is a separate entry point rather than a setting: a run that
+sweeps has no convexity to calibrate, and its rungs are the parallel points the
+master already probes. The user supplies an upper bound, or nothing at all:
 
 ```python
-from gemseo_box_subdivision import ConvexitySweepSettings
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
-BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings())
+SweptBoxSubdivisionSettings()
 ```
 
 On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,

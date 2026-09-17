@@ -37,7 +37,6 @@ from benchmarks.convexity_sweep import run
 from benchmarks.convexity_sweep import set_headroom
 from benchmarks.problems import PROBLEMS
 from gemseo_box_subdivision import convexity_sweep as policy
-from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
 
 
 @dataclass
@@ -81,7 +80,7 @@ def test_a_solve_outside_the_probing_loop() -> None:
 def test_the_master_is_left_as_it_was() -> None:
     """Check that the stub restores the method it patches."""
     original = core.OuterApproximationOptimizer._solve_milp
-    with parallel_convexity_sweep(ConvexitySweepSettings()):
+    with parallel_convexity_sweep(0.0):
         assert core.OuterApproximationOptimizer._solve_milp is not original
 
     assert core.OuterApproximationOptimizer._solve_milp is original
@@ -91,7 +90,7 @@ def test_the_master_is_restored_after_an_error() -> None:
     """Check that a run raising leaves the master unpatched."""
     original = core.OuterApproximationOptimizer._solve_milp
     with pytest.raises(ValueError, match=r"the run failed"):  # noqa: PT012, SIM117
-        with parallel_convexity_sweep(ConvexitySweepSettings()):
+        with parallel_convexity_sweep(0.0):
             msg = "the run failed"
             raise ValueError(msg)
 
@@ -119,13 +118,10 @@ def test_no_sweep_asks_for_nothing() -> None:
 def test_the_sweep_goes_to_the_master_that_can_do_it() -> None:
     """Check that the master is asked to sweep, or the stub does it instead."""
     original = core.OuterApproximationOptimizer._solve_milp
-    settings_model = ConvexitySweepSettings(max_value=100.0, n_points=3)
-    with convexity_sweep(settings_model) as (settings, _):
+    with convexity_sweep(100.0) as (settings, _):
         if MASTER_SWEEPS_CONVEXITY:
-            assert settings == {
-                "convexity_sweep_points": 3,
-                "convexity_sweep_max": 100.0,
-            }
+            # The rungs are the probes, which the master knows already.
+            assert settings == {"convexity_sweep_max": 100.0}
             assert core.OuterApproximationOptimizer._solve_milp is original
         else:
             assert settings == {}
@@ -134,7 +130,7 @@ def test_the_sweep_goes_to_the_master_that_can_do_it() -> None:
 
 @pytest.mark.parametrize(
     "sweep",
-    [ConvexitySweepSettings(max_value=100.0), ConvexitySweepSettings()],
+    [100.0, 0.0],
 )
 def test_a_swept_run_reaches_the_optimum(sweep) -> None:
     """Check that the sweep solves Rastrigin, bounded and unbounded.

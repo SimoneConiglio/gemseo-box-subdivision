@@ -46,6 +46,7 @@ from gemseo_box_subdivision.disciplines.multi_resolution_mapping import (
 from gemseo_box_subdivision.disciplines.scenario_adapters.box_start import (
     create_box_start_adapter_class,
 )
+from gemseo_box_subdivision.settings import BaseBoxSubdivisionSettings
 from gemseo_box_subdivision.settings import BoxSubdivisionSettings
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
@@ -100,7 +101,7 @@ class BoxSubdivisionScenario(MDOScenario):
     subdivision: BoxSubdivision | MultiResolution
     """The subdivision of the design space the scenario explores."""
 
-    box_settings: BoxSubdivisionSettings
+    box_settings: BaseBoxSubdivisionSettings
     """The settings of the run."""
 
     def __init__(
@@ -113,7 +114,7 @@ class BoxSubdivisionScenario(MDOScenario):
         levels: int = 1,
         formulation: str = "normalized",
         weights: Mapping[str, ndarray] = MappingProxyType({}),
-        settings: BoxSubdivisionSettings | None = None,
+        settings: BaseBoxSubdivisionSettings | None = None,
         name: str = "",
     ) -> None:
         """
@@ -148,9 +149,12 @@ class BoxSubdivisionScenario(MDOScenario):
                 weigh every subdivision alike, so that the distance is the
                 number of components a candidate changes. This is the metric the
                 measurements support; the alternative exists to be swept.
-            settings: The settings of the run, including the algorithm solving
-                the master problem and the one solving each sub-problem, with
-                their own settings. If ``None``, use the defaults of
+            settings: The settings of the run, either
+                :class:`.BoxSubdivisionSettings`, which names the master and the
+                sub-problem solver and calibrates the convexity, or
+                :class:`.SweptBoxSubdivisionSettings`, which sweeps the convexity
+                instead of asking for a value and drives the master implementing
+                it. If ``None``, use the defaults of
                 :class:`.BoxSubdivisionSettings`, whose convexity margin only
                 suits an objective of the scale of the benchmark.
             name: The name of the scenario.

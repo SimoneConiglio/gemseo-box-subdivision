@@ -28,6 +28,7 @@ from pathlib import Path
 import pytest
 
 from gemseo_box_subdivision import BoxSubdivisionSettings
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
 USAGE = Path(__file__).parent.parent / "docs" / "algorithm" / "usage.md"
 """The usage chapter, which carries the table of every setting."""
@@ -52,9 +53,15 @@ def _documented_settings() -> list[str]:
 
 @pytest.mark.skipif(not USAGE.exists(), reason="the documentation is not installed")
 def test_every_setting_is_documented() -> None:
-    """Check that the table lists every setting of the class, and only those."""
+    """Check that the tables list every setting of both entry points, and no other.
+
+    The section holds one table of what the two share and one of what each adds,
+    so between them they name every field of either class exactly once.
+    """
     assert set(_documented_settings()) == {
-        f.name for f in fields(BoxSubdivisionSettings)
+        field.name
+        for settings in (BoxSubdivisionSettings, SweptBoxSubdivisionSettings)
+        for field in fields(settings)
     }
 
 
@@ -77,3 +84,22 @@ def test_the_documented_mechanisms_are_the_ones_accepted() -> None:
         assert labels <= accepted, f"{name} labels a mechanism the setting refuses"
 
     assert set().union(*labelled.values()) == accepted
+
+
+@pytest.mark.skipif(not USAGE.exists(), reason="the documentation is not installed")
+def test_the_swept_entry_point_is_not_offered_what_it_drops() -> None:
+    """Check that what the swept entry point drops is not listed under it.
+
+    A master to name, settings to pass it and a convexity to calibrate are what
+    a sweep exists not to ask for, so the chapter must not leave them where a
+    swept run would look for them.
+    """
+    text = USAGE.read_text(encoding="utf-8")
+    under_swept = text.split("`SweptBoxSubdivisionSettings`, the swept", 1)[1]
+    under_swept = under_swept.split("\n## ", 1)[0]
+    rows = set(re.findall(r"^\| `([a-z_]+)` \|", under_swept, re.MULTILINE))
+
+    swept = {field.name for field in fields(SweptBoxSubdivisionSettings)}
+    dropped = {field.name for field in fields(BoxSubdivisionSettings)} - swept
+    assert rows <= swept
+    assert not rows & dropped

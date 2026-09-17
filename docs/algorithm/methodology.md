@@ -119,7 +119,7 @@ $$
 
 | Level | Decides | Solved by | Role |
 |-------|---------|-----------|------|
-| Main | the box, $\alpha$ | MILP master, outer approximation | exploration |
+| Main | the box, $\alpha$ | MINLP master, outer approximation | exploration |
 | Sub | $x$ inside the box | NLP, local | exploitation |
 
 This is the `Benders` formulation of
@@ -626,7 +626,7 @@ What it is worth is in
 ## Relation to spatial branch-and-bound
 
 Seen as a whole, the method is a **spatial branch-and-bound whose branching tree
-is fixed a priori and flattened into a single MILP master**, rather than refined
+is fixed a priori and flattened into a single MINLP master**, rather than refined
 adaptively. That framing sets the expectations: a fixed subdivision is either too
 coarse, and the lower bound is weak, or too fine, and the master grows. Refining
 only the promising boxes would recover a genuine spatial branch-and-bound, at the

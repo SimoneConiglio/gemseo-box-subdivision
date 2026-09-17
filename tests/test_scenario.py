@@ -379,10 +379,39 @@ def test_an_unknown_algorithm_is_refused(settings) -> None:
         BoxSubdivisionSettings(**settings)
 
 
-def test_an_algorithm_not_taking_the_settings_of_the_master_is_refused() -> None:
-    """An ordinary optimizer cannot be the master: it takes none of its settings."""
-    with pytest.raises(ValueError, match="'SLSQP' of the master problem does not take"):
+def test_an_ordinary_optimizer_cannot_be_the_master() -> None:
+    """An optimizer without integers returns the relaxation rather than a box.
+
+    The master problem is a relaxable mixed-integer non-linear one: its
+    relaxation is what the outer approximation solves, and the integers are what
+    it recovers a box from. A solver that holds none of them has nothing to
+    recover.
+    """
+    with pytest.raises(
+        ValueError, match="'SLSQP' of the master problem does not handle integer"
+    ):
         BoxSubdivisionSettings(master_algo_name="SLSQP")
+
+
+def test_a_master_that_is_not_an_outer_approximation_takes_none_of_its_settings() -> (
+    None
+):
+    """A setting of the outer approximation is refused for a master without it.
+
+    The mechanism, the convexity and the trust region describe an outer
+    approximation. Another master is driven by ``master_algo_settings`` under its
+    own names, and naming it while setting one of those is a contradiction.
+    """
+    with pytest.raises(
+        ValueError, match=r"'ORTOOLS_MILP' of the master problem does not take"
+    ):
+        BoxSubdivisionSettings(
+            master_algo_name="ORTOOLS_MILP", mechanism="convexification"
+        )
+
+    # Left at their defaults, they reach no master that cannot take them.
+    settings = BoxSubdivisionSettings(master_algo_name="ORTOOLS_MILP")
+    assert "min_dfk" not in settings.to_master_settings()
 
 
 def test_a_setting_the_sub_problem_solver_does_not_have_is_refused() -> None:

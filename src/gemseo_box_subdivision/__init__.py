@@ -41,7 +41,6 @@ from __future__ import annotations
 
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
 from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
-from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
 from gemseo_box_subdivision.convexity_sweep import convexity_ladder
 from gemseo_box_subdivision.convexity_sweep import objective_scale
 from gemseo_box_subdivision.design_spaces import create_box_design_space
@@ -65,7 +64,9 @@ from gemseo_box_subdivision.hierarchy import refine_frontier
 from gemseo_box_subdivision.hierarchy import refine_two_levels
 from gemseo_box_subdivision.scenario import BoxSubdivisionScenario
 from gemseo_box_subdivision.scenario import create_box_subdivision_scenario
+from gemseo_box_subdivision.settings import BaseBoxSubdivisionSettings
 from gemseo_box_subdivision.settings import BoxSubdivisionSettings
+from gemseo_box_subdivision.settings import SweptBoxSubdivisionSettings
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
 
@@ -73,16 +74,17 @@ __all__ = [
     "MASTER_SWEEPS_CONVEXITY",
     "RANKINGS",
     "SHAPES",
+    "BaseBoxSubdivisionSettings",
     "BoxConstraint",
     "BoxMapping",
     "BoxSubdivision",
     "BoxSubdivisionScenario",
     "BoxSubdivisionSettings",
     "ConvexitySweep",
-    "ConvexitySweepSettings",
     "MultiResolution",
     "MultiResolutionMapping",
     "SolvedBox",
+    "SweptBoxSubdivisionSettings",
     "compute_cut_model",
     "convexity_ladder",
     "create_box_design_space",

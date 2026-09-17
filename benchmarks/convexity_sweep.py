@@ -83,7 +83,7 @@ from benchmarks.problems import PROBLEMS
 from gemseo_box_subdivision import convexity_sweep as policy
 from gemseo_box_subdivision.convexity_sweep import HEADROOM
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
-from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
+from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
 from gemseo_box_subdivision.convexity_sweep import objective_scale
 
 if TYPE_CHECKING:
@@ -173,12 +173,17 @@ def _probe(optimizer: Any, current_step: float | None) -> int:
 
 @contextmanager
 def parallel_convexity_sweep(
-    settings: ConvexitySweepSettings, setting_name: str = "min_dfk"
+    max_value: float, setting_name: str = "min_dfk"
 ) -> Iterator[list[Deployment]]:
     """Make the parallel probes of the master sweep the convexity setting.
 
+    The ladder has one rung per parallel point of the master, read off the master
+    itself, which is what pairs a probe with a rung; a rung count of its own could
+    disagree with the probes it is spread over.
+
     Args:
-        settings: The upper bound of the sweep and its number of points.
+        max_value: The upper bound of the sweep, or zero to read it off the
+            objective as the run observes it.
         setting_name: The setting the mechanism calibrates, ``"min_dfk"`` for
             the adaptive repair and ``"convexification_constant"`` for the pure
             convexification. The two are never active at once, so the sweep
@@ -208,7 +213,12 @@ def parallel_convexity_sweep(
         current_step = kwargs.get(
             "current_step", args[_CURRENT_STEP] if len(args) > _CURRENT_STEP else None
         )
-        sweep = settings.create_sweep(objective_scale(fopt_hist))
+        bound = max_value or objective_scale(fopt_hist) * HEADROOM
+        sweep = (
+            ConvexitySweep.from_bounds(bound, self.n_parallel_points)
+            if bound > 0.0
+            else None
+        )
         if sweep is None:
             # Nothing has been solved yet, so the objective has no scale to read
             # the upper bound off: leave the master its own value.
@@ -286,34 +296,37 @@ def set_headroom(factor: float) -> Iterator[None]:
 
 @contextmanager
 def convexity_sweep(
-    settings: ConvexitySweepSettings | None,
+    max_value: float | None,
 ) -> Iterator[tuple[dict[str, Any], list[Deployment]]]:
     """Ask for a sweep of the convexity, of whichever master is installed.
 
     Args:
-        settings: The settings of the sweep, or ``None`` for a fixed margin.
+        max_value: The upper bound of the sweep, zero to read it off the
+            objective, or ``None`` for a fixed margin and no sweep at all.
 
     Yields:
         The settings to add to those of the master, and the deployments of the
         stub, which is empty when the master sweeps on its own and keeps no
         such record.
     """
-    if settings is None:
+    if max_value is None:
         yield {}, []
         return
 
     if MASTER_SWEEPS_CONVEXITY:
-        yield dict(settings.to_master_settings()), []
+        # The rungs are the probes, which the master knows; only the bound is
+        # asked of it, a bound of zero being the one it reads off the objective.
+        yield {"convexity_sweep_max": max_value}, []
         return
 
-    with parallel_convexity_sweep(settings) as trace:
+    with parallel_convexity_sweep(max_value) as trace:
         yield {}, trace
 
 
 def run(
     problem: Any,
     seed: int,
-    sweep: ConvexitySweepSettings | None,
+    sweep: float | None,
     margin: float,
     headroom: float = HEADROOM,
 ) -> tuple[Any, list[Deployment]]:
@@ -322,7 +335,8 @@ def run(
     Args:
         problem: The problem.
         seed: The seed of the starting point.
-        sweep: The settings of the sweep, or ``None`` for a fixed margin.
+        sweep: The upper bound of the sweep, zero to read it off the objective,
+            or ``None`` for a fixed margin.
         margin: The margin given to the mechanism. A swept run is given none,
             the point of the sweep being that the user has none to give.
         headroom: The factor lifting an upper bound read off the objective.
@@ -352,10 +366,10 @@ SETUPS = (
     ("fixed, margin 1", None, 1.0, HEADROOM),
     ("fixed, margin 10", None, 10.0, HEADROOM),
     ("fixed, margin 100", None, 100.0, HEADROOM),
-    ("sweep, max 100", ConvexitySweepSettings(max_value=100.0), 0.0, HEADROOM),
-    ("sweep, max 1000", ConvexitySweepSettings(max_value=1000.0), 0.0, HEADROOM),
-    ("sweep, observed", ConvexitySweepSettings(), 0.0, 1.0),
-    ("sweep, observed x 10", ConvexitySweepSettings(), 0.0, 10.0),
+    ("sweep, max 100", 100.0, 0.0, HEADROOM),
+    ("sweep, max 1000", 1000.0, 0.0, HEADROOM),
+    ("sweep, observed", 0.0, 0.0, 1.0),
+    ("sweep, observed x 10", 0.0, 0.0, 10.0),
 )
 """The configurations compared, the fixed margins against the sweeps.
 

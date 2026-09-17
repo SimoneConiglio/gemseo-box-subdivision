@@ -53,11 +53,14 @@ and this project adheres to
   design space, with every probe that proposes nothing new redeployed a rung
   higher until it proposes a new box or the ladder is exhausted.
 
-  `BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings(...))` asks for
-  it, with an upper bound and a number of points,
-  `ConvexitySweepSettings(max_value=100.0)`, or with nothing at all,
-  `ConvexitySweepSettings()`, the bound then following the spread of the
-  objective over the boxes already solved, with a decade of headroom.
+  `SweptBoxSubdivisionSettings` asks for it, with an upper bound,
+  `SweptBoxSubdivisionSettings(max_value=100.0)`, or with nothing at all,
+  `SweptBoxSubdivisionSettings()`, the bound then following the spread of the
+  objective over the boxes already solved, with a decade of headroom. It is an
+  entry point of its own rather than a setting of `BoxSubdivisionSettings`: a run
+  that sweeps has no convexity to calibrate and no master to name, and the rungs
+  of its ladder are the parallel points of the master, a probe per rung, rather
+  than a count of their own that could disagree with them.
 
   On Rastrigin and Ackley in two dimensions, whose objectives differ by a factor
   of four in scale, the unbounded sweep reaches the optimum from every starting
@@ -68,8 +71,10 @@ and this project adheres to
   **The sweep belongs to the master**, and it is implemented in
   `gemseo-bilevel-outer-approximation`, under `convexity_sweep_points` and
   `convexity_sweep_max`; this package turns its two settings into those. Against
-  a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False`, the settings
-  fall back to the top rung of the ladder, which is the conservative end, and
+  a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False`, a bounded sweep
+  falls back to the top rung of the ladder, which is the conservative end, an
+  unbounded one is refused since only the master can read a bound off the
+  objective, and
   `benchmarks/convexity_sweep.py` drives that master from outside so that the
   measurement stays reproducible. Both that stub and
   `_convexity_sweep_fallback` are temporary and go once the master ships the
@@ -77,6 +82,27 @@ and this project adheres to
 
 ### Changed
 
+- **The two constructions are two entry points.** `BoxSubdivisionSettings` is the
+  general one, naming any master that can choose a box and any sub-problem
+  solver; `SweptBoxSubdivisionSettings` is the swept one, driving the master that
+  implements the sweep with the parameters of that master chosen rather than
+  supplied. What each holds is what applies to it: the swept entry point has no
+  `master_algo_name`, no `master_algo_settings`, no `convexity_margin` and no
+  `convexification_constant`, since a value to calibrate is what a sweep exists
+  not to ask for.
+- **A setting of the outer approximation no longer reaches a master that has
+  none.** `mechanism`, the two convexity values, `trust_region_radius`,
+  `n_parallel_points`, `max_iter` and `tolerance` are the method's names for
+  settings of an outer-approximation master. They are translated only for a
+  master declaring them, and setting one for a master that does not is refused
+  where it is written, naming both the setting and what the master calls it,
+  rather than sent blindly and rejected at execution. A master that is not an
+  outer approximation is configured by `master_algo_settings` alone.
+- **The master must be able to choose a box.** The master problem is a relaxable
+  mixed-integer non-linear one, whose relaxation the outer approximation solves
+  before recovering the integers from it, so an algorithm that cannot hold an
+  integer variable returns the relaxation rather than a box, and is refused when
+  the settings are built.
 - The master is executed by its name with the settings `to_master_settings`
   returns, rather than through a `BiLevelMasterOuterApproximation_Settings` model.
   A GEMSEO settings model names the algorithm it selects, and the settings of
