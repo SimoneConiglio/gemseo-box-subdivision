@@ -219,3 +219,60 @@ def test_the_boxes_found_infeasible_carry_a_scale_too() -> None:
 
     assert guards, "the master was never solved"
     assert all(guard > 0.0 for guard in guards), guards
+
+
+def test_the_master_is_driven_whichever_way_the_scenario_is_executed() -> None:
+    """Check that settings given to ``execute`` do not bypass the driving.
+
+    A caller overriding a setting of the master still needs the sweep: what the
+    run supplies its master is not one of the settings the caller is overriding,
+    and a swept run reaching the master without it solves at a convexity of zero.
+    The benchmark harness takes exactly this path, passing a settings model.
+    """
+    from gemseo import create_design_space
+    from gemseo import create_discipline
+    from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
+        BiLevelMasterOuterApproximation_Settings,
+    )
+    from numpy import array
+
+    from gemseo_box_subdivision import BoxSubdivisionScenario
+
+    guards = []
+    original = core.OuterApproximationOptimizer._solve_milp
+
+    def spy(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        guards.append(self.min_dfk)
+        return original(self, *args, **kwargs)
+
+    discipline = create_discipline(
+        "AnalyticDiscipline",
+        expressions={"f": "10*(x**2 - 10*cos(6.28*x)) + 10*(y**2 - 10*cos(6.28*y))"},
+    )
+    design_space = create_design_space()
+    design_space.add_variable(
+        "x", lower_bound=-2.0, upper_bound=2.0, value=array([1.3])
+    )
+    design_space.add_variable(
+        "y", lower_bound=-2.0, upper_bound=2.0, value=array([0.7])
+    )
+
+    scenario = BoxSubdivisionScenario(
+        [discipline],
+        "f",
+        design_space,
+        n_subdivisions=5,
+        settings=SweptBoxSubdivisionSettings(),
+    )
+
+    core.OuterApproximationOptimizer._solve_milp = spy
+    try:
+        # The path a caller takes when it configures the master itself.
+        scenario.execute(BiLevelMasterOuterApproximation_Settings(max_iter=4))
+    finally:
+        core.OuterApproximationOptimizer._solve_milp = original
+
+    assert guards, "the master was never solved"
+    assert any(guard > 0.0 for guard in guards), (
+        "every solve ran at the master's own convexity, so the sweep was skipped"
+    )

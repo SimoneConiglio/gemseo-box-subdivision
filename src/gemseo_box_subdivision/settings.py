@@ -669,6 +669,9 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
 def _check_the_master_can_solve_it(algo_name: str) -> None:
     """Check that an algorithm can solve the master problem at all.
 
+    Two things are asked of it, and a master failing either would fail in the
+    middle of a run rather than where it is named.
+
     The master chooses a box, and a box is a one-hot assignment of binaries, so
     the master problem is a **relaxable mixed-integer non-linear** one whatever
     the algorithm solving it: the cuts and the convexification make it non-linear,
@@ -694,12 +697,22 @@ def _check_the_master_can_solve_it(algo_name: str) -> None:
         raise ValueError(msg)
 
     library = factory.get_class(factory.algo_names_to_libraries[algo_name])
-    if not library.ALGORITHM_INFOS[algo_name].handle_integer_variables:
+    description = library.ALGORITHM_INFOS[algo_name]
+    if not description.handle_integer_variables:
         msg = (
             f"The algorithm {algo_name!r} of the master problem does not handle "
             "integer variables, so it returns the relaxation rather than a box; "
             "the master problem is a relaxable mixed-integer non-linear one "
             "whatever solves it."
+        )
+        raise ValueError(msg)
+
+    if description.for_linear_problems:
+        msg = (
+            f"The algorithm {algo_name!r} of the master problem solves linear "
+            "problems only, and the master problem is a relaxable mixed-integer "
+            "**non-linear** one: the cuts and the convexification are what make "
+            "it so. GEMSEO would refuse it in the middle of the run."
         )
         raise ValueError(msg)
 

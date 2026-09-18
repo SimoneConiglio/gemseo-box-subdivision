@@ -393,6 +393,19 @@ def test_an_ordinary_optimizer_cannot_be_the_master() -> None:
         BoxSubdivisionSettings(master_algo_name="SLSQP")
 
 
+def test_a_master_solving_linear_problems_only_cannot_solve_it() -> None:
+    """Check that a linear solver is refused, the master problem being non-linear.
+
+    Its relaxation is what the outer approximation solves, and the cuts and the
+    convexification are what make it non-linear, so a solver for linear problems
+    would be refused by GEMSEO in the middle of the run instead.
+    """
+    with pytest.raises(
+        ValueError, match=r"'ORTOOLS_MILP' of the master problem solves linear"
+    ):
+        BoxSubdivisionSettings(master_algo_name="ORTOOLS_MILP")
+
+
 def test_a_master_that_is_not_an_outer_approximation_takes_none_of_its_settings() -> (
     None
 ):
@@ -403,14 +416,15 @@ def test_a_master_that_is_not_an_outer_approximation_takes_none_of_its_settings(
     own names, and naming it while setting one of those is a contradiction.
     """
     with pytest.raises(
-        ValueError, match=r"'ORTOOLS_MILP' of the master problem does not take"
+        ValueError,
+        match=r"'DIFFERENTIAL_EVOLUTION' of the master problem does not take",
     ):
         BoxSubdivisionSettings(
-            master_algo_name="ORTOOLS_MILP", mechanism="convexification"
+            master_algo_name="DIFFERENTIAL_EVOLUTION", mechanism="convexification"
         )
 
     # Left at their defaults, they reach no master that cannot take them.
-    settings = BoxSubdivisionSettings(master_algo_name="ORTOOLS_MILP")
+    settings = BoxSubdivisionSettings(master_algo_name="DIFFERENTIAL_EVOLUTION")
     assert "min_dfk" not in settings.to_master_settings()
 
 

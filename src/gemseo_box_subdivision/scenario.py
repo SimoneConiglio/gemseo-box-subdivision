@@ -311,22 +311,27 @@ class BoxSubdivisionScenario(MDOScenario):
         Returns:
             Whatever a GEMSEO scenario returns.
         """
-        if algo_settings_model is None and not algo_settings:
-            radius = None
-            if isinstance(self.subdivision, MultiResolution):
-                radius = self.box_settings.trust_region_radius * self.subdivision.levels
+        # Whatever the run supplies its master applies to every execution, not
+        # only to the one this class configures: settings given here override
+        # what the master is told, never what the run needs of it.
+        with self.box_settings.drive_the_master():
+            if algo_settings_model is None and not algo_settings:
+                radius = None
+                if isinstance(self.subdivision, MultiResolution):
+                    radius = (
+                        self.box_settings.trust_region_radius * self.subdivision.levels
+                    )
 
-            # The master is selected by its name rather than by a settings
-            # model: a model names the algorithm to execute itself, and the
-            # settings of ``OUTER_APPROXIMATION`` name one no library provides,
-            # so a model would not run ``master_algo_name``.
-            with self.box_settings.drive_the_master():
+                # The master is selected by its name rather than by a settings
+                # model: a model names the algorithm to execute itself, and the
+                # settings of ``OUTER_APPROXIMATION`` name one no library
+                # provides, so a model would not run ``master_algo_name``.
                 return super().execute(
                     algo_name=self.box_settings.master_algo_name,
                     **self.box_settings.to_master_settings(radius),
                 )
 
-        return super().execute(algo_settings_model, **algo_settings)
+            return super().execute(algo_settings_model, **algo_settings)
 
 
 def _subdivided_names(
