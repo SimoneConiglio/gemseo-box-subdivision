@@ -75,6 +75,10 @@ from statistics import median
 from typing import TYPE_CHECKING
 from typing import Any
 
+from gemseo_bilevel_outer_approximation.algos.opt.core import (
+    outer_approximation_optimizer as core,
+)
+
 from benchmarks.baselines import run_box_subdivision
 from benchmarks.configurations import ADAPTIVE
 from benchmarks.configurations import TRUST_REGION_RADIUS
@@ -112,11 +116,12 @@ def set_headroom(factor: float) -> Iterator[None]:
     """Set the factor lifting an upper bound read off the objective.
 
     The headroom is a constant of the sweep rather than a setting of a run, so
-    changing it to measure what it buys means changing the constant. It is read
-    in two places: this package re-exports it, and the module defining it reads
-    its own binding, which is the master's where the master sweeps and this
-    package's fallback where it does not. Naming that module through the symbol
-    itself is what keeps the two in step, whichever master is installed.
+    changing it to measure what it buys means changing the constant. A constant
+    is read through a binding rather than through a name, and this one has as
+    many bindings as modules importing it: this package re-exports it, the module
+    defining it reads its own, and a master that sweeps may have imported it into
+    the module solving. Every binding there is takes the factor, since setting
+    one and not another is a measurement of neither.
 
     Args:
         factor: The factor to apply while the context is open.
@@ -124,10 +129,12 @@ def set_headroom(factor: float) -> Iterator[None]:
     Yields:
         Nothing.
     """
-    modules = [policy]
-    defining = import_module(objective_scale.__module__)
-    if defining is not policy:
-        modules.append(defining)
+    modules = [policy, import_module(objective_scale.__module__), core]
+    modules = [
+        module
+        for index, module in enumerate(modules)
+        if hasattr(module, "HEADROOM") and module not in modules[:index]
+    ]
 
     originals = [module.HEADROOM for module in modules]
     for module in modules:

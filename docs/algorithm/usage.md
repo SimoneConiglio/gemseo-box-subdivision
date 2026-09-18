@@ -132,13 +132,16 @@ run without a sweep.
 which master is installed, and the driving stops the day it says the master
 sweeps.
 
-The driving holds over a run that configures its own master, `scenario.execute`
-being given a settings model or keyword arguments: the sweep is what the run
-needs of its master rather than one of the settings the caller is overriding, and
-a driven run switches the adaptive repair on because the master reads the margin
-only behind it. What such a run does override is the number of parallel points,
-which is the number of rungs: a master left with one probe is given the top rung,
-the conservative end, rather than a ladder.
+The sweep holds over a run that configures its own master, `scenario.execute`
+being given a settings model or keyword arguments: it is what the run needs of
+its master rather than one of the settings the caller is overriding. A driven run
+switches the adaptive repair on, because the master reads the margin only behind
+it, and a master that sweeps on its own is given the two settings carrying the
+sweep, whatever else the caller passes; settings with no room for them are
+refused where they are given, rather than run unswept. What such a run does
+override is the number of parallel points, which is the number of rungs: a master
+left with one probe is given the top rung, the conservative end, rather than a
+ladder.
 :::
 
 ## The algorithm of each of the two levels

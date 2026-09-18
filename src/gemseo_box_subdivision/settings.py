@@ -326,6 +326,18 @@ class BaseBoxSubdivisionSettings(ABC):
         """
         yield
 
+    def master_settings_the_run_needs(self) -> dict[str, Any]:
+        """Return what a run keeps of its master settings whatever it overrides.
+
+        Nothing, in the general construction: its master is named and configured
+        by the caller, so a caller giving that master settings of its own is
+        choosing what it is given, the convexity included.
+
+        Returns:
+            The settings a caller configuring the master does not override.
+        """
+        return {}
+
     def to_sub_problem_settings(self) -> dict[str, Any]:
         """Return the settings of a sub-problem.
 
@@ -618,6 +630,28 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
 
         with drive_the_sweep(self):
             yield
+
+    def master_settings_the_run_needs(self) -> dict[str, Any]:
+        """Return the sweep, which a run configuring its own master still needs.
+
+        The sweep is what this entry point is, so a swept run reaching the master
+        without it solves at the master's own convexity, which is zero: the sweep
+        is what the run needs of its master rather than one of the settings a
+        caller overrides. Where the master does not sweep there is nothing to
+        pass, :meth:`.drive_the_master` applying the ladder around its solves
+        instead; where it does, the two settings carrying the sweep are what must
+        reach it whichever way the run is executed.
+
+        Returns:
+            The settings a caller configuring the master does not override.
+        """
+        if not MASTER_SWEEPS_CONVEXITY:
+            return {}
+
+        return {
+            "convexity_sweep_points": self.n_parallel_points,
+            "convexity_sweep_max": self.max_value,
+        }
 
     def create_sweep(
         self, observed_scale: float = 0.0, n_points: int = 0

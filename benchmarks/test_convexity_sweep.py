@@ -41,22 +41,23 @@ from gemseo_box_subdivision.convexity_sweep import objective_scale
 def test_the_headroom_is_set_and_put_back() -> None:
     """Check that the headroom reaches whichever module reads it.
 
-    Two modules read it: the one re-exporting it, which this package's settings
-    read, and the one defining it, which is the master's own where the master
-    sweeps and this package's fallback where it does not. Naming the second by
-    the module the symbol comes from is what keeps the measurement honest against
-    either master: patching the wrong one leaves the rows of a headroom sweep
-    measuring the same thing twice.
+    A constant is read through a binding, and it has one per module importing
+    it: the one re-exporting it, which this package's settings read, the one
+    defining it, which is the master's own where the master sweeps and this
+    package's fallback where it does not, and the module solving, where a
+    sweeping master imported it. Leaving any of them unset would leave the rows
+    of a headroom comparison measuring the same thing twice.
     """
-    defining = import_module(objective_scale.__module__)
-    original = policy.HEADROOM
-    originally_defined = defining.HEADROOM
-    with set_headroom(1.0):
-        assert pytest.approx(1.0) == policy.HEADROOM
-        assert pytest.approx(1.0) == defining.HEADROOM
+    modules = [policy, import_module(objective_scale.__module__), core]
+    reading = [module for module in modules if hasattr(module, "HEADROOM")]
+    originals = [module.HEADROOM for module in reading]
 
-    assert pytest.approx(original) == policy.HEADROOM
-    assert pytest.approx(originally_defined) == defining.HEADROOM
+    with set_headroom(1.0):
+        for module in reading:
+            assert pytest.approx(1.0) == module.HEADROOM, module.__name__
+
+    for module, original in zip(reading, originals, strict=True):
+        assert pytest.approx(original) == module.HEADROOM, module.__name__
 
 
 def test_no_sweep_asks_for_nothing() -> None:

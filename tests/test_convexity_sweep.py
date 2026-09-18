@@ -367,3 +367,108 @@ def test_an_unbounded_sweep_asks_the_master_for_the_bound(monkeypatch) -> None:
     master_settings = SweptBoxSubdivisionSettings().to_master_settings()
     assert master_settings["convexity_sweep_max"] == pytest.approx(0.0)
     assert master_settings["convexity_sweep_points"] == 4
+
+
+def test_the_sweep_survives_a_caller_configuring_a_sweeping_master(monkeypatch) -> None:
+    """Check what a run keeps of its master settings whatever a caller passes.
+
+    A caller giving the master its own settings takes the path that skips
+    :meth:`.to_master_settings` entirely, so a sweeping master would be sent no
+    sweep at all and would solve at its own convexity, which is zero. The sweep
+    is what the swept entry point is, so it is what the run keeps.
+    """
+    settings = SweptBoxSubdivisionSettings(max_value=100.0, n_parallel_points=6)
+    # A master that does not sweep needs nothing passed: the driver applies the
+    # ladder around its solves instead.
+    _install_a_master_that_does_not_sweep(monkeypatch)
+    assert settings.master_settings_the_run_needs() == {}
+
+    _install_a_sweeping_master(monkeypatch)
+    assert settings.master_settings_the_run_needs() == {
+        "convexity_sweep_points": 6,
+        "convexity_sweep_max": pytest.approx(100.0),
+    }
+
+
+def test_the_general_construction_keeps_nothing_of_its_master_settings() -> None:
+    """Check that a caller configuring the master of a calibrated run owns it.
+
+    The general construction names its master and passes it whatever it takes,
+    so a caller overriding those settings is choosing what the master is given,
+    the convexity included: there is nothing the run needs behind its back.
+    """
+    assert (
+        BoxSubdivisionSettings(convexity_margin=42.0).master_settings_the_run_needs()
+        == {}
+    )
+
+
+def test_a_caller_s_settings_carry_what_the_run_needs() -> None:
+    """Check that the needed settings are set on a copy of the caller's model."""
+    from gemseo_box_subdivision.scenario import _keeping
+
+    model_class = create_model(
+        "Sweeping_Settings",
+        convexity_sweep_points=(int, 0),
+        convexity_sweep_max=(float, 0.0),
+    )
+    model = model_class()
+    kept = _keeping(model, {"convexity_sweep_points": 6, "convexity_sweep_max": 100.0})
+
+    assert kept.convexity_sweep_points == 6
+    assert kept.convexity_sweep_max == pytest.approx(100.0)
+    # The model is the caller's, and a caller reusing it for another run is not
+    # configuring this one.
+    assert model.convexity_sweep_points == 0
+
+
+def test_a_master_that_cannot_do_what_the_run_needs_is_refused() -> None:
+    """Check that settings without room for the sweep are refused, not ignored.
+
+    Running anyway is a swept run solving at a convexity of zero, and saying so
+    where the settings are given is the whole of the difference.
+    """
+    from gemseo_box_subdivision.scenario import _keeping
+
+    model = create_model("Plain_Settings", max_iter=(int, 10))()
+    with pytest.raises(ValueError, match=r"do not declare \['convexity_sweep_max'\]"):
+        _keeping(model, {"convexity_sweep_max": 100.0})
+
+
+def test_a_swept_scenario_will_not_run_a_master_it_cannot_sweep(monkeypatch) -> None:
+    """Check that the refusal reaches the caller through ``execute``.
+
+    The wiring is what the guarantee rests on: a swept run executed with settings
+    of the caller's own must still reach its master with the sweep, and where
+    those settings have no room for it, must say so rather than run unswept.
+    """
+    from gemseo import create_design_space
+    from gemseo import create_discipline
+    from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
+        BiLevelMasterOuterApproximation_Settings,
+    )
+    from numpy import array
+
+    from gemseo_box_subdivision import BoxSubdivisionScenario
+
+    discipline = create_discipline(
+        "AnalyticDiscipline", expressions={"f": "x**2 + y**2"}
+    )
+    design_space = create_design_space()
+    design_space.add_variable(
+        "x", lower_bound=-2.0, upper_bound=2.0, value=array([1.3])
+    )
+    design_space.add_variable(
+        "y", lower_bound=-2.0, upper_bound=2.0, value=array([0.7])
+    )
+    scenario = BoxSubdivisionScenario(
+        [discipline],
+        "f",
+        design_space,
+        n_subdivisions=2,
+        settings=SweptBoxSubdivisionSettings(),
+    )
+
+    _install_a_sweeping_master(monkeypatch)
+    with pytest.raises(ValueError, match=r"which this run needs of it"):
+        scenario.execute(BiLevelMasterOuterApproximation_Settings(max_iter=2))
