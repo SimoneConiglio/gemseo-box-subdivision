@@ -26,7 +26,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.2.0 (2026-09-18)
+
+The settings, in two entry points: the general construction, which names the
+master and the solver running inside a box, and the swept one, which asks the
+master to sweep the convexity rather than asking its user for a margin in the
+units of an objective they have not measured. What each entry point holds is
+what applies to it, every setting is given by name, and a setting of an outer
+approximation no longer reaches a master that has none.
 
 ### Added
 
