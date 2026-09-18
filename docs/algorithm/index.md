@@ -11,7 +11,7 @@
 
 The **box-subdivision outer approximation** is a bi-level method for multimodal
 non-linear problems. A Cartesian subdivision of the design space defines a
-finite set of boxes; a MILP master decides which box to look into, and a local
+finite set of boxes; a MINLP master decides which box to look into, and a local
 NLP solves the original problem inside it. Exploration and exploitation stay in
 two distinct levels.
 

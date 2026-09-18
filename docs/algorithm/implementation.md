@@ -40,7 +40,32 @@ settings in the terms of the methodology, a `trust_region_radius` in components
 changed rather than a `max_step` in unexplained units, and its
 `to_master_settings` is the only place that translates them. It is also where the
 two mechanisms are kept apart: choosing one zeroes the other's constant, so a run
-can never measure an average of the two.
+can never measure an average of the two. Those terms describe an
+**outer-approximation** master, so they are translated only for a master
+declaring them, and setting one for a master that has none of them is refused
+rather than sent: such a master is driven by `master_algo_settings` alone.
+
+There are **two settings classes**, one per construction, sharing
+{py:class}`~gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings`, which
+holds what belongs to the run rather than to either level.
+{py:class}`~gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings` sweeps
+the convexity instead of calibrating it, so it names no master — the sweep is
+implemented in one — and carries neither convexity value; its ladder has one rung
+per parallel point of the master, which is what pairs a probe with a rung. The
+scenario takes either.
+
+The algorithm of each of the two levels is a setting, and each is delivered where
+its level expects it. The master is executed **by its name**,
+`master_algo_name` with the settings `to_master_settings` returns, rather than
+through a settings model: a GEMSEO settings model names the algorithm it selects,
+and the settings of `OUTER_APPROXIMATION` name one no library provides, so a
+model would run something other than the algorithm asked for. The sub-problem
+solver is the other way round, the `Benders` formulation taking a settings model,
+which `create_sub_problem_settings_model` builds from `sub_problem_algo_name`
+and `to_sub_problem_settings`. Both names are checked against what the algorithm
+declares when the settings are built, so a setting one level's algorithm does not
+have, or a name no library provides, is refused where it is written rather than
+in the middle of a run.
 
 Everything below those two is public and usable on its own, which is what
 [Usage](usage.md) calls composing by hand.

@@ -26,6 +26,101 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- The algorithm of each of the two levels is a setting, with its own settings:
+  `BoxSubdivisionSettings.master_algo_name` and `master_algo_settings` for the
+  master, `sub_problem_algo_name` and `sub_problem_algo_settings` for the solver
+  running inside a box. The defaults are the pair every reported result was
+  measured with, the outer-approximation master over SLSQP, so a sub-problem is
+  no longer solved by SLSQP with nothing but its iteration count to configure it.
+  A derivative-free solver of the sub-problem is now a setting rather than a fork
+  of the scenario; nothing here measures one, and what the method needs of a
+  sub-problem solver is a local optimum of its box, the cut of that box being
+  built at the point it returns.
+- Both names are checked against what the algorithm declares when the settings
+  are built: a name no GEMSEO library provides, a setting the algorithm named does
+  not have, and an ordinary optimizer named as the master, which cannot hold the
+  integers a box is made of, are all refused where they are written rather than in
+  the middle of a run.
+- Settings asking the master to **sweep the convexity**, so that a run no longer
+  needs a margin calibrated in the units of its objective, which is the standing
+  criticism of the method. The master probes one trust-region radius per
+  parallel point; the same probes can carry a ladder of convexity values, the
+  low rungs proposing the box next door and the high rungs the box across the
+  design space, with every probe that proposes nothing new redeployed a rung
+  higher until it proposes a new box or the ladder is exhausted.
+
+  `SweptBoxSubdivisionSettings` asks for it, with an upper bound,
+  `SweptBoxSubdivisionSettings(max_value=100.0)`, or with nothing at all,
+  `SweptBoxSubdivisionSettings()`, the bound then following the spread of the
+  objective over the boxes already solved, with a decade of headroom. It is an
+  entry point of its own rather than a setting of `BoxSubdivisionSettings`: a run
+  that sweeps has no convexity to calibrate and no master to name, and the rungs
+  of its ladder are the parallel points of the master, a probe per rung, rather
+  than a count of their own that could disagree with them.
+
+  On Rastrigin and Ackley in two dimensions, whose objectives differ by a factor
+  of four in scale, the unbounded sweep reaches the optimum from every starting
+  point on both, which no fixed margin among those tried does, and a bound ten
+  times too large costs two starting points where a margin ten times too small
+  costs the run. See `benchmarks/convexity_sweep.py` and annex C.
+
+  **The sweep belongs to the master**, and it is implemented in
+  `gemseo-bilevel-outer-approximation`, under `convexity_sweep_points` and
+  `convexity_sweep_max`; this package turns its two settings into those. Against
+  a master predating them, `MASTER_SWEEPS_CONVEXITY` is `False` and the package
+  drives the ladder itself, around the master's mixed-integer solve, computing
+  the bound from the objective as the master would. That is what makes the
+  unbounded form work against any master: the master's own convexity defaults to
+  zero, so leaving it there would be a run with its cuts unguarded rather than a
+  run without a sweep. Both `_convexity_sweep_driver` and
+  `_convexity_sweep_fallback` are temporary and go once the master ships the
+  sweep.
+
+### Changed
+
+- **Every setting is given by name.** The three settings classes are keyword-only,
+  since which one holds which setting follows what applies to what rather than an
+  order a reader could rely on: a value given positionally would bind to whatever
+  sits in that position, and a convexity margin arriving as a trust-region radius
+  is a run that measures something else in silence.
+- **The two constructions are two entry points.** `BoxSubdivisionSettings` is the
+  general one, naming any master that can choose a box and any sub-problem
+  solver; `SweptBoxSubdivisionSettings` is the swept one, driving the master that
+  implements the sweep with the parameters of that master chosen rather than
+  supplied. What each holds is what applies to it: the swept entry point has no
+  `master_algo_name`, no `master_algo_settings`, no `convexity_margin` and no
+  `convexification_constant`, since a value to calibrate is what a sweep exists
+  not to ask for.
+- **A setting of the outer approximation no longer reaches a master that has
+  none.** `mechanism`, the two convexity values, `trust_region_radius`,
+  `n_parallel_points`, `max_iter` and `tolerance` are the method's names for
+  settings of an outer-approximation master. They are translated only for a
+  master declaring them, and setting one for a master that does not is refused
+  where it is written, naming both the setting and what the master calls it,
+  rather than sent blindly and rejected at execution. A master that is not an
+  outer approximation is configured by `master_algo_settings` alone.
+- **The master must be able to choose a box.** The master problem is a relaxable
+  mixed-integer non-linear one, whose relaxation the outer approximation solves
+  before recovering the integers from it, so an algorithm that cannot hold an
+  integer variable returns the relaxation rather than a box, and is refused when
+  the settings are built.
+- The master is executed by its name with the settings `to_master_settings`
+  returns, rather than through a `BiLevelMasterOuterApproximation_Settings` model.
+  A GEMSEO settings model names the algorithm it selects, and the settings of
+  `OUTER_APPROXIMATION` name one no library provides, so a model would have run an
+  algorithm other than the one `master_algo_name` asks for. That mismatch is a
+  defect of the plugin declaring those settings, not of the algorithm.
+
+### Deprecated
+
+- `BoxSubdivisionSettings.options`, the pass-through to the master, is
+  `master_algo_settings`, which says which of the two levels it configures. The
+  old name still works, and warns; given both, `master_algo_settings` wins.
+
 ## 0.1.0 (2026-09-15)
 
 First public release.
@@ -34,101 +129,6 @@ The method, its four constructions and the benchmark that measures them. The
 results are measurements on the problems reported, not a claim of generalization:
 the settings were tuned on those very problems, and the convexity margin is in
 the units of the objective, so it does not transfer between them unchanged.
-
-### Fixed
-
-- The trust region of the master measures a distance. The design spaces of this
-  package now weigh every subdivision alike, so that the distance between two
-  boxes is the number of components a candidate changes. They used to inherit the
-  default of `CatalogueDesignSpace`, which weighs a numeric catalogue by the
-  catalogue values themselves; with the cost of a move charged on the weight the
-  **incumbent** holds, leaving the first subdivision of a component was free and
-  leaving the last cost $m_j - 1$, whatever the destination, so the region was
-  lopsided rather than local and became infeasible at high indexes. Reported
-  upstream. On Rastrigin with five variables and ten subdivisions this is the
-  difference between a gap of $0.995$ from two starting points out of six and the
-  optimum from all six; the settings, the density sweep, the hierarchies and the
-  multi-resolution encoding were all re-measured against it.
-- The radius of the trust region is small, `TRUST_REGION_RADIUS = 2` components,
-  rather than the diameter of the design space that the documentation used to
-  recommend. Once the distance is a distance, widening the region is markedly
-  worse and removing it is worse still.
-- The benchmark runner survives a budget spent inside a linearization, which
-  GEMSEO reports as a missing output key rather than as the budget error raised
-  underneath it; such a run used to crash instead of returning its best point.
-- The multi-resolution encoding is measured with a trust region at all. Its
-  radius was being taken from the diameter helper, which for unit weights returns
-  the number of one-hot groups, so the region did not constrain; it is now scaled
-  by the number of levels, this encoding having one group per level per variable.
-- The benchmarks no longer mix the two mechanisms of the master, the adaptive
-  repair of the cut slopes and the fixed convexification constant, which are
-  different approaches. The configuration is now an explicit axis,
-  `benchmarks/configurations.py`, and the settings and results reported by the
-  documentation are measured with one mechanism at a time. The previously
-  reported comparison of the two formulations, 96% against 58%, compared their
-  tuning rather than the formulations, and the reported collapse of the method
-  when the number of boxes grows is a property of the fixed constant rather than
-  of the method: with the adaptive repair, Styblinski-Tang in five dimensions is
-  solved from every starting point over a hundred thousand boxes as well as over
-  thirty-two.
-- The benchmarks no longer have their report stripped by the `T20` rule of
-  ruff, whose unsafe fixes silently replaced the `print` calls by `pass`.
-- The equations of the documentation are rendered: MathJax is served by the
-  documentation itself instead of a CDN, which a network blocking third-party
-  CDNs, or a local build, left unreachable.
-
-### Changed
-
-- The multi-resolution encoding, one categorical variable per level, is part of
-  the package rather than of the benchmarks: `MultiResolution` and
-  `MultiResolutionMapping`. It reaches $m^L$ subdivisions per component for
-  $n m L$ binaries, and on Styblinski-Tang at five variables, the problem the
-  best flat density breaks on, two levels of four get within $0.27$ of the
-  optimum on forty binaries against the eighty of the flat encoding that matches
-  it, for fewer evaluations.
-- The hierarchies of subdivisions are part of the package too,
-  `algos/opt/hierarchy.py`, driven by a callable that solves one level, so that
-  a shape can be applied to another problem without copying a benchmark.
-- The density of a subdivision is bounded above by a measurable ratio rather than
-  by the number of boxes: the cut model carries as many coefficients as there are
-  binaries, and a budget affords a few dozen cuts. On five variables, ten
-  subdivisions per variable is the best density measured and sixteen is markedly
-  worse, whatever the boxes they represent. It is bounded below by the spacing of
-  the basins, and refining past them degrades the ranking rather than merely
-  costing sub-problems, so no single density serves the four benchmark problems.
-- The results show the hierarchies beside the flat subdivisions in a figure of
-  their own, the distance to the optimum and the cost, with a tick per starting
-  point reaching the optimum, and the frontier is measured over six starting
-  points like the rest.
-- The documentation follows the method rather than its history: methodology,
-  implementation, usage, results and a conclusion, with the benchmark problems,
-  the baselines and the sweeps that set the settings of the master moved to
-  annexes A, B and C. The methodology derives the hierarchies of subdivisions,
-  the scores that rank a box and what each shape can and cannot undo, and the
-  implementation and usage pages describe the extensions and how to refine a
-  box.
-- The methodology describes what the method has grown since: what grows with the
-  dimension, the boxes or the master, the trust region and the distance it uses,
-  subdividing some variables only, and the three shapes of hierarchy, each with
-  its figure. The results carry the extensions and end on the directions that
-  follow from them.
-- The documentation is illustrated, `docs/figures.py` drawing every figure for
-  the light and the dark theme, and it is split so that the results are readable
-  on their own: the benchmark page reports what the method achieves, a page of
-  its own covers the tuning of the master, and two appendices describe and cite
-  the benchmark problems and the baselines. The appendix on the baselines gives
-  the algorithm of each, the settings it is run with, how the budget is enforced
-  across methods called from Python and from a C extension, what is deliberately
-  absent, and a figure of where each one evaluates the objective.
-- The project is named `gemseo-box-subdivision`, since it is about the
-  box-subdivision outer approximation rather than a collection of
-  algorithms. The package is `gemseo_box_subdivision`.
-- The GEMSEO monogram is no longer used as the logo of the documentation,
-  being the registered mark of GEMSEO.
-- The documentation is built with Sphinx instead of MkDocs, and published on
-  GitHub Pages by a dedicated workflow.
-- The documentation uses the PyData theme, with a navigation bar, a section
-  navigation, a page outline and cards on the landing pages.
 
 ### Added
 
@@ -197,3 +197,98 @@ the units of the objective, so it does not transfer between them unchanged.
 - `BoxSubdivision.compute_bounds` and `BoxSubdivision.get_normalized_names`.
 - `benchmarks/tune_convexification.py`, sweeping the convexification of both
   formulations, and the convexification tuned for each of them.
+
+### Changed
+
+- The multi-resolution encoding, one categorical variable per level, is part of
+  the package rather than of the benchmarks: `MultiResolution` and
+  `MultiResolutionMapping`. It reaches $m^L$ subdivisions per component for
+  $n m L$ binaries, and on Styblinski-Tang at five variables, the problem the
+  best flat density breaks on, two levels of four get within $0.27$ of the
+  optimum on forty binaries against the eighty of the flat encoding that matches
+  it, for fewer evaluations.
+- The hierarchies of subdivisions are part of the package too,
+  `algos/opt/hierarchy.py`, driven by a callable that solves one level, so that
+  a shape can be applied to another problem without copying a benchmark.
+- The density of a subdivision is bounded above by a measurable ratio rather than
+  by the number of boxes: the cut model carries as many coefficients as there are
+  binaries, and a budget affords a few dozen cuts. On five variables, ten
+  subdivisions per variable is the best density measured and sixteen is markedly
+  worse, whatever the boxes they represent. It is bounded below by the spacing of
+  the basins, and refining past them degrades the ranking rather than merely
+  costing sub-problems, so no single density serves the four benchmark problems.
+- The results show the hierarchies beside the flat subdivisions in a figure of
+  their own, the distance to the optimum and the cost, with a tick per starting
+  point reaching the optimum, and the frontier is measured over six starting
+  points like the rest.
+- The documentation follows the method rather than its history: methodology,
+  implementation, usage, results and a conclusion, with the benchmark problems,
+  the baselines and the sweeps that set the settings of the master moved to
+  annexes A, B and C. The methodology derives the hierarchies of subdivisions,
+  the scores that rank a box and what each shape can and cannot undo, and the
+  implementation and usage pages describe the extensions and how to refine a
+  box.
+- The methodology describes what the method has grown since: what grows with the
+  dimension, the boxes or the master, the trust region and the distance it uses,
+  subdividing some variables only, and the three shapes of hierarchy, each with
+  its figure. The results carry the extensions and end on the directions that
+  follow from them.
+- The documentation is illustrated, `docs/figures.py` drawing every figure for
+  the light and the dark theme, and it is split so that the results are readable
+  on their own: the benchmark page reports what the method achieves, a page of
+  its own covers the tuning of the master, and two appendices describe and cite
+  the benchmark problems and the baselines. The appendix on the baselines gives
+  the algorithm of each, the settings it is run with, how the budget is enforced
+  across methods called from Python and from a C extension, what is deliberately
+  absent, and a figure of where each one evaluates the objective.
+- The project is named `gemseo-box-subdivision`, since it is about the
+  box-subdivision outer approximation rather than a collection of
+  algorithms. The package is `gemseo_box_subdivision`.
+- The GEMSEO monogram is no longer used as the logo of the documentation,
+  being the registered mark of GEMSEO.
+- The documentation is built with Sphinx instead of MkDocs, and published on
+  GitHub Pages by a dedicated workflow.
+- The documentation uses the PyData theme, with a navigation bar, a section
+  navigation, a page outline and cards on the landing pages.
+
+### Fixed
+
+- The trust region of the master measures a distance. The design spaces of this
+  package now weigh every subdivision alike, so that the distance between two
+  boxes is the number of components a candidate changes. They used to inherit the
+  default of `CatalogueDesignSpace`, which weighs a numeric catalogue by the
+  catalogue values themselves; with the cost of a move charged on the weight the
+  **incumbent** holds, leaving the first subdivision of a component was free and
+  leaving the last cost $m_j - 1$, whatever the destination, so the region was
+  lopsided rather than local and became infeasible at high indexes. Reported
+  upstream. On Rastrigin with five variables and ten subdivisions this is the
+  difference between a gap of $0.995$ from two starting points out of six and the
+  optimum from all six; the settings, the density sweep, the hierarchies and the
+  multi-resolution encoding were all re-measured against it.
+- The radius of the trust region is small, `TRUST_REGION_RADIUS = 2` components,
+  rather than the diameter of the design space that the documentation used to
+  recommend. Once the distance is a distance, widening the region is markedly
+  worse and removing it is worse still.
+- The benchmark runner survives a budget spent inside a linearization, which
+  GEMSEO reports as a missing output key rather than as the budget error raised
+  underneath it; such a run used to crash instead of returning its best point.
+- The multi-resolution encoding is measured with a trust region at all. Its
+  radius was being taken from the diameter helper, which for unit weights returns
+  the number of one-hot groups, so the region did not constrain; it is now scaled
+  by the number of levels, this encoding having one group per level per variable.
+- The benchmarks no longer mix the two mechanisms of the master, the adaptive
+  repair of the cut slopes and the fixed convexification constant, which are
+  different approaches. The configuration is now an explicit axis,
+  `benchmarks/configurations.py`, and the settings and results reported by the
+  documentation are measured with one mechanism at a time. The previously
+  reported comparison of the two formulations, 96% against 58%, compared their
+  tuning rather than the formulations, and the reported collapse of the method
+  when the number of boxes grows is a property of the fixed constant rather than
+  of the method: with the adaptive repair, Styblinski-Tang in five dimensions is
+  solved from every starting point over a hundred thousand boxes as well as over
+  thirty-two.
+- The benchmarks no longer have their report stripped by the `T20` rule of
+  ruff, whose unsafe fixes silently replaced the `print` calls by `pass`.
+- The equations of the documentation are rendered: MathJax is served by the
+  documentation itself instead of a CDN, which a network blocking third-party
+  CDNs, or a local build, left unreachable.

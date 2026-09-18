@@ -68,7 +68,7 @@ what the measurements say decides a run.
 On Rastrigin in two dimensions over $100$ boxes it reaches the optimum after
 solving twenty to thirty-six of them, about three times cheaper than solving all
 of them. In five dimensions, with ten subdivisions per variable, it reaches the
-optimum from **every starting point** for some $1900$ evaluations, which no
+optimum from **every starting point** for $1920$ evaluations, which no
 baseline here does at any budget tried.
 
 The subdivision has to **resolve the basins** of the landscape, and it can afford
@@ -107,6 +107,35 @@ neither.
 subdivision being weighed alike. Keep it small: widening it to the diameter of
 the design space loses Rastrigin at five variables, and removing the region is
 worse still.
+
+### Or let the margin sweep itself
+
+The margin is absolute, so calibrating it is the standing criticism of the
+method. The master already probes a ladder of trust-region radii per iteration,
+one per parallel point; the same probes can sweep a ladder of **convexity**
+values, the low rungs proposing the box next door and the high rungs the box
+across the design space, with every probe that proposes nothing new redeployed a
+rung higher. That is a separate entry point rather than a setting: a run that
+sweeps has no convexity to calibrate, and its rungs are the parallel points the
+master already probes. The user supplies an upper bound, or nothing at all:
+
+```python
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
+
+SweptBoxSubdivisionSettings()
+```
+
+Given nothing, the bound is computed from the objective as the run observes it:
+the spread over the boxes already solved, lifted by a decade of headroom, so no
+number in the units of the objective is ever asked for.
+
+On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
+that reaches the optimum from every starting point on both, which no single
+margin does. The sweep itself belongs to the master, under its settings
+`convexity_sweep_points` and `convexity_sweep_max`; against a master predating
+them the settings fall back to the conservative end of the ladder, and the
+benchmarks drive it from outside instead. See
+[annex C](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/tuning.html#sweeping-the-convexity-instead-of-calibrating-it).
 
 ## Beyond a flat subdivision
 

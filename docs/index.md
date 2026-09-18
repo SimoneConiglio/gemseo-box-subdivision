@@ -80,7 +80,7 @@ $$
 u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \right\}
 $$
 
-A MILP master decides the box through the one-hot vector $\alpha$, and a local
+A MINLP master decides the box through the one-hot vector $\alpha$, and a local
 NLP solves the original problem inside it.
 
 ```{note}

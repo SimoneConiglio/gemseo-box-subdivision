@@ -19,6 +19,8 @@ from __future__ import annotations
 import pytest
 from gemseo.algos.design_space import DesignSpace
 from gemseo.core.discipline import Discipline
+from gemseo.settings.opt import NLOPT_COBYLA_Settings
+from gemseo.settings.opt import SLSQP_Settings
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BiLevelMasterOuterApproximation_Settings,
 )
@@ -242,3 +244,254 @@ def test_explicit_settings_override_the_defaults() -> None:
         )
     )
     assert scenario.formulation.optimization_problem.database
+
+
+def sub_problem_settings(scenario):  # noqa: ANN001, ANN201
+    """Return the settings the sub-problems of a scenario are solved with.
+
+    GEMSEO exposes no public accessor for the algorithm of a scenario, hence the
+    private attribute: what is being tested is that the settings of the
+    sub-problem reach the scenario the ``Benders`` formulation builds.
+    """
+    sub_scenario = scenario.formulation.sub_problem_scenario_adapter.scenario
+    return sub_scenario._settings.algo_settings["settings_model"]  # noqa: SLF001
+
+
+@pytest.mark.parametrize("formulation", ["normalized", "constraint"])
+def test_the_sub_problem_algorithm_reaches_the_sub_problem(formulation) -> None:
+    """Whichever formulation confines the box, the solver named must solve it."""
+    settings = BoxSubdivisionSettings(
+        sub_problem_algo_name="NLOPT_COBYLA",
+        sub_problem_algo_settings={"ftol_rel": 1e-6},
+    )
+    scenario = BoxSubdivisionScenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=4,
+        formulation=formulation,
+        settings=settings,
+    )
+
+    model = sub_problem_settings(scenario)
+    assert isinstance(model, NLOPT_COBYLA_Settings)
+    assert model.max_iter == settings.sub_problem_max_iter
+    assert model.ftol_rel == pytest.approx(1e-6)
+
+
+def test_the_sub_problem_algorithm_reaches_a_multi_resolution_sub_problem() -> None:
+    """The multi-resolution encoding builds its own scenario, and must too."""
+    scenario = BoxSubdivisionScenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=2,
+        levels=2,
+        settings=BoxSubdivisionSettings(sub_problem_algo_name="NLOPT_COBYLA"),
+    )
+    assert isinstance(sub_problem_settings(scenario), NLOPT_COBYLA_Settings)
+
+
+def test_the_master_algorithm_is_a_setting() -> None:
+    """The master executed must be the algorithm named, with its own settings."""
+    settings = BoxSubdivisionSettings(
+        master_algo_name="OUTER_APPROXIMATION",
+        master_algo_settings={"upper_bound_stall": 3},
+        max_iter=10,
+    )
+    master_settings = settings.to_master_settings()
+    assert master_settings["upper_bound_stall"] == 3
+    assert master_settings["max_step"] == settings.trust_region_radius
+    assert master_settings["min_dfk"] == pytest.approx(settings.convexity_margin)
+
+    scenario = BoxSubdivisionScenario(
+        [Rastrigin()], "f", design_space(), n_subdivisions=4, settings=settings
+    )
+    scenario.execute()
+    # A settings model would carry the name of the algorithm it selects, which
+    # for this one is not the name it is registered under.
+    assert scenario.optimization_result.optimizer_name == "OUTER_APPROXIMATION"
+
+
+def test_the_master_of_the_defaults_is_the_one_executed() -> None:
+    """The default master must be the one the scenario executes."""
+    scenario = BoxSubdivisionScenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=4,
+        settings=BoxSubdivisionSettings(max_iter=10),
+    )
+    scenario.execute()
+    assert (
+        scenario.optimization_result.optimizer_name
+        == "BILEVEL_MASTER_OUTER_APPROXIMATION"
+    )
+
+
+def test_the_defaults_are_the_measured_pair() -> None:
+    """The defaults must stay the pair every reported result was measured with."""
+    settings = BoxSubdivisionSettings()
+    assert settings.master_algo_name == "BILEVEL_MASTER_OUTER_APPROXIMATION"
+    assert settings.sub_problem_algo_name == "SLSQP"
+    assert isinstance(settings.create_sub_problem_settings_model(), SLSQP_Settings)
+    assert set(settings.to_master_settings()).issubset(
+        BiLevelMasterOuterApproximation_Settings.model_fields
+    )
+
+
+def test_the_sub_problem_settings_carry_the_iterations() -> None:
+    """``sub_problem_max_iter`` is the ``max_iter`` of the sub-problem solver."""
+    settings = BoxSubdivisionSettings(sub_problem_max_iter=7)
+    assert settings.to_sub_problem_settings() == {"max_iter": 7}
+    assert settings.create_sub_problem_settings_model().max_iter == 7
+
+
+@pytest.mark.parametrize(
+    ("settings", "name"),
+    [
+        ({"sub_problem_algo_settings": {"max_iter": 3}}, "sub_problem_algo_settings"),
+        ({"master_algo_settings": {"max_step": 5}}, "master_algo_settings"),
+    ],
+)
+def test_the_pass_through_wins(settings, name) -> None:
+    """A setting given by name must override the one the class translates."""
+    del name
+    box_settings = BoxSubdivisionSettings(
+        sub_problem_max_iter=40, trust_region_radius=2, **settings
+    )
+    if "sub_problem_algo_settings" in settings:
+        assert box_settings.create_sub_problem_settings_model().max_iter == 3
+    else:
+        assert box_settings.to_master_settings()["max_step"] == 5
+
+
+@pytest.mark.parametrize(
+    "settings",
+    [
+        {"master_algo_name": "magic"},
+        {"sub_problem_algo_name": "magic"},
+    ],
+)
+def test_an_unknown_algorithm_is_refused(settings) -> None:
+    """Check the error raised for an algorithm no GEMSEO library provides."""
+    with pytest.raises(ValueError, match="'magic' is not available"):
+        BoxSubdivisionSettings(**settings)
+
+
+def test_an_ordinary_optimizer_cannot_be_the_master() -> None:
+    """An optimizer without integers returns the relaxation rather than a box.
+
+    The master problem is a relaxable mixed-integer non-linear one: its
+    relaxation is what the outer approximation solves, and the integers are what
+    it recovers a box from. A solver that holds none of them has nothing to
+    recover.
+    """
+    with pytest.raises(
+        ValueError, match="'SLSQP' of the master problem does not handle integer"
+    ):
+        BoxSubdivisionSettings(master_algo_name="SLSQP")
+
+
+def test_a_master_solving_linear_problems_only_cannot_solve_it() -> None:
+    """Check that a linear solver is refused, the master problem being non-linear.
+
+    Its relaxation is what the outer approximation solves, and the cuts and the
+    convexification are what make it non-linear, so a solver for linear problems
+    would be refused by GEMSEO in the middle of the run instead.
+    """
+    with pytest.raises(
+        ValueError, match=r"'ORTOOLS_MILP' of the master problem solves linear"
+    ):
+        BoxSubdivisionSettings(master_algo_name="ORTOOLS_MILP")
+
+
+def test_a_master_that_is_not_an_outer_approximation_takes_none_of_its_settings() -> (
+    None
+):
+    """A setting of the outer approximation is refused for a master without it.
+
+    The mechanism, the convexity and the trust region describe an outer
+    approximation. Another master is driven by ``master_algo_settings`` under its
+    own names, and naming it while setting one of those is a contradiction.
+    """
+    with pytest.raises(
+        ValueError,
+        match=r"'DIFFERENTIAL_EVOLUTION' of the master problem does not take",
+    ):
+        BoxSubdivisionSettings(
+            master_algo_name="DIFFERENTIAL_EVOLUTION", mechanism="convexification"
+        )
+
+    # Left at their defaults, they reach no master that cannot take them.
+    settings = BoxSubdivisionSettings(master_algo_name="DIFFERENTIAL_EVOLUTION")
+    assert "min_dfk" not in settings.to_master_settings()
+
+
+def test_a_setting_the_sub_problem_solver_does_not_have_is_refused() -> None:
+    """A setting of another solver must be refused where it is written."""
+    with pytest.raises(
+        ValueError, match="'NLOPT_COBYLA' of the sub-problems does not take"
+    ):
+        BoxSubdivisionSettings(
+            sub_problem_algo_name="NLOPT_COBYLA",
+            sub_problem_algo_settings={"kkt_tol_abs": 1e-3},
+        )
+
+
+def test_the_deprecated_options_still_configure_the_master() -> None:
+    """``options`` must keep working, and warn, until it is removed."""
+    with pytest.warns(FutureWarning, match="use 'master_algo_settings'"):
+        settings = BoxSubdivisionSettings(options={"upper_bound_stall": 3})
+
+    assert settings.to_master_settings()["upper_bound_stall"] == 3
+
+
+def test_master_algo_settings_win_over_the_deprecated_options() -> None:
+    """Given both, the setting under its own name must be the one used."""
+    with pytest.warns(FutureWarning):
+        settings = BoxSubdivisionSettings(
+            options={"upper_bound_stall": 3},
+            master_algo_settings={"upper_bound_stall": 5},
+        )
+
+    assert settings.to_master_settings()["upper_bound_stall"] == 5
+
+
+def test_a_gradient_free_sub_problem_solver_solves_rastrigin() -> None:
+    """A whole run must work with another sub-problem solver, not merely build."""
+    scenario = BoxSubdivisionScenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=4,
+        settings=BoxSubdivisionSettings(
+            sub_problem_algo_name="NLOPT_COBYLA",
+            sub_problem_algo_settings={"ftol_rel": 1e-8},
+            max_iter=20,
+        ),
+    )
+    scenario.execute()
+    assert best(scenario) < 5.0
+
+
+def test_an_algorithm_whose_settings_select_another_one_is_refused() -> None:
+    """The name the settings select is the one executed, so it must be the one asked."""
+    with pytest.raises(ValueError, match="select 'OrtoolsMILP' instead"):
+        BoxSubdivisionSettings(sub_problem_algo_name="ORTOOLS_MILP")
+
+
+def test_the_settings_are_given_by_name() -> None:
+    """Check that a positional value is refused rather than bound by position.
+
+    Which class holds which setting follows what applies to what, so the order
+    of the fields is not an interface: a value given positionally would bind to
+    whatever sits in that position, and a margin arriving as a trust-region
+    radius is a run that measures something else in silence.
+    """
+    with pytest.raises(TypeError, match="positional argument"):
+        BoxSubdivisionSettings("adaptive", 50.0)
+
+    assert BoxSubdivisionSettings(
+        mechanism="adaptive", convexity_margin=50.0
+    ).convexity_value == pytest.approx(50.0)

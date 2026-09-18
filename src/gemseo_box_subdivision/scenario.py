@@ -35,10 +35,6 @@ from typing import Any
 from gemseo.core.chains.chain import MDOChain
 from gemseo.scenarios.mdo_scenario import MDOScenario
 from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
-from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
-)
 
 from gemseo_box_subdivision.design_spaces import create_box_design_space
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
@@ -50,6 +46,7 @@ from gemseo_box_subdivision.disciplines.multi_resolution_mapping import (
 from gemseo_box_subdivision.disciplines.scenario_adapters.box_start import (
     create_box_start_adapter_class,
 )
+from gemseo_box_subdivision.settings import BaseBoxSubdivisionSettings
 from gemseo_box_subdivision.settings import BoxSubdivisionSettings
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
@@ -83,6 +80,13 @@ class BoxSubdivisionScenario(MDOScenario):
     master of the outer approximation never has to be configured by hand. Passing
     settings explicitly overrides them, as for any scenario.
 
+    The algorithm of each of the two levels, and its settings, come from
+    :class:`.BoxSubdivisionSettings`: the master from
+    :attr:`~.BoxSubdivisionSettings.master_algo_name` and
+    :attr:`~.BoxSubdivisionSettings.master_algo_settings`, each sub-problem from
+    :attr:`~.BoxSubdivisionSettings.sub_problem_algo_name` and
+    :attr:`~.BoxSubdivisionSettings.sub_problem_algo_settings`.
+
     The four constructions share this one entry point:
 
     - a **flat** subdivision, the default;
@@ -97,7 +101,7 @@ class BoxSubdivisionScenario(MDOScenario):
     subdivision: BoxSubdivision | MultiResolution
     """The subdivision of the design space the scenario explores."""
 
-    box_settings: BoxSubdivisionSettings
+    box_settings: BaseBoxSubdivisionSettings
     """The settings of the run."""
 
     def __init__(
@@ -110,7 +114,7 @@ class BoxSubdivisionScenario(MDOScenario):
         levels: int = 1,
         formulation: str = "normalized",
         weights: Mapping[str, ndarray] = MappingProxyType({}),
-        settings: BoxSubdivisionSettings | None = None,
+        settings: BaseBoxSubdivisionSettings | None = None,
         name: str = "",
     ) -> None:
         """
@@ -145,7 +149,12 @@ class BoxSubdivisionScenario(MDOScenario):
                 weigh every subdivision alike, so that the distance is the
                 number of components a candidate changes. This is the metric the
                 measurements support; the alternative exists to be swept.
-            settings: The settings of the run. If ``None``, use the defaults of
+            settings: The settings of the run, either
+                :class:`.BoxSubdivisionSettings`, which names the master and the
+                sub-problem solver and calibrates the convexity, or
+                :class:`.SweptBoxSubdivisionSettings`, which sweeps the convexity
+                instead of asking for a value and drives the master implementing
+                it. If ``None``, use the defaults of
                 :class:`.BoxSubdivisionSettings`, whose convexity margin only
                 suits an objective of the scale of the benchmark.
             name: The name of the scenario.
@@ -193,8 +202,8 @@ class BoxSubdivisionScenario(MDOScenario):
             "main_problem_design_variables": list(
                 self.subdivision.get_one_hot_names({}).values()
             ),
-            "sub_problem_algo_settings": SLSQP_Settings(
-                max_iter=self.box_settings.sub_problem_max_iter
+            "sub_problem_algo_settings": (
+                self.box_settings.create_sub_problem_settings_model()
             ),
             "sub_problem_formulation_settings": DisciplinaryOpt_Settings(),
         }
@@ -279,8 +288,8 @@ class BoxSubdivisionScenario(MDOScenario):
                 for variable_name in names
                 for level in range(1, levels + 1)
             ],
-            sub_problem_algo_settings=SLSQP_Settings(
-                max_iter=self.box_settings.sub_problem_max_iter
+            sub_problem_algo_settings=(
+                self.box_settings.create_sub_problem_settings_model()
             ),
             sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
         )
@@ -288,30 +297,83 @@ class BoxSubdivisionScenario(MDOScenario):
     def execute(self, algo_settings_model: Any = None, **algo_settings: Any) -> None:
         """Execute the scenario.
 
-        Without arguments, run the master with the settings the scenario was
-        built with, the radius of the trust region scaled where the distance
-        counts something other than design variables: the multi-resolution
-        encoding has one one-hot group per level per variable, so two whole
-        variables is twice the number of levels.
+        Without arguments, run the master named by the settings the scenario was
+        built with, with those settings, the radius of the trust region scaled
+        where the distance counts something other than design variables: the
+        multi-resolution encoding has one one-hot group per level per variable,
+        so two whole variables is twice the number of levels.
 
         Args:
             algo_settings_model: The settings of the master, overriding those of
-                the scenario.
+                the scenario, the model naming the algorithm to execute.
             **algo_settings: The settings of the master, as keyword arguments.
 
         Returns:
             Whatever a GEMSEO scenario returns.
         """
-        if algo_settings_model is None and not algo_settings:
-            radius = None
-            if isinstance(self.subdivision, MultiResolution):
-                radius = self.box_settings.trust_region_radius * self.subdivision.levels
+        # Whatever the run supplies its master applies to every execution, not
+        # only to the one this class configures: settings given here override
+        # what the master is told, never what the run needs of it.
+        with self.box_settings.drive_the_master():
+            if algo_settings_model is None and not algo_settings:
+                radius = None
+                if isinstance(self.subdivision, MultiResolution):
+                    radius = (
+                        self.box_settings.trust_region_radius * self.subdivision.levels
+                    )
 
-            algo_settings_model = BiLevelMasterOuterApproximation_Settings(
-                **self.box_settings.to_master_settings(radius)
+                # The master is selected by its name rather than by a settings
+                # model: a model names the algorithm to execute itself, and the
+                # settings of ``OUTER_APPROXIMATION`` name one no library
+                # provides, so a model would not run ``master_algo_name``.
+                return super().execute(
+                    algo_name=self.box_settings.master_algo_name,
+                    **self.box_settings.to_master_settings(radius),
+                )
+
+            # What the run needs of its master is not among the settings a
+            # caller overrides: a swept run reaching the master without its
+            # sweep solves at the master's own convexity, which is zero.
+            needed = self.box_settings.master_settings_the_run_needs()
+            if algo_settings_model is None:
+                return super().execute(None, **algo_settings, **needed)
+
+            return super().execute(
+                _keeping(algo_settings_model, needed), **algo_settings
             )
 
-        return super().execute(algo_settings_model, **algo_settings)
+
+def _keeping(algo_settings_model: Any, settings: Mapping[str, Any]) -> Any:
+    """Return a settings model carrying what the run needs of its master.
+
+    The model is the caller's, so it is copied rather than changed: a caller
+    reusing it for another run is not configuring this one.
+
+    Args:
+        algo_settings_model: The settings the caller gave the master.
+        settings: What the run needs of it, whatever the caller overrides.
+
+    Returns:
+        The settings model, with those settings set on it.
+
+    Raises:
+        ValueError: When the model does not declare them, the master it names
+            being one that cannot do what the run needs.
+    """
+    if not settings:
+        return algo_settings_model
+
+    declared = type(algo_settings_model).model_fields
+    missing = sorted(name for name in settings if name not in declared)
+    if missing:
+        msg = (
+            f"The settings given to the master do not declare {missing}, which "
+            "this run needs of it; the algorithm they name cannot run it as "
+            "constructed."
+        )
+        raise ValueError(msg)
+
+    return algo_settings_model.model_copy(update=dict(settings))
 
 
 def _subdivided_names(

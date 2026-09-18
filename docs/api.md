@@ -21,6 +21,7 @@ namespace, which is what user code should import from.
 
    gemseo_box_subdivision.scenario
    gemseo_box_subdivision.settings
+   gemseo_box_subdivision.convexity_sweep
 ```
 
 ## Subdivisions
