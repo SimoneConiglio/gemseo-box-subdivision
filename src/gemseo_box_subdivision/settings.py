@@ -107,7 +107,7 @@ objective whose gradient is unavailable or noisy, but nothing here measures one.
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class BaseBoxSubdivisionSettings(ABC):
     r"""What every box-subdivision run needs, whichever master drives it.
 
@@ -116,6 +116,11 @@ class BaseBoxSubdivisionSettings(ABC):
     run rather than to either of them, and what the sub-problem level takes;
     :class:`.BoxSubdivisionSettings` and :class:`.SweptBoxSubdivisionSettings`
     add the master.
+
+    Every setting is given **by name**. They are a vocabulary rather than an
+    order, and which class holds which is a matter of what applies to what, so an
+    order would change under the reader; naming one refuses what it cannot take
+    rather than binding it to whatever sits in that position.
     """
 
     MECHANISMS: ClassVar[tuple[str, ...]] = ("adaptive", "convexification")
@@ -157,7 +162,13 @@ class BaseBoxSubdivisionSettings(ABC):
     """The radius of the trust region of the master, in components changed."""
 
     n_parallel_points: int = N_PARALLEL_POINTS
-    """The number of trust-region radii the master probes per iteration."""
+    """The number of trust-region radii the master probes per iteration.
+
+    The **pure convexification probes a single point** whatever this says, which
+    is the configuration its constant was measured at; only the adaptive repair
+    and a sweep spread the probes, a sweep because a probe per rung is what makes
+    an iteration span its ladder.
+    """
 
     max_iter: int = 80
     """The number of iterations of the master, not of the sub-problems."""
@@ -339,7 +350,7 @@ class BaseBoxSubdivisionSettings(ABC):
         return settings_class(**self.to_sub_problem_settings())
 
 
-@dataclass
+@dataclass(kw_only=True)
 class BoxSubdivisionSettings(BaseBoxSubdivisionSettings):
     r"""The settings of a box-subdivision run, with the master you name.
 
@@ -495,7 +506,7 @@ class BoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         return settings
 
 
-@dataclass
+@dataclass(kw_only=True)
 class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
     r"""The settings of a run that **sweeps** the convexity instead of choosing it.
 

@@ -82,6 +82,11 @@ and this project adheres to
 
 ### Changed
 
+- **Every setting is given by name.** The three settings classes are keyword-only,
+  since which one holds which setting follows what applies to what rather than an
+  order a reader could rely on: a value given positionally would bind to whatever
+  sits in that position, and a convexity margin arriving as a trust-region radius
+  is a run that measures something else in silence.
 - **The two constructions are two entry points.** `BoxSubdivisionSettings` is the
   general one, naming any master that can choose a box and any sub-problem
   solver; `SweptBoxSubdivisionSettings` is the swept one, driving the master that

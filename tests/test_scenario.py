@@ -465,3 +465,19 @@ def test_an_algorithm_whose_settings_select_another_one_is_refused() -> None:
     """The name the settings select is the one executed, so it must be the one asked."""
     with pytest.raises(ValueError, match="select 'OrtoolsMILP' instead"):
         BoxSubdivisionSettings(sub_problem_algo_name="ORTOOLS_MILP")
+
+
+def test_the_settings_are_given_by_name() -> None:
+    """Check that a positional value is refused rather than bound by position.
+
+    Which class holds which setting follows what applies to what, so the order
+    of the fields is not an interface: a value given positionally would bind to
+    whatever sits in that position, and a margin arriving as a trust-region
+    radius is a run that measures something else in silence.
+    """
+    with pytest.raises(TypeError, match="positional argument"):
+        BoxSubdivisionSettings("adaptive", 50.0)
+
+    assert BoxSubdivisionSettings(
+        mechanism="adaptive", convexity_margin=50.0
+    ).convexity_value == pytest.approx(50.0)

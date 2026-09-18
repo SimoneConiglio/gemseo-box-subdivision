@@ -197,7 +197,7 @@ Eight settings are common to both:
 |---------|---------|------------|
 | `mechanism` | `"adaptive"` | which guard against the non-convexity of the relaxed problem, `adaptive` or `convexification`, never both. It describes an outer approximation, so it reaches only a master declaring it |
 | `trust_region_radius` | $2$ | the radius of the trust region of the master, counted in **components changed** |
-| `n_parallel_points` | $4$ | the trust-region radii the master probes per iteration. Under the swept entry point this is also the number of rungs, a probe per rung |
+| `n_parallel_points` | $4$ | the trust-region radii the master probes per iteration. Under the swept entry point this is also the number of rungs, a probe per rung. The **pure convexification probes a single point** whatever this says, unless a sweep spreads them |
 | `max_iter` | $80$ | iterations of the **master**, not of the sub-problems |
 | `sub_problem_max_iter` | $40$ | iterations of each sub-problem |
 | `tolerance` | $10^{-4}$ | the tolerance on the upper bound of the master |
