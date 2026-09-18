@@ -45,12 +45,13 @@ from numpy import argmin
 from numpy import atleast_2d
 from numpy import geomspace
 
-from gemseo_box_subdivision import convexity_sweep as policy
-from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
 from gemseo_box_subdivision.convexity_sweep import objective_scale
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from collections.abc import Iterator
+
+    from gemseo_box_subdivision.settings import SweptBoxSubdivisionSettings
 
 _FOPT_HIST = 2
 """Where the objective history sits among the positional arguments of the solve."""
@@ -63,23 +64,32 @@ _CURRENT_STEP = 14
 
 
 def _argument(
-    args: tuple[Any, ...], kwargs: dict[str, Any], index: int, name: str
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+    index: int,
+    name: str,
+    default: Any = None,
 ) -> Any:
     """Return one argument of the solve, however the master passed it.
+
+    The default is returned rather than tested for afterwards: an objective
+    history may be an array, and asking whether an array is empty by its truth
+    value raises rather than answering.
 
     Args:
         args: The positional arguments.
         kwargs: The keyword arguments.
         index: The position of the argument.
         name: Its name.
+        default: What to return where the master passed neither.
 
     Returns:
-        The argument, or ``None`` where the master passed neither.
+        The argument, or the default.
     """
     if len(args) > index:
         return args[index]
 
-    return kwargs.get(name)
+    return kwargs.get(name, default)
 
 
 @dataclass(frozen=True)
@@ -92,7 +102,11 @@ class Deployment:
     """
 
     index: int
-    """The index of the probe, and of the rung it started from."""
+    """The index of the **rung** the probe started from.
+
+    Not the index of the probe: :meth:`.ConvexitySweep.probe_index` maps one onto
+    the other, and exists because the two counts need not agree.
+    """
 
     value: float
     """The rung that produced the proposal, at or above the probe's own."""
@@ -145,28 +159,49 @@ def _probe(optimizer: Any, current_step: float | None) -> int:
     return int(argmin(abs(steps - current_step)))
 
 
+def _history(
+    args: tuple[Any, ...], kwargs: dict[str, Any], index: int, name: str
+) -> Iterable[float]:
+    """Return one objective history of the solve, empty where there is none.
+
+    Neither absence nor ``None`` is asked about by truth value: a history may be
+    an array, and an array has no truth value to ask for.
+
+    Args:
+        args: The positional arguments.
+        kwargs: The keyword arguments.
+        index: The position of the history.
+        name: Its name.
+
+    Returns:
+        The history, or an empty one.
+    """
+    history = _argument(args, kwargs, index, name)
+    if history is None:
+        return ()
+
+    return history
+
+
 @contextmanager
 def drive_the_sweep(
-    max_value: float, setting_name: str = "min_dfk"
+    settings: SweptBoxSubdivisionSettings,
 ) -> Iterator[list[Deployment]]:
     """Make the parallel probes of the master sweep the convexity setting.
 
     The ladder has one rung per parallel point of the master, read off the master
     itself, which is what pairs a probe with a rung; a rung count of its own could
-    disagree with the probes it is spread over.
+    disagree with the probes it is spread over. The settings say what the ladder
+    is bounded by and which setting the mechanism calibrates.
 
     Args:
-        max_value: The upper bound of the sweep, or zero to read it off the
-            objective as the run observes it.
-        setting_name: The setting the mechanism calibrates, ``"min_dfk"`` for the
-            adaptive repair and ``"convexification_constant"`` for the pure
-            convexification. The two are never active at once, so the sweep
-            varies one of them.
+        settings: The swept construction this run was given.
 
     Yields:
         The deployments that proposed a box not yet solved, appended as the run
         goes, so that a caller can report which rungs the boxes came from.
     """
+    setting_name = settings.convexity_setting_name
     original = core.OuterApproximationOptimizer._solve_milp
     trace: list[Deployment] = []
 
@@ -185,21 +220,14 @@ def drive_the_sweep(
         # included: the sooner two of them differ, the sooner the ladder exists
         # and the fewer solves the master makes at its own value, which is zero.
         solved = (
-            *(_argument(args, kwargs, _FOPT_HIST, "fopt_hist") or ()),
-            *(
-                _argument(args, kwargs, _INFEASIBLE_FOPT_HIST, "infeasible_fopt_hist")
-                or ()
-            ),
+            *_history(args, kwargs, _FOPT_HIST, "fopt_hist"),
+            *_history(args, kwargs, _INFEASIBLE_FOPT_HIST, "infeasible_fopt_hist"),
         )
         current_step = _argument(args, kwargs, _CURRENT_STEP, "current_step")
-        # policy.HEADROOM rather than a name bound at import: the benchmark
-        # patches the module to measure what the headroom buys.
-        bound = max_value or objective_scale(solved) * policy.HEADROOM
-        sweep = (
-            ConvexitySweep.from_bounds(bound, self.n_parallel_points)
-            if bound > 0.0
-            else None
-        )
+        # The settings build the ladder, from the probes this master actually
+        # runs: one rung per probe is the construction, and counting them here
+        # as well is how the two came to disagree.
+        sweep = settings.create_sweep(objective_scale(solved), self.n_parallel_points)
         if sweep is None:
             # Nothing has been solved yet, so the objective has no scale to read
             # the upper bound off: leave the master its own value.
@@ -241,4 +269,8 @@ def drive_the_sweep(
     try:
         yield trace
     finally:
-        core.OuterApproximationOptimizer._solve_milp = original
+        # Only what this context put there is taken back: contexts left in an
+        # order other than the one they were entered in would otherwise restore
+        # a stale wrapper over a newer one, and the master would stay patched.
+        if core.OuterApproximationOptimizer._solve_milp is patched:
+            core.OuterApproximationOptimizer._solve_milp = original

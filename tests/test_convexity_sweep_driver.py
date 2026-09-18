@@ -35,6 +35,7 @@ from numpy import zeros
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 from gemseo_box_subdivision._convexity_sweep_driver import _probe
 from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
+from gemseo_box_subdivision._convexity_sweep_fallback import ConvexitySweep
 
 
 @dataclass
@@ -78,7 +79,7 @@ def test_a_solve_outside_the_probing_loop() -> None:
 def test_the_master_is_left_as_it_was() -> None:
     """Check that the stub restores the method it patches."""
     original = core.OuterApproximationOptimizer._solve_milp
-    with drive_the_sweep(0.0):
+    with drive_the_sweep(SweptBoxSubdivisionSettings()):
         assert core.OuterApproximationOptimizer._solve_milp is not original
 
     assert core.OuterApproximationOptimizer._solve_milp is original
@@ -88,7 +89,7 @@ def test_the_master_is_restored_after_an_error() -> None:
     """Check that a run raising leaves the master unpatched."""
     original = core.OuterApproximationOptimizer._solve_milp
     with pytest.raises(ValueError, match=r"the run failed"):  # noqa: PT012, SIM117
-        with drive_the_sweep(0.0):
+        with drive_the_sweep(SweptBoxSubdivisionSettings()):
             msg = "the run failed"
             raise ValueError(msg)
 
@@ -143,7 +144,7 @@ def test_the_ladder_a_probe_is_given_is_computed_from_the_objective() -> None:
     original = core.OuterApproximationOptimizer._solve_milp
     core.OuterApproximationOptimizer._solve_milp = _solve
     try:
-        with drive_the_sweep(0.0):
+        with drive_the_sweep(SweptBoxSubdivisionSettings()):
             patched = core.OuterApproximationOptimizer._solve_milp
             # Fifteen arguments, as the master passes them: the objective
             # history third and the radius of the probe last.
@@ -199,7 +200,7 @@ def test_the_boxes_found_infeasible_carry_a_scale_too() -> None:
     original = core.OuterApproximationOptimizer._solve_milp
     core.OuterApproximationOptimizer._solve_milp = _solve
     try:
-        with drive_the_sweep(0.0):
+        with drive_the_sweep(SweptBoxSubdivisionSettings()):
             patched = core.OuterApproximationOptimizer._solve_milp
             # One feasible box, so no spread of its own, and two infeasible ones.
             # Fifteen arguments: the feasible history third, the infeasible one
@@ -276,3 +277,84 @@ def test_the_master_is_driven_whichever_way_the_scenario_is_executed() -> None:
     assert any(guard > 0.0 for guard in guards), (
         "every solve ran at the master's own convexity, so the sweep was skipped"
     )
+    # A ladder, not one value: the probes of the master are what it is spread
+    # over, and a settings model saying nothing of them leaves the master one
+    # probe, hence one rung. Asking for four asks for four.
+    assert len(set(guards)) > 1, guards
+
+
+def test_the_probes_of_the_master_are_the_rungs_it_gets() -> None:
+    """Check that the ladder follows the probes the master actually runs.
+
+    The rungs are the probes, and a caller configuring the master is the one
+    saying how many there are, so the ladder has to be built from what the master
+    ended up with rather than from what the settings would have asked for.
+    """
+    built = []
+
+    @dataclass
+    class _Master:
+        """A master running a number of probes of its own choosing."""
+
+        n_parallel_points: int
+        min_step: float = 1.0
+        current_step: float = 2.0
+        min_dfk: float = 0.0
+
+        def _is_previously_computed(self, alpha) -> bool:  # noqa: ANN001
+            return False
+
+    def _solve(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        built.append(self.min_dfk)
+        return zeros((1, 1)), None, True
+
+    original = core.OuterApproximationOptimizer._solve_milp
+    core.OuterApproximationOptimizer._solve_milp = _solve
+    try:
+        # The settings would ask a master for four probes; this one runs six, so
+        # the ladder spans six rungs over the two decades below the bound.
+        with drive_the_sweep(SweptBoxSubdivisionSettings(max_value=100.0)):
+            patched = core.OuterApproximationOptimizer._solve_milp
+            master = _Master(6)
+            for radius in geomspace(1.0, 2.0, 6):
+                patched(master, None, None, (3.0, 11.0), *[None] * 11, float(radius))
+    finally:
+        core.OuterApproximationOptimizer._solve_milp = original
+
+    # Six rungs over the two decades below the bound, one per probe. A ladder
+    # built from the four probes the settings would have asked for would agree
+    # at the ends and nowhere else, so the middle is what pins it.
+    six_rungs = ConvexitySweep.from_bounds(100.0, 6).ladder
+    assert built == [pytest.approx(rung) for rung in six_rungs], built
+
+
+def test_a_context_left_out_of_order_does_not_unpatch_a_live_one() -> None:
+    """Check that leaving a context does not take back another's patch.
+
+    Nesting is the ordinary case and unwinds exactly. Where two are left in the
+    order they were entered instead, the one still open would otherwise lose its
+    patch and its run would finish unswept, which is silent.
+    """
+    original = core.OuterApproximationOptimizer._solve_milp
+
+    outer = drive_the_sweep(SweptBoxSubdivisionSettings(max_value=10.0))
+    inner = drive_the_sweep(SweptBoxSubdivisionSettings(max_value=20.0))
+    outer.__enter__()
+    inner.__enter__()
+    still_driving = core.OuterApproximationOptimizer._solve_milp
+
+    outer.__exit__(None, None, None)
+    assert core.OuterApproximationOptimizer._solve_milp is still_driving
+
+    inner.__exit__(None, None, None)
+
+    # Nesting, which is how a benchmark inside a scenario meets one, unwinds to
+    # exactly what was there before.
+    core.OuterApproximationOptimizer._solve_milp = original
+    with (
+        drive_the_sweep(SweptBoxSubdivisionSettings(max_value=10.0)),
+        drive_the_sweep(SweptBoxSubdivisionSettings(max_value=20.0)),
+    ):
+        pass
+
+    assert core.OuterApproximationOptimizer._solve_milp is original

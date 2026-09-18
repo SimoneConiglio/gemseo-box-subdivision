@@ -78,6 +78,7 @@ from benchmarks.baselines import run_box_subdivision
 from benchmarks.configurations import ADAPTIVE
 from benchmarks.configurations import TRUST_REGION_RADIUS
 from benchmarks.problems import PROBLEMS
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 from gemseo_box_subdivision import convexity_sweep as policy
 from gemseo_box_subdivision._convexity_sweep_driver import Deployment
 from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
@@ -166,7 +167,8 @@ def convexity_sweep(
         )
         return
 
-    with drive_the_sweep(max_value) as trace:
+    # The swept entry point is what the driver takes, and what this measures.
+    with drive_the_sweep(SweptBoxSubdivisionSettings(max_value=max_value)) as trace:
         yield {}, trace
 
 

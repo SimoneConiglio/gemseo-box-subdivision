@@ -616,16 +616,26 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         # both it and the patching go when the master ships the sweep.
         from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
 
-        with drive_the_sweep(self.max_value, self.convexity_setting_name):
+        with drive_the_sweep(self):
             yield
 
-    def create_sweep(self, observed_scale: float = 0.0) -> ConvexitySweep | None:
+    def create_sweep(
+        self, observed_scale: float = 0.0, n_points: int = 0
+    ) -> ConvexitySweep | None:
         """Return the ladder this run asks for.
+
+        This is the only place a ladder is built, so that the rungs are never
+        counted twice: the driver passes the probes the master actually runs,
+        which is what a probe per rung means, and a caller with no master to ask
+        gets the probes this run would request of one.
 
         Args:
             observed_scale: The variation of the objective over the boxes already
                 solved, which is the upper bound of a sweep given none. See
                 :func:`.objective_scale`.
+            n_points: The rungs, which are the probes of the master. Zero takes
+                :attr:`.n_parallel_points`, the number this run asks a master
+                for, which is what a master left to these settings runs.
 
         Returns:
             The ladder, or ``None`` when its upper bound is neither given nor
@@ -637,7 +647,9 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         if max_value <= 0.0:
             return None
 
-        return ConvexitySweep(convexity_ladder(max_value, self.n_parallel_points))
+        return ConvexitySweep(
+            convexity_ladder(max_value, n_points or self.n_parallel_points)
+        )
 
     def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
         """Return the settings of the master problem.
