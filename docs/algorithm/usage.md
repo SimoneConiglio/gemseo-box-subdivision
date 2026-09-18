@@ -131,6 +131,14 @@ run without a sweep.
 {py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
 which master is installed, and the driving stops the day it says the master
 sweeps.
+
+The driving holds over a run that configures its own master, `scenario.execute`
+being given a settings model or keyword arguments: the sweep is what the run
+needs of its master rather than one of the settings the caller is overriding, and
+a driven run switches the adaptive repair on because the master reads the margin
+only behind it. What such a run does override is the number of parallel points,
+which is the number of rungs: a master left with one probe is given the top rung,
+the conservative end, rather than a ladder.
 :::
 
 ## The algorithm of each of the two levels

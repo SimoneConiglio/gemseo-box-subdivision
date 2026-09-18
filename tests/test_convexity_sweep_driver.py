@@ -241,10 +241,12 @@ def test_the_master_is_driven_whichever_way_the_scenario_is_executed() -> None:
     from gemseo_box_subdivision import BoxSubdivisionScenario
 
     guards = []
+    gates = []
     original = core.OuterApproximationOptimizer._solve_milp
 
     def spy(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
         guards.append(self.min_dfk)
+        gates.append(self.use_adaptative_convexification)
         return original(self, *args, **kwargs)
 
     discipline = create_discipline(
@@ -278,10 +280,14 @@ def test_the_master_is_driven_whichever_way_the_scenario_is_executed() -> None:
     assert any(guard > 0.0 for guard in guards), (
         "every solve ran at the master's own convexity, so the sweep was skipped"
     )
-    # A ladder, not one value: the probes of the master are what it is spread
-    # over, and a settings model saying nothing of them leaves the master one
-    # probe, hence one rung. Asking for four asks for four.
-    assert len(set(guards)) > 1, guards
+
+    # Setting the margin is not guarding the cuts with it: the master reads the
+    # margin only behind its own switch, and a settings model that says nothing
+    # of the mechanism leaves that switch off. A swept run that sets a margin the
+    # master never reads is the unguarded run, dressed as a swept one.
+    assert all(gates), (
+        "the master ran with the adaptive repair off, so it read no margin at all"
+    )
 
 
 def test_the_probes_of_the_master_are_the_rungs_it_gets() -> None:
@@ -366,3 +372,52 @@ def test_a_context_left_out_of_order_leaves_the_master_as_it_found_it() -> None:
         pass
 
     assert core.OuterApproximationOptimizer._solve_milp is original
+
+
+def test_a_sweep_buried_under_a_foreign_patch_stops_when_its_context_ends() -> None:
+    """Check that a sweep no longer reachable by name stops sweeping anyway.
+
+    A wrapper this module did not install, the trust-region benchmark's among
+    them, says nothing of what it delegates to, so it cannot be spliced and the
+    sweep stays in the chain when its context ends. It must then do nothing: a
+    run after the context is not a swept run, and guarding its cuts with a ladder
+    nobody asked for is as silent as guarding them with none.
+    """
+    guards = []
+
+    class _Master:
+        n_parallel_points = 4
+        current_step = 2.0
+        min_step = 1.0
+        min_dfk = 0.0
+
+        def _is_previously_computed(self, alpha) -> bool:  # noqa: ANN001
+            return False
+
+    def _solve(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        guards.append(self.min_dfk)
+        return zeros((1, 1)), None, True
+
+    original = core.OuterApproximationOptimizer._solve_milp
+    core.OuterApproximationOptimizer._solve_milp = _solve
+    try:
+        with drive_the_sweep(SweptBoxSubdivisionSettings()):
+            driving = core.OuterApproximationOptimizer._solve_milp
+
+            def foreign(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+                return driving(self, *args, **kwargs)
+
+            core.OuterApproximationOptimizer._solve_milp = foreign
+
+        # The foreign wrapper says nothing of what it wraps, so the sweep could
+        # not be taken out of the chain and is still reached through it.
+        assert core.OuterApproximationOptimizer._solve_milp is foreign
+
+        foreign(_Master(), None, None, (3.0, 11.0), *[None] * 11, 1.0)
+    finally:
+        core.OuterApproximationOptimizer._solve_milp = original
+
+    assert guards, "the master was never solved"
+    assert guards == [0.0], (
+        "a context that has ended still swept the convexity of a later solve"
+    )
