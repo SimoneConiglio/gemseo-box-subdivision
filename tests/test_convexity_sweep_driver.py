@@ -33,6 +33,7 @@ from numpy import geomspace
 from numpy import zeros
 
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
+from gemseo_box_subdivision._convexity_sweep_driver import _DELEGATE
 from gemseo_box_subdivision._convexity_sweep_driver import _probe
 from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
 from gemseo_box_subdivision._convexity_sweep_fallback import ConvexitySweep
@@ -328,29 +329,36 @@ def test_the_probes_of_the_master_are_the_rungs_it_gets() -> None:
     assert built == [pytest.approx(rung) for rung in six_rungs], built
 
 
-def test_a_context_left_out_of_order_does_not_unpatch_a_live_one() -> None:
-    """Check that leaving a context does not take back another's patch.
+def test_a_context_left_out_of_order_leaves_the_master_as_it_found_it() -> None:
+    """Check that leaving two contexts in either order ends with no patch left.
 
     Nesting is the ordinary case and unwinds exactly. Where two are left in the
-    order they were entered instead, the one still open would otherwise lose its
-    patch and its run would finish unswept, which is silent.
+    order they were entered instead, the one still open must keep its patch, or
+    its run finishes unswept; and the one that left must stop driving, or the
+    master keeps a wrapper whose context has ended, for the rest of the process.
     """
     original = core.OuterApproximationOptimizer._solve_milp
 
     outer = drive_the_sweep(SweptBoxSubdivisionSettings(max_value=10.0))
     inner = drive_the_sweep(SweptBoxSubdivisionSettings(max_value=20.0))
     outer.__enter__()
+    outer_patch = core.OuterApproximationOptimizer._solve_milp
     inner.__enter__()
     still_driving = core.OuterApproximationOptimizer._solve_milp
 
     outer.__exit__(None, None, None)
     assert core.OuterApproximationOptimizer._solve_milp is still_driving
 
+    # The context that left is out of the chain, so the one still open no longer
+    # solves through it: it solves through what the master had to begin with.
+    assert getattr(still_driving, _DELEGATE) is not outer_patch
+    assert getattr(still_driving, _DELEGATE) is original
+
     inner.__exit__(None, None, None)
+    assert core.OuterApproximationOptimizer._solve_milp is original
 
     # Nesting, which is how a benchmark inside a scenario meets one, unwinds to
     # exactly what was there before.
-    core.OuterApproximationOptimizer._solve_milp = original
     with (
         drive_the_sweep(SweptBoxSubdivisionSettings(max_value=10.0)),
         drive_the_sweep(SweptBoxSubdivisionSettings(max_value=20.0)),

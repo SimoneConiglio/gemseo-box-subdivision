@@ -42,9 +42,9 @@ probe loop beside it, under the settings ``convexity_sweep_points`` and
 
 :data:`.MASTER_SWEEPS_CONVEXITY` says which master is installed. Against one that
 predates the sweep, the settings above are not accepted and the ladder is not
-there to import: the package then falls back to
-``_convexity_sweep_fallback`` and to the stub of
-:mod:`~gemseo_box_subdivision._convexity_sweep_driver`, which sweeps the
+there to import: the package then falls back to its own
+:mod:`~gemseo_box_subdivision._convexity_sweep_fallback` copy of the ladder, and
+to :mod:`~gemseo_box_subdivision._convexity_sweep_driver`, which sweeps that
 ladder around the solves of the released master. Both are temporary, and both go
 when the master ships the sweep.
 """

@@ -26,9 +26,10 @@ the master's own default is zero, which leaves the cuts unguarded. So this drive
 the ladder from outside, around the master's mixed-integer solve, computing the
 bound from the objective exactly as the master would.
 
-This module is **temporary**, like :mod:`.._convexity_sweep_fallback`: both go
-when the master ships the sweep, and nothing else in the package depends on the
-patching they do.
+This module is **temporary**, like
+:mod:`~gemseo_box_subdivision._convexity_sweep_fallback`: both go when the master
+ships the sweep, and nothing else in the package depends on the patching they
+do.
 """
 
 from __future__ import annotations
@@ -183,6 +184,42 @@ def _history(
     return history
 
 
+_DELEGATE = "_sweep_delegate"
+"""The attribute under which a wrapper keeps what it wraps.
+
+A wrapper is a plain function put on the class, so the chain of them has to be
+carried on the wrappers themselves: the class attribute names only the last one
+installed.
+"""
+
+
+def _unpatch(patched: Any) -> None:
+    """Take one wrapper out of the chain, whatever was installed over it.
+
+    Restoring the class attribute is right only where this wrapper is still the
+    one installed. Where another context patched over it and has not left yet,
+    putting back what this one wrapped would undo that context as well; and
+    leaving the attribute alone is not enough either, since the wrapper above
+    still delegates to this one and would keep it running after its context
+    ended. So the wrapper above is made to delegate to what this one wrapped, and
+    the chain closes over it.
+
+    Args:
+        patched: The wrapper to remove.
+    """
+    if core.OuterApproximationOptimizer._solve_milp is patched:
+        core.OuterApproximationOptimizer._solve_milp = getattr(patched, _DELEGATE)
+        return
+
+    wrapper = core.OuterApproximationOptimizer._solve_milp
+    while (delegate := getattr(wrapper, _DELEGATE, None)) is not None:
+        if delegate is patched:
+            setattr(wrapper, _DELEGATE, getattr(patched, _DELEGATE))
+            return
+
+        wrapper = delegate
+
+
 @contextmanager
 def drive_the_sweep(
     settings: SweptBoxSubdivisionSettings,
@@ -231,14 +268,14 @@ def drive_the_sweep(
         if sweep is None:
             # Nothing has been solved yet, so the objective has no scale to read
             # the upper bound off: leave the master its own value.
-            return original(self, *args, **kwargs)
+            return getattr(patched, _DELEGATE)(self, *args, **kwargs)
 
         index = sweep.probe_index(self.n_parallel_points, _probe(self, current_step))
         result = None
         try:
             for value in sweep.rungs(index):
                 setattr(self, setting_name, value)
-                result = original(self, *args, **kwargs)
+                result = getattr(patched, _DELEGATE)(self, *args, **kwargs)
                 alpha, _, is_feasible = result
                 if not is_feasible:
                     # The master is infeasible on its trust region and its
@@ -265,12 +302,9 @@ def drive_the_sweep(
 
         return result
 
+    setattr(patched, _DELEGATE, original)
     core.OuterApproximationOptimizer._solve_milp = patched
     try:
         yield trace
     finally:
-        # Only what this context put there is taken back: contexts left in an
-        # order other than the one they were entered in would otherwise restore
-        # a stale wrapper over a newer one, and the master would stay patched.
-        if core.OuterApproximationOptimizer._solve_milp is patched:
-            core.OuterApproximationOptimizer._solve_milp = original
+        _unpatch(patched)

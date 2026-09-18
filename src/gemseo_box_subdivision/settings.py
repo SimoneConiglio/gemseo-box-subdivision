@@ -603,7 +603,7 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         leaving the master to its own value would leave it at zero, which is a
         run with its cuts unguarded rather than a run without a sweep, so the
         ladder is driven around its mixed-integer solve instead; see
-        :mod:`.._convexity_sweep_driver`.
+        :mod:`~gemseo_box_subdivision._convexity_sweep_driver`.
 
         Yields:
             Nothing.

@@ -35,9 +35,10 @@ convexity values:
   again, until it proposes a new box or the ladder is exhausted. Exhaustion at
   every probe says that no value up to $\kappa_{\max}$ proposes anything new,
   which is a stronger reason to stop than a single value not proposing anything;
-- the user supplies an upper bound and a number of points, or nothing at all,
-  the bound then being read off the spread of the objective over the boxes
-  already solved.
+- the user supplies an upper bound, or nothing at all, the bound then being
+  read off the spread of the objective over the boxes already solved. The number
+  of rungs is never asked for: it is the number of parallel points the master
+  probes with, since a rung with no probe to carry it is never solved.
 
 A redeployment costs one more mixed-integer solve and **no objective
 evaluation**, which is the currency the benchmark counts: escalating is nearly
@@ -51,10 +52,13 @@ with its cuts unguarded.
 **That loop belongs to the master, and it lives there**, under the settings
 ``convexity_sweep_points`` and ``convexity_sweep_max``. Where the installed
 master has them, this module only passes them and measures. Where it does not,
-see `MASTER_SWEEPS_CONVEXITY`, it drives the released master from outside by
-patching :meth:`.OuterApproximationOptimizer._solve_milp`, the same idiom as
-`benchmarks/trust_region.py`, so that the measurement below is reproducible
-against either. The stub goes when the master ships the sweep.
+see `MASTER_SWEEPS_CONVEXITY`, the package itself drives the released master from
+outside, by patching :meth:`.OuterApproximationOptimizer._solve_milp`, the same
+idiom as `benchmarks/trust_region.py`. That driver lives in the package and not
+here, since a swept run has to sweep wherever it is run from and not only under
+the benchmark; this module only opens it, so that the measurement below is
+reproducible against either master. The driver goes when the master ships the
+sweep.
 
 ```shell
 python -m benchmarks.convexity_sweep

@@ -52,8 +52,15 @@ ROOT = Path(__file__).parent.parent
 CHAPTERS = (*sorted((ROOT / "docs").rglob("*.md")), ROOT / "README.md")
 """Everything written for a reader, the README included."""
 
-SOURCES = tuple(sorted((ROOT / "src").rglob("*.py")))
-"""The modules, whose docstrings are documentation too."""
+SOURCES = (
+    *sorted((ROOT / "src").rglob("*.py")),
+    *sorted((ROOT / "benchmarks").rglob("*.py")),
+)
+"""The modules, whose docstrings are documentation too.
+
+The benchmarks are read as well although the suite does not run them: their
+docstrings are what the method chapters cite for their numbers, and a name the
+package withdrew survives there just as visibly as in a chapter."""
 
 WITHDRAWN = (
     "ConvexitySweepSettings",
