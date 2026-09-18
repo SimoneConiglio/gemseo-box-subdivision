@@ -21,92 +21,43 @@ that predates the sweep and is driven from outside.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from importlib import import_module
 
 import pytest
 from gemseo_bilevel_outer_approximation.algos.opt.core import (
     outer_approximation_optimizer as core,
 )
-from numpy import geomspace
 
+from benchmarks.configurations import ADAPTIVE
 from benchmarks.convexity_sweep import MASTER_SWEEPS_CONVEXITY
-from benchmarks.convexity_sweep import _probe
 from benchmarks.convexity_sweep import convexity_sweep
-from benchmarks.convexity_sweep import parallel_convexity_sweep
 from benchmarks.convexity_sweep import run
 from benchmarks.convexity_sweep import set_headroom
 from benchmarks.problems import PROBLEMS
 from gemseo_box_subdivision import convexity_sweep as policy
-from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
-
-
-@dataclass
-class FakeMaster:
-    """The part of the master that says which probe is calling."""
-
-    n_parallel_points: int = 4
-    current_step: float = 2.0
-    min_step: float = 1.0
-
-
-def test_the_probe_comes_from_the_radius() -> None:
-    """Check that each radius of the master maps to its own probe.
-
-    The master does not say which probe is calling, only which trust-region
-    radius it was given, out of the ``geomspace(step / 2, step)`` it spreads
-    them over.
-    """
-    master = FakeMaster()
-    steps = geomspace(master.current_step / 2, master.current_step, num=4)
-    assert [_probe(master, step) for step in steps] == [0, 1, 2, 3]
-
-
-def test_a_single_probe() -> None:
-    """Check the probe of a master that runs only one."""
-    assert _probe(FakeMaster(n_parallel_points=1), 2.0) == 0
-
-
-def test_a_solve_outside_the_probing_loop() -> None:
-    """Check the probe of a solve made with the radius of the master itself.
-
-    The master solves outside the probing loop too, to recover from an
-    infeasible first iteration, and passes its own radius there. That is the top
-    of the radius ladder, hence the last probe, whose rung is the conservative
-    end.
-    """
-    assert _probe(FakeMaster(), 2.0) == 3
-    assert _probe(FakeMaster(), None) == 3
-
-
-def test_the_master_is_left_as_it_was() -> None:
-    """Check that the stub restores the method it patches."""
-    original = core.OuterApproximationOptimizer._solve_milp
-    with parallel_convexity_sweep(ConvexitySweepSettings()):
-        assert core.OuterApproximationOptimizer._solve_milp is not original
-
-    assert core.OuterApproximationOptimizer._solve_milp is original
-
-
-def test_the_master_is_restored_after_an_error() -> None:
-    """Check that a run raising leaves the master unpatched."""
-    original = core.OuterApproximationOptimizer._solve_milp
-    with pytest.raises(ValueError, match=r"the run failed"):  # noqa: PT012, SIM117
-        with parallel_convexity_sweep(ConvexitySweepSettings()):
-            msg = "the run failed"
-            raise ValueError(msg)
-
-    assert core.OuterApproximationOptimizer._solve_milp is original
+from gemseo_box_subdivision.convexity_sweep import objective_scale
 
 
 def test_the_headroom_is_set_and_put_back() -> None:
-    """Check that the headroom reaches whichever module reads it."""
-    original = policy.HEADROOM
-    with set_headroom(1.0):
-        assert pytest.approx(1.0) == policy.HEADROOM
-        if MASTER_SWEEPS_CONVEXITY:
-            assert pytest.approx(1.0) == core.HEADROOM
+    """Check that the headroom reaches whichever module reads it.
 
-    assert pytest.approx(original) == policy.HEADROOM
+    A constant is read through a binding, and it has one per module importing
+    it: the one re-exporting it, which this package's settings read, the one
+    defining it, which is the master's own where the master sweeps and this
+    package's fallback where it does not, and the module solving, where a
+    sweeping master imported it. Leaving any of them unset would leave the rows
+    of a headroom comparison measuring the same thing twice.
+    """
+    modules = [policy, import_module(objective_scale.__module__), core]
+    reading = [module for module in modules if hasattr(module, "HEADROOM")]
+    originals = [module.HEADROOM for module in reading]
+
+    with set_headroom(1.0):
+        for module in reading:
+            assert pytest.approx(1.0) == module.HEADROOM, module.__name__
+
+    for module, original in zip(reading, originals, strict=True):
+        assert pytest.approx(original) == module.HEADROOM, module.__name__
 
 
 def test_no_sweep_asks_for_nothing() -> None:
@@ -119,12 +70,13 @@ def test_no_sweep_asks_for_nothing() -> None:
 def test_the_sweep_goes_to_the_master_that_can_do_it() -> None:
     """Check that the master is asked to sweep, or the stub does it instead."""
     original = core.OuterApproximationOptimizer._solve_milp
-    settings_model = ConvexitySweepSettings(max_value=100.0, n_points=3)
-    with convexity_sweep(settings_model) as (settings, _):
+    with convexity_sweep(100.0) as (settings, _):
         if MASTER_SWEEPS_CONVEXITY:
+            # The rungs are the probes, and the ladder the stub builds has to be
+            # the ladder a sweeping master is asked for, so both are sent.
             assert settings == {
-                "convexity_sweep_points": 3,
                 "convexity_sweep_max": 100.0,
+                "convexity_sweep_points": ADAPTIVE["number_of_parallel_points"],
             }
             assert core.OuterApproximationOptimizer._solve_milp is original
         else:
@@ -134,7 +86,7 @@ def test_the_sweep_goes_to_the_master_that_can_do_it() -> None:
 
 @pytest.mark.parametrize(
     "sweep",
-    [ConvexitySweepSettings(max_value=100.0), ConvexitySweepSettings()],
+    [100.0, 0.0],
 )
 def test_a_swept_run_reaches_the_optimum(sweep) -> None:
     """Check that the sweep solves Rastrigin, bounded and unbounded.

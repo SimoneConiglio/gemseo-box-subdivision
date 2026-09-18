@@ -38,7 +38,7 @@ measuring them together measures neither.
 ```
 
 
-`pure_convexification`
+`convexification`
 : adds to the objective a convex term vanishing at the integer points. Once its
   constant dominates the concavity of the relaxed problem, the relaxation is
   convex and the outer approximation converges. Driven by
@@ -212,18 +212,20 @@ ladder of convexity values:
   than a single value not proposing anything: *no value up to $\kappa_{\max}$
   proposes a box that has not been solved.*
 
-What the user supplies is then an **upper bound** and a number of points. Erring
-high on the bound is safe in a way that erring high on a single margin is not,
-because the low rungs stay on the ladder either way.
+What the user supplies is then an **upper bound**, and nothing else: $N$, the
+number of rungs, is the number of parallel points, since probe $k$ takes rung $k$
+and a rung count of its own could only disagree with the probes it is spread
+over. Erring high on the bound is safe in a way that erring high on a single
+margin is not, because the low rungs stay on the ladder either way.
 
 :::{note}
 This loop belongs to the master rather than to this package, and it is
 implemented there, in `gemseo-bilevel-outer-approximation`, under the settings
 `convexity_sweep_points` and `convexity_sweep_max`. What this package holds is
-[`ConvexitySweepSettings`](usage.md#not-choosing-the-convexity-at-all), which
-turns into those two, and the stub of `benchmarks/convexity_sweep.py`, which
-drives a master predating them from outside so that the measurement below is
-reproducible against either.
+[`SweptBoxSubdivisionSettings`](usage.md#not-choosing-the-convexity-at-all), which
+turns into those two, and the driver that sweeps from outside a master
+predating them, so that the measurement below is reproducible against either and
+a run against either is guarded.
 :::
 
 #### What it measures
@@ -250,8 +252,8 @@ from four starting points out of six; the sweep at the same bound reaches it fro
 six. And the sweep is **forgiving of its bound**: ten times too large costs $532$
 against $491$ on Rastrigin and changes nothing that is reached there, which is
 the property a single margin does not have, where ten times too small is 1/6 and
-the right value is 6/6. On Ackley the same over-estimate does cost a starting
-point, $4/6$ against $6/6$, so the bound is not free — it is merely forgiving
+the right value is 6/6. On Ackley the same over-estimate does cost two starting
+points, $4/6$ against $6/6$, so the bound is not free — it is merely forgiving
 where the margin is brittle.
 
 #### Reading the bound off the objective, and the headroom it needs

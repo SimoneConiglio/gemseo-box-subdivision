@@ -44,7 +44,9 @@ subdivision it built, and everything else about it works as usual.
 
 ## The settings that are yours to choose
 
-Two, and neither has a default that transfers between problems:
+Two, and neither has a default that transfers between problems. The class holds
+more, and [every one of them is listed below](#every-setting-and-what-it-defaults-to);
+these are the two that a new problem actually asks of you:
 
 ```python
 from gemseo_box_subdivision import BoxSubdivisionSettings
@@ -89,17 +91,26 @@ trust-region radii per iteration, one per parallel point; the same probes can
 sweep a ladder of convexity values, the low rungs proposing the box next door
 and the high rungs the box across the design space, with every probe that
 proposes nothing new redeployed a rung higher. What is then asked of you is an
-upper bound and a number of points, or nothing at all:
+upper bound, or nothing at all. It is a **separate entry point** rather than a
+setting of the one above, because a run that sweeps has no convexity to calibrate
+and does not name its master: the sweep lives in one particular master, and this
+drives it.
 
 ```python
-from gemseo_box_subdivision import ConvexitySweepSettings
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
-# An upper bound and a number of points, instead of a calibrated margin.
-BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings(max_value=100.0))
+# An upper bound, instead of a calibrated margin.
+SweptBoxSubdivisionSettings(max_value=100.0)
 
-# Or nothing at all: the bound follows the objective as the run observes it.
-BoxSubdivisionSettings(convexity_sweep=ConvexitySweepSettings())
+# Or nothing at all: the bound is computed from the objective as the run
+# observes it, the spread over the boxes already solved with a decade of
+# headroom, so the run asks for no number in the units of the objective.
+SweptBoxSubdivisionSettings()
 ```
+
+The rungs are the **parallel points**, `n_parallel_points`, which are the probes
+the master already spends on trust-region radii: a probe per rung is the whole
+construction, so the two are one number rather than two that can disagree.
 
 On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
 the unbounded sweep reaches the optimum from every starting point on both, which
@@ -107,21 +118,36 @@ no single margin does, see
 [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
 The sweep is the **master's**, under its settings `convexity_sweep_points` and
-`convexity_sweep_max`, and the two numbers above are turned into those.
+`convexity_sweep_max`, which this entry point fills from the parallel points and
+the upper bound.
 
 :::{warning}
-A master predating the sweep does not have those settings, and a scenario given
-these settings then falls back to the **top rung** of the ladder, which is the
-conservative end and not the margin it was going to replace.
+A master predating the sweep does not have those settings, so the package
+**drives the ladder itself**, around the master's mixed-integer solve, computing
+the bound from the objective exactly as the master would. That is what makes the
+unbounded form work against any master: the master's own convexity defaults to
+zero, and leaving it there would be a run with its cuts unguarded rather than a
+run without a sweep.
 {py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
-which master is installed, and the stub of `benchmarks/convexity_sweep.py` drives
-the older one from outside, for the measurements.
+which master is installed, and the driving stops the day it says the master
+sweeps.
+
+The sweep holds over a run that configures its own master, `scenario.execute`
+being given a settings model or keyword arguments: it is what the run needs of
+its master rather than one of the settings the caller is overriding. A driven run
+switches the adaptive repair on, because the master reads the margin only behind
+it, and a master that sweeps on its own is given the two settings carrying the
+sweep, whatever else the caller passes; settings with no room for them are
+refused where they are given, rather than run unswept. What such a run does
+override is the number of parallel points, which is the number of rungs: a master
+left with one probe is given the top rung, the conservative end, rather than a
+ladder.
 :::
 
 ## The algorithm of each of the two levels
 
 A run is two algorithms: a master deciding which box to look into, and a solver
-running inside the box it chose. Both are named by the same settings class, with
+running inside the box it chose. The general construction names both, with
 whatever else each one takes:
 
 ```python
@@ -155,13 +181,69 @@ What each of the two is free to be is not the same thing:
   is a setting of the method rather than a detail.
 
 `master_algo_name`
-: an algorithm taking the settings of the outer approximation, which means one of
-  those of `gemseo-bilevel-outer-approximation`. Changing it changes the method
-  rather than its tuning, and an ordinary optimizer is refused outright, taking
-  none of those settings. `master_algo_settings` is the useful half of this pair:
-  it reaches every setting of the master that
-  [the table below](#the-settings-of-the-master-in-their-own-terms) names and
-  this class does not.
+: any algorithm that can **choose a box**, which means one handling integer
+  variables: the master problem is a relaxable mixed-integer non-linear one, and
+  an ordinary optimizer would return its relaxation rather than a box, so it is
+  refused outright. Changing it changes the method rather than its tuning. The
+  settings this class names in the method's terms — the mechanism, the convexity,
+  the trust region, the parallel points — belong to the **outer approximation**,
+  and they reach only a master declaring them; naming another master while
+  setting one of them is refused where it is written. Such a master is driven by
+  `master_algo_settings` alone, which reaches every setting it declares, among
+  them those
+  [the table below](#the-settings-of-the-master-in-their-own-terms) names for the
+  outer approximation.
+
+## Every setting, and what it defaults to
+
+There are **two entry points**, and the settings below are split the way they
+are. The general construction names its master and its sub-problem solver and
+calibrates the convexity; the swept one drives the master that sweeps, with the
+parameters of that master chosen rather than supplied. Both are given to the same
+scenario, under `settings=`.
+
+Eight settings are common to both:
+
+| setting | default | what it is |
+|---------|---------|------------|
+| `mechanism` | `"adaptive"` | which guard against the non-convexity of the relaxed problem, `adaptive` or `convexification`, never both. It describes an outer approximation, so it reaches only a master declaring it |
+| `trust_region_radius` | $2$ | the radius of the trust region of the master, counted in **components changed** |
+| `n_parallel_points` | $4$ | the trust-region radii the master probes per iteration. Under the swept entry point this is also the number of rungs, a probe per rung. The **pure convexification probes a single point** whatever this says, unless a sweep spreads them |
+| `max_iter` | $80$ | iterations of the **master**, not of the sub-problems |
+| `sub_problem_max_iter` | $40$ | iterations of each sub-problem |
+| `tolerance` | $10^{-4}$ | the tolerance on the upper bound of the master |
+| `sub_problem_algo_name` | `"SLSQP"` | the algorithm solving each sub-problem inside its box, free under either entry point |
+| `sub_problem_algo_settings` | `{}` | anything else that solver takes, passed through; it wins over `sub_problem_max_iter` |
+
+`BoxSubdivisionSettings`, the general construction, adds the master and the
+convexity you calibrate:
+
+| setting | default | what it is |
+|---------|---------|------------|
+| `convexity_margin` | $100.0$ | the margin the adaptive repair enforces, **in the units of the objective** |
+| `convexification_constant` | $100.0$ | the constant the pure convexification adds, **in the units of the objective** |
+| `master_algo_name` | `"BILEVEL_MASTER_OUTER_APPROXIMATION"` | the algorithm deciding the next box. Any master that handles integer variables; the default is the outer approximation whose settings this class translates |
+| `master_algo_settings` | `{}` | anything else the master takes, passed through under **its own** names. For a master that is not an outer approximation, this is the whole of its configuration |
+| `options` | `{}` | **deprecated**, use `master_algo_settings`. It still works and warns, and `master_algo_settings` wins when both are given |
+
+`SweptBoxSubdivisionSettings`, the swept construction, adds one number and takes
+away four:
+
+| setting | default | what it is |
+|---------|---------|------------|
+| `max_value` | $0.0$ | the top of the ladder, or zero to have the master read it off the objective as the run observes it, lifted by a decade of headroom |
+
+It names **no master**, since the sweep is implemented in one particular master
+and this entry point drives it, and it has no `master_algo_settings` to pass it,
+no `convexity_margin` and no `convexification_constant`: a value to calibrate is
+the thing a sweep exists not to ask for. See
+[the sweep](#not-choosing-the-convexity-at-all).
+
+Two things a reader looks for here and does not find. `n_subdivisions` is an
+argument of the scenario rather than a setting of either class, since it defines
+the boxes rather than how they are searched. And the settings of the master under
+**its own** names, which `master_algo_settings` reaches, are
+[a table of their own](#the-settings-of-the-master-in-their-own-terms).
 
 ## Which methodology to set up
 
@@ -403,7 +485,7 @@ relaxed problem, and they are not meant to be combined:
   master repairs its cut slopes against the boxes it has already solved. This is
   the recommended configuration.
 
-`pure_convexification`
+`convexification`
 : `adapt=False` with `convexification_constant` $\kappa > 0$, the margin left at
   zero. The master adds $\kappa\, C(\alpha)$ to the relaxed problem, which is the
   configuration carrying the convergence guarantee, at the price of a lower bound
@@ -421,7 +503,11 @@ relaxed problem, and they are not meant to be combined:
 
 The first two rows are the ones with no transferable value, and
 [the sweep](#not-choosing-the-convexity-at-all) is how a run avoids choosing
-either.
+either. A master that sweeps takes two settings more, `convexity_sweep_points`
+and `convexity_sweep_max`, which `SweptBoxSubdivisionSettings` fills from the
+parallel points and the upper bound;
+{py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
+whether the installed master declares them.
 
 And one choice that is not a setting of the algorithm but of the subdivision:
 

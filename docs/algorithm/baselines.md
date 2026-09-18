@@ -48,9 +48,9 @@ decides the next box from the cuts of every box already solved.
 **How it is run.** GEMSEO's `MultiStart`, with $50$ starting points from its
 default design of experiments, and SLSQP (Kraft, 1988) as the local solver.
 SLSQP builds a quadratic model of the Lagrangian and solves a quadratic program
-at each iteration; it is the same solver the box-subdivision sub-problems use, so
-the comparison isolates **how the starting regions are chosen** rather than how
-they are exploited.
+at each iteration; it is the solver the box-subdivision sub-problems use by
+default, and the one they were run with here, so the comparison isolates **how
+the starting regions are chosen** rather than how they are exploited.
 
 ```python
 OptimizationLibraryFactory().execute(

@@ -215,7 +215,7 @@ def draw_bilevel(foreground: str):
     figure, axes = plt.subplots(figsize=(6.0, 2.9))
     axes.set_axis_off()
     boxes = (
-        (0.02, "Master, a MILP\nover the one-hot $\\alpha$\n(which box)", SECOND),
+        (0.02, "Master, a MINLP\nover the one-hot $\\alpha$\n(which box)", SECOND),
         (0.56, "Sub-problem, an NLP\nover $x$ inside the box\n(where in it)", THIRD),
     )
     for left, label, colour in boxes:

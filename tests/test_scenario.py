@@ -379,10 +379,53 @@ def test_an_unknown_algorithm_is_refused(settings) -> None:
         BoxSubdivisionSettings(**settings)
 
 
-def test_an_algorithm_not_taking_the_settings_of_the_master_is_refused() -> None:
-    """An ordinary optimizer cannot be the master: it takes none of its settings."""
-    with pytest.raises(ValueError, match="'SLSQP' of the master problem does not take"):
+def test_an_ordinary_optimizer_cannot_be_the_master() -> None:
+    """An optimizer without integers returns the relaxation rather than a box.
+
+    The master problem is a relaxable mixed-integer non-linear one: its
+    relaxation is what the outer approximation solves, and the integers are what
+    it recovers a box from. A solver that holds none of them has nothing to
+    recover.
+    """
+    with pytest.raises(
+        ValueError, match="'SLSQP' of the master problem does not handle integer"
+    ):
         BoxSubdivisionSettings(master_algo_name="SLSQP")
+
+
+def test_a_master_solving_linear_problems_only_cannot_solve_it() -> None:
+    """Check that a linear solver is refused, the master problem being non-linear.
+
+    Its relaxation is what the outer approximation solves, and the cuts and the
+    convexification are what make it non-linear, so a solver for linear problems
+    would be refused by GEMSEO in the middle of the run instead.
+    """
+    with pytest.raises(
+        ValueError, match=r"'ORTOOLS_MILP' of the master problem solves linear"
+    ):
+        BoxSubdivisionSettings(master_algo_name="ORTOOLS_MILP")
+
+
+def test_a_master_that_is_not_an_outer_approximation_takes_none_of_its_settings() -> (
+    None
+):
+    """A setting of the outer approximation is refused for a master without it.
+
+    The mechanism, the convexity and the trust region describe an outer
+    approximation. Another master is driven by ``master_algo_settings`` under its
+    own names, and naming it while setting one of those is a contradiction.
+    """
+    with pytest.raises(
+        ValueError,
+        match=r"'DIFFERENTIAL_EVOLUTION' of the master problem does not take",
+    ):
+        BoxSubdivisionSettings(
+            master_algo_name="DIFFERENTIAL_EVOLUTION", mechanism="convexification"
+        )
+
+    # Left at their defaults, they reach no master that cannot take them.
+    settings = BoxSubdivisionSettings(master_algo_name="DIFFERENTIAL_EVOLUTION")
+    assert "min_dfk" not in settings.to_master_settings()
 
 
 def test_a_setting_the_sub_problem_solver_does_not_have_is_refused() -> None:
@@ -436,3 +479,19 @@ def test_an_algorithm_whose_settings_select_another_one_is_refused() -> None:
     """The name the settings select is the one executed, so it must be the one asked."""
     with pytest.raises(ValueError, match="select 'OrtoolsMILP' instead"):
         BoxSubdivisionSettings(sub_problem_algo_name="ORTOOLS_MILP")
+
+
+def test_the_settings_are_given_by_name() -> None:
+    """Check that a positional value is refused rather than bound by position.
+
+    Which class holds which setting follows what applies to what, so the order
+    of the fields is not an interface: a value given positionally would bind to
+    whatever sits in that position, and a margin arriving as a trust-region
+    radius is a run that measures something else in silence.
+    """
+    with pytest.raises(TypeError, match="positional argument"):
+        BoxSubdivisionSettings("adaptive", 50.0)
+
+    assert BoxSubdivisionSettings(
+        mechanism="adaptive", convexity_margin=50.0
+    ).convexity_value == pytest.approx(50.0)

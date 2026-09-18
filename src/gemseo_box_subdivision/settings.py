@@ -21,8 +21,9 @@ This module names them in the terms the methodology uses and rejects the
 combinations that measure nothing.
 
 The convexity margin is the one with no value that transfers between problems,
-and :attr:`.BoxSubdivisionSettings.convexity_sweep` is how a run avoids choosing
-it; see :mod:`~gemseo_box_subdivision.convexity_sweep`.
+and :class:`.SweptBoxSubdivisionSettings` is the entry point that avoids choosing
+it, sweeping a ladder of values instead; see
+:mod:`~gemseo_box_subdivision.convexity_sweep`.
 
 The two levels are solved by two algorithms, and both are settings like the
 rest: :attr:`.BoxSubdivisionSettings.master_algo_name` and
@@ -37,8 +38,12 @@ have is refused when the settings are built rather than when the run starts.
 
 from __future__ import annotations
 
+from abc import ABC
+from abc import abstractmethod
+from contextlib import contextmanager
 from dataclasses import dataclass
 from dataclasses import field
+from dataclasses import fields
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
@@ -46,13 +51,16 @@ from warnings import warn
 
 from gemseo.algos.opt.factory import OptimizationLibraryFactory
 
+from gemseo_box_subdivision import convexity_sweep as _policy
+from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
+from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
+from gemseo_box_subdivision.convexity_sweep import convexity_ladder
+
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from collections.abc import Mapping
 
     from gemseo.algos.base_algorithm_settings import BaseAlgorithmSettings
-
-    from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
-    from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
 
 TRUST_REGION_RADIUS: int = 2
 """The default radius of the trust region, in components changed.
@@ -74,9 +82,20 @@ MASTER_ALGO_NAME: str = "BILEVEL_MASTER_OUTER_APPROXIMATION"
 """The default algorithm solving the master problem.
 
 The master decides which box to look into, so it is the outer approximation
-itself rather than an ordinary optimizer: it has to be one of the algorithms
-taking the settings :meth:`.BoxSubdivisionSettings.to_master_settings`
-translates, which the plugin ``gemseo-bilevel-outer-approximation`` provides.
+itself rather than an ordinary optimizer, and this is the one the plugin
+``gemseo-bilevel-outer-approximation`` provides. Another master is allowed, any
+that handles integer variables, but only this one takes the settings
+:meth:`.BoxSubdivisionSettings.to_master_settings` translates; the rest are
+driven by :attr:`.BoxSubdivisionSettings.master_algo_settings`.
+"""
+
+N_PARALLEL_POINTS: int = 4
+"""The default number of points the master probes per iteration.
+
+One trust-region radius per point, and under
+:class:`.SweptBoxSubdivisionSettings` one rung of the convexity ladder per point
+as well: a probe per rung is what makes an iteration span the ladder, so the two
+counts are this one number rather than two that can disagree.
 """
 
 SUB_PROBLEM_ALGO_NAME: str = "SLSQP"
@@ -88,34 +107,41 @@ objective whose gradient is unavailable or noisy, but nothing here measures one.
 """
 
 
-@dataclass
-class BoxSubdivisionSettings:
-    r"""The settings of a box-subdivision run.
+@dataclass(kw_only=True)
+class BaseBoxSubdivisionSettings(ABC):
+    r"""What every box-subdivision run needs, whichever master drives it.
 
-    The defaults are the configuration the benchmark supports: the adaptive
-    repair of the cut slopes, four probe points, a trust region of two
-    components, and the outer-approximation master over SLSQP.
+    A run is two algorithms: a master deciding which box to look into, and a
+    solver running inside the box it chose. This class holds what belongs to the
+    run rather than to either of them, and what the sub-problem level takes;
+    :class:`.BoxSubdivisionSettings` and :class:`.SweptBoxSubdivisionSettings`
+    add the master.
 
-    Two of these settings decide whether a run works at all, and neither has a
-    default that transfers between problems:
-
-    ``convexity_margin``
-        subtracted from an objective difference, so it is absolute and in the
-        units of *your* objective. Start from the variation of the objective
-        over the design space. It crosses a threshold and then saturates, so
-        erring high costs sub-problems rather than quality.
-
-    ``trust_region_radius``
-        the number of components a candidate box may change. Keep it small.
-
-    The algorithm of each level, and any setting of it this class does not name,
-    are settings of their own: see ``master_algo_name``,
-    ``master_algo_settings``, ``sub_problem_algo_name`` and
-    ``sub_problem_algo_settings``.
+    Every setting is given **by name**. They are a vocabulary rather than an
+    order, and which class holds which is a matter of what applies to what, so an
+    order would change under the reader; naming one refuses what it cannot take
+    rather than binding it to whatever sits in that position.
     """
 
     MECHANISMS: ClassVar[tuple[str, ...]] = ("adaptive", "convexification")
     """The two mechanisms keeping the cuts usable on a non-convex problem."""
+
+    MASTER_TERMS: ClassVar[dict[str, str]] = {
+        "mechanism": "adapt",
+        "convexity_margin": "min_dfk",
+        "convexification_constant": "convexification_constant",
+        "trust_region_radius": "max_step",
+        "n_parallel_points": "number_of_parallel_points",
+        "max_iter": "max_iter",
+        "tolerance": "ub_tol",
+    }
+    """What each setting of the method is called by the master it is meant for.
+
+    The method names a quantity; the master names a setting. A master declaring
+    the name on the right takes the setting on the left, and one that does not
+    takes nothing of it, which is what makes a setting of the outer approximation
+    inapplicable to another master.
+    """
 
     mechanism: str = "adaptive"
     r"""How the master keeps its cuts usable, ``"adaptive"`` or
@@ -126,36 +152,23 @@ class BoxSubdivisionSettings:
     the convexification adds a convex term whose constant, once it dominates the
     concavity of the relaxation, makes the outer approximation convergent.
     Measuring the two together measures neither.
-    """
 
-    convexity_margin: float = CONVEXITY_MARGIN
-    """The convexity margin of the adaptive repair, in the units of the objective."""
-
-    convexification_constant: float = CONVEXITY_MARGIN
-    """The constant of the convexification, in the units of the objective."""
-
-    convexity_sweep: ConvexitySweepSettings | None = None
-    """How to sweep the convexity setting, instead of calibrating one value.
-
-    The two settings above are the ones that do not transfer between problems.
-    Rather than choosing either, the master can probe a **ladder** of values per
-    iteration, the way it already probes a ladder of trust-region radii, and
-    redeploy at a higher rung every probe that proposes no new box. The user then
-    supplies an upper bound and a number of points, or nothing at all: see
-    :class:`.ConvexitySweepSettings`.
-
-    Setting this asks for the sweep where the master supports it, which today is
-    the stub of ``benchmarks/convexity_sweep.py`` rather than the released
-    master. Where it does not, :meth:`.to_master_settings` falls back to the
-    **top rung**, which is the conservative end of the ladder and the one the
-    tuning says errs safely for the adaptive repair.
+    This describes an outer approximation and nothing else, so it reaches a
+    master only where that master declares the settings it drives; see
+    :meth:`.BoxSubdivisionSettings.to_master_settings`.
     """
 
     trust_region_radius: int = TRUST_REGION_RADIUS
     """The radius of the trust region of the master, in components changed."""
 
-    n_parallel_points: int = 4
-    """The number of trust-region radii the master probes per iteration."""
+    n_parallel_points: int = N_PARALLEL_POINTS
+    """The number of trust-region radii the master probes per iteration.
+
+    The **pure convexification probes a single point** whatever this says, which
+    is the configuration its constant was measured at; only the adaptive repair
+    and a sweep spread the probes, a sweep because a probe per rung is what makes
+    an iteration span its ladder.
+    """
 
     max_iter: int = 80
     """The number of iterations of the master, not of the sub-problems."""
@@ -166,37 +179,12 @@ class BoxSubdivisionSettings:
     tolerance: float = 1e-4
     """The tolerance on the upper bound of the master."""
 
-    options: Mapping[str, Any] = field(default_factory=dict)
-    """Any other setting of the master, passed through unchanged.
-
-    .. deprecated:: 0.2.0
-        Use :attr:`.master_algo_settings`, which says which of the two levels it
-        configures. Both may be given, in which case
-        :attr:`.master_algo_settings` wins.
-    """
-
-    master_algo_name: str = MASTER_ALGO_NAME
-    """The name of the algorithm solving the master problem.
-
-    It has to take the settings :meth:`.to_master_settings` translates, which the
-    two outer-approximation algorithms of ``gemseo-bilevel-outer-approximation``
-    do; an algorithm missing any of them is refused here rather than at
-    execution. Changing it changes the method, not merely its tuning.
-    """
-
-    master_algo_settings: Mapping[str, Any] = field(default_factory=dict)
-    """Any other setting of the master, passed through unchanged.
-
-    These win over the settings this class translates, so a setting named both
-    here and by the class takes the value given here.
-    """
-
     sub_problem_algo_name: str = SUB_PROBLEM_ALGO_NAME
     """The name of the algorithm solving each sub-problem inside its box.
 
     Any GEMSEO optimizer, its name as the library factory knows it. The
     sub-problem is continuous and bounded, which is what
-    :attr:`.SUB_PROBLEM_ALGO_NAME` suits; a solver returning a point far from a
+    :data:`.SUB_PROBLEM_ALGO_NAME` suits; a solver returning a point far from a
     local optimum of its box leaves the cut of that box wrong, rather than merely
     loose.
     """
@@ -213,9 +201,9 @@ class BoxSubdivisionSettings:
 
         Raises:
             ValueError: When the mechanism is unknown, when a count is not
-                positive, when either algorithm is unknown, when an algorithm does
-                not take a setting it is given, or when the settings of the
-                sub-problem solver select another algorithm.
+                positive, when the sub-problem solver is unknown or does not take
+                a setting it is given, or when its settings select another
+                algorithm.
         """
         if self.mechanism not in self.MECHANISMS:
             msg = (
@@ -229,18 +217,6 @@ class BoxSubdivisionSettings:
                 msg = f"{name} must be positive; got {getattr(self, name)}."
                 raise ValueError(msg)
 
-        if self.options:
-            warn(
-                "The setting 'options' is deprecated; "
-                "use 'master_algo_settings' instead.",
-                FutureWarning,
-                stacklevel=2,
-            )
-            self.master_algo_settings = {**self.options, **self.master_algo_settings}
-
-        _check_settings_names(
-            self.master_algo_name, self.to_master_settings(), "master problem"
-        )
         _check_settings_names(
             self.sub_problem_algo_name, self.to_sub_problem_settings(), "sub-problems"
         )
@@ -261,90 +237,106 @@ class BoxSubdivisionSettings:
         return "convexification_constant"
 
     @property
-    def convexity_value(self) -> float:
-        """The value of the convexity setting the mechanism calibrates."""
-        if self.mechanism == "adaptive":
-            return self.convexity_margin
+    @abstractmethod
+    def master_algo_name(self) -> str:
+        """The name of the algorithm solving the master problem.
 
-        return self.convexification_constant
-
-    def create_convexity_sweep(
-        self, observed_scale: float = 0.0
-    ) -> ConvexitySweep | None:
-        """Return the sweep of the convexity setting, if one is asked for.
-
-        Args:
-            observed_scale: The variation of the objective over the boxes
-                already solved, which is the upper bound of a sweep that was
-                given none. See :func:`.objective_scale`.
-
-        Returns:
-            The sweep, or ``None`` when none is asked for, or when its upper
-            bound is neither given nor observed yet.
+        Every run needs one, and the scenario executes it by this name, so it is
+        part of the contract rather than of either construction: the general one
+        takes it as a setting, the swept one pins it to the master implementing
+        the sweep.
         """
-        if self.convexity_sweep is None:
-            return None
 
-        return self.convexity_sweep.create_sweep(observed_scale)
+    @property
+    @abstractmethod
+    def convexity_value(self) -> float | None:
+        """The value the mechanism calibrates, or ``None`` when it is not known.
 
-    def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
-        """Return the settings of the master problem.
+        A sweep reading its bound off the objective has none to give before the
+        run has solved anything: only the master, which observes the objective,
+        can compute one. ``None`` then leaves the master its own value rather
+        than overwriting it, an unknown guard being no reason to impose a guard
+        of zero.
+        """
+        raise NotImplementedError
+
+    def _to_outer_approximation_settings(
+        self, radius: int | None = None, swept: bool = False
+    ) -> dict[str, Any]:
+        """Return the settings of the outer approximation, in its own terms.
 
         The mechanism decides which of the two constants is passed and which is
         switched off, so that the two can never be active at once.
-
-        A sweep of the convexity is the master's own, under the settings
-        ``convexity_sweep_points`` and ``convexity_sweep_max``, and
-        :attr:`.convexity_sweep` is turned into those here. The value passed to
-        the mechanism is then the **top rung**, which is what the master uses in
-        the first iterations, before it has solved enough boxes to have a ladder
-        at all; for a sweep whose bound is read off the objective, and which
-        therefore has no ladder offline, it is the value of the mechanism.
-
-        Against a master that predates the sweep, see
-        :data:`.MASTER_SWEEPS_CONVEXITY`, those two settings would be rejected
-        and are not passed. What is left is the top rung, the conservative end:
-        the tuning says an over-large margin costs sub-problems rather than
-        quality, so a run that loses the sweep loses the cheap rungs rather than
-        the result. Driving such a master is what the stub of
-        ``benchmarks/convexity_sweep.py`` is for.
-
-        Asking for a sweep also keeps :attr:`.n_parallel_points` under the pure
-        convexification, which otherwise probes a single point. A probe per rung
-        is what makes an iteration span the ladder, so a sweep of a single probe
-        is not one.
 
         Args:
             radius: The radius of the trust region, overriding
                 :attr:`.trust_region_radius`. Used by the encodings whose
                 distance counts something other than design variables.
+            swept: Whether the convexity is swept, which keeps the parallel
+                points under the pure convexification: a probe per rung is what
+                makes an iteration span the ladder, so a sweep of a single probe
+                is not one.
 
         Returns:
-            The settings of the master problem.
+            The settings of the master, under the names it declares.
         """
         adaptive = self.mechanism == "adaptive"
-        swept = self.convexity_sweep is not None
-        value = self.convexity_value
-        ladder = self.create_convexity_sweep()
-        if ladder is not None:
-            value = ladder.max_value
-
         settings = {
             "max_iter": self.max_iter,
             "ub_tol": self.tolerance,
             "adapt": adaptive,
-            "min_dfk": value if adaptive else 0.0,
-            "convexification_constant": 0.0 if adaptive else value,
+            # Choosing one mechanism switches the other off, whatever the value
+            # of the chosen one turns out to be.
+            "convexification_constant" if adaptive else "min_dfk": 0.0,
             "number_of_parallel_points": (
                 self.n_parallel_points if adaptive or swept else 1
             ),
             "max_step": self.trust_region_radius if radius is None else radius,
         }
-        if swept:
-            settings.update(self.convexity_sweep.to_master_settings())
 
-        settings.update(self.master_algo_settings)
+        value = self.convexity_value
+        if value is not None:
+            settings["min_dfk" if adaptive else "convexification_constant"] = value
+
         return settings
+
+    @abstractmethod
+    def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
+        """Return the settings of the master problem.
+
+        Args:
+            radius: The radius of the trust region, overriding
+                :attr:`.trust_region_radius`.
+
+        Returns:
+            The settings of the master problem.
+        """
+        raise NotImplementedError
+
+    @contextmanager
+    def drive_the_master(self) -> Iterator[None]:
+        """Run the master under whatever this construction has to supply it.
+
+        A master configured entirely by its settings needs nothing, which is the
+        general case and what this yields. The swept construction overrides it
+        where the installed master does not sweep on its own.
+
+        Yields:
+            Nothing.
+        """
+        yield
+
+    def master_settings_the_run_needs(self) -> dict[str, Any]:
+        """Return what a run keeps of its master settings whatever it overrides.
+
+        Nothing, in the general construction: its master is named and configured
+        by the caller, so a caller giving that master settings of its own is
+        choosing what it is given, the convexity included.
+
+        Returns:
+            The settings a caller configuring the master does not override.
+        """
+        return {}
 
     def to_sub_problem_settings(self) -> dict[str, Any]:
         """Return the settings of a sub-problem.
@@ -368,6 +360,407 @@ class BoxSubdivisionSettings:
         """
         settings_class = _get_settings_class(self.sub_problem_algo_name)
         return settings_class(**self.to_sub_problem_settings())
+
+
+@dataclass(kw_only=True)
+class BoxSubdivisionSettings(BaseBoxSubdivisionSettings):
+    r"""The settings of a box-subdivision run, with the master you name.
+
+    The defaults are the configuration the benchmark supports: the adaptive
+    repair of the cut slopes, four probe points, a trust region of two
+    components, and the outer-approximation master over SLSQP.
+
+    Two of these settings decide whether a run works at all, and neither has a
+    default that transfers between problems:
+
+    ``convexity_margin``
+        subtracted from an objective difference, so it is absolute and in the
+        units of *your* objective. Start from the variation of the objective
+        over the design space. It crosses a threshold and then saturates, so
+        erring high costs sub-problems rather than quality.
+
+    ``trust_region_radius``
+        the number of components a candidate box may change. Keep it small.
+
+    Not choosing either is what :class:`.SweptBoxSubdivisionSettings` is for.
+
+    **The mechanism belongs to the outer approximation, not to every master.**
+    :attr:`.mechanism`, the two convexity values, the trust region and the
+    parallel points are settings of an outer-approximation master, and a master
+    that does not declare them is driven by :attr:`.master_algo_settings` alone,
+    under its own names. Naming such a master *and* setting one of those is
+    refused where it is written rather than silently ignored at execution.
+    """
+
+    convexity_margin: float = CONVEXITY_MARGIN
+    """The convexity margin of the adaptive repair, in the units of the objective."""
+
+    convexification_constant: float = CONVEXITY_MARGIN
+    """The constant of the convexification, in the units of the objective."""
+
+    options: Mapping[str, Any] = field(default_factory=dict)
+    """Any other setting of the master, passed through unchanged.
+
+    .. deprecated:: 0.2.0
+        Use :attr:`.master_algo_settings`, which says which of the two levels it
+        configures. Both may be given, in which case
+        :attr:`.master_algo_settings` wins.
+    """
+
+    master_algo_name: str = MASTER_ALGO_NAME
+    """The name of the algorithm solving the master problem.
+
+    Any GEMSEO algorithm deciding the next box. The default is the outer
+    approximation the method is built on, whose settings this class translates;
+    another master is configured through :attr:`.master_algo_settings`, under the
+    names it declares. Changing it changes the method, not merely its tuning.
+    """
+
+    master_algo_settings: Mapping[str, Any] = field(default_factory=dict)
+    """Any other setting of the master, passed through unchanged.
+
+    These win over the settings this class translates, so a setting named both
+    here and by the class takes the value given here. For a master that is not an
+    outer approximation, this is the whole of its configuration.
+    """
+
+    def __post_init__(self) -> None:
+        """Check the settings.
+
+        Raises:
+            ValueError: When a setting of the outer approximation is given to a
+                master that does not declare it, on top of what
+                :meth:`.BaseBoxSubdivisionSettings.__post_init__` refuses.
+        """
+        super().__post_init__()
+
+        if self.options:
+            warn(
+                "The setting 'options' is deprecated; "
+                "use 'master_algo_settings' instead.",
+                FutureWarning,
+                stacklevel=2,
+            )
+            self.master_algo_settings = {**self.options, **self.master_algo_settings}
+
+        _check_the_master_can_solve_it(self.master_algo_name)
+        self._check_the_master_takes_the_method_s_terms()
+        _check_settings_names(
+            self.master_algo_name, self.to_master_settings(), "master problem"
+        )
+
+    @property
+    def convexity_value(self) -> float:
+        """The value of the convexity setting the mechanism calibrates."""
+        if self.mechanism == "adaptive":
+            return self.convexity_margin
+
+        return self.convexification_constant
+
+    def _check_the_master_takes_the_method_s_terms(self) -> None:
+        """Refuse a setting of the method the master cannot take.
+
+        A master that is not an outer approximation has no mechanism, no
+        convexity and no trust region, so a value given for one of them would go
+        nowhere. Leaving them at their defaults is how such a master is named;
+        setting one is a contradiction, and it is refused here rather than
+        dropped silently on the way to a master that never sees it.
+
+        What counts as *set* is a value differing from the default, which is all
+        a dataclass can tell: passing a default explicitly is indistinguishable
+        from not passing it, and is dropped rather than refused.
+
+        Raises:
+            ValueError: When the master does not declare a setting that was set.
+        """
+        declared = set(_get_settings_class(self.master_algo_name).model_fields)
+        defaults = {field.name: field.default for field in fields(self)}
+        refused = {
+            name: term
+            for name, term in self.MASTER_TERMS.items()
+            if term not in declared and getattr(self, name) != defaults[name]
+        }
+        if refused:
+            named = ", ".join(
+                f"{name!r} ({term!r})" for name, term in sorted(refused.items())
+            )
+            msg = (
+                f"The algorithm {self.master_algo_name!r} of the master problem does "
+                f"not take {named}; a master that is not an outer approximation is "
+                "configured by 'master_algo_settings', under the names it declares."
+            )
+            raise ValueError(msg)
+
+    def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
+        """Return the settings of the master problem.
+
+        For an outer approximation, the settings this class names are translated
+        into the master's own terms, the mechanism deciding which of the two
+        constants is passed and which is switched off, so that the two can never
+        be active at once. For any other master, none of them is: it is driven by
+        :attr:`.master_algo_settings` alone. ``max_iter`` and ``ub_tol`` are sent
+        under those names or not at all, so a master calling its iteration count
+        or its tolerance anything else takes them from
+        :attr:`.master_algo_settings` like the rest.
+
+        Args:
+            radius: The radius of the trust region, overriding
+                :attr:`.trust_region_radius`. Used by the encodings whose
+                distance counts something other than design variables.
+
+        Returns:
+            The settings of the master problem.
+        """
+        settings = self._to_outer_approximation_settings(radius)
+        declared = set(_get_settings_class(self.master_algo_name).model_fields)
+        settings = {name: value for name, value in settings.items() if name in declared}
+        settings.update(self.master_algo_settings)
+        return settings
+
+
+@dataclass(kw_only=True)
+class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
+    r"""The settings of a run that **sweeps** the convexity instead of choosing it.
+
+    The convexity is the one quantity of this method with no value that
+    transfers between problems, and this is the entry point that does not ask
+    for one. The master probes a ladder of convexity values across the parallel
+    points it already spends on trust-region radii, the low rungs proposing the
+    box next door and the high rungs the box across the design space, and
+    redeploys a rung higher every probe that proposes nothing new.
+
+    **The sweep is the master's**, so this names no master: it drives the one
+    that implements it, under its own settings ``convexity_sweep_points`` and
+    ``convexity_sweep_max``. There is nothing to pass through either, since the
+    parameters of the master are chosen here rather than supplied:
+
+    :attr:`.n_parallel_points`
+        the probes *and* the rungs. A probe per rung is the whole construction,
+        so the two are one number rather than two that can disagree; a single
+        probe is given the top rung, the conservative end, since there is no
+        ladder to span.
+
+    :attr:`.max_value`
+        the top of the ladder, or zero to read it off the objective as the run
+        observes it, lifted by a decade of headroom.
+
+    What is **not** here is as much of the point as what is: no convexity
+    margin, no convexification constant, and no master to name. Those live on
+    :class:`.BoxSubdivisionSettings`, which is the general construction, and
+    supplying one alongside a sweep is the contradiction this split removes.
+    """
+
+    max_value: float = 0.0
+    """The upper bound of the ladder, or zero to read it off the objective.
+
+    Zero asks the master for the bound the run observes, the spread of the
+    objective over the boxes already solved, lifted by :data:`.HEADROOM`. That
+    spread is a lower estimate of the spread over the design space, and reading
+    it literally is circular, which is what the headroom answers.
+    """
+
+    def __post_init__(self) -> None:
+        """Check the settings.
+
+        Raises:
+            ValueError: When the upper bound is negative, on top of what
+                :meth:`.BaseBoxSubdivisionSettings.__post_init__` refuses.
+        """
+        super().__post_init__()
+
+        if self.max_value < 0.0:
+            msg = (
+                "The upper bound of the sweep must be positive, or zero to read "
+                f"it off the objective; got {self.max_value}."
+            )
+            raise ValueError(msg)
+
+        _check_the_master_can_solve_it(self.master_algo_name)
+        _check_settings_names(
+            self.master_algo_name, self.to_master_settings(), "master problem"
+        )
+
+    @property
+    def master_algo_name(self) -> str:
+        """The name of the algorithm solving the master problem.
+
+        The sweep is implemented in the master, so this entry point drives that
+        master rather than one of the caller's choosing. A master to name, and
+        settings to pass it, are what :class:`.BoxSubdivisionSettings` is for.
+        """
+        return MASTER_ALGO_NAME
+
+    @property
+    def convexity_value(self) -> float | None:
+        """The value the mechanism takes before the ladder is there.
+
+        The **top rung** of a bounded sweep, which is what the master uses in the
+        first iterations, before it has solved enough boxes to have a ladder at
+        all, and what a master predating the sweep uses throughout. The tuning
+        says an over-large margin costs sub-problems rather than quality, so the
+        conservative end is where a lone value belongs.
+
+        An unbounded sweep has no such value: its bound is the spread of the
+        objective, which the run has not measured yet, so the master keeps
+        whatever it uses by default until :meth:`.create_sweep` can compute one.
+        """
+        return self.max_value or None
+
+    @contextmanager
+    def drive_the_master(self) -> Iterator[None]:
+        """Sweep the convexity from outside a master that does not sweep.
+
+        Where :data:`.MASTER_SWEEPS_CONVEXITY` is ``True`` the master varies the
+        setting itself and this yields as the base does. Where it is ``False``,
+        leaving the master to its own value would leave it at zero, which is a
+        run with its cuts unguarded rather than a run without a sweep, so the
+        ladder is driven around its mixed-integer solve instead; see
+        :mod:`~gemseo_box_subdivision._convexity_sweep_driver`.
+
+        Yields:
+            Nothing.
+        """
+        if MASTER_SWEEPS_CONVEXITY:
+            yield
+            return
+
+        # Imported here: it patches the master, which nothing else needs, and
+        # both it and the patching go when the master ships the sweep.
+        from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
+
+        with drive_the_sweep(self):
+            yield
+
+    def master_settings_the_run_needs(self) -> dict[str, Any]:
+        """Return the sweep, which a run configuring its own master still needs.
+
+        The sweep is what this entry point is, so a swept run reaching the master
+        without it solves at the master's own convexity, which is zero: the sweep
+        is what the run needs of its master rather than one of the settings a
+        caller overrides. Where the master does not sweep there is nothing to
+        pass, :meth:`.drive_the_master` applying the ladder around its solves
+        instead; where it does, the two settings carrying the sweep are what must
+        reach it whichever way the run is executed.
+
+        Returns:
+            The settings a caller configuring the master does not override.
+        """
+        if not MASTER_SWEEPS_CONVEXITY:
+            return {}
+
+        return {
+            "convexity_sweep_points": self.n_parallel_points,
+            "convexity_sweep_max": self.max_value,
+        }
+
+    def create_sweep(
+        self, observed_scale: float = 0.0, n_points: int = 0
+    ) -> ConvexitySweep | None:
+        """Return the ladder this run asks for.
+
+        This is the only place a ladder is built, so that the rungs are never
+        counted twice: the driver passes the probes the master actually runs,
+        which is what a probe per rung means, and a caller with no master to ask
+        gets the probes this run would request of one.
+
+        Args:
+            observed_scale: The variation of the objective over the boxes already
+                solved, which is the upper bound of a sweep given none. See
+                :func:`.objective_scale`.
+            n_points: The rungs, which are the probes of the master. Zero takes
+                :attr:`.n_parallel_points`, the number this run asks a master
+                for, which is what a master left to these settings runs.
+
+        Returns:
+            The ladder, or ``None`` when its upper bound is neither given nor
+            observed yet.
+        """
+        # Read from the module, as the driver does, so that a benchmark
+        # changing the headroom changes this ladder too.
+        max_value = self.max_value or observed_scale * _policy.HEADROOM
+        if max_value <= 0.0:
+            return None
+
+        return ConvexitySweep(
+            convexity_ladder(max_value, n_points or self.n_parallel_points)
+        )
+
+    def to_master_settings(self, radius: int | None = None) -> dict[str, Any]:
+        """Return the settings of the master problem.
+
+        The sweep is asked for under the master's own two settings, the rungs
+        being the parallel points. Against a master predating the sweep, see
+        :data:`.MASTER_SWEEPS_CONVEXITY`, those two are not declared and are not
+        passed. A bounded sweep is then left with its top rung, the conservative
+        end, so it loses the cheap rungs rather than the result; an unbounded one
+        has no rung to be left with and gives the master nothing rather than a
+        guard of zero, as :attr:`.convexity_value` describes.
+
+        Args:
+            radius: The radius of the trust region, overriding
+                :attr:`.trust_region_radius`. Used by the encodings whose
+                distance counts something other than design variables.
+
+        Returns:
+            The settings of the master problem.
+        """
+        settings = self._to_outer_approximation_settings(radius, swept=True)
+        if MASTER_SWEEPS_CONVEXITY:
+            settings["convexity_sweep_points"] = self.n_parallel_points
+            settings["convexity_sweep_max"] = self.max_value
+
+        return settings
+
+
+def _check_the_master_can_solve_it(algo_name: str) -> None:
+    """Check that an algorithm can solve the master problem at all.
+
+    Two things are asked of it, and a master failing either would fail in the
+    middle of a run rather than where it is named.
+
+    The master chooses a box, and a box is a one-hot assignment of binaries, so
+    the master problem is a **relaxable mixed-integer non-linear** one whatever
+    the algorithm solving it: the cuts and the convexification make it non-linear,
+    and its continuous relaxation is what the outer approximation solves before
+    recovering the integers from it. Relaxing is therefore the method working, not
+    a solver falling short — but an algorithm that cannot hold an integer variable
+    has no integers to recover and returns the relaxation itself, which is not a
+    box. That is refused where the master is named rather than at the first
+    iteration.
+
+    Args:
+        algo_name: The name of the algorithm.
+
+    Raises:
+        ValueError: When the algorithm does not handle integer variables.
+    """
+    factory = OptimizationLibraryFactory()
+    if not factory.is_available(algo_name):
+        msg = (
+            f"The optimization algorithm {algo_name!r} is not available; "
+            f"the available ones are {sorted(factory.algorithms)}."
+        )
+        raise ValueError(msg)
+
+    library = factory.get_class(factory.algo_names_to_libraries[algo_name])
+    description = library.ALGORITHM_INFOS[algo_name]
+    if not description.handle_integer_variables:
+        msg = (
+            f"The algorithm {algo_name!r} of the master problem does not handle "
+            "integer variables, so it returns the relaxation rather than a box; "
+            "the master problem is a relaxable mixed-integer non-linear one "
+            "whatever solves it."
+        )
+        raise ValueError(msg)
+
+    if description.for_linear_problems:
+        msg = (
+            f"The algorithm {algo_name!r} of the master problem solves linear "
+            "problems only, and the master problem is a relaxable mixed-integer "
+            "**non-linear** one: the cuts and the convexification are what make "
+            "it so. GEMSEO would refuse it in the middle of the run."
+        )
+        raise ValueError(msg)
 
 
 def _get_settings_class(algo_name: str) -> type[BaseAlgorithmSettings]:

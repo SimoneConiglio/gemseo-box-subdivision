@@ -35,9 +35,10 @@ convexity values:
   again, until it proposes a new box or the ladder is exhausted. Exhaustion at
   every probe says that no value up to $\kappa_{\max}$ proposes anything new,
   which is a stronger reason to stop than a single value not proposing anything;
-- the user supplies an upper bound and a number of points, or nothing at all,
-  the bound then being read off the spread of the objective over the boxes
-  already solved.
+- the user supplies an upper bound, or nothing at all, the bound then being
+  read off the spread of the objective over the boxes already solved. The number
+  of rungs is never asked for: it is the number of parallel points the master
+  probes with, since a rung with no probe to carry it is never solved.
 
 A redeployment costs one more mixed-integer solve and **no objective
 evaluation**, which is the currency the benchmark counts: escalating is nearly
@@ -51,10 +52,13 @@ with its cuts unguarded.
 **That loop belongs to the master, and it lives there**, under the settings
 ``convexity_sweep_points`` and ``convexity_sweep_max``. Where the installed
 master has them, this module only passes them and measures. Where it does not,
-see `MASTER_SWEEPS_CONVEXITY`, it drives the released master from outside by
-patching :meth:`.OuterApproximationOptimizer._solve_milp`, the same idiom as
-`benchmarks/trust_region.py`, so that the measurement below is reproducible
-against either. The stub goes when the master ships the sweep.
+see `MASTER_SWEEPS_CONVEXITY`, the package itself drives the released master from
+outside, by patching :meth:`.OuterApproximationOptimizer._solve_milp`, the same
+idiom as `benchmarks/trust_region.py`. That driver lives in the package and not
+here, since a swept run has to sweep wherever it is run from and not only under
+the benchmark; this module only opens it, so that the measurement below is
+reproducible against either master. The driver goes when the master ships the
+sweep.
 
 ```shell
 python -m benchmarks.convexity_sweep
@@ -66,6 +70,7 @@ from __future__ import annotations
 import logging
 from contextlib import contextmanager
 from contextlib import suppress
+from importlib import import_module
 from statistics import median
 from typing import TYPE_CHECKING
 from typing import Any
@@ -73,23 +78,22 @@ from typing import Any
 from gemseo_bilevel_outer_approximation.algos.opt.core import (
     outer_approximation_optimizer as core,
 )
-from numpy import argmin
-from numpy import atleast_2d
-from numpy import geomspace
 
 from benchmarks.baselines import run_box_subdivision
+from benchmarks.configurations import ADAPTIVE
 from benchmarks.configurations import TRUST_REGION_RADIUS
 from benchmarks.problems import PROBLEMS
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 from gemseo_box_subdivision import convexity_sweep as policy
+from gemseo_box_subdivision._convexity_sweep_driver import Deployment
+from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
 from gemseo_box_subdivision.convexity_sweep import HEADROOM
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
-from gemseo_box_subdivision.convexity_sweep import ConvexitySweepSettings
 from gemseo_box_subdivision.convexity_sweep import objective_scale
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-from dataclasses import dataclass
 
 DIMENSION = 2
 """The number of design variables."""
@@ -106,161 +110,18 @@ N_SUBDIVISIONS = 10
 TOLERANCE = 1e-3
 """The distance to the global minimum under which it counts as reached."""
 
-_FOPT_HIST = 2
-"""The position of the objective history among the arguments of the master."""
-
-_CURRENT_STEP = 14
-"""The position of the trust-region radius among the arguments of the master."""
-
-
-@dataclass(frozen=True)
-class Deployment:
-    """One probe of the stub that proposed a box not yet solved.
-
-    The master keeps no such record, so this exists only to report what the
-    sweep did: which rung a box came from, and whether the probe had to climb
-    to get it.
-    """
-
-    index: int
-    """The index of the probe, and of the rung it started from."""
-
-    value: float
-    """The rung that produced the proposal, at or above the probe's own."""
-
-    proposal: Any
-    """What the master proposed at that rung."""
-
-    starting_value: float = 0.0
-    """The rung the probe started from."""
-
-    @property
-    def escalated(self) -> bool:
-        """Whether the probe had to climb above its own rung to propose a box."""
-        return self.value > self.starting_value
-
-
-def _probe(optimizer: Any, current_step: float | None) -> int:
-    """Return which of its parallel probes the master is calling for.
-
-    The master does not say: it says which trust-region radius the probe was
-    given, out of the ``geomspace(step / 2, step)`` it spreads them over, so the
-    probe is recovered from the radius. Mapping it onto a rung is then the
-    master's own rule, :meth:`.ConvexitySweep.probe_index`, and it pairs the two
-    ladders: the tight region and the raw cuts exploit together, the wide region
-    and the dominated cuts explore together.
-
-    Args:
-        optimizer: The master.
-        current_step: The radius the probe was given, if any.
-
-    Returns:
-        The index of the probe. A solve made outside the probing loop passes the
-        radius of the master itself, the top of the radius ladder, and so lands
-        on the last probe, whose rung is the conservative end.
-    """
-    n_points = optimizer.n_parallel_points
-    if n_points <= 1 or current_step is None:
-        return n_points - 1
-
-    steps = geomspace(
-        max(optimizer.current_step / 2, optimizer.min_step),
-        optimizer.current_step,
-        num=n_points,
-    )
-    return int(argmin(abs(steps - current_step)))
-
-
-@contextmanager
-def parallel_convexity_sweep(
-    settings: ConvexitySweepSettings, setting_name: str = "min_dfk"
-) -> Iterator[list[Deployment]]:
-    """Make the parallel probes of the master sweep the convexity setting.
-
-    Args:
-        settings: The upper bound of the sweep and its number of points.
-        setting_name: The setting the mechanism calibrates, ``"min_dfk"`` for
-            the adaptive repair and ``"convexification_constant"`` for the pure
-            convexification. The two are never active at once, so the sweep
-            varies one of them.
-
-    Yields:
-        The deployments that proposed a box not yet solved, appended as the run
-        goes, so that a caller can report which rungs the boxes came from.
-    """
-    original = core.OuterApproximationOptimizer._solve_milp
-    trace: list[Deployment] = []
-
-    def patched(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
-        """Solve the master at the rung of this probe, climbing while it repeats.
-
-        Args:
-            *args: The arguments of the master.
-            **kwargs: The keyword arguments of the master.
-
-        Returns:
-            Whatever the master returns, at the rung that proposed a new box or
-            at the top of the ladder.
-        """
-        fopt_hist = (
-            args[_FOPT_HIST] if len(args) > _FOPT_HIST else kwargs.get("fopt_hist", ())
-        )
-        current_step = kwargs.get(
-            "current_step", args[_CURRENT_STEP] if len(args) > _CURRENT_STEP else None
-        )
-        sweep = settings.create_sweep(objective_scale(fopt_hist))
-        if sweep is None:
-            # Nothing has been solved yet, so the objective has no scale to read
-            # the upper bound off: leave the master its own value.
-            return original(self, *args, **kwargs)
-
-        index = sweep.probe_index(self.n_parallel_points, _probe(self, current_step))
-        result = None
-        try:
-            for value in sweep.rungs(index):
-                setattr(self, setting_name, value)
-                result = original(self, *args, **kwargs)
-                alpha, _, is_feasible = result
-                if not is_feasible:
-                    # The master is infeasible on its trust region and its
-                    # eliminated boxes, neither of which the convexity enters:
-                    # a higher rung cannot make it feasible again.
-                    break
-
-                if not self._is_previously_computed(atleast_2d(alpha)):
-                    trace.append(
-                        Deployment(
-                            index=index,
-                            value=value,
-                            proposal=tuple(alpha.flatten().tolist()),
-                            starting_value=sweep.ladder[index],
-                        )
-                    )
-                    break
-        finally:
-            # The conservative end, which is where the master leaves it too:
-            # every solve made outside the sweep, such as the elimination of a
-            # point the ladder could not get past, belongs at the top rung
-            # rather than at a low one, which would leave the cuts unguarded.
-            setattr(self, setting_name, sweep.max_value)
-
-        return result
-
-    core.OuterApproximationOptimizer._solve_milp = patched
-    try:
-        yield trace
-    finally:
-        core.OuterApproximationOptimizer._solve_milp = original
-
 
 @contextmanager
 def set_headroom(factor: float) -> Iterator[None]:
     """Set the factor lifting an upper bound read off the objective.
 
     The headroom is a constant of the sweep rather than a setting of a run, so
-    changing it to measure what it buys means changing the constant. Where the
-    master sweeps on its own it reads the name it imported, and where the stub
-    does the sweeping it is this package's copy that is read.
+    changing it to measure what it buys means changing the constant. A constant
+    is read through a binding rather than through a name, and this one has as
+    many bindings as modules importing it: this package re-exports it, the module
+    defining it reads its own, and a master that sweeps may have imported it into
+    the module solving. Every binding there is takes the factor, since setting
+    one and not another is a measurement of neither.
 
     Args:
         factor: The factor to apply while the context is open.
@@ -268,10 +129,12 @@ def set_headroom(factor: float) -> Iterator[None]:
     Yields:
         Nothing.
     """
-    modules = [policy]
-    if MASTER_SWEEPS_CONVEXITY:
-        # The master imported the name, so its own binding is the one it reads.
-        modules.append(core)
+    modules = [policy, import_module(objective_scale.__module__), core]
+    modules = [
+        module
+        for index, module in enumerate(modules)
+        if hasattr(module, "HEADROOM") and module not in modules[:index]
+    ]
 
     originals = [module.HEADROOM for module in modules]
     for module in modules:
@@ -286,34 +149,44 @@ def set_headroom(factor: float) -> Iterator[None]:
 
 @contextmanager
 def convexity_sweep(
-    settings: ConvexitySweepSettings | None,
+    max_value: float | None,
 ) -> Iterator[tuple[dict[str, Any], list[Deployment]]]:
     """Ask for a sweep of the convexity, of whichever master is installed.
 
     Args:
-        settings: The settings of the sweep, or ``None`` for a fixed margin.
+        max_value: The upper bound of the sweep, zero to read it off the
+            objective, or ``None`` for a fixed margin and no sweep at all.
 
     Yields:
         The settings to add to those of the master, and the deployments of the
         stub, which is empty when the master sweeps on its own and keeps no
         such record.
     """
-    if settings is None:
+    if max_value is None:
         yield {}, []
         return
 
     if MASTER_SWEEPS_CONVEXITY:
-        yield dict(settings.to_master_settings()), []
+        # The rungs are the probes, which the master knows; only the bound is
+        # asked of it, a bound of zero being the one it reads off the objective.
+        yield (
+            {
+                "convexity_sweep_max": max_value,
+                "convexity_sweep_points": ADAPTIVE["number_of_parallel_points"],
+            },
+            [],
+        )
         return
 
-    with parallel_convexity_sweep(settings) as trace:
+    # The swept entry point is what the driver takes, and what this measures.
+    with drive_the_sweep(SweptBoxSubdivisionSettings(max_value=max_value)) as trace:
         yield {}, trace
 
 
 def run(
     problem: Any,
     seed: int,
-    sweep: ConvexitySweepSettings | None,
+    sweep: float | None,
     margin: float,
     headroom: float = HEADROOM,
 ) -> tuple[Any, list[Deployment]]:
@@ -322,7 +195,8 @@ def run(
     Args:
         problem: The problem.
         seed: The seed of the starting point.
-        sweep: The settings of the sweep, or ``None`` for a fixed margin.
+        sweep: The upper bound of the sweep, zero to read it off the objective,
+            or ``None`` for a fixed margin.
         margin: The margin given to the mechanism. A swept run is given none,
             the point of the sweep being that the user has none to give.
         headroom: The factor lifting an upper bound read off the objective.
@@ -352,10 +226,10 @@ SETUPS = (
     ("fixed, margin 1", None, 1.0, HEADROOM),
     ("fixed, margin 10", None, 10.0, HEADROOM),
     ("fixed, margin 100", None, 100.0, HEADROOM),
-    ("sweep, max 100", ConvexitySweepSettings(max_value=100.0), 0.0, HEADROOM),
-    ("sweep, max 1000", ConvexitySweepSettings(max_value=1000.0), 0.0, HEADROOM),
-    ("sweep, observed", ConvexitySweepSettings(), 0.0, 1.0),
-    ("sweep, observed x 10", ConvexitySweepSettings(), 0.0, 10.0),
+    ("sweep, max 100", 100.0, 0.0, HEADROOM),
+    ("sweep, max 1000", 1000.0, 0.0, HEADROOM),
+    ("sweep, observed", 0.0, 0.0, 1.0),
+    ("sweep, observed x 10", 0.0, 0.0, 10.0),
 )
 """The configurations compared, the fixed margins against the sweeps.
 
@@ -384,7 +258,7 @@ answered the criticism.
 def main() -> None:
     """Compare the sweep against the fixed margins it replaces."""
     logging.disable(logging.CRITICAL)
-    swept_by = "the master" if MASTER_SWEEPS_CONVEXITY else "the stub"
+    swept_by = "the master" if MASTER_SWEEPS_CONVEXITY else "the driver"
     print(
         f"{DIMENSION} variables, {N_SUBDIVISIONS} subdivisions, budget {BUDGET}, "
         f"over {len(SEEDS)} starting points, swept by {swept_by}\n"
