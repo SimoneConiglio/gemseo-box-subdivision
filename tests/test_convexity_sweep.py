@@ -48,6 +48,9 @@ def test_ladder_ends_at_the_upper_bound() -> None:
 def test_ladder_of_a_single_point() -> None:
     """Check that a single point is the value it would replace."""
     assert convexity_ladder(80.0, 1) == (80.0,)
+    # One rung spans nothing by construction, so a span of zero is not its
+    # business and is not refused.
+    assert convexity_ladder(80.0, 1, decades=0.0) == (80.0,)
 
 
 def test_ladder_span() -> None:
@@ -64,6 +67,9 @@ def test_ladder_span() -> None:
         (-1.0, 4, 2.0, r"upper bound of the sweep must be positive"),
         (10.0, 0, 2.0, r"number of rungs must be positive"),
         (10.0, 4, -1.0, r"span of the ladder must be non-negative"),
+        # A span of zero puts every rung on the upper bound, which the sweep
+        # itself then refuses as not increasing: the ladder is what says why.
+        (10.0, 4, 0.0, r"more than one rung must be positive"),
     ],
 )
 def test_ladder_errors(max_value, n_points, decades, match) -> None:

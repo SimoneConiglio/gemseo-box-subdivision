@@ -192,6 +192,15 @@ master was configured elsewhere, and left it off, would sweep a number the maste
 never looks at.
 """
 
+_DRIVING: list[Any] = []
+"""The sweeps whose contexts are open, in the order they were entered.
+
+Only the last of them drives: a context entered inside another is the run's, and
+two ladders over one solve would have the outer one set the rung after the inner
+one did, so the inner ladder would be reported and the outer one solved. A sweep
+that is not in this list at all has had its context ended.
+"""
+
 _DELEGATE = "_sweep_delegate"
 """The attribute under which a wrapper keeps what it wraps.
 
@@ -252,9 +261,9 @@ def drive_the_sweep(
     """
     setting_name = settings.convexity_setting_name
     gated = settings.mechanism == "adaptive"
+    switched_off = "convexification_constant" if gated else "min_dfk"
     original = core.OuterApproximationOptimizer._solve_milp
     trace: list[Deployment] = []
-    ended = False
 
     def patched(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
         """Solve the master at the rung of this probe, climbing while it repeats.
@@ -267,18 +276,21 @@ def drive_the_sweep(
             Whatever the master returns, at the rung that proposed a new box or
             at the top of the ladder.
         """
-        if ended:
-            # A wrapper this module did not install sits over this one, so it
-            # could not be taken out of the chain when its context ended: the
-            # sweep is over and the solve goes straight through.
+        if not _DRIVING or _DRIVING[-1] is not patched:
+            # This context has ended, or a sweep entered inside it is the run's:
+            # either way the solve goes straight through, since a wrapper left in
+            # the chain that still set a rung would overwrite the rung of the
+            # sweep that is driving.
             return getattr(patched, _DELEGATE)(self, *args, **kwargs)
 
-        if gated:
-            # The master reads the margin only where the adaptive repair is on,
-            # and a run that configured its master itself may have left it off,
-            # which is a swept run solving at a convexity the master ignores.
-            # What the run needs of its master is not what the caller overrides.
-            setattr(self, _ADAPTIVE_GATE, True)
+        # The master reads the margin only where the adaptive repair is on, and
+        # the constant wherever it is positive, and a run that configured its
+        # master itself may have left the repair off or the constant standing.
+        # Choosing one mechanism switches the other off, on the master as in the
+        # settings: what the run needs of its master is not what a caller
+        # overrides, and the two mechanisms are never combined.
+        setattr(self, _ADAPTIVE_GATE, gated)
+        setattr(self, switched_off, 0.0)
         # Every box that has been solved carries a scale, the infeasible ones
         # included: the sooner two of them differ, the sooner the ladder exists
         # and the fewer solves the master makes at its own value, which is zero.
@@ -330,8 +342,9 @@ def drive_the_sweep(
 
     setattr(patched, _DELEGATE, original)
     core.OuterApproximationOptimizer._solve_milp = patched
+    _DRIVING.append(patched)
     try:
         yield trace
     finally:
-        ended = True
+        _DRIVING.remove(patched)
         _unpatch(patched)

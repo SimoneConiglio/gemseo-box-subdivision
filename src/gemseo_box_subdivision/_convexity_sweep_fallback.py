@@ -84,7 +84,8 @@ def convexity_ladder(
 
     Raises:
         ValueError: When the upper bound is not positive, when the number of
-            rungs is not positive, or when the span is negative.
+            rungs is not positive, or when the span is not positive while more
+            than one rung is asked for.
     """
     if max_value <= 0.0:
         msg = f"The upper bound of the sweep must be positive; got {max_value}."
@@ -99,7 +100,19 @@ def convexity_ladder(
         raise ValueError(msg)
 
     if n_points == 1:
+        # A ladder of one rung is the value it replaces, and spans nothing by
+        # construction, so the span is not its business.
         return (float(max_value),)
+
+    if decades <= 0.0:
+        # Every rung would be the upper bound, so every probe would be given the
+        # same value: that is the single value again, not a ladder of several,
+        # and a sweep built on it is refused as not increasing.
+        msg = (
+            "The span of a ladder of more than one rung must be positive; "
+            f"got {decades} for {n_points} rungs."
+        )
+        raise ValueError(msg)
 
     rungs = geomspace(max_value / 10.0**decades, max_value, num=n_points)
     return tuple(float(rung) for rung in rungs)

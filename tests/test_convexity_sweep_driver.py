@@ -421,3 +421,95 @@ def test_a_sweep_buried_under_a_foreign_patch_stops_when_its_context_ends() -> N
     assert guards == [0.0], (
         "a context that has ended still swept the convexity of a later solve"
     )
+
+
+def test_the_sweep_entered_inside_another_is_the_one_that_drives() -> None:
+    """Check that two open contexts do not both set a rung on one solve.
+
+    The inner context is the run's: it was entered for the run being solved. Both
+    wrappers sit in the chain, so the outer one would set its own rung after the
+    inner one set its, and the master would solve at the outer value while the
+    trace named the inner rung.
+    """
+    guards = []
+
+    class _Master:
+        n_parallel_points = 4
+        current_step = 2.0
+        min_step = 1.0
+        min_dfk = 0.0
+
+        def _is_previously_computed(self, alpha) -> bool:  # noqa: ANN001
+            return False
+
+    def _solve(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        guards.append(self.min_dfk)
+        return zeros((1, 1)), None, True
+
+    original = core.OuterApproximationOptimizer._solve_milp
+    core.OuterApproximationOptimizer._solve_milp = _solve
+    try:
+        with (
+            drive_the_sweep(SweptBoxSubdivisionSettings(max_value=1000.0)),
+            drive_the_sweep(SweptBoxSubdivisionSettings(max_value=10.0)) as trace,
+        ):
+            patched = core.OuterApproximationOptimizer._solve_milp
+            patched(_Master(), None, None, (3.0, 11.0), *[None] * 11, 1.0)
+    finally:
+        core.OuterApproximationOptimizer._solve_milp = original
+
+    # One solve, at one rung: of the inner ladder, which tops out at ten, and not
+    # of the outer one, which tops out at a thousand.
+    assert guards == [pytest.approx(ConvexitySweep.from_bounds(10.0, 4).ladder[0])]
+    assert trace, "the solve proposed nothing, so no rung was reported"
+    assert trace[0].value == pytest.approx(guards[0])
+
+
+def test_the_mechanism_not_swept_is_switched_off_on_the_master() -> None:
+    """Check that driving one mechanism leaves the other one off.
+
+    The two are never combined, and a run that configured its own master may have
+    both live: the adaptive repair is on by default in the benchmark harness, so
+    a swept convexification would be repaired as well, which is neither of the
+    two configurations the method is measured in.
+    """
+    seen = []
+
+    class _Master:
+        n_parallel_points = 4
+        current_step = 2.0
+        min_step = 1.0
+        min_dfk = 7.0
+        convexification_constant = 0.0
+        use_adaptative_convexification = True
+
+        def _is_previously_computed(self, alpha) -> bool:  # noqa: ANN001
+            return False
+
+    def _solve(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        seen.append((
+            self.min_dfk,
+            self.convexification_constant,
+            self.use_adaptative_convexification,
+        ))
+        return zeros((1, 1)), None, True
+
+    original = core.OuterApproximationOptimizer._solve_milp
+    core.OuterApproximationOptimizer._solve_milp = _solve
+    try:
+        settings = SweptBoxSubdivisionSettings(
+            mechanism="convexification", max_value=10.0
+        )
+        with drive_the_sweep(settings):
+            patched = core.OuterApproximationOptimizer._solve_milp
+            patched(_Master(), None, None, (3.0, 11.0), *[None] * 11, 1.0)
+    finally:
+        core.OuterApproximationOptimizer._solve_milp = original
+
+    assert seen, "the master was never solved"
+    for margin, constant, adapting in seen:
+        assert constant > 0.0, "the mechanism being swept was not deployed"
+        assert not adapting, "the master repaired its cuts as well as convexified"
+        assert margin == pytest.approx(0.0), (
+            "the margin of the repair was left standing"
+        )

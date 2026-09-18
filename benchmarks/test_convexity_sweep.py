@@ -21,6 +21,7 @@ that predates the sweep and is driven from outside.
 from __future__ import annotations
 
 import logging
+from importlib import import_module
 
 import pytest
 from gemseo_bilevel_outer_approximation.algos.opt.core import (
@@ -34,17 +35,28 @@ from benchmarks.convexity_sweep import run
 from benchmarks.convexity_sweep import set_headroom
 from benchmarks.problems import PROBLEMS
 from gemseo_box_subdivision import convexity_sweep as policy
+from gemseo_box_subdivision.convexity_sweep import objective_scale
 
 
 def test_the_headroom_is_set_and_put_back() -> None:
-    """Check that the headroom reaches whichever module reads it."""
+    """Check that the headroom reaches whichever module reads it.
+
+    Two modules read it: the one re-exporting it, which this package's settings
+    read, and the one defining it, which is the master's own where the master
+    sweeps and this package's fallback where it does not. Naming the second by
+    the module the symbol comes from is what keeps the measurement honest against
+    either master: patching the wrong one leaves the rows of a headroom sweep
+    measuring the same thing twice.
+    """
+    defining = import_module(objective_scale.__module__)
     original = policy.HEADROOM
+    originally_defined = defining.HEADROOM
     with set_headroom(1.0):
         assert pytest.approx(1.0) == policy.HEADROOM
-        if MASTER_SWEEPS_CONVEXITY:
-            assert pytest.approx(1.0) == core.HEADROOM
+        assert pytest.approx(1.0) == defining.HEADROOM
 
     assert pytest.approx(original) == policy.HEADROOM
+    assert pytest.approx(originally_defined) == defining.HEADROOM
 
 
 def test_no_sweep_asks_for_nothing() -> None:

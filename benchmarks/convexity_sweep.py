@@ -70,13 +70,10 @@ from __future__ import annotations
 import logging
 from contextlib import contextmanager
 from contextlib import suppress
+from importlib import import_module
 from statistics import median
 from typing import TYPE_CHECKING
 from typing import Any
-
-from gemseo_bilevel_outer_approximation.algos.opt.core import (
-    outer_approximation_optimizer as core,
-)
 
 from benchmarks.baselines import run_box_subdivision
 from benchmarks.configurations import ADAPTIVE
@@ -88,6 +85,7 @@ from gemseo_box_subdivision._convexity_sweep_driver import Deployment
 from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
 from gemseo_box_subdivision.convexity_sweep import HEADROOM
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
+from gemseo_box_subdivision.convexity_sweep import objective_scale
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -114,9 +112,11 @@ def set_headroom(factor: float) -> Iterator[None]:
     """Set the factor lifting an upper bound read off the objective.
 
     The headroom is a constant of the sweep rather than a setting of a run, so
-    changing it to measure what it buys means changing the constant. Where the
-    master sweeps on its own it reads the name it imported, and where the stub
-    does the sweeping it is this package's copy that is read.
+    changing it to measure what it buys means changing the constant. It is read
+    in two places: this package re-exports it, and the module defining it reads
+    its own binding, which is the master's where the master sweeps and this
+    package's fallback where it does not. Naming that module through the symbol
+    itself is what keeps the two in step, whichever master is installed.
 
     Args:
         factor: The factor to apply while the context is open.
@@ -125,9 +125,9 @@ def set_headroom(factor: float) -> Iterator[None]:
         Nothing.
     """
     modules = [policy]
-    if MASTER_SWEEPS_CONVEXITY:
-        # The master imported the name, so its own binding is the one it reads.
-        modules.append(core)
+    defining = import_module(objective_scale.__module__)
+    if defining is not policy:
+        modules.append(defining)
 
     originals = [module.HEADROOM for module in modules]
     for module in modules:
@@ -251,7 +251,7 @@ answered the criticism.
 def main() -> None:
     """Compare the sweep against the fixed margins it replaces."""
     logging.disable(logging.CRITICAL)
-    swept_by = "the master" if MASTER_SWEEPS_CONVEXITY else "the stub"
+    swept_by = "the master" if MASTER_SWEEPS_CONVEXITY else "the driver"
     print(
         f"{DIMENSION} variables, {N_SUBDIVISIONS} subdivisions, budget {BUDGET}, "
         f"over {len(SEEDS)} starting points, swept by {swept_by}\n"
