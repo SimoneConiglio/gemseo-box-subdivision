@@ -55,8 +55,31 @@ if TYPE_CHECKING:
 _FOPT_HIST = 2
 """Where the objective history sits among the positional arguments of the solve."""
 
+_INFEASIBLE_FOPT_HIST = 12
+"""Where the objective of the boxes found infeasible sits among them."""
+
 _CURRENT_STEP = 14
 """Where the radius of the probe sits among them."""
+
+
+def _argument(
+    args: tuple[Any, ...], kwargs: dict[str, Any], index: int, name: str
+) -> Any:
+    """Return one argument of the solve, however the master passed it.
+
+    Args:
+        args: The positional arguments.
+        kwargs: The keyword arguments.
+        index: The position of the argument.
+        name: Its name.
+
+    Returns:
+        The argument, or ``None`` where the master passed neither.
+    """
+    if len(args) > index:
+        return args[index]
+
+    return kwargs.get(name)
 
 
 @dataclass(frozen=True)
@@ -109,11 +132,16 @@ def _probe(optimizer: Any, current_step: float | None) -> int:
     if n_points <= 1 or current_step is None:
         return n_points - 1
 
-    steps = geomspace(
-        max(optimizer.current_step / 2, optimizer.min_step),
-        optimizer.current_step,
-        num=n_points,
-    )
+    lowest = max(optimizer.current_step / 2, optimizer.min_step)
+    if lowest >= optimizer.current_step:
+        # The trust region has shrunk onto its floor, so every probe is given the
+        # same radius and none of them can be told from another. They are not all
+        # the bottom rung, which is where ``argmin`` would put them and which is
+        # the least guarded end: an unidentifiable probe takes the top rung, as a
+        # lone probe does.
+        return n_points - 1
+
+    steps = geomspace(lowest, optimizer.current_step, num=n_points)
     return int(argmin(abs(steps - current_step)))
 
 
@@ -153,15 +181,20 @@ def drive_the_sweep(
             Whatever the master returns, at the rung that proposed a new box or
             at the top of the ladder.
         """
-        fopt_hist = (
-            args[_FOPT_HIST] if len(args) > _FOPT_HIST else kwargs.get("fopt_hist", ())
+        # Every box that has been solved carries a scale, the infeasible ones
+        # included: the sooner two of them differ, the sooner the ladder exists
+        # and the fewer solves the master makes at its own value, which is zero.
+        solved = (
+            *(_argument(args, kwargs, _FOPT_HIST, "fopt_hist") or ()),
+            *(
+                _argument(args, kwargs, _INFEASIBLE_FOPT_HIST, "infeasible_fopt_hist")
+                or ()
+            ),
         )
-        current_step = kwargs.get(
-            "current_step", args[_CURRENT_STEP] if len(args) > _CURRENT_STEP else None
-        )
+        current_step = _argument(args, kwargs, _CURRENT_STEP, "current_step")
         # policy.HEADROOM rather than a name bound at import: the benchmark
         # patches the module to measure what the headroom buys.
-        bound = max_value or objective_scale(fopt_hist) * policy.HEADROOM
+        bound = max_value or objective_scale(solved) * policy.HEADROOM
         sweep = (
             ConvexitySweep.from_bounds(bound, self.n_parallel_points)
             if bound > 0.0

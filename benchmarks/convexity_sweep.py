@@ -103,12 +103,6 @@ N_SUBDIVISIONS = 10
 TOLERANCE = 1e-3
 """The distance to the global minimum under which it counts as reached."""
 
-_FOPT_HIST = 2
-"""The position of the objective history among the arguments of the master."""
-
-_CURRENT_STEP = 14
-"""The position of the trust-region radius among the arguments of the master."""
-
 
 @contextmanager
 def set_headroom(factor: float) -> Iterator[None]:

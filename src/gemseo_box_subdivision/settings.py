@@ -51,7 +51,7 @@ from warnings import warn
 
 from gemseo.algos.opt.factory import OptimizationLibraryFactory
 
-from gemseo_box_subdivision.convexity_sweep import HEADROOM
+from gemseo_box_subdivision import convexity_sweep as _policy
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
 from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
 from gemseo_box_subdivision.convexity_sweep import convexity_ladder
@@ -620,7 +620,9 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
             The ladder, or ``None`` when its upper bound is neither given nor
             observed yet.
         """
-        max_value = self.max_value or observed_scale * HEADROOM
+        # Read from the module, as the driver does, so that a benchmark
+        # changing the headroom changes this ladder too.
+        max_value = self.max_value or observed_scale * _policy.HEADROOM
         if max_value <= 0.0:
             return None
 

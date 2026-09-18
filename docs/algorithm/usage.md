@@ -131,9 +131,6 @@ run without a sweep.
 {py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
 which master is installed, and the driving stops the day it says the master
 sweeps.
-{py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` says
-which master is installed, and the stub of `benchmarks/convexity_sweep.py` drives
-the older one from outside, for the measurements.
 :::
 
 ## The algorithm of each of the two levels

@@ -145,7 +145,75 @@ def test_the_ladder_a_probe_is_given_is_computed_from_the_objective() -> None:
     try:
         with drive_the_sweep(0.0):
             patched = core.OuterApproximationOptimizer._solve_milp
-            patched(_Master(), None, None, (3.0, 11.0), *[None] * 12, 1.0)
+            # Fifteen arguments, as the master passes them: the objective
+            # history third and the radius of the probe last.
+            patched(_Master(), None, None, (3.0, 11.0), *[None] * 11, 1.0)
+    finally:
+        core.OuterApproximationOptimizer._solve_milp = original
+
+    assert guards, "the master was never solved"
+    assert all(guard > 0.0 for guard in guards), guards
+
+
+def test_a_probe_on_the_floor_of_the_trust_region_takes_the_top_rung() -> None:
+    """Check the rung of a probe the master cannot distinguish.
+
+    The master decreases its radius as it goes, and once the radius reaches its
+    floor every probe is given the same one: ``geomspace`` then spans nothing and
+    the probes are indistinguishable. They belong at the conservative end, as a
+    lone probe does, and not at the bottom rung, which is where the nearest-radius
+    rule would otherwise put every one of them.
+    """
+    on_the_floor = FakeMaster(current_step=1.0, min_step=1.0)
+    assert [_probe(on_the_floor, 1.0) for _ in range(4)] == [3, 3, 3, 3]
+
+    # While the region still spans something, the probes still spread over it.
+    spread = FakeMaster()
+    radii = geomspace(spread.current_step / 2, spread.current_step, num=4)
+    assert [_probe(spread, float(radius)) for radius in radii] == [0, 1, 2, 3]
+
+
+def test_the_boxes_found_infeasible_carry_a_scale_too() -> None:
+    """Check that the bound is read off every box solved, not the feasible ones.
+
+    A problem whose first boxes are infeasible has objective values all the same,
+    so the feasible history alone gives no spread and the master would keep
+    solving at its own convexity, which is zero. The infeasible history is the
+    same measurement of the same objective.
+    """
+    guards = []
+
+    class _Master:
+        n_parallel_points = 4
+        current_step = 2.0
+        min_step = 1.0
+        min_dfk = 0.0
+
+        def _is_previously_computed(self, alpha) -> bool:  # noqa: ANN001
+            return False
+
+    def _solve(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        guards.append(self.min_dfk)
+        return zeros((1, 1)), None, True
+
+    original = core.OuterApproximationOptimizer._solve_milp
+    core.OuterApproximationOptimizer._solve_milp = _solve
+    try:
+        with drive_the_sweep(0.0):
+            patched = core.OuterApproximationOptimizer._solve_milp
+            # One feasible box, so no spread of its own, and two infeasible ones.
+            # Fifteen arguments: the feasible history third, the infeasible one
+            # thirteenth and the radius of the probe last.
+            patched(
+                _Master(),
+                None,
+                None,
+                (3.0,),
+                *[None] * 9,
+                (7.0, 11.0),
+                None,
+                2.0,
+            )
     finally:
         core.OuterApproximationOptimizer._solve_milp = original
 
