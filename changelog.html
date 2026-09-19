@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=2bedff92"></script>
+    <script src="_static/documentation_options.js?v=96fa56b1"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -437,34 +437,20 @@ Changelog titles are:
 <a class="reference external" href="https://keepachangelog.com/en/1.0.0">Keep a Changelog</a>
 and this project adheres to
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<section id="unreleased">
-<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>The documentation covers the convexity sweep where a reader meets the method
-rather than only in its annex: the methodology derives it after the two
-mechanisms it replaces, and the results carry what it reaches. The extensions
-move to an annex of their own, so the results page carries one table per
-question and its verdicts, and the notes recording what an earlier version of
-a page reported are gone: a withdrawn measurement is not a finding.</p></li>
-<li><p>The documentation build uploads a browsable archive on every run, so a change
-to it can be read before it reaches the branch that publishes.</p></li>
-<li><p>The integration branch has a published documentation of its own, under <code class="docutils literal notranslate"><span class="pre">/dev/</span></code>
-of the same site, saying on every page that it documents code in no release.
-Both builds are written to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch, which is what the site is
-served from; see <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.md</span></code>.</p></li>
-</ul>
-</section>
-</section>
 <section id="id1">
-<h2>0.2.0 (2026-09-18)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<h2>0.2.0 (2026-09-19)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <p>The settings, in two entry points: the general construction, which names the
 master and the solver running inside a box, and the swept one, which asks the
 master to sweep the convexity rather than asking its user for a margin in the
 units of an objective they have not measured. What each entry point holds is
 what applies to it, every setting is given by name, and a setting of an outer
 approximation no longer reaches a master that has none.</p>
+<p>Measured against the baselines, the swept construction — nothing tuned, no
+convexity value supplied — reaches the same distance to the optimum as the
+calibrated one on every problem of the benchmark, and reaches it from more
+starting points on two of them. The numbers this release reports are therefore
+the ones a user gets without first tuning the method to the problem they are
+about to solve.</p>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul>
@@ -517,8 +503,8 @@ sweep.</p>
 </li>
 </ul>
 </section>
-<section id="id2">
-<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Every setting is given by name.</strong> The three settings classes are keyword-only,
 since which one holds which setting follows what applies to what rather than an
@@ -552,6 +538,20 @@ A GEMSEO settings model names the algorithm it selects, and the settings of
 <code class="docutils literal notranslate"><span class="pre">OUTER_APPROXIMATION</span></code> name one no library provides, so a model would have run an
 algorithm other than the one <code class="docutils literal notranslate"><span class="pre">master_algo_name</span></code> asks for. That mismatch is a
 defect of the plugin declaring those settings, not of the algorithm.</p></li>
+<li><p><strong>The documentation reports the method as a user gets it.</strong> The comparison
+against the baselines carried a convexity margin chosen on the problems it
+reports; it now carries the swept configuration beside it, and the landing
+page sends a reader to the sweep rather than to a chapter on calibrating a
+constant. The methodology derives the sweep where the mechanisms it replaces
+are derived, the results carry what it reaches, the extensions move to an
+annex of their own, and the notes recording what an earlier version of a page
+reported are gone: a withdrawn measurement is not a finding.</p></li>
+<li><p>The published documentation has <strong>two builds</strong>: the released one at the root
+of the site and the integration branch under <code class="docutils literal notranslate"><span class="pre">/dev/</span></code>, which says on every page
+that it documents code in no release. Both are written to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code>
+branch, which the site is served from, and every build — a pull request’s
+included — uploads a browsable archive, so a change can be read before it is
+published. See <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.md</span></code>.</p></li>
 </ul>
 </section>
 <section id="deprecated">
@@ -562,16 +562,29 @@ defect of the plugin declaring those settings, not of the algorithm.</p></li>
 old name still works, and warns; given both, <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> wins.</p></li>
 </ul>
 </section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A variable of size <span class="math notranslate nohighlight">\(s\)</span> subdivided into <span class="math notranslate nohighlight">\(m\)</span> was always <span class="math notranslate nohighlight">\(s\)</span> independent choices
+of one subdivision out of <span class="math notranslate nohighlight">\(m\)</span>, one one-hot group per component, and it still
+is; what was missing was a test that could tell. Every array-variable test
+used two components and two subdivisions, and a square case cannot distinguish
+a grouping by component from a grouping by subdivision. The cases added take
+the two sizes apart, and the usage chapter states the rule: the density is per
+component, so one variable of size five and five variables of size one give
+the same master.</p></li>
+</ul>
 </section>
-<section id="id3">
-<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+</section>
+<section id="id2">
+<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>First public release.</p>
 <p>The method, its four constructions and the benchmark that measures them. The
 results are measurements on the problems reported, not a claim of generalization:
 the settings were tuned on those very problems, and the convexity margin is in
 the units of the objective, so it does not transfer between them unchanged.</p>
-<section id="id4">
-<h3>Added<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>EGO, the Bayesian optimization of <code class="docutils literal notranslate"><span class="pre">egobox</span></code>, is a fifth baseline, and with it a
 comparison at one budget of five hundred evaluations that every method can
@@ -640,8 +653,8 @@ formulation solving the sub-problem in the normalized variables of the box.</p><
 formulations, and the convexification tuned for each of them.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Changed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The multi-resolution encoding, one categorical variable per level, is part of
 the package rather than of the benchmarks: <code class="docutils literal notranslate"><span class="pre">MultiResolution</span></code> and
@@ -695,8 +708,8 @@ GitHub Pages by a dedicated workflow.</p></li>
 navigation, a page outline and cards on the landing pages.</p></li>
 </ul>
 </section>
-<section id="fixed">
-<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h3>Fixed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The trust region of the master measures a distance. The design spaces of this
 package now weigh every subdivision alike, so that the distance between two
@@ -780,20 +793,17 @@ CDNs, or a local build, left unreachable.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.2.0 (2026-09-18)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Fixed</a></li>
 </ul>
 </li>
 </ul>
