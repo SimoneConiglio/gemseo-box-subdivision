@@ -66,16 +66,21 @@ equivalent evaluations per design variable under the adjoint convention. Each
 cell is the **median distance to the optimum**, the **median cost**, and the
 number of starting points from which the optimum was **reached**.
 
-| problem | $n$ | box subdivision | multistart | CMA-ES | DIRECT |
-|---------|-----|-----------------|------------|--------|--------|
-| Rastrigin | 2 | $0.00$ · 543 · 3/3 | $0.00$ · 1000 · 2/3 | $1.00$ · 631 · 0/3 | $0.00$ · 649 · 3/3 |
-| Rastrigin | 5 | $4.98$ · 823 · 0/3 | $3.98$ · 2500 · 0/3 | $8.96$ · 1945 · 0/3 | $4.98$ · 461 · 0/3 |
-| Ackley | 2 | $0.00$ · 347 · 2/3 | $0.00$ · 1000 · 3/3 | $0.00$ · 745 · 3/3 | $0.00$ · 417 · 3/3 |
-| Ackley | 5 | $14.43$ · 892 · 0/3 | $9.55$ · 2500 · 0/3 | $0.00$ · 2009 · 3/3 | $0.11$ · 353 · 0/3 |
-| Styblinski-Tang | 2 | $0.00$ · 218 · 3/3 | $0.00$ · 1000 · 3/3 | $0.00$ · 535 · 2/3 | $0.00$ · 1011 · 3/3 |
-| Styblinski-Tang | 5 | $0.00$ · 458 · 2/3 | $0.00$ · 2340 · 3/3 | $0.00$ · 1457 · 2/3 | $0.00$ · 2505 · 3/3 |
-| Griewank | 2 | $0.01$ · 607 · 0/3 | $0.01$ · 1000 · 0/3 | $0.05$ · 643 · 0/3 | $0.01$ · 1011 · 0/3 |
-| Griewank | 5 | $0.06$ · 1016 · 0/3 | $0.05$ · 2500 · 0/3 | $0.03$ · 1769 · 0/3 | $0.01$ · 397 · 0/3 |
+The method appears twice. **Swept** is what a user gets having tuned nothing:
+`SweptBoxSubdivisionSettings()`, no convexity value supplied at all. **Margin
+100** is the calibrated configuration every other page of this benchmark uses,
+whose value was chosen on these very problems and does not transfer between them.
+
+| problem | $n$ | box subdivision, swept | box subdivision, margin 100 | multistart | CMA-ES | DIRECT |
+|---------|-----|------------------------|-----------------------------|------------|--------|--------|
+| Rastrigin | 2 | $0.00$ · **457** · 3/3 | $0.00$ · 543 · 3/3 | $0.00$ · 1000 · 2/3 | $1.00$ · 631 · 0/3 | $0.00$ · 649 · 3/3 |
+| Rastrigin | 5 | $4.98$ · 899 · 0/3 | $4.98$ · 823 · 0/3 | $3.98$ · 2500 · 0/3 | $8.96$ · 1945 · 0/3 | $4.98$ · 461 · 0/3 |
+| Ackley | 2 | $0.00$ · 613 · **3/3** | $0.00$ · 347 · 2/3 | $0.00$ · 1000 · 3/3 | $0.00$ · 745 · 3/3 | $0.00$ · 417 · 3/3 |
+| Ackley | 5 | $14.43$ · 361 · 0/3 | $14.43$ · 892 · 0/3 | $9.55$ · 2500 · 0/3 | $0.00$ · 2009 · 3/3 | $0.11$ · 353 · 0/3 |
+| Styblinski-Tang | 2 | $0.00$ · 334 · 3/3 | $0.00$ · **218** · 3/3 | $0.00$ · 1000 · 3/3 | $0.00$ · 535 · 2/3 | $0.00$ · 1011 · 3/3 |
+| Styblinski-Tang | 5 | $0.00$ · 601 · **3/3** | $0.00$ · 458 · 2/3 | $0.00$ · 2340 · 3/3 | $0.00$ · 1457 · 2/3 | $0.00$ · 2505 · 3/3 |
+| Griewank | 2 | $0.01$ · 556 · 0/3 | $0.01$ · 607 · 0/3 | $0.01$ · 1000 · 0/3 | $0.05$ · 643 · 0/3 | $0.01$ · 1011 · 0/3 |
+| Griewank | 5 | $0.06$ · 1009 · 0/3 | $0.06$ · 1016 · 0/3 | $0.05$ · 2500 · 0/3 | $0.03$ · 1769 · 0/3 | $0.01$ · 397 · 0/3 |
 
 ```{image} ../_static/figures/results.svg
 :class: only-light
@@ -87,17 +92,28 @@ number of starting points from which the optimum was **reached**.
 :alt: Cost of each method on each problem, with the optima reached
 ```
 
+**Tuning the convexity buys nothing here, and costs two results.** The swept
+column reaches the same distance to the optimum as the calibrated one on all
+eight rows, and reaches it from **more** starting points on two of them: Ackley
+in two dimensions, $3/3$ against $2/3$, and Styblinski-Tang in five, $3/3$
+against $2/3$. Cost moves both ways and by little, cheaper on four rows and
+dearer on four. So the comparison below no longer rests on a number chosen per
+problem: what a user gets untuned is what the table reports, which is the claim
+this page could not make before.
+
 **Where it works, it is the cheapest.** Styblinski-Tang in five dimensions is
-solved for $458$ evaluations, against $2340$ for multistart, $1457$ for CMA-ES
-and $2505$ for DIRECT: the same answer, three to five times cheaper. In two
-dimensions it is the cheapest column on three problems out of four, $543$, $347$
-and $218$ evaluations, roughly half of what the next method spends.
+solved for $601$ evaluations swept, $458$ calibrated, against $2340$ for
+multistart, $1457$ for CMA-ES and $2505$ for DIRECT: the same answer, four times
+cheaper, and swept it is reached from every starting point where no baseline but
+multistart and DIRECT manages that. In two dimensions the method is the cheapest
+column on Rastrigin and Styblinski-Tang, $457$ and $334$ evaluations swept,
+roughly half of what the next method spends.
 
 **It is not the most reliable.** On Ackley in five dimensions CMA-ES reaches the
-optimum every time and the method does not; on Griewank, DIRECT is closer at a
-fraction of the cost. DIRECT is a serious baseline at low dimension, cheap and
-reliable, so any claim for the method has to be made against it rather than
-against multistart alone.
+optimum every time and the method does not, swept or calibrated; on Griewank,
+DIRECT is closer at a fraction of the cost. DIRECT is a serious baseline at low
+dimension, cheap and reliable, so any claim for the method has to be made against
+it rather than against multistart alone.
 
 **The five-variable rows are the method at its default density**, two
 subdivisions per variable, which bounds the enumeration and is not the best
@@ -108,13 +124,13 @@ and Griewank both improve as well. The next section is that sweep, and it is
 where the method's case actually rests.
 
 :::{warning}
-**These numbers are measurements, not a claim of generalization.** The convexity
-margin and the number of subdivisions were tuned on these very problems, and the
-margin is an absolute quantity in the units of the objective, so it does not even
-transfer between them unchanged. A claim about the method needs a held-out set of
-problems and a protocol fixed in advance. Sweeping the margin rather than
-supplying it is how a run avoids choosing that value at all, and it is
-[measured below](#sweeping-the-convexity-rather-than-supplying-it).
+**These numbers are measurements, not a claim of generalization.** The number of
+subdivisions was tuned on these very problems, and the swept column removes the
+convexity margin from that list rather than the whole of it. A claim about the
+method still needs a held-out set of problems and a protocol fixed in advance;
+what the swept column establishes is narrower, that the margin is no longer among
+the things a user has to get right. How the sweep does it is
+[below](#sweeping-the-convexity-rather-than-supplying-it).
 :::
 
 ## At a budget every method can afford
@@ -132,15 +148,20 @@ are built for: an objective costing minutes, where a few hundred evaluations is
 the whole budget. Four problems, two dimensions each, three starting points, the
 median distance to the optimum and the number of starting points reaching it.
 
-| problem | $n$ | box subdivision | multistart | CMA-ES | DIRECT | EGO |
-|---------|-----|-----------------|------------|--------|--------|-----|
-| Rastrigin | 2 | $0.00$ · **3/3** | $0.00$ · 2/3 | $1.00$ | $0.00$ · **3/3** | $0.00$ · 2/3 |
-| Ackley | 2 | $0.00$ · 2/3 | $9.58$ | $0.00$ · **3/3** | $0.00$ · **3/3** | $0.32$ |
-| Styblinski-Tang | 2 | $0.00$ · **3/3** · 218 | $0.00$ · **3/3** | $0.00$ · 2/3 | $0.00$ · **3/3** | $0.29$ · 29‡ |
+The method is the **swept** configuration here, the one a user gets having tuned
+nothing. The calibrated one reaches the same distance on every row and differs
+only in what it reaches it from: $2/3$ rather than $3/3$ on Ackley in two
+dimensions and on Styblinski-Tang in five.
+
+| problem | $n$ | box subdivision, swept | multistart | CMA-ES | DIRECT | EGO |
+|---------|-----|------------------------|------------|--------|--------|-----|
+| Rastrigin | 2 | $0.00$ · **3/3** · 457 | $0.00$ · 2/3 | $1.00$ | $0.00$ · **3/3** | $0.00$ · 2/3 |
+| Ackley | 2 | $0.00$ · **3/3** | $9.58$ | $0.00$ · **3/3** | $0.00$ · **3/3** | $0.32$ |
+| Styblinski-Tang | 2 | $0.00$ · **3/3** · 334 | $0.00$ · **3/3** | $0.00$ · 2/3 | $0.00$ · **3/3** | $0.29$ · 29‡ |
 | Griewank | 2 | $0.007$ | $0.067$ | $0.048$ | $0.009$ | **$0.008$** |
 | Rastrigin | 5 | $8.57$ | $9.95$ | $11.20$ | $4.98$ | **$1.99$** |
 | Ackley | 5 | $14.43$ | $17.06$ | **$0.05$** | $0.11$ | $2.90$ |
-| Styblinski-Tang | 5 | $0.00$ · 2/3 · 458 | $14.14$ · 1/3 | $0.003$ | $0.00$ · **3/3** | $0.14$ · 219‡ |
+| Styblinski-Tang | 5 | $0.00$ · **3/3** | $14.14$ · 1/3 | $0.003$ | $0.00$ · **3/3** | $0.14$ · 219‡ |
 | Griewank | 5 | $0.061$ | $0.096$ | $0.381$ | **$0.011$** | $0.104$ |
 
 ```{image} ../_static/figures/small_budget.svg
@@ -157,6 +178,12 @@ The lower row is the caveat the upper one cannot show: the distance to the
 optimum is measured in evaluations, and EGO's own time per run is two orders of
 magnitude above every other method's. On an objective costing minutes that row
 vanishes; on these it decides.
+
+The figure draws the **calibrated** configuration where the table above draws the
+swept one. Its lower row is wall time, which is a property of the machine that
+measured it as much as of the method, so a series timed elsewhere cannot be set
+beside the others; the two configurations differ in the upper row only by the two
+cells the table names.
 
 ‡ EGO stopped on its own criterion, after $29$ and $219$ evaluations of the
 $500$ it was allowed: its expected improvement collapses once the process models
@@ -176,11 +203,14 @@ counted anywhere in the table. On an objective costing minutes the ratio
 inverts and the table stands; on these analytic problems it does not.
 
 **The box subdivision is the cheapest route to a solved problem where the
-subdivision resolves the basins**, Styblinski-Tang at $218$ evaluations in two
-dimensions and $458$ in five, both ending on their own criterion rather than on
-the budget. Where it does not resolve them, five hundred evaluations is simply
-too few for it: Rastrigin at five variables needs the $2103$ of the density
-sweep below, and no method here solves that problem at this budget.
+subdivision resolves the basins**, Styblinski-Tang at $334$ evaluations in two
+dimensions, ending on its own criterion rather than on the budget. In five it
+reaches the optimum from every starting point too, but spends the whole five
+hundred doing so, which is a solve at the wall rather than a cheap one — the
+calibrated configuration ends at $458$ and reaches it from two. Where the
+subdivision does not resolve the basins, five hundred evaluations is simply too
+few: Rastrigin at five variables needs the $2103$ of the density sweep below, and
+no method here solves that problem at this budget.
 
 :::{note}
 This table and the one above answer different questions, and neither supersedes

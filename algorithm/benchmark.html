@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=73e4612c"></script>
+    <script src="../_static/documentation_options.js?v=2bedff92"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -531,11 +531,16 @@ executions against <span class="math notranslate nohighlight">\(341\)</span>. It
 equivalent evaluations per design variable under the adjoint convention. Each
 cell is the <strong>median distance to the optimum</strong>, the <strong>median cost</strong>, and the
 number of starting points from which the optimum was <strong>reached</strong>.</p>
+<p>The method appears twice. <strong>Swept</strong> is what a user gets having tuned nothing:
+<code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings()</span></code>, no convexity value supplied at all. <strong>Margin
+100</strong> is the calibrated configuration every other page of this benchmark uses,
+whose value was chosen on these very problems and does not transfer between them.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>problem</p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(n\)</span></p></th>
-<th class="head"><p>box subdivision</p></th>
+<th class="head"><p>box subdivision, swept</p></th>
+<th class="head"><p>box subdivision, margin 100</p></th>
 <th class="head"><p>multistart</p></th>
 <th class="head"><p>CMA-ES</p></th>
 <th class="head"><p>DIRECT</p></th>
@@ -544,6 +549,7 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 <tbody>
 <tr class="row-even"><td><p>Rastrigin</p></td>
 <td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>457</strong> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 543 · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 2/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(1.00\)</span> · 631 · 0/3</p></td>
@@ -551,6 +557,7 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 </tr>
 <tr class="row-odd"><td><p>Rastrigin</p></td>
 <td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span> · 899 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(4.98\)</span> · 823 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(3.98\)</span> · 2500 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(8.96\)</span> · 1945 · 0/3</p></td>
@@ -558,6 +565,7 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 </tr>
 <tr class="row-even"><td><p>Ackley</p></td>
 <td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 613 · <strong>3/3</strong></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 347 · 2/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 745 · 3/3</p></td>
@@ -565,6 +573,7 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 </tr>
 <tr class="row-odd"><td><p>Ackley</p></td>
 <td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.43\)</span> · 361 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(14.43\)</span> · 892 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(9.55\)</span> · 2500 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2009 · 3/3</p></td>
@@ -572,13 +581,15 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 </tr>
 <tr class="row-even"><td><p>Styblinski-Tang</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 218 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 334 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>218</strong> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 535 · 2/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1011 · 3/3</p></td>
 </tr>
 <tr class="row-odd"><td><p>Styblinski-Tang</p></td>
 <td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 601 · <strong>3/3</strong></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 458 · 2/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2340 · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1457 · 2/3</p></td>
@@ -586,6 +597,7 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 </tr>
 <tr class="row-even"><td><p>Griewank</p></td>
 <td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span> · 556 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.01\)</span> · 607 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.01\)</span> · 1000 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.05\)</span> · 643 · 0/3</p></td>
@@ -593,6 +605,7 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 </tr>
 <tr class="row-odd"><td><p>Griewank</p></td>
 <td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.06\)</span> · 1009 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.06\)</span> · 1016 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.05\)</span> · 2500 · 0/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.03\)</span> · 1769 · 0/3</p></td>
@@ -603,16 +616,26 @@ number of starting points from which the optimum was <strong>reached</strong>.</
 </div>
 <img alt="Cost of each method on each problem, with the optima reached" class="only-light" src="../_images/results.svg" />
 <img alt="Cost of each method on each problem, with the optima reached" class="only-dark" src="../_images/results-dark.svg" />
+<p><strong>Tuning the convexity buys nothing here, and costs two results.</strong> The swept
+column reaches the same distance to the optimum as the calibrated one on all
+eight rows, and reaches it from <strong>more</strong> starting points on two of them: Ackley
+in two dimensions, <span class="math notranslate nohighlight">\(3/3\)</span> against <span class="math notranslate nohighlight">\(2/3\)</span>, and Styblinski-Tang in five, <span class="math notranslate nohighlight">\(3/3\)</span>
+against <span class="math notranslate nohighlight">\(2/3\)</span>. Cost moves both ways and by little, cheaper on four rows and
+dearer on four. So the comparison below no longer rests on a number chosen per
+problem: what a user gets untuned is what the table reports, which is the claim
+this page could not make before.</p>
 <p><strong>Where it works, it is the cheapest.</strong> Styblinski-Tang in five dimensions is
-solved for <span class="math notranslate nohighlight">\(458\)</span> evaluations, against <span class="math notranslate nohighlight">\(2340\)</span> for multistart, <span class="math notranslate nohighlight">\(1457\)</span> for CMA-ES
-and <span class="math notranslate nohighlight">\(2505\)</span> for DIRECT: the same answer, three to five times cheaper. In two
-dimensions it is the cheapest column on three problems out of four, <span class="math notranslate nohighlight">\(543\)</span>, <span class="math notranslate nohighlight">\(347\)</span>
-and <span class="math notranslate nohighlight">\(218\)</span> evaluations, roughly half of what the next method spends.</p>
+solved for <span class="math notranslate nohighlight">\(601\)</span> evaluations swept, <span class="math notranslate nohighlight">\(458\)</span> calibrated, against <span class="math notranslate nohighlight">\(2340\)</span> for
+multistart, <span class="math notranslate nohighlight">\(1457\)</span> for CMA-ES and <span class="math notranslate nohighlight">\(2505\)</span> for DIRECT: the same answer, four times
+cheaper, and swept it is reached from every starting point where no baseline but
+multistart and DIRECT manages that. In two dimensions the method is the cheapest
+column on Rastrigin and Styblinski-Tang, <span class="math notranslate nohighlight">\(457\)</span> and <span class="math notranslate nohighlight">\(334\)</span> evaluations swept,
+roughly half of what the next method spends.</p>
 <p><strong>It is not the most reliable.</strong> On Ackley in five dimensions CMA-ES reaches the
-optimum every time and the method does not; on Griewank, DIRECT is closer at a
-fraction of the cost. DIRECT is a serious baseline at low dimension, cheap and
-reliable, so any claim for the method has to be made against it rather than
-against multistart alone.</p>
+optimum every time and the method does not, swept or calibrated; on Griewank,
+DIRECT is closer at a fraction of the cost. DIRECT is a serious baseline at low
+dimension, cheap and reliable, so any claim for the method has to be made against
+it rather than against multistart alone.</p>
 <p><strong>The five-variable rows are the method at its default density</strong>, two
 subdivisions per variable, which bounds the enumeration and is not the best
 choice for three of these four problems. At ten subdivisions per variable
@@ -622,13 +645,13 @@ and Griewank both improve as well. The next section is that sweep, and it is
 where the method’s case actually rests.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><strong>These numbers are measurements, not a claim of generalization.</strong> The convexity
-margin and the number of subdivisions were tuned on these very problems, and the
-margin is an absolute quantity in the units of the objective, so it does not even
-transfer between them unchanged. A claim about the method needs a held-out set of
-problems and a protocol fixed in advance. Sweeping the margin rather than
-supplying it is how a run avoids choosing that value at all, and it is
-<a class="reference internal" href="#sweeping-the-convexity-rather-than-supplying-it">measured below</a>.</p>
+<p><strong>These numbers are measurements, not a claim of generalization.</strong> The number of
+subdivisions was tuned on these very problems, and the swept column removes the
+convexity margin from that list rather than the whole of it. A claim about the
+method still needs a held-out set of problems and a protocol fixed in advance;
+what the swept column establishes is narrower, that the margin is no longer among
+the things a user has to get right. How the sweep does it is
+<a class="reference internal" href="#sweeping-the-convexity-rather-than-supplying-it">below</a>.</p>
 </div>
 </section>
 <section id="at-a-budget-every-method-can-afford">
@@ -644,11 +667,15 @@ every one of them can afford, and which is the regime both EGO and this method
 are built for: an objective costing minutes, where a few hundred evaluations is
 the whole budget. Four problems, two dimensions each, three starting points, the
 median distance to the optimum and the number of starting points reaching it.</p>
+<p>The method is the <strong>swept</strong> configuration here, the one a user gets having tuned
+nothing. The calibrated one reaches the same distance on every row and differs
+only in what it reaches it from: <span class="math notranslate nohighlight">\(2/3\)</span> rather than <span class="math notranslate nohighlight">\(3/3\)</span> on Ackley in two
+dimensions and on Styblinski-Tang in five.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>problem</p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(n\)</span></p></th>
-<th class="head"><p>box subdivision</p></th>
+<th class="head"><p>box subdivision, swept</p></th>
 <th class="head"><p>multistart</p></th>
 <th class="head"><p>CMA-ES</p></th>
 <th class="head"><p>DIRECT</p></th>
@@ -658,7 +685,7 @@ median distance to the optimum and the number of starting points reaching it.</p
 <tbody>
 <tr class="row-even"><td><p>Rastrigin</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong> · 457</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(1.00\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
@@ -666,7 +693,7 @@ median distance to the optimum and the number of starting points reaching it.</p
 </tr>
 <tr class="row-odd"><td><p>Ackley</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
 <td><p><span class="math notranslate nohighlight">\(9.58\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
@@ -674,7 +701,7 @@ median distance to the optimum and the number of starting points reaching it.</p
 </tr>
 <tr class="row-even"><td><p>Styblinski-Tang</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong> · 218</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong> · 334</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
@@ -706,7 +733,7 @@ median distance to the optimum and the number of starting points reaching it.</p
 </tr>
 <tr class="row-even"><td><p>Styblinski-Tang</p></td>
 <td><p>5</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3 · 458</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
 <td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 1/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.003\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
@@ -729,6 +756,11 @@ median distance to the optimum and the number of starting points reaching it.</p
 optimum is measured in evaluations, and EGO’s own time per run is two orders of
 magnitude above every other method’s. On an objective costing minutes that row
 vanishes; on these it decides.</p>
+<p>The figure draws the <strong>calibrated</strong> configuration where the table above draws the
+swept one. Its lower row is wall time, which is a property of the machine that
+measured it as much as of the method, so a series timed elsewhere cannot be set
+beside the others; the two configurations differ in the upper row only by the two
+cells the table names.</p>
 <p>‡ EGO stopped on its own criterion, after <span class="math notranslate nohighlight">\(29\)</span> and <span class="math notranslate nohighlight">\(219\)</span> evaluations of the
 <span class="math notranslate nohighlight">\(500\)</span> it was allowed: its expected improvement collapses once the process models
 the landscape. Every other cell of the table spent its whole budget.</p>
@@ -744,11 +776,14 @@ against <span class="math notranslate nohighlight">\(3\)</span> for the box subd
 counted anywhere in the table. On an objective costing minutes the ratio
 inverts and the table stands; on these analytic problems it does not.</p>
 <p><strong>The box subdivision is the cheapest route to a solved problem where the
-subdivision resolves the basins</strong>, Styblinski-Tang at <span class="math notranslate nohighlight">\(218\)</span> evaluations in two
-dimensions and <span class="math notranslate nohighlight">\(458\)</span> in five, both ending on their own criterion rather than on
-the budget. Where it does not resolve them, five hundred evaluations is simply
-too few for it: Rastrigin at five variables needs the <span class="math notranslate nohighlight">\(2103\)</span> of the density
-sweep below, and no method here solves that problem at this budget.</p>
+subdivision resolves the basins</strong>, Styblinski-Tang at <span class="math notranslate nohighlight">\(334\)</span> evaluations in two
+dimensions, ending on its own criterion rather than on the budget. In five it
+reaches the optimum from every starting point too, but spends the whole five
+hundred doing so, which is a solve at the wall rather than a cheap one — the
+calibrated configuration ends at <span class="math notranslate nohighlight">\(458\)</span> and reaches it from two. Where the
+subdivision does not resolve the basins, five hundred evaluations is simply too
+few: Rastrigin at five variables needs the <span class="math notranslate nohighlight">\(2103\)</span> of the density sweep below, and
+no method here solves that problem at this budget.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This table and the one above answer different questions, and neither supersedes

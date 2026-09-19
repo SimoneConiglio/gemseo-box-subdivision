@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=73e4612c"></script>
+    <script src="_static/documentation_options.js?v=2bedff92"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -441,8 +441,8 @@ matter.</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 <svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-graph sd-mr-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 2.75a.75.75 0 0 0-1.5 0v18.5c0 .414.336.75.75.75H20a.75.75 0 0 0 0-1.5H2.5V2.75Z"></path><path d="M22.28 7.78a.75.75 0 0 0-1.06-1.06l-5.72 5.72-3.72-3.72a.75.75 0 0 0-1.06 0l-6 6a.75.75 0 1 0 1.06 1.06l5.47-5.47 3.72 3.72a.75.75 0 0 0 1.06 0l6.25-6.25Z"></path></svg> Results</div>
-<p class="sd-card-text">Four times cheaper than enumerating the boxes, and measured against multistart,
-CMA-ES and DIRECT.</p>
+<p class="sd-card-text">Four times cheaper than enumerating the boxes, measured against multistart,
+CMA-ES and DIRECT, and with the convexity swept rather than supplied.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference internal" href="algorithm/benchmark.html"><span class="doc">Results</span></a></div>
 </div>
@@ -461,7 +461,8 @@ CMA-ES and DIRECT.</p>
 <h2>At a glance<a class="headerlink" href="#at-a-glance" title="Link to this heading">#</a></h2>
 <p>On the Rastrigin function in two dimensions, subdivided into 100 boxes, the
 method reaches the global optimum after solving about 20 boxes, roughly five
-times cheaper than solving all of them.</p>
+times cheaper than solving all of them, with nothing to tune but the
+subdivision.</p>
 <div class="math notranslate nohighlight">
 \[
 \min_\alpha\ u(\alpha)
@@ -472,18 +473,28 @@ u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) 
 NLP solves the original problem inside it.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The method suits a landscape with a <strong>moderate number of basins</strong>: the
-subdivision has to resolve them. On a densely multimodal problem, such as
-Rastrigin beyond two dimensions, no tractable subdivision does, and an evolution
-strategy does better. See <a class="reference internal" href="algorithm/benchmark.html"><span class="std std-doc">the benchmark</span></a>.</p>
+<p>The method suits a landscape whose <strong>basins a subdivision can separate</strong>, and it
+is the density of that subdivision that decides: it has to be fine enough to put
+the basins in different boxes, and coarse enough that the binaries it costs stay
+within the sub-problems a budget can pay for — around fifty in this benchmark.
+Rastrigin in five dimensions sits inside that window at ten subdivisions per
+variable and is solved from every starting point, which no baseline here achieves
+at any budget tried; Styblinski-Tang at the same density sits outside it, its
+basins cut into five boxes apiece. See
+<a class="reference internal" href="algorithm/benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the density of the subdivision</span></a>.</p>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The convexification constant defaults to <code class="docutils literal notranslate"><span class="pre">0.0</span></code> in GEMSEO, which makes the
-outer-approximation cuts invalid on a multimodal problem: the master converges
-after two or three sub-problems and reports success far from the optimum. Read
-<a class="reference internal" href="algorithm/methodology.html#id1"><span class="std std-ref">Convexification</span></a> before using the
-method.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Do not calibrate the convexity: sweep it.</strong> The cuts of the outer approximation
+are valid only on a convex value function, and the master’s own guards are off by
+default, so a run left to them converges after two or three sub-problems and
+reports success far from the optimum. Both guards are numbers in the units of
+your objective, which is the one thing you do not know before the run.
+<code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings()</span></code> asks for none of it and spreads a ladder of
+values over the probes the master already runs: measured, it matches the
+calibrated configuration on every problem of the benchmark and is more reliable
+on two of them. See <a class="reference internal" href="algorithm/usage.html#not-choosing-the-convexity-at-all"><span class="std std-ref">Usage</span></a>
+and <a class="reference internal" href="algorithm/benchmark.html#sweeping-the-convexity-rather-than-supplying-it"><span class="std std-ref">the results</span></a>.</p>
 </div>
 <div class="toctree-wrapper compound">
 </div>
