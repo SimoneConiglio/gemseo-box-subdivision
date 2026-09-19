@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=73e4612c"></script>
+    <script src="../_static/documentation_options.js?v=1c1575f8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -951,9 +951,14 @@ the same over-estimate does cost two starting points on Ackley — it is merely
 forgiving.</p>
 <p><strong>It is not free, and it is not measured widely.</strong> Escalation costs
 mixed-integer solves rather than evaluations, which is why the swept rows cost
-what the calibrated one costs; and two problems in two dimensions establish no
-factor. The full table, the reading of the bound off the objective, and what the
-headroom is for are in
+what the calibrated one costs. The table above is two problems in two dimensions,
+which establish no factor: the decade of headroom the unbounded form needs was
+chosen on them. What reaches further is the
+<a class="reference internal" href="#against-the-baselines">comparison against the baselines</a>, where the swept
+configuration is measured on four problems in two dimensions and five — and even
+there, one mechanism only, the adaptive repair, the pure convexification having
+never been swept. The full table, the reading of the bound off the objective, and
+what the headroom is for are in
 <a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
 </section>
 <section id="the-extensions-and-what-they-are-worth">
