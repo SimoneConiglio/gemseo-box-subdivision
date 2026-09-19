@@ -73,6 +73,14 @@ below the sub-problems a budget can pay for, and refining past the basins makes
 things worse rather than merely slower, see
 [the benchmark](benchmark.md#the-density-of-the-subdivision-decides).
 
+It counts subdivisions **per component**, not per variable. A variable of size
+$s$ subdivided into $m$ is $s$ independent choices of one subdivision out of $m$:
+each component is cut over its own range, the master carries $s$ one-hot groups
+of $m$ binaries for it, and the boxes of that variable alone number $m^s$. So one
+variable of size five and five variables of size one give the same master, and
+`n_subdivisions` is the density of a variable rather than of one of its
+components — a size-five variable cannot be given five different densities.
+
 The other mechanism is selected, never mixed:
 
 ```python
