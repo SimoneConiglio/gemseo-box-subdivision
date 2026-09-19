@@ -2,12 +2,12 @@ name: Documentation
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: pages
+  group: documentation-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -17,11 +17,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      # Required by configure-pages to switch the source to GitHub Actions.
-      pages: write
-      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,35 +27,88 @@ jobs:
           python-version: "3.13"
       - name: Install tox
         run: python -m pip install --upgrade pip tox tox-uv
-      - name: Configure GitHub Pages
-        # enablement switches the source of the pages to GitHub Actions, so that
-        # the built documentation is published instead of the repository being
-        # processed by Jekyll.
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-        continue-on-error: true
       - name: Build the documentation
         run: tox -e doc
         env:
           # The inventories are reachable from the runner.
           SPHINX_INTERSPHINX: "1"
-      - uses: actions/upload-pages-artifact@v3
+          # The build of the integration branch says so on every page, since it
+          # is published beside the released one.
+          DOCS_CHANNEL: ${{ github.ref == 'refs/heads/develop' && 'dev' || 'release' }}
+      # Downloadable from the run, so that a change to the documentation can be
+      # read before it is published: unzip it and open index.html.
+      - name: Upload the documentation to browse
+        uses: actions/upload-artifact@v4
         with:
+          name: documentation-${{ github.event.pull_request.number || github.sha }}
           path: docs/_build/html
+          retention-days: 14
 
-  deploy:
-    name: Deploy to GitHub Pages
-    # Only the default branch is published.
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  publish:
+    name: Publish to the pages branch
+    # A pull request builds and is browsable from its own run; only the two
+    # long-lived branches are published.
+    if: >-
+      github.event_name != 'pull_request'
+      && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
-      pages: write
-      id-token: write
+      contents: write
+    # One writer at a time, whichever branch built: the two publish into one
+    # branch, and a concurrent push would reject.
+    concurrency:
+      group: gh-pages
+      cancel-in-progress: false
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: documentation-${{ github.sha }}
+          path: html
+      - name: Publish
+        env:
+          # The released documentation is the site itself; the integration
+          # branch is a subdirectory of it, so that one Pages site serves both.
+          DESTINATION: ${{ github.ref == 'refs/heads/develop' && 'dev' || '' }}
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            git fetch --depth 1 origin gh-pages
+            git switch --detach FETCH_HEAD
+            git switch -C gh-pages
+          else
+            # The first publication starts the branch with no history of the
+            # source: the site is a build, not a revision of the sources.
+            git switch --orphan gh-pages
+          fi
+
+          if [ -n "${DESTINATION}" ]; then
+            rm -rf "${DESTINATION}"
+            mkdir -p "${DESTINATION}"
+            cp -R html/. "${DESTINATION}/"
+          else
+            # Everything but the subdirectory of the integration branch, which
+            # the release does not own and must not take with it.
+            find . -mindepth 1 -maxdepth 1 \
+              -not -name .git -not -name dev -not -name html \
+              -exec rm -rf {} +
+            cp -R html/. .
+          fi
+          rm -rf html
+
+          # Sphinx serves its assets from _static, which a Jekyll build would
+          # skip, and a branch source runs Jekyll unless this file is there.
+          touch .nojekyll
+
+          git add --all
+          if git diff --cached --quiet; then
+            echo "The build is identical to what is published."
+            exit 0
+          fi
+
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Publish ${GITHUB_REF_NAME} at ${GITHUB_SHA}"
+          git push origin gh-pages

@@ -72,6 +72,29 @@ dependencies in `requirements/test-python*.txt`; the `dev` dependency group of
 `pyproject.toml` is used directly, so a fresh clone can run `tox` without a
 locking step. Only `requirements/check.in` remains, for the pre-commit tooling.
 
+## The published documentation
+
+Two builds are published to one GitHub Pages site, from the `gh-pages` branch:
+
+| build | where | what it documents |
+|-------|-------|-------------------|
+| `main` | <https://simoneconiglio.github.io/gemseo-box-subdivision/> | the released code |
+| `develop` | <https://simoneconiglio.github.io/gemseo-box-subdivision/dev/> | what the next release will carry |
+
+The development build says so on every page, in a banner linking back to the
+released one, and its *edit this page* buttons point at `develop`.
+
+A **pull request** publishes nothing. It builds the documentation and uploads it
+as an artifact of its run, `documentation-<number>`: download it from the run's
+summary and open `index.html` to read a change before it is merged. The build
+fails on a warning, so a broken cross-reference stops the pull request rather
+than reaching the site.
+
+**The site is served from the `gh-pages` branch**, which the workflow writes and
+nothing else should. Under *Settings → Pages*, the source is **Deploy from a
+branch**, `gh-pages`, `/ (root)`. Setting it back to *GitHub Actions* would serve
+whatever that path last deployed and ignore the branch.
+
 ## Releasing
 
 The version is **derived from the git tag** by
