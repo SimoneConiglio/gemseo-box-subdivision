@@ -35,6 +35,18 @@ jobs:
           # The build of the integration branch says so on every page, since it
           # is published beside the released one.
           DOCS_CHANNEL: ${{ github.ref == 'refs/heads/develop' && 'dev' || 'release' }}
+      # The channel reaches Sphinx through tox, which passes only the variables
+      # it is told to, so a build that silently lost it would publish a
+      # development site indistinguishable from the released one.
+      - name: Check that the channel reached the build
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          set -eu
+          if ! grep -q "development branch" docs/_build/html/index.html; then
+            echo "The development build carries no banner: DOCS_CHANNEL did not"
+            echo "reach Sphinx. Check pass_env in tox.ini."
+            exit 1
+          fi
       # Downloadable from the run, so that a change to the documentation can be
       # read before it is published: unzip it and open index.html.
       - name: Upload the documentation to browse
