@@ -55,8 +55,8 @@ matter.
 :link: algorithm/benchmark
 :link-type: doc
 
-Four times cheaper than enumerating the boxes, and measured against multistart,
-CMA-ES and DIRECT.
+Four times cheaper than enumerating the boxes, measured against multistart,
+CMA-ES and DIRECT, and with the convexity swept rather than supplied.
 :::
 
 :::{grid-item-card} {octicon}`check-circle;1.5em;sd-mr-1` Conclusion
@@ -72,7 +72,8 @@ What the method is once measured, and the directions that follow from it.
 
 On the Rastrigin function in two dimensions, subdivided into 100 boxes, the
 method reaches the global optimum after solving about 20 boxes, roughly five
-times cheaper than solving all of them.
+times cheaper than solving all of them, with nothing to tune but the
+subdivision.
 
 $$
 \min_\alpha\ u(\alpha)
@@ -84,18 +85,28 @@ A MINLP master decides the box through the one-hot vector $\alpha$, and a local
 NLP solves the original problem inside it.
 
 ```{note}
-The method suits a landscape with a **moderate number of basins**: the
-subdivision has to resolve them. On a densely multimodal problem, such as
-Rastrigin beyond two dimensions, no tractable subdivision does, and an evolution
-strategy does better. See [the benchmark](algorithm/benchmark.md).
+The method suits a landscape whose **basins a subdivision can separate**, and it
+is the density of that subdivision that decides: it has to be fine enough to put
+the basins in different boxes, and coarse enough that the binaries it costs stay
+within the sub-problems a budget can pay for — around fifty in this benchmark.
+Rastrigin in five dimensions sits inside that window at ten subdivisions per
+variable and is solved from every starting point, which no baseline here achieves
+at any budget tried; Styblinski-Tang at the same density sits outside it, its
+basins cut into five boxes apiece. See
+[the density of the subdivision](algorithm/benchmark.md#the-density-of-the-subdivision-decides).
 ```
 
-```{warning}
-The convexification constant defaults to `0.0` in GEMSEO, which makes the
-outer-approximation cuts invalid on a multimodal problem: the master converges
-after two or three sub-problems and reports success far from the optimum. Read
-[Convexification](algorithm/methodology.md#convexification) before using the
-method.
+```{tip}
+**Do not calibrate the convexity: sweep it.** The cuts of the outer approximation
+are valid only on a convex value function, and the master's own guards are off by
+default, so a run left to them converges after two or three sub-problems and
+reports success far from the optimum. Both guards are numbers in the units of
+your objective, which is the one thing you do not know before the run.
+`SweptBoxSubdivisionSettings()` asks for none of it and spreads a ladder of
+values over the probes the master already runs: measured, it matches the
+calibrated configuration on every problem of the benchmark and is more reliable
+on two of them. See [Usage](algorithm/usage.md#not-choosing-the-convexity-at-all)
+and [the results](algorithm/benchmark.md#sweeping-the-convexity-rather-than-supplying-it).
 ```
 
 ```{toctree}

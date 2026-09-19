@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=a7388c14"></script>
+    <script src="../_static/documentation_options.js?v=73e4612c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -510,6 +510,13 @@ sub-problems rather than quality.</p>
 below the sub-problems a budget can pay for, and refining past the basins makes
 things worse rather than merely slower, see
 <a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a>.</p>
+<p>It counts subdivisions <strong>per component</strong>, not per variable. A variable of size
+<span class="math notranslate nohighlight">\(s\)</span> subdivided into <span class="math notranslate nohighlight">\(m\)</span> is <span class="math notranslate nohighlight">\(s\)</span> independent choices of one subdivision out of <span class="math notranslate nohighlight">\(m\)</span>:
+each component is cut over its own range, the master carries <span class="math notranslate nohighlight">\(s\)</span> one-hot groups
+of <span class="math notranslate nohighlight">\(m\)</span> binaries for it, and the boxes of that variable alone number <span class="math notranslate nohighlight">\(m^s\)</span>. So one
+variable of size five and five variables of size one give the same master, and
+<code class="docutils literal notranslate"><span class="pre">n_subdivisions</span></code> is the density of a variable rather than of one of its
+components — a size-five variable cannot be given five different densities.</p>
 <p>The other mechanism is selected, never mixed:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BoxSubdivisionSettings</span><span class="p">(</span><span class="n">mechanism</span><span class="o">=</span><span class="s2">"convexification"</span><span class="p">,</span> <span class="n">convexification_constant</span><span class="o">=</span><span class="mf">50.0</span><span class="p">)</span>
 </pre></div>
