@@ -1,0 +1,902 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gemseo_box_subdivision.hierarchy &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/gemseo_box_subdivision/hierarchy';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">gemseo_box_subdivision.hierarchy</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for gemseo_box_subdivision.hierarchy</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2026 Simone Coniglio</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or</span>
+<span class="c1"># modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1"># License version 3 as published by the Free Software Foundation.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program; if not, write to the Free Software Foundation,</span>
+<span class="c1"># Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
+<span class="sa">r</span><span class="sd">"""Hierarchies of subdivisions: refining a box instead of subdividing it finely.</span>
+
+<span class="sd">A box of a subdivision is an ordinary design space, so refining it is running the</span>
+<span class="sd">method again inside its bounds. Which box to refine is the whole question, and</span>
+<span class="sd">these are the rules that answer it and the three shapes of search built on them.</span>
+
+<span class="sd">Each shape is a **loop around the method** rather than a change to it, so it is</span>
+<span class="sd">driven by a callable that solves one level and reports the boxes it solved. The</span>
+<span class="sd">caller keeps the construction of its own scenario, and its own accounting of the</span>
+<span class="sd">budget, and signals exhaustion by returning no solved box.</span>
+
+<span class="sd">The trade a hierarchy makes is set out in the documentation: writing :math:`c`</span>
+<span class="sd">for the sub-problems a budget affords, a flat run puts all :math:`c` cuts into</span>
+<span class="sd">one model, while a hierarchy of :math:`N` nodes puts :math:`c/N` into each of</span>
+<span class="sd">:math:`N` models, and the cuts of a parent have no meaning in the subdivision of</span>
+<span class="sd">a child. Reach for one when the flat method has no answer at all, a basin too</span>
+<span class="sd">broad for any affordable density, rather than to improve a run that works.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">heapq</span><span class="w"> </span><span class="kn">import</span> <span class="n">heappop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">heapq</span><span class="w"> </span><span class="kn">import</span> <span class="n">heappush</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">argsort</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">asarray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>  <span class="c1"># noqa: TC002</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.design_spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_box_samples</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.subdivisions.box</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxSubdivision</span>
+
+
+<div class="viewcode-block" id="SolvedBox">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.SolvedBox">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolvedBox</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A box whose sub-problem was solved, and what the master learned from it."""</span>
+
+    <span class="n">one_hot</span><span class="p">:</span> <span class="n">ndarray</span>
+<span class="w">    </span><span class="sd">"""The one-hot vector selecting the box."""</span>
+
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span>
+<span class="w">    </span><span class="sd">"""The optimum of the sub-problem inside the box."""</span>
+
+    <span class="n">sensitivity</span><span class="p">:</span> <span class="n">ndarray</span>
+<span class="w">    </span><span class="sd">"""The post-optimal sensitivity of that optimum to the one-hot vector."""</span></div>
+
+
+
+<span class="n">SolveLevel</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Callable[[ndarray, ndarray, int], tuple[BoxSubdivision, Sequence[SolvedBox]]]"</span>  <span class="c1"># noqa: E501</span>
+<span class="p">)</span>
+<span class="sd">"""The signature of the callable solving one level.</span>
+
+<span class="sd">It receives the lower bounds, the upper bounds and the number of subdivisions per</span>
+<span class="sd">variable of the level, and returns the subdivision it built and the boxes it</span>
+<span class="sd">solved. Returning no solved box ends the search, which is how a caller reports</span>
+<span class="sd">that its budget is spent or that the master became infeasible.</span>
+<span class="sd">"""</span>
+
+
+<div class="viewcode-block" id="read_solved_boxes">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.read_solved_boxes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_solved_boxes</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">objective_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SolvedBox</span><span class="p">]:</span>  <span class="c1"># noqa: ANN001</span>
+<span class="w">    </span><span class="sd">"""Return the boxes a master solved, from the database of its problem.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        problem: The optimization problem of the master.</span>
+<span class="sd">        objective_name: The name of the objective. If empty, take the name of the</span>
+<span class="sd">            objective of the problem.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The solved boxes, in the order the master visited them.</span>
+<span class="sd">    """</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">objective_name</span> <span class="ow">or</span> <span class="n">problem</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">solved</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">problem</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">sensitivity</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"@</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sensitivity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">solved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">SolvedBox</span><span class="p">(</span>
+                    <span class="n">asarray</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">unwrap</span><span class="p">())</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+                    <span class="n">asarray</span><span class="p">(</span><span class="n">sensitivity</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">solved</span></div>
+
+
+
+<div class="viewcode-block" id="compute_cut_model">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.compute_cut_model">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_cut_model</span><span class="p">(</span>
+    <span class="n">solved</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SolvedBox</span><span class="p">],</span> <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Return every box of a subdivision and what the cuts estimate there.</span>
+
+<span class="sd">    The cuts gathered by a master define a lower estimate of the value of the</span>
+<span class="sd">    problem over the whole subdivision,</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \hat u(\alpha) = \max_i \, u(\alpha^{(i)})</span>
+<span class="sd">            + s^{(i)\top}(\alpha - \alpha^{(i)}),</span>
+
+<span class="sd">    which is defined at the boxes the master never solved as well as at those it</span>
+<span class="sd">    did. That is what makes it usable as a score: it proposes boxes that were</span>
+<span class="sd">    never visited, where the value can only rank the few dozen that were.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solved: The solved boxes.</span>
+<span class="sd">        subdivision: The subdivision of the level.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The one-hot vector of every box, and the value the cuts estimate there.</span>
+<span class="sd">    """</span>
+    <span class="n">boxes</span> <span class="o">=</span> <span class="n">create_box_samples</span><span class="p">(</span><span class="n">subdivision</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">asarray</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">solved</span><span class="p">])</span>
+    <span class="n">alphas</span> <span class="o">=</span> <span class="n">asarray</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">one_hot</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">solved</span><span class="p">])</span>
+    <span class="n">slopes</span> <span class="o">=</span> <span class="n">asarray</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">sensitivity</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">solved</span><span class="p">])</span>
+    <span class="c1"># One row per box, one column per cut.</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">values</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">boxes</span> <span class="o">@</span> <span class="n">slopes</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="p">(</span><span class="n">alphas</span> <span class="o">*</span> <span class="n">slopes</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">model</span></div>
+
+
+
+<div class="viewcode-block" id="rank_by_value">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.rank_by_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rank_by_value</span><span class="p">(</span>
+    <span class="n">solved</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SolvedBox</span><span class="p">],</span> <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Rank the boxes by the value of the sub-problem solved inside them.</span>
+
+<span class="sd">    Only the boxes whose sub-problem was solved can be ranked, so this compares</span>
+<span class="sd">    measurements rather than extrapolations, over at most a few dozen boxes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solved: The solved boxes.</span>
+<span class="sd">        subdivision: Unused, the values being attached to the boxes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The one-hot vectors, from the most promising.</span>
+<span class="sd">    """</span>
+    <span class="k">del</span> <span class="n">subdivision</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">solved</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">one_hot</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="n">argsort</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">solved</span><span class="p">])]</span></div>
+
+
+
+<div class="viewcode-block" id="rank_by_cuts">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.rank_by_cuts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rank_by_cuts</span><span class="p">(</span>
+    <span class="n">solved</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SolvedBox</span><span class="p">],</span> <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Rank **every** box of the subdivision by the cut model of the master.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solved: The solved boxes.</span>
+<span class="sd">        subdivision: The subdivision of the level.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The one-hot vectors, from the most promising.</span>
+<span class="sd">    """</span>
+    <span class="n">boxes</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">compute_cut_model</span><span class="p">(</span><span class="n">solved</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">boxes</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="n">argsort</span><span class="p">(</span><span class="n">model</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="rank_mixed">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.rank_mixed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rank_mixed</span><span class="p">(</span>
+    <span class="n">solved</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SolvedBox</span><span class="p">],</span> <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Alternate the two rules, taking the first box of each in turn.</span>
+
+<span class="sd">    The two fail on opposite landscapes: the value is noise where a coarse box</span>
+<span class="sd">    holds many basins, and the cut model, being optimistic, extrapolates towards</span>
+<span class="sd">    boxes far from anything solved, which is exploration where the value ranking</span>
+<span class="sd">    already points at the right region.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solved: The solved boxes.</span>
+<span class="sd">        subdivision: The subdivision of the level.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The one-hot vectors, from the most promising.</span>
+<span class="sd">    """</span>
+    <span class="n">mixed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value_box</span><span class="p">,</span> <span class="n">cut_box</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">rank_by_value</span><span class="p">(</span><span class="n">solved</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">),</span>
+        <span class="n">rank_by_cuts</span><span class="p">(</span><span class="n">solved</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">),</span>
+        <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="p">(</span><span class="n">value_box</span><span class="p">,</span> <span class="n">cut_box</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">((</span><span class="n">box</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">mixed</span><span class="p">):</span>
+                <span class="n">mixed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mixed</span></div>
+
+
+
+<span class="n">RANKINGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">ndarray</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"value"</span><span class="p">:</span> <span class="n">rank_by_value</span><span class="p">,</span>
+    <span class="s2">"cuts"</span><span class="p">:</span> <span class="n">rank_by_cuts</span><span class="p">,</span>
+    <span class="s2">"mixed"</span><span class="p">:</span> <span class="n">rank_mixed</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="sd">"""The rules deciding which boxes to refine, by name."""</span>
+
+
+<div class="viewcode-block" id="refine_deep">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.refine_deep">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">refine_deep</span><span class="p">(</span>
+    <span class="n">solve</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">lower_bound</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">upper_bound</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"x"</span><span class="p">,</span>
+    <span class="n">branching</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="n">ranking</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"value"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Refine the most promising box again and again, to a fixed depth.</span>
+
+<span class="sd">    Every level splits each variable in :math:`m` and descends into one box, so a</span>
+<span class="sd">    level carries :math:`n m` coefficients against the boxes it can afford to</span>
+<span class="sd">    solve, and the resolution reached is :math:`m^{\text{depth}}` per variable</span>
+<span class="sd">    without any level ever being large. This is the shape that answers a basin</span>
+<span class="sd">    too broad for any affordable density.</span>
+
+<span class="sd">    It cannot undo a choice: the box refined at one level is the only space the</span>
+<span class="sd">    next level sees. Use :func:`.refine_frontier` when that matters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solve: The callable solving one level, see :data:`.SolveLevel`.</span>
+<span class="sd">        lower_bound: The lower bounds of the design space.</span>
+<span class="sd">        upper_bound: The upper bounds of the design space.</span>
+<span class="sd">        variable_name: The name of the subdivided variable.</span>
+<span class="sd">        branching: The number of subdivisions per variable at every level.</span>
+<span class="sd">        depth: The number of levels.</span>
+<span class="sd">        ranking: The rule deciding which box to refine, a key of</span>
+<span class="sd">            :data:`.RANKINGS`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The bounds of every region visited, coarsest first.</span>
+<span class="sd">    """</span>
+    <span class="n">visited</span> <span class="o">=</span> <span class="p">[(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">depth</span><span class="p">):</span>
+        <span class="n">subdivision</span><span class="p">,</span> <span class="n">solved</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">branching</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solved</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="n">one_hot</span> <span class="o">=</span> <span class="n">RANKINGS</span><span class="p">[</span><span class="n">ranking</span><span class="p">](</span><span class="n">solved</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">compute_bounds</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">)</span>
+        <span class="n">visited</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">visited</span></div>
+
+
+
+<div class="viewcode-block" id="refine_two_levels">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.refine_two_levels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">refine_two_levels</span><span class="p">(</span>
+    <span class="n">solve</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">lower_bound</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">upper_bound</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"x"</span><span class="p">,</span>
+    <span class="n">coarse</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">fine</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">n_refined</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">ranking</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"value"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Solve a coarse level, then refine its most promising boxes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solve: The callable solving one level, see :data:`.SolveLevel`.</span>
+<span class="sd">        lower_bound: The lower bounds of the design space.</span>
+<span class="sd">        upper_bound: The upper bounds of the design space.</span>
+<span class="sd">        variable_name: The name of the subdivided variable.</span>
+<span class="sd">        coarse: The number of subdivisions per variable of the coarse level.</span>
+<span class="sd">        fine: The number of subdivisions per variable inside a refined box.</span>
+<span class="sd">        n_refined: The number of boxes refined, the most promising first.</span>
+<span class="sd">        ranking: The rule deciding which boxes to refine, a key of</span>
+<span class="sd">            :data:`.RANKINGS`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The bounds of every region visited, the coarse one first.</span>
+<span class="sd">    """</span>
+    <span class="n">visited</span> <span class="o">=</span> <span class="p">[(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)]</span>
+    <span class="n">subdivision</span><span class="p">,</span> <span class="n">solved</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">coarse</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">solved</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">visited</span>
+
+    <span class="k">for</span> <span class="n">one_hot</span> <span class="ow">in</span> <span class="n">RANKINGS</span><span class="p">[</span><span class="n">ranking</span><span class="p">](</span><span class="n">solved</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">)[:</span><span class="n">n_refined</span><span class="p">]:</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">compute_bounds</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">)</span>
+        <span class="n">visited</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="n">solve</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fine</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">visited</span></div>
+
+
+
+<div class="viewcode-block" id="refine_frontier">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.refine_frontier">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">refine_frontier</span><span class="p">(</span>
+    <span class="n">solve</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">lower_bound</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">upper_bound</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"x"</span><span class="p">,</span>
+    <span class="n">branching</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">expansions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"optimistic"</span><span class="p">,</span>
+    <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="n">n_children</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Search the boxes of every level best first, so that a run can backtrack.</span>
+
+<span class="sd">    The descending shapes above never revisit a box they passed over. This one</span>
+<span class="sd">    keeps a **frontier** of open boxes from every level at once, repeatedly</span>
+<span class="sd">    taking the most promising, subdividing it, and putting its children back with</span>
+<span class="sd">    their own scores, which makes it a spatial branch-and-bound over the</span>
+<span class="sd">    subdivision.</span>
+
+<span class="sd">    A box is scored by one of:</span>
+
+<span class="sd">    ``"optimistic"``</span>
+<span class="sd">        what the cuts of its parent estimate there, as a branch-and-bound would,</span>
+<span class="sd">        the lowest bound being the box that may still hold the optimum.</span>
+
+<span class="sd">    ``"greedy"``</span>
+<span class="sd">        the value where the sub-problem was solved, and the estimate otherwise.</span>
+
+<span class="sd">    ``"solved"``</span>
+<span class="sd">        the value, only the solved boxes going on the frontier, so that the</span>
+<span class="sd">        frontier compares measurements rather than extrapolations.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Every node restarts a master and discards its parent's cuts, and this</span>
+<span class="sd">        shape creates the most nodes of the three, so it spreads a budget</span>
+<span class="sd">        thinnest. It was the worst of the family wherever it was measured.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solve: The callable solving one level, see :data:`.SolveLevel`.</span>
+<span class="sd">        lower_bound: The lower bounds of the design space.</span>
+<span class="sd">        upper_bound: The upper bounds of the design space.</span>
+<span class="sd">        variable_name: The name of the subdivided variable.</span>
+<span class="sd">        branching: The number of subdivisions per variable of an expansion.</span>
+<span class="sd">        expansions: The number of boxes expanded.</span>
+<span class="sd">        score: The rule scoring a box.</span>
+<span class="sd">        max_depth: The number of levels below which a box is not subdivided.</span>
+<span class="sd">        n_children: The number of children of an expansion put on the frontier,</span>
+<span class="sd">            the most promising first.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The bounds of every region expanded, in the order they were expanded.</span>
+<span class="sd">    """</span>
+    <span class="c1"># The heap holds (score, tie breaker, depth, lower bounds, upper bounds).</span>
+    <span class="n">frontier</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">visited</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">tie</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">expansions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frontier</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">heappop</span><span class="p">(</span><span class="n">frontier</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;=</span> <span class="n">max_depth</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">subdivision</span><span class="p">,</span> <span class="n">solved</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">branching</span><span class="p">)</span>
+        <span class="n">visited</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solved</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">observed</span> <span class="o">=</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">one_hot</span><span class="p">):</span> <span class="n">box</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">solved</span><span class="p">}</span>
+        <span class="n">boxes</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">compute_cut_model</span><span class="p">(</span><span class="n">solved</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">)</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">one_hot</span><span class="p">,</span> <span class="n">estimate</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">known</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">one_hot</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="s2">"solved"</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">known</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">known</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">score</span> <span class="o">==</span> <span class="s2">"greedy"</span><span class="p">:</span>
+                <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">estimate</span> <span class="k">if</span> <span class="n">known</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">known</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">estimate</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">))</span>
+
+        <span class="c1"># Push the most promising children only, a whole level of a fine</span>
+        <span class="c1"># subdivision flooding the frontier with extrapolated estimates.</span>
+        <span class="n">children</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">child</span><span class="p">,</span> <span class="n">one_hot</span> <span class="ow">in</span> <span class="n">children</span><span class="p">[:</span><span class="n">n_children</span><span class="p">]:</span>
+            <span class="n">child_bounds</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">compute_bounds</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">)</span>
+            <span class="n">heappush</span><span class="p">(</span><span class="n">frontier</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">child</span><span class="p">),</span> <span class="n">tie</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">child_bounds</span><span class="p">))</span>
+            <span class="n">tie</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">visited</span></div>
+
+
+
+<span class="n">SHAPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]]]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"deep"</span><span class="p">:</span> <span class="n">refine_deep</span><span class="p">,</span>
+    <span class="s2">"two_levels"</span><span class="p">:</span> <span class="n">refine_two_levels</span><span class="p">,</span>
+    <span class="s2">"frontier"</span><span class="p">:</span> <span class="n">refine_frontier</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="sd">"""The shapes of hierarchy, by name."""</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

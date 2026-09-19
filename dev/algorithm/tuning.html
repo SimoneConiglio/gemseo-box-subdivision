@@ -1,0 +1,1481 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Annex C: tuning the master &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="../_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/tuning';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Annex D: the extensions, measured" href="extensions.html" />
+    <link rel="prev" title="Annex B: the baselines" href="baselines.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">The method</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="methodology.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage in GEMSEO scenarios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conclusion.html">Conclusion</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Annexes</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="problems.html">Annex A: the benchmark problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="baselines.html">Annex B: the baselines</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Annex C: tuning the master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Annex D: the extensions, measured</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">The algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Annex C: tuning the master</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!--
+ Copyright 2026 Simone Coniglio
+
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+ International License. To view a copy of this license, visit
+ http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+ Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="annex-c-tuning-the-master">
+<h1>Annex C: tuning the master<a class="headerlink" href="#annex-c-tuning-the-master" title="Link to this heading">#</a></h1>
+<p>The <a class="reference internal" href="benchmark.html"><span class="std std-doc">results</span></a> are what the method achieves once its settings are
+right. This page is how they were found, and what each setting does: the two
+mechanisms that keep the cuts valid, the sweep that makes the user stop choosing
+between their values, the trust region that decides how far the master may look,
+the two caps that end a run, and how both depend on the size of the boxes.</p>
+<p>Everything here is measured on the problems of
+<a class="reference internal" href="problems.html"><span class="std std-doc">the appendix</span></a>, from eight starting points in two dimensions and
+three in five, so it is evidence about these landscapes rather than a rule.</p>
+<section id="the-master-has-two-mechanisms-and-they-must-not-be-combined">
+<h2>The master has two mechanisms, and they must not be combined<a class="headerlink" href="#the-master-has-two-mechanisms-and-they-must-not-be-combined" title="Link to this heading">#</a></h2>
+<p>Outer-approximation cuts are supporting hyperplanes only if the value function is
+convex. On a multimodal problem it is not, and the master offers <strong>two distinct
+mechanisms</strong> for keeping its cuts usable. They rest on different arguments, and
+measuring them together measures neither.</p>
+<img alt="A cut that over-predicts the value at the next box" class="only-light" src="../_images/cuts.svg" />
+<img alt="A cut that over-predicts the value at the next box" class="only-dark" src="../_images/cuts-dark.svg" />
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">convexification</span></code></dt><dd><p>adds to the objective a convex term vanishing at the integer points. Once its
+constant dominates the concavity of the relaxed problem, the relaxation is
+convex and the outer approximation converges. Driven by
+<code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code>, with <code class="docutils literal notranslate"><span class="pre">adapt</span></code> off.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">adaptive</span></code></dt><dd><p>repairs the slope of each cut by least squares against the pairs of points
+already observed, so that no cut over-predicts a value that has been measured.
+Driven by <code class="docutils literal notranslate"><span class="pre">adapt</span></code> and the convexity margin <code class="docutils literal notranslate"><span class="pre">min_dfk</span></code>, with no convexification
+constant.</p>
+</dd>
+</dl>
+<section id="the-adaptive-repair-which-reaches-the-optimum-most-often">
+<h3>The adaptive repair, which reaches the optimum most often<a class="headerlink" href="#the-adaptive-repair-which-reaches-the-optimum-most-often" title="Link to this heading">#</a></h3>
+<p>Rastrigin, ten subdivisions per variable, no convexification constant. Two
+variables, eight starting points, a budget of <span class="math notranslate nohighlight">\(1000\)</span>; each cell is the number of
+them from which the optimum was reached, and the median cost:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>parallel points</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">min_dfk</span></code> = 1</p></th>
+<th class="head"><p>10</p></th>
+<th class="head"><p>30</p></th>
+<th class="head"><p><strong>100</strong></p></th>
+<th class="head"><p>300</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0/8</p></td>
+<td><p>0/8</p></td>
+<td><p>2/8</p></td>
+<td><p>6/8 (294)</p></td>
+<td><p>5/8 (294)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>4</strong></p></td>
+<td><p>1/8</p></td>
+<td><p>5/8</p></td>
+<td><p>7/8</p></td>
+<td><p><strong>8/8 (543)</strong></p></td>
+<td><p><strong>8/8 (550)</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>1/8</p></td>
+<td><p>1/8</p></td>
+<td><p>8/8 (907)</p></td>
+<td><p>8/8 (1000)</p></td>
+<td><p>7/8 (1000)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Two settings matter, and one of them for a different reason than an earlier
+version of this page gave.</p>
+<p><strong>Several parallel points.</strong> The master probes one trust-region radius per
+point, over <code class="docutils literal notranslate"><span class="pre">geomspace(step</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">step)</span></code>, so that a feasible master problem stays
+available. Four points reach the optimum every time; a single point reaches it
+from six starting points out of eight, and eight points also reach it every time
+but for nearly twice the cost, spending the budget on probes rather than on
+boxes. Four is therefore a cost trade, not a matter of feasibility. With the
+trust region charging the catalogue values, a single point used to stop a run
+after two or three boxes; that collapse was the metric, not the probing.</p>
+<p><strong>A margin on the scale of the objective.</strong> <code class="docutils literal notranslate"><span class="pre">min_dfk</span></code> is subtracted from an
+objective difference, so it is an absolute quantity in the units of the
+objective, not a ratio. What it does is <strong>cross a threshold and then saturate</strong>,
+rather than pass through a window: over an objective spanning about eighty, the
+margin reaches the optimum from one starting point at <span class="math notranslate nohighlight">\(1\)</span>, five at <span class="math notranslate nohighlight">\(10\)</span>, seven
+at <span class="math notranslate nohighlight">\(30\)</span>, and all eight at <span class="math notranslate nohighlight">\(100\)</span> and at <span class="math notranslate nohighlight">\(300\)</span>. Five variables agree, from none at
+<span class="math notranslate nohighlight">\(10\)</span>, two out of three at <span class="math notranslate nohighlight">\(30\)</span>, and all three at <span class="math notranslate nohighlight">\(100\)</span> and at <span class="math notranslate nohighlight">\(300\)</span>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">min_dfk</span></code></p></th>
+<th class="head"><p>1</p></th>
+<th class="head"><p>10</p></th>
+<th class="head"><p>30</p></th>
+<th class="head"><p><strong>100</strong></p></th>
+<th class="head"><p>300</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Rastrigin, <span class="math notranslate nohighlight">\(n=5\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(17.91\)</span> · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.11\)</span> · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ackley, <span class="math notranslate nohighlight">\(n=5\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(8.99\)</span> · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.95\)</span> · 1/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.95\)</span> · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(6.30\)</span> · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(7.23\)</span> · 1/3</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>An over-large margin costs sub-problems rather than quality, so the default sits
+at the first value that saturates. Ackley is the reminder that the margin is in
+the units of <em>its</em> objective, which spans about twenty-two rather than eighty:
+there the useful margin is the smallest one tried.</p>
+</section>
+<section id="the-pure-convexification-and-the-range-where-it-is-worth-using">
+<h3>The pure convexification, and the range where it is worth using<a class="headerlink" href="#the-pure-convexification-and-the-range-where-it-is-worth-using" title="Link to this heading">#</a></h3>
+<p>The constant has to dominate the non-convexity of the relaxed problem, and no
+more: past that, every unexplored box outranks the incumbent whatever the cuts
+say, the master ranks them by nothing in particular, and the method degenerates
+towards the enumeration it exists to avoid. Unlike the convexity margin above,
+it therefore passes through a genuine <strong>window</strong>, with a floor and a ceiling.</p>
+<p>Rastrigin, same protocol, <code class="docutils literal notranslate"><span class="pre">adapt</span></code> off, one parallel point:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>constant</p></th>
+<th class="head"><p>10</p></th>
+<th class="head"><p><strong>30</strong></p></th>
+<th class="head"><p><strong>50</strong></p></th>
+<th class="head"><p><strong>100</strong></p></th>
+<th class="head"><p>200</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(n=2\)</span>, budget <span class="math notranslate nohighlight">\(1000\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(6.97\)</span> · 0/8</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 6/8 (456)</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 5/8</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 6/8 (466)</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.50\)</span> · 4/8</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(n=5\)</span>, budget <span class="math notranslate nohighlight">\(2500\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(33.41\)</span> · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(30.84\)</span> · 0/3</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.92\)</span> · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.09\)</span> · 0/3</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The window <strong>narrows as the dimension grows</strong>. At two variables a factor of
+three in the constant makes little difference and the mechanism reaches the
+optimum from five or six starting points out of eight. At five variables only
+one of the constants tried, <span class="math notranslate nohighlight">\(50\)</span>, reaches it at all, the two below it leaving
+the cuts invalid and the two above it ranking the boxes by nothing. Ackley says
+the same with its own scale, best at <span class="math notranslate nohighlight">\(100\)</span> and much worse at <span class="math notranslate nohighlight">\(200\)</span>.</p>
+<p>Against the adaptive repair, which reaches the same optima from eight starting
+points out of eight at two variables and three out of three at five, the pure
+convexification is <strong>dominated on this benchmark</strong>. It is kept because its
+argument is the one the outer approximation actually rests on, and because it
+needs no observed pairs to work from; it is not the default.</p>
+<p>It is no accident that the useful constants are the order of magnitude of the
+variation of the objective over the design space, which is also the order of the
+convexity margin the adaptive repair needs: both mechanisms are calibrated
+against the same quantity, the non-convexity they have to dominate, and neither
+is dimensionless.</p>
+<p>What does <em>not</em> happen is the cost growing with the constant: an exaggerated
+constant buys nothing and costs about the same, because the run ends on the two
+caps described next rather than on its optimality test. It is not a safe default
+to be conservative with.</p>
+</section>
+<section id="the-two-caps-that-end-a-run">
+<h3>The two caps that end a run<a class="headerlink" href="#the-two-caps-that-end-a-run" title="Link to this heading">#</a></h3>
+<p>Instrumenting the master problem shows why the constant cannot be pushed to the
+regime where its guarantee would apply.</p>
+<p><strong>The constant destroys the lower bound.</strong> The optimum <span class="math notranslate nohighlight">\(\eta\)</span> of the master comes
+back at <span class="math notranslate nohighlight">\(-996\)</span> for a constant of <span class="math notranslate nohighlight">\(1000\)</span>, and at <span class="math notranslate nohighlight">\(-9991\)</span> for <span class="math notranslate nohighlight">\(10^4\)</span>: that is
+<span class="math notranslate nohighlight">\(\eta \approx -\kappa\)</span>. The convexification tilts every cut by
+<span class="math notranslate nohighlight">\(\pm\kappa / n_{\text{comp}}\)</span> per component, and the relaxed master exploits that
+tilt. The gap <span class="math notranslate nohighlight">\(\mathrm{ub} - \mathrm{lb} \approx \mathrm{ub} + \kappa\)</span> therefore
+never closes, and the convergence test on <code class="docutils literal notranslate"><span class="pre">ub_tol</span></code> can never fire. The guarantee
+is not wrong; it is unreachable, the algorithm never obtaining the certificate
+that would let it stop on optimality.</p>
+<p><strong>So the run ends on a heuristic cap instead.</strong> Either the trust region shrinks
+until the master is infeasible, described in the next section, or, when the trust
+region is inactive, the stall counter fires:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>MILP : Stalling iterations: 10/10.
+The Upper bound stopped changing for 10 iterations.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">upper_bound_stall</span></code> defaults to ten: the master gives up after ten iterations
+that do not improve the incumbent, whatever its lower bound says. With one box
+solved per iteration, that alone caps a run at a few dozen boxes out of a
+hundred, which is what the
+<a class="reference internal" href="benchmark.html#against-the-enumeration-of-the-boxes"><span class="std std-ref">comparison against the enumeration</span></a>
+measures: twenty to thirty-six boxes solved, and no configuration goes far
+past that whatever its constant.</p>
+<p>That is the whole answer to why raising the constant stops buying exploration:
+the run can only end on one of these caps, never on the optimality test, so the
+exploration is set by the caps and the constant only decides how well the cuts
+rank the boxes visited before they fire. Lifting the caps to recover the
+guarantee would cost the sub-problems the outer approximation exists to save,
+which is the same trade as enumerating.</p>
+<p>Two implementation changes would follow, and neither is made here: restoring the
+step towards <code class="docutils literal notranslate"><span class="pre">max_step</span></code> and retrying before giving up on an infeasible master,
+and reporting the bound net of the convexification term, which vanishes at the
+integer points and so leaves the gap meaningful.</p>
+</section>
+<section id="sweeping-the-convexity-instead-of-calibrating-it">
+<h3>Sweeping the convexity instead of calibrating it<a class="headerlink" href="#sweeping-the-convexity-instead-of-calibrating-it" title="Link to this heading">#</a></h3>
+<p>Everything above says the same thing twice: the convexity margin and the
+convexification constant are <strong>absolute quantities in the units of the
+objective</strong>, and the value that works is the order of the variation of the
+objective over the design space, which the user does not know. A margin of <span class="math notranslate nohighlight">\(100\)</span>
+reaches the optimum from every starting point on Rastrigin, which spans about
+eighty, and is the worst of those tried on Ackley, which spans about
+twenty-two. That is the standing criticism of the method, and a better default
+does not answer it.</p>
+<p>Not choosing does. The master already refuses to choose its trust-region radius:
+it probes one radius per parallel point, over <code class="docutils literal notranslate"><span class="pre">geomspace(step</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">step)</span></code>, so
+<strong>the parallel points are a sweep and not a batch</strong>. The same probes can carry a
+ladder of convexity values:</p>
+<ul class="simple">
+<li><p>probe <span class="math notranslate nohighlight">\(k\)</span> of an iteration solves the master at rung <span class="math notranslate nohighlight">\(k\)</span> of a <strong>ladder</strong>
+<span class="math notranslate nohighlight">\(\kappa_1 &lt; \dots &lt; \kappa_N\)</span>, geometric over two decades below its upper
+bound. The two ladders are paired, the tight region with the raw cuts and the
+wide region with the dominated ones, so one iteration returns the exploitative
+box <strong>and</strong> the exploratory one rather than <span class="math notranslate nohighlight">\(N\)</span> probes of one regime;</p></li>
+<li><p>a probe whose rung proposes a box already solved is <strong>redeployed one rung up</strong>,
+and again, until it proposes a new box or the ladder is exhausted. Escalating
+changes the cuts, which is what moves the master to another region; the
+elimination constraint the master already has only forces the next-best box
+under the cuts it has. A redeployment costs one more mixed-integer solve and
+<strong>no objective evaluation</strong>, which is the currency this method is measured in;</p></li>
+<li><p>every probe exhausting the ladder is the stopping criterion, and it says more
+than a single value not proposing anything: <em>no value up to <span class="math notranslate nohighlight">\(\kappa_{\max}\)</span>
+proposes a box that has not been solved.</em></p></li>
+</ul>
+<p>What the user supplies is then an <strong>upper bound</strong>, and nothing else: <span class="math notranslate nohighlight">\(N\)</span>, the
+number of rungs, is the number of parallel points, since probe <span class="math notranslate nohighlight">\(k\)</span> takes rung <span class="math notranslate nohighlight">\(k\)</span>
+and a rung count of its own could only disagree with the probes it is spread
+over. Erring high on the bound is safe in a way that erring high on a single
+margin is not, because the low rungs stay on the ladder either way.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This loop belongs to the master rather than to this package, and it is
+implemented there, in <code class="docutils literal notranslate"><span class="pre">gemseo-bilevel-outer-approximation</span></code>, under the settings
+<code class="docutils literal notranslate"><span class="pre">convexity_sweep_points</span></code> and <code class="docutils literal notranslate"><span class="pre">convexity_sweep_max</span></code>. What this package holds is
+<a class="reference internal" href="usage.html#not-choosing-the-convexity-at-all"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></span></a>, which
+turns into those two, and the driver that sweeps from outside a master
+predating them, so that the measurement below is reproducible against either and
+a run against either is guarded.</p>
+</div>
+<section id="what-it-measures">
+<h4>What it measures<a class="headerlink" href="#what-it-measures" title="Link to this heading">#</a></h4>
+<p>Rastrigin and Ackley in two dimensions, ten subdivisions, a budget of <span class="math notranslate nohighlight">\(1000\)</span>,
+six starting points, the adaptive repair. The median gap, the median cost and
+the number of starting points from which the optimum is reached. The first three
+rows are the ladder walked one rung at a time, which is what calibrating the
+margin by hand amounts to; the swept rows are given <strong>no margin at all</strong>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>convexity</p></th>
+<th class="head"><p>Rastrigin, spans <span class="math notranslate nohighlight">\(\approx 80\)</span></p></th>
+<th class="head"><p>Ackley, spans <span class="math notranslate nohighlight">\(\approx 22\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>fixed, margin <span class="math notranslate nohighlight">\(1\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(2.487\)</span> · 91 · 1/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(10.415\)</span> · 188 · 1/6</p></td>
+</tr>
+<tr class="row-odd"><td><p>fixed, margin <span class="math notranslate nohighlight">\(10\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 226 · 4/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(10.415\)</span> · 208 · 1/6</p></td>
+</tr>
+<tr class="row-even"><td><p>fixed, margin <span class="math notranslate nohighlight">\(100\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 543 · 6/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 428 · 4/6</p></td>
+</tr>
+<tr class="row-odd"><td><p>sweep, <span class="math notranslate nohighlight">\(\kappa_{\max} = 100\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 491 · 6/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 517 · 6/6</p></td>
+</tr>
+<tr class="row-even"><td><p>sweep, <span class="math notranslate nohighlight">\(\kappa_{\max} = 1000\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 532 · 6/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 534 · 4/6</p></td>
+</tr>
+<tr class="row-odd"><td><p>sweep, observed spread</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · <strong>361</strong> · 6/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(3.814\)</span> · 315 · 3/6</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>sweep, observed spread <span class="math notranslate nohighlight">\(\times 10\)</span></strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 489 · 6/6</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 601 · 6/6</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>No fixed margin is good on both problems and the sweep is.</strong> The margin the
+tuning above settled on, <span class="math notranslate nohighlight">\(100\)</span>, is the best fixed row and it still reaches Ackley
+from four starting points out of six; the sweep at the same bound reaches it from
+six. And the sweep is <strong>forgiving of its bound</strong>: ten times too large costs <span class="math notranslate nohighlight">\(532\)</span>
+against <span class="math notranslate nohighlight">\(491\)</span> on Rastrigin and changes nothing that is reached there, which is
+the property a single margin does not have, where ten times too small is 1/6 and
+the right value is 6/6. On Ackley the same over-estimate does cost two starting
+points, <span class="math notranslate nohighlight">\(4/6\)</span> against <span class="math notranslate nohighlight">\(6/6\)</span>, so the bound is not free — it is merely forgiving
+where the margin is brittle.</p>
+</section>
+<section id="reading-the-bound-off-the-objective-and-the-headroom-it-needs">
+<h4>Reading the bound off the objective, and the headroom it needs<a class="headerlink" href="#reading-the-bound-off-the-objective-and-the-headroom-it-needs" title="Link to this heading">#</a></h4>
+<p>The last two rows drop the user entirely. Both mechanisms are calibrated against
+the same quantity, the non-convexity they have to dominate, whose order is the
+variation of the objective over the design space — and the master <strong>observes</strong>
+that variation as it solves boxes. Taking <span class="math notranslate nohighlight">\(\kappa_{\max}\)</span> from the spread of the
+objective over the boxes already solved asks for nothing at all.</p>
+<p>Taken literally it fails, and the failure is instructive: Rastrigin 6/6 for
+<span class="math notranslate nohighlight">\(361\)</span> evaluations, the cheapest cell of the table, and Ackley <span class="math notranslate nohighlight">\(3.814\)</span> from three
+starting points out of six. The spread over the boxes <strong>already solved</strong> is a
+lower estimate of the spread over the design space, and badly so in the first
+iterations, when the boxes solved are the handful the first iterations proposed.
+On a landscape whose first boxes look alike, which is exactly Ackley’s broad
+basin, the estimate is circular: the scale that would buy the exploration is the
+one the exploration would reveal, and the run never escapes.</p>
+<p>One decade of <strong>headroom</strong> on the observed spread fixes it, and the fix costs
+nothing on the problem that did not need it: Ackley 6/6, and Rastrigin 6/6 for
+<span class="math notranslate nohighlight">\(489\)</span> evaluations against <span class="math notranslate nohighlight">\(543\)</span> for the calibrated margin. A factor is not the
+quantity the criticism is about: it is <strong>dimensionless</strong>, so it transfers between
+problems where an absolute margin does not, and erring high on it spends the low
+rungs rather than the result.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The factor of ten was chosen on these two problems, which is the same thing this
+page does with every other default and carries the same caveat: it is evidence
+about these landscapes, not a rule. The honest reading of the table is that the
+<strong>bounded</strong> sweep is what is measured here, over bounds spanning a factor of ten,
+and that the unbounded sweep works on both problems once the estimate has
+headroom. Two problems in two dimensions do not establish a factor.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The table above is the master doing the sweeping. Driven instead by this
+package, against a master predating the sweep, every Rastrigin row is identical
+and three
+Ackley rows differ by a starting point or two: <span class="math notranslate nohighlight">\(5/6\)</span> rather than <span class="math notranslate nohighlight">\(6/6\)</span> at
+<span class="math notranslate nohighlight">\(\kappa_{\max} = 100\)</span>, <span class="math notranslate nohighlight">\(5/6\)</span> rather than <span class="math notranslate nohighlight">\(4/6\)</span> at <span class="math notranslate nohighlight">\(\kappa_{\max} = 1000\)</span>, and
+<span class="math notranslate nohighlight">\(1/6\)</span> rather than <span class="math notranslate nohighlight">\(3/6\)</span> with no headroom. Patching the master from outside cannot
+reach the solves it makes outside its probing loop, which is where the difference
+is. The conclusions are the same either way.</p>
+</div>
+</section>
+<section id="what-the-sweep-does-not-fix">
+<h4>What the sweep does not fix<a class="headerlink" href="#what-the-sweep-does-not-fix" title="Link to this heading">#</a></h4>
+<p>It does not restore the optimality test. A probe at a high rung returns a lower
+bound degraded by its own convexification, and the master keeps the smallest of
+the probes, so the gap <span class="math notranslate nohighlight">\(\mathrm{ub} - \mathrm{lb}\)</span> closes no better than it does
+above: the run still ends on the trust region or on the stall counter. What the
+sweep replaces is the <strong>calibration</strong>, not the certificate.</p>
+<p>Nor does it make the mechanisms combinable. The sweep varies <code class="docutils literal notranslate"><span class="pre">min_dfk</span></code> with
+<code class="docutils literal notranslate"><span class="pre">adapt</span></code> on, or <code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code> with <code class="docutils literal notranslate"><span class="pre">adapt</span></code> off, never both, because
+a ladder of one mechanism measured through the other measures neither.</p>
+<p><strong>It needs more than one parallel point</strong>, and the table above is the adaptive
+repair, which has four. A probe per rung is the whole construction; with a single
+probe there is no ladder to span, and the top rung is used rather than the
+bottom, the conservative end being where a lone value belongs. That matters for
+the pure convexification, whose configuration here probes one point: swept from a
+single probe it returns what the calibrated constant returns, <span class="math notranslate nohighlight">\(0.995\)</span> for <span class="math notranslate nohighlight">\(335\)</span>
+evaluations against <span class="math notranslate nohighlight">\(0.995\)</span> for <span class="math notranslate nohighlight">\(304\)</span>, and swept over four probes it reaches the
+optimum for <span class="math notranslate nohighlight">\(553\)</span> evaluations where the calibrated constant needs <span class="math notranslate nohighlight">\(937\)</span>. That is
+one starting point, so it is a probe and not a measurement, and the constant
+passing through a window rather than saturating is a reason to expect the ladder
+to behave differently there. <strong>What the table establishes is the sweep of the
+adaptive repair.</strong></p>
+</section>
+</section>
+</section>
+<section id="the-trust-region-and-the-metric-it-should-measure">
+<h2>The trust region, and the metric it should measure<a class="headerlink" href="#the-trust-region-and-the-metric-it-should-measure" title="Link to this heading">#</a></h2>
+<p>The master restricts each iteration to a neighbourhood of the incumbent box. Two
+things decide what that neighbourhood is: the <strong>metric</strong>, set by the catalogue
+weights of the design space, and the <strong>radius</strong> <code class="docutils literal notranslate"><span class="pre">max_step</span></code>. The metric was wrong
+for most of the life of this package, so every sweep on this page was re-run once
+it was fixed.</p>
+<section id="what-the-constraint-actually-measures">
+<h3>What the constraint actually measures<a class="headerlink" href="#what-the-constraint-actually-measures" title="Link to this heading">#</a></h3>
+<p>The trust region is the linear constraint</p>
+<div class="math notranslate nohighlight">
+\[
+\sum_{j \,:\, \alpha'_j = \alpha_j} w_j(\alpha) \ \ge\ \sum_j w_j(\alpha) - \texttt{max\_step},
+\]</div>
+<p>so a candidate pays <span class="math notranslate nohighlight">\(w_j(\alpha)\)</span> for each component it changes, where
+<span class="math notranslate nohighlight">\(w_j(\alpha)\)</span> is the weight the <strong>incumbent</strong> holds. The destination never enters
+the expression.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CatalogueDesignSpace</span></code> defaults a numeric catalogue’s weights to the catalogue
+itself, and the catalogue of a subdivided variable is the range of its
+subdivision indexes, so the design spaces of this package used to inherit</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>x_box weights = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+</pre></div>
+</div>
+<p>That reads like an ordinal proximity and is not one. Leaving the first
+subdivision of a component is free and leaving the last costs <span class="math notranslate nohighlight">\(m_j - 1\)</span>, whether
+the candidate moves next door or to the far end. The region is lopsided rather
+than local: at the incumbent <span class="math notranslate nohighlight">\((0,0)\)</span> of a <span class="math notranslate nohighlight">\(10\times10\)</span> subdivision with
+<code class="docutils literal notranslate"><span class="pre">max_step</span></code> <span class="math notranslate nohighlight">\(3\)</span>, all <span class="math notranslate nohighlight">\(100\)</span> boxes are admitted; at <span class="math notranslate nohighlight">\((7,6)\)</span>, only the incumbent
+itself, which the elimination constraints have already removed, so the master
+becomes infeasible and the run stops for reasons that have nothing to do with the
+problem. This is reported upstream.</p>
+<img alt="The same radius seen from a low incumbent and from a high one, under either metric" class="only-light" src="../_images/trust_region.svg" />
+<img alt="The same radius seen from a low incumbent and from a high one, under either metric" class="only-dark" src="../_images/trust_region-dark.svg" />
+<p>The design spaces of this package now set every weight to one, which makes the
+distance the <strong>number of components a candidate changes</strong>.</p>
+</section>
+<section id="which-metric-wins">
+<h3>Which metric wins<a class="headerlink" href="#which-metric-wins" title="Link to this heading">#</a></h3>
+<p>Four metrics, two variables, ten subdivisions, a budget of <span class="math notranslate nohighlight">\(1000\)</span>, eight
+starting points. <code class="docutils literal notranslate"><span class="pre">indexes</span></code> is the old catalogue-value default, <code class="docutils literal notranslate"><span class="pre">unit</span></code> the
+Hamming distance now used, <code class="docutils literal notranslate"><span class="pre">none</span></code> sets every weight to zero so that the
+constraint is vacuous, and <code class="docutils literal notranslate"><span class="pre">proximity</span></code> replaces the constraint altogether with
+<span class="math notranslate nohighlight">\(|v^\top\alpha' - v^\top\alpha| \le \texttt{max\_step}\)</span> on the catalogue values
+<span class="math notranslate nohighlight">\(v\)</span>, injected into the master by the stub in <code class="docutils literal notranslate"><span class="pre">benchmarks/trust_region.py</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>metric</p></th>
+<th class="head"><p>Rastrigin</p></th>
+<th class="head"><p>Ackley</p></th>
+<th class="head"><p>Griewank</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">indexes</span></code>, step 18</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 798 · 8/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 450 · 6/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.027\)</span> · 1000 · 0/8</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">indexes</span></code>, step 10</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 530 · 8/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 450 · 6/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.027\)</span> · 1000 · 0/8</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unit</span></code>, step 2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 543 · 8/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 560 · 6/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.007\)</span> · 618 · 0/8</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><code class="docutils literal notranslate"><span class="pre">unit</span></code>, step 1</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 452 · 8/8</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 496 · 8/8</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.007\)</span> · 526 · 0/8</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">none</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 810 · 8/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 450 · 6/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.027\)</span> · 1000 · 0/8</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">proximity</span></code>, step 9</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 822 · 8/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 487 · 7/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.007\)</span> · 1000 · 0/8</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">proximity</span></code>, step 3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 990 · 8/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 753 · 8/8</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.007\)</span> · 1000 · 0/8</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The tight unit radius is the best cell of every column: it is the only metric
+reaching Ackley from all eight starting points, it is the cheapest on Rastrigin,
+and it gets closest on Griewank, which nothing solves.</p>
+<p>What is <strong>not</strong> true is that the ordinal proximity is the answer. It is the
+constraint the upstream docstring describes and the one that looked like the
+missing piece, and when it is tight it also reaches Ackley 8/8 — for <span class="math notranslate nohighlight">\(753\)</span>
+evaluations against <span class="math notranslate nohighlight">\(496\)</span>. So what buys the reliability is a <strong>tight</strong>
+neighbourhood, and the cheapest way to express one is to count components. On
+Rastrigin the proximity constraint is 8/8 at either radius and costs <span class="math notranslate nohighlight">\(822\)</span> or
+<span class="math notranslate nohighlight">\(990\)</span> against <span class="math notranslate nohighlight">\(452\)</span>. The
+ordinal reading of a subdivision index buys nothing on a multimodal landscape,
+where the neighbouring box is no more alike than a distant one. Multimodality is
+closer to a categorical choice than to a discrete one.</p>
+</section>
+<section id="how-wide-the-radius-should-be">
+<h3>How wide the radius should be<a class="headerlink" href="#how-wide-the-radius-should-be" title="Link to this heading">#</a></h3>
+<p>Five variables, ten subdivisions, a budget of <span class="math notranslate nohighlight">\(2500\)</span>, three starting points:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>radius</p></th>
+<th class="head"><p>Rastrigin</p></th>
+<th class="head"><p>Ackley</p></th>
+<th class="head"><p>Styblinski-Tang</p></th>
+<th class="head"><p>Griewank</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 1230 · 2/3</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(4.95\)</span></strong> · 2500</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 497 · 1/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.025\)</span> · 2500</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>2</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 2103 · 3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(6.30\)</span> · 2500</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 598 · 1/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.027\)</span> · 2500</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.995\)</span> · 1895 · 1/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(7.08\)</span> · 2500</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 951 · <strong>2/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.025\)</span> · 2500</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 2500 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.93\)</span> · 2500</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 1026 · <strong>2/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.111\)</span> · 2500</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Small. Ackley degrades monotonically as the radius grows, and Rastrigin is best
+at two, from every starting point. Over six starting points the same Rastrigin
+cell reaches the optimum <span class="math notranslate nohighlight">\(6/6\)</span> for <span class="math notranslate nohighlight">\(1920\)</span> evaluations, against <span class="math notranslate nohighlight">\(3/6\)</span> at a radius
+of five, <span class="math notranslate nohighlight">\(2/6\)</span> at the radius of the design space and <span class="math notranslate nohighlight">\(1/6\)</span> with no region at all.
+Hence the default of two, <code class="docutils literal notranslate"><span class="pre">TRUST_REGION_RADIUS</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Styblinski-Tang is the exception and it is not a small one: at this density a
+radius of two is its <strong>worst</strong> setting, <span class="math notranslate nohighlight">\(14.14\)</span> against <span class="math notranslate nohighlight">\(0.000\)</span> at one, three and
+five. It is the same cell that stands out in the density sweep below. The default
+radius is therefore a good average over this benchmark and not a rule; a problem
+whose runs stall early is a reason to try the neighbouring radii before anything
+else.</p>
+</div>
+<p>Deactivating the shrink instead, by setting <code class="docutils literal notranslate"><span class="pre">step_decreasing_activation</span></code> above
+the number of iterations, does not help: the run then ends on the stall counter
+described above, at 6/8 for <span class="math notranslate nohighlight">\(\kappa = 100\)</span>, with the same numbers under the index
+weights and under unit weights, which is the signature of a trust region inactive
+in both. The two caps replace each other, which is why neither the constant nor
+the radius alone recovers the guarantee.</p>
+</section>
+</section>
+<section id="at-five-variables-which-knob-to-turn">
+<h2>At five variables, which knob to turn<a class="headerlink" href="#at-five-variables-which-knob-to-turn" title="Link to this heading">#</a></h2>
+<p>The two-dimensional benchmark is where the mechanisms were tuned, and what works
+there does not carry over unchanged. At five variables the first knob is not the
+mechanism at all: it is the <strong>density</strong> of the subdivision, swept in
+<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a>. The
+mechanism is the second, and the two interact.</p>
+<section id="the-mechanism-at-the-two-densities-that-matter">
+<h3>The mechanism, at the two densities that matter<a class="headerlink" href="#the-mechanism-at-the-two-densities-that-matter" title="Link to this heading">#</a></h3>
+<p>Equal budget of <span class="math notranslate nohighlight">\(2500\)</span>, three starting points, the trust region at its default
+radius of two:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>problem</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(m\)</span></p></th>
+<th class="head"><p>adaptive</p></th>
+<th class="head"><p>pure convexification</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Rastrigin</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span> · 823</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span> · <strong>504</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>Rastrigin</p></td>
+<td><p>10</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 2103 · 3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.92\)</span> · 1407</p></td>
+</tr>
+<tr class="row-even"><td><p>Ackley</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.43\)</span> · 892</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.43\)</span> · <strong>335</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>Ackley</p></td>
+<td><p>10</p></td>
+<td><p><span class="math notranslate nohighlight">\(6.30\)</span> · 2500</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(4.95\)</span> · 2500 · 1/3</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>Styblinski-Tang</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 458 · 2/3</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 294 · 3/3</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>Styblinski-Tang</p></td>
+<td><p>10</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 598 · 1/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 421</p></td>
+</tr>
+<tr class="row-even"><td><p>Griewank</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.06\)</span> · 1016</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.06\)</span> · <strong>568</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>Griewank</p></td>
+<td><p>10</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.03\)</span> · 2500</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.13\)</span> · 1477</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The pure convexification is <strong>consistently cheaper and usually no worse</strong>, which
+is the one place on this benchmark where it earns its keep: where both reach the
+same answer it does so for a third to two thirds of the cost, and on
+Styblinski-Tang at the coarse subdivision it is the better of the two outright,
+3/3 against 2/3 for <span class="math notranslate nohighlight">\(294\)</span> evaluations against <span class="math notranslate nohighlight">\(458\)</span>.</p>
+<p>Where the two part company is the case the method exists for. On Rastrigin at
+ten subdivisions, the adaptive repair solves the problem from every starting
+point and the convexification does not solve it at all. Paying <span class="math notranslate nohighlight">\(2103\)</span> instead of
+<span class="math notranslate nohighlight">\(1407\)</span> for that is the trade the default takes, and it is why <code class="docutils literal notranslate"><span class="pre">adaptive</span></code> is the
+default rather than the cheaper mechanism.</p>
+</section>
+<section id="the-density-and-the-mechanism-are-not-independent">
+<h3>The density and the mechanism are not independent<a class="headerlink" href="#the-density-and-the-mechanism-are-not-independent" title="Link to this heading">#</a></h3>
+<p>Two rows above are worth separating out, because they say the interaction runs
+both ways.</p>
+<p><strong>Refining rescues Rastrigin and ruins Styblinski-Tang.</strong> Going from two
+subdivisions to ten takes Rastrigin from <span class="math notranslate nohighlight">\(4.98\)</span> and nothing reached to <span class="math notranslate nohighlight">\(0.00\)</span>
+from every starting point, and takes Styblinski-Tang from <span class="math notranslate nohighlight">\(0.00\)</span> and 2/3 to
+<span class="math notranslate nohighlight">\(14.14\)</span> and 1/3, under <strong>either</strong> mechanism. So this is a property of the
+subdivision rather than of the master: Styblinski-Tang has two basins per
+variable, ten subdivisions cut each basin into five boxes, and a box that holds
+no minimum of its own gives the master a value and a sensitivity that say
+nothing about where the minimum is. Refining past the basins does not merely
+waste sub-problems, it degrades the ranking.</p>
+<p><strong>Ackley is the opposite and still is not solved.</strong> It improves with refinement
+under both mechanisms, <span class="math notranslate nohighlight">\(14.43\)</span> to <span class="math notranslate nohighlight">\(6.30\)</span> and <span class="math notranslate nohighlight">\(14.43\)</span> to <span class="math notranslate nohighlight">\(4.95\)</span>, and reaches the
+optimum only once out of three even then. Its single broad basin over a range of
+sixty is what no density of this benchmark resolves; the deep hierarchy of
+<a class="reference internal" href="extensions.html#the-hierarchies"><span class="std std-ref">annex D</span></a> is the only configuration here that
+does.</p>
+</section>
+<section id="a-hierarchy-of-subdivisions-and-the-rule-that-refines-it">
+<h3>A hierarchy of subdivisions, and the rule that refines it<a class="headerlink" href="#a-hierarchy-of-subdivisions-and-the-rule-that-refines-it" title="Link to this heading">#</a></h3>
+<p>Rather than one fine subdivision of the whole space, a <strong>hierarchy</strong> subdivides
+coarsely, ranks the boxes, and refines the most promising ones, the same method
+running again inside the bounds of one box. The product of the subdivisions is
+the resolution reached, so two levels of two and five resolve as finely as a
+flat ten, and the budget is spent where it seems to matter instead of being
+spread over <span class="math notranslate nohighlight">\(10^5\)</span> boxes.</p>
+<p>Everything then depends on the <strong>rule deciding what to refine</strong>, and three were
+measured, in <code class="docutils literal notranslate"><span class="pre">benchmarks/hierarchy.py</span></code>:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>refine the boxes whose sub-problem returned the best value. It can only
+propose boxes already solved, a few dozen of them, and their score is one
+local solve started at a box centre.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">cuts</span></code></dt><dd><p>refine the boxes the <strong>cut model of the master</strong> scores lowest,
+<span class="math notranslate nohighlight">\(\hat u(\alpha) = \max_i u(\alpha^{(i)}) + s^{(i)\top}(\alpha - \alpha^{(i)})\)</span>,
+which is defined at every box, those never solved included. Being an
+optimistic estimate, it extrapolates downwards far from anything solved, so it
+ranks distant unexplored boxes first.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mixed</span></code></dt><dd><p>one box from each ranking in turn.</p>
+</dd>
+</dl>
+<p>Five variables, one budget of <span class="math notranslate nohighlight">\(2500\)</span> shared by the levels, six starting points,
+median distance to the optimum and the number of runs reaching it:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>method</p></th>
+<th class="head"><p>Rastrigin</p></th>
+<th class="head"><p>Ackley</p></th>
+<th class="head"><p>Styblinski-Tang</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>flat <span class="math notranslate nohighlight">\(m=2\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(14.43\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, 5/6, <strong>486</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>flat <span class="math notranslate nohighlight">\(m=10\)</span></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span>, 6/6, 1920</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(6.30\)</span>†</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, 1/6, 532</p></td>
+</tr>
+<tr class="row-even"><td><p>2 then 5, <code class="docutils literal notranslate"><span class="pre">value</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(6.30\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, 5/6, 872</p></td>
+</tr>
+<tr class="row-odd"><td><p>2 then 5, <code class="docutils literal notranslate"><span class="pre">cuts</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(2.45\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(8.11\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, 5/6, 987</p></td>
+</tr>
+<tr class="row-even"><td><p>deep, 4 levels of 2, <code class="docutils literal notranslate"><span class="pre">value</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span>, 4/6, 2387</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, 5/6, 1494</p></td>
+</tr>
+<tr class="row-odd"><td><p>frontier, 10 expansions, optimistic</p></td>
+<td><p><span class="math notranslate nohighlight">\(6.70\)</span>†</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.71\)</span>†</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, <strong>6/6</strong>, 2500†</p></td>
+</tr>
+<tr class="row-even"><td><p>frontier, 10 expansions, greedy</p></td>
+<td><p><span class="math notranslate nohighlight">\(25.87\)</span>†</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.71\)</span>†</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, 6/6, 2500†</p></td>
+</tr>
+<tr class="row-odd"><td><p>frontier, 20 expansions, optimistic</p></td>
+<td><p><span class="math notranslate nohighlight">\(8.43\)</span>†</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.71\)</span>†</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span>, 6/6, 2500†</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>† stopped by the budget rather than by its own criterion, so the gap is an upper
+bound. The frontier is truncated by construction, expanding boxes until the
+budget is spent.</p>
+<p><strong>One variant does something no other configuration in this documentation
+does.</strong> The deep hierarchy, splitting every variable in two at each of four
+levels and refining the best box by its value, <strong>solves Ackley</strong> in five
+dimensions from four starting points out of six, with a median gap of zero,
+where the flat subdivision at its best density reaches it from two even when
+given four times the budget. It also stops on its own criterion at <span class="math notranslate nohighlight">\(2387\)</span>
+evaluations rather than on the budget, which the flat run at <span class="math notranslate nohighlight">\(m=10\)</span> does not.</p>
+<p>Everywhere else it loses. On Rastrigin it returns <span class="math notranslate nohighlight">\(4.98\)</span> where the flat
+subdivision now solves the problem from every starting point, and on
+Styblinski-Tang it reaches the optimum as often as the flat coarse subdivision
+for three times the cost.</p>
+<p><strong>A hierarchy cannot backtrack</strong>: the box it refines at one level is the only
+space the next level sees, so an unreliable score compounds instead of averaging
+out. It follows that</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuts</span></code> helps where the observed values are noise, Rastrigin, <span class="math notranslate nohighlight">\(4.98\)</span> to <span class="math notranslate nohighlight">\(2.45\)</span>,
+and hurts where they are informative, Ackley, <span class="math notranslate nohighlight">\(6.30\)</span> to <span class="math notranslate nohighlight">\(8.11\)</span>: an optimistic
+model explores, and exploration is wrong when the ranking already points at
+the right region;</p></li>
+<li><p>the frontier, which alone can return to a box it passed over, is the worst of
+the family on Rastrigin, <span class="math notranslate nohighlight">\(6.70\)</span> optimistic and <span class="math notranslate nohighlight">\(25.87\)</span> greedy, and more
+expansions make it worse, <span class="math notranslate nohighlight">\(8.43\)</span> at twenty. Backtracking does not pay for the
+model it destroys: each node restarts a master with a handful of cuts, and
+this shape creates the most nodes of the three.</p></li>
+</ul>
+<p>The frontier result is worth stating plainly because it refutes the obvious next
+idea. A <strong>best-first search over the boxes of every level</strong>, scored by the cut
+model that produced them, is the spatial branch-and-bound these shapes gesture
+at, and it is the obvious thing to reach for. Measured, it is the worst of the
+family. What a hierarchy
+lacks is not the ability to reconsider; it is a model worth reconsidering with,
+and every node it adds makes that model thinner. The construction that keeps one
+model over every level is the
+<a class="reference internal" href="extensions.html#the-multi-resolution-encoding"><span class="std std-ref">multi-resolution encoding</span></a>,
+not a better search over separate ones.</p>
+<p>So the hierarchy is not a default. What it is, is the one construction here that
+solves Ackley at five variables, where the flat method does not reach the optimum
+from more than two starting points at any budget tried.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The two-level hierarchy was justified by the statistics of the cut model, and it
+does not improve them: its fine level carries <span class="math notranslate nohighlight">\(n \times m\)</span> coefficients against
+the twenty or so cuts a budget affords, which is the flat situation. Only the
+deep hierarchy improves that ratio, <span class="math notranslate nohighlight">\(2n\)</span> coefficients per level, and it is the
+one that produces the result above.</p>
+</div>
+</section>
+<section id="refining-some-variables-only-and-when-it-pays">
+<h3>Refining some variables only, and when it pays<a class="headerlink" href="#refining-some-variables-only-and-when-it-pays" title="Link to this heading">#</a></h3>
+<p>The number of boxes is the Cartesian product of the subdivisions, so subdividing
+only the variables that need it keeps the master small, the others staying
+ordinary variables of the sub-problem. The package does this already:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subdivision</span> <span class="o">=</span> <span class="n">BoxSubdivision</span><span class="o">.</span><span class="n">from_design_space</span><span class="p">(</span><span class="n">design_space</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_split"</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>On the benchmark problems, which are multimodal in <strong>every</strong> variable, it loses:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>problem</p></th>
+<th class="head"><p>5 split, <span class="math notranslate nohighlight">\(m=2\)</span> (32 boxes)</p></th>
+<th class="head"><p>3 split, <span class="math notranslate nohighlight">\(m=4\)</span> (64)</p></th>
+<th class="head"><p>2 split, <span class="math notranslate nohighlight">\(m=10\)</span> (100)</p></th>
+<th class="head"><p>1 split, <span class="math notranslate nohighlight">\(m=10\)</span> (10)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Rastrigin</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(4.98\)</span></strong> · 823</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.95\)</span> · 831</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.95\)</span> · 1765</p></td>
+<td><p><span class="math notranslate nohighlight">\(18.90\)</span> · 557</p></td>
+</tr>
+<tr class="row-odd"><td><p>Styblinski-Tang</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span>, 2/3</strong> · 458</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.14\)</span>, 1/3 · 853</p></td>
+<td><p><span class="math notranslate nohighlight">\(28.27\)</span> · 652</p></td>
+<td><p><span class="math notranslate nohighlight">\(28.27\)</span> · 466</p></td>
+</tr>
+<tr class="row-even"><td><p>Partly multimodal</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.99\)</span> · 540</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span>, 3/3</strong> · 773</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span>, 3/3</strong> · 858</p></td>
+<td><p><span class="math notranslate nohighlight">\(3.98\)</span> · 419</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The reason is the one already established: a variable left unsubdivided keeps all
+of its basins inside every box, and the local solve returns the one it starts in.
+Styblinski-Tang has two basins per variable, so leaving three of the five out
+leaves eight basins in every box, and a run reaching the optimum from two
+starting points out of three with thirty-two boxes reaches it from none with a
+hundred.</p>
+<p>On an objective whose multimodality is concentrated, <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code>, which is
+Rastrigin in two variables plus a paraboloid in the other three, it wins clearly:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>subdivision</p></th>
+<th class="head"><p>boxes</p></th>
+<th class="head"><p>gap</p></th>
+<th class="head"><p>cost</p></th>
+<th class="head"><p>reached</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>5 split, <span class="math notranslate nohighlight">\(m=2\)</span></p></td>
+<td><p>32</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.99\)</span></p></td>
+<td><p>540</p></td>
+<td><p>0/3</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>3 split, <span class="math notranslate nohighlight">\(m=4\)</span></strong></p></td>
+<td><p>64</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
+<td><p><strong>773</strong></p></td>
+<td><p><strong>3/3</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>2 split, <span class="math notranslate nohighlight">\(m=10\)</span></p></td>
+<td><p>100</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
+<td><p>858</p></td>
+<td><p><strong>3/3</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>2 split, <span class="math notranslate nohighlight">\(m=5\)</span></p></td>
+<td><p>25</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.99\)</span></p></td>
+<td><p>620</p></td>
+<td><p>0/3</p></td>
+</tr>
+<tr class="row-even"><td><p>2 split, <span class="math notranslate nohighlight">\(m=3\)</span></p></td>
+<td><p>9</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.99\)</span></p></td>
+<td><p>383</p></td>
+<td><p>0/3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1 split, <span class="math notranslate nohighlight">\(m=10\)</span></p></td>
+<td><p>10</p></td>
+<td><p><span class="math notranslate nohighlight">\(3.98\)</span></p></td>
+<td><p>419</p></td>
+<td><p>0/3</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Subdividing every variable coarsely fails from every starting point; subdividing
+the multimodal ones finely succeeds from every one. The requirement is the same as
+everywhere else, the subdivision resolving the basins: Rastrigin’s minima are a
+unit apart over a range of ten, so a fine subdivision of those variables works
+and <span class="math notranslate nohighlight">\(m=5\)</span> or <span class="math notranslate nohighlight">\(m=3\)</span> does not, at a lower cost and none of the result.</p>
+<p>The cheapest configuration that works is <strong>not</strong> the one splitting the fewest
+variables. Splitting three variables into four, <span class="math notranslate nohighlight">\(773\)</span> evaluations, beats
+splitting two into ten, <span class="math notranslate nohighlight">\(858\)</span>, although the second matches the multimodality of
+the problem exactly. Sixty-four boxes over three variables give the master a
+smaller model than a hundred over two, <span class="math notranslate nohighlight">\(12\)</span> binaries against <span class="math notranslate nohighlight">\(20\)</span>, and the third
+variable costs nothing to subdivide because a paraboloid is unimodal in every
+box. So the choice is still governed by the binaries, not by a count of
+multimodal variables.</p>
+<p>So the rule is not about the number of variables but about <strong>where the
+multimodality is</strong>: subdivide the variables the objective is multimodal in, as
+finely as their basins require, and leave the others to the sub-problem. What the
+method still cannot do is find out by itself which ones those are.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="baselines.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Annex B: the baselines</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="extensions.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Annex D: the extensions, measured</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-master-has-two-mechanisms-and-they-must-not-be-combined">The master has two mechanisms, and they must not be combined</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-adaptive-repair-which-reaches-the-optimum-most-often">The adaptive repair, which reaches the optimum most often</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-pure-convexification-and-the-range-where-it-is-worth-using">The pure convexification, and the range where it is worth using</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-two-caps-that-end-a-run">The two caps that end a run</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sweeping-the-convexity-instead-of-calibrating-it">Sweeping the convexity instead of calibrating it</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-measures">What it measures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-bound-off-the-objective-and-the-headroom-it-needs">Reading the bound off the objective, and the headroom it needs</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-sweep-does-not-fix">What the sweep does not fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-trust-region-and-the-metric-it-should-measure">The trust region, and the metric it should measure</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-constraint-actually-measures">What the constraint actually measures</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#which-metric-wins">Which metric wins</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-wide-the-radius-should-be">How wide the radius should be</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#at-five-variables-which-knob-to-turn">At five variables, which knob to turn</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-mechanism-at-the-two-densities-that-matter">The mechanism, at the two densities that matter</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-density-and-the-mechanism-are-not-independent">The density and the mechanism are not independent</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-hierarchy-of-subdivisions-and-the-rule-that-refines-it">A hierarchy of subdivisions, and the rule that refines it</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#refining-some-variables-only-and-when-it-pays">Refining some variables only, and when it pays</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/algorithm/tuning.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,867 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Changelog &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="gemseo_box_subdivision.disciplines.scenario_adapters.box_start" href="_autosummary/gemseo_box_subdivision.disciplines.scenario_adapters.box_start.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Changelog</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!--
+ Copyright 2026 Simone Coniglio
+
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+ International License. To view a copy of this license, visit
+ http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+ Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<!--
+Copyright 2026 Simone Coniglio
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+International License. To view a copy of this license, visit
+http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<!--
+Changelog titles are:
+- Added: for new features.
+- Changed: for changes in existing functionality.
+- Deprecated: for soon-to-be removed features.
+- Removed: for now removed features.
+- Fixed: for any bug fixes.
+- Security: in case of vulnerabilities.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">#</a></h1>
+<p>All notable changes of this project will be documented here.</p>
+<p>The format is based on
+<a class="reference external" href="https://keepachangelog.com/en/1.0.0">Keep a Changelog</a>
+and this project adheres to
+<a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<section id="unreleased">
+<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The documentation covers the convexity sweep where a reader meets the method
+rather than only in its annex: the methodology derives it after the two
+mechanisms it replaces, and the results carry what it reaches. The extensions
+move to an annex of their own, so the results page carries one table per
+question and its verdicts, and the notes recording what an earlier version of
+a page reported are gone: a withdrawn measurement is not a finding.</p></li>
+<li><p>The documentation build uploads a browsable archive on every run, so a change
+to it can be read before it reaches the branch that publishes.</p></li>
+<li><p>The integration branch has a published documentation of its own, under <code class="docutils literal notranslate"><span class="pre">/dev/</span></code>
+of the same site, saying on every page that it documents code in no release.
+Both builds are written to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch, which is what the site is
+served from; see <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.md</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id1">
+<h2>0.2.0 (2026-09-18)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>The settings, in two entry points: the general construction, which names the
+master and the solver running inside a box, and the swept one, which asks the
+master to sweep the convexity rather than asking its user for a margin in the
+units of an objective they have not measured. What each entry point holds is
+what applies to it, every setting is given by name, and a setting of an outer
+approximation no longer reaches a master that has none.</p>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul>
+<li><p>The algorithm of each of the two levels is a setting, with its own settings:
+<code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_name</span></code> and <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> for the
+master, <code class="docutils literal notranslate"><span class="pre">sub_problem_algo_name</span></code> and <code class="docutils literal notranslate"><span class="pre">sub_problem_algo_settings</span></code> for the solver
+running inside a box. The defaults are the pair every reported result was
+measured with, the outer-approximation master over SLSQP, so a sub-problem is
+no longer solved by SLSQP with nothing but its iteration count to configure it.
+A derivative-free solver of the sub-problem is now a setting rather than a fork
+of the scenario; nothing here measures one, and what the method needs of a
+sub-problem solver is a local optimum of its box, the cut of that box being
+built at the point it returns.</p></li>
+<li><p>Both names are checked against what the algorithm declares when the settings
+are built: a name no GEMSEO library provides, a setting the algorithm named does
+not have, and an ordinary optimizer named as the master, which cannot hold the
+integers a box is made of, are all refused where they are written rather than in
+the middle of a run.</p></li>
+<li><p>Settings asking the master to <strong>sweep the convexity</strong>, so that a run no longer
+needs a margin calibrated in the units of its objective, which is the standing
+criticism of the method. The master probes one trust-region radius per
+parallel point; the same probes can carry a ladder of convexity values, the
+low rungs proposing the box next door and the high rungs the box across the
+design space, with every probe that proposes nothing new redeployed a rung
+higher until it proposes a new box or the ladder is exhausted.</p>
+<p><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code> asks for it, with an upper bound,
+<code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings(max_value=100.0)</span></code>, or with nothing at all,
+<code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings()</span></code>, the bound then following the spread of the
+objective over the boxes already solved, with a decade of headroom. It is an
+entry point of its own rather than a setting of <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code>: a run
+that sweeps has no convexity to calibrate and no master to name, and the rungs
+of its ladder are the parallel points of the master, a probe per rung, rather
+than a count of their own that could disagree with them.</p>
+<p>On Rastrigin and Ackley in two dimensions, whose objectives differ by a factor
+of four in scale, the unbounded sweep reaches the optimum from every starting
+point on both, which no fixed margin among those tried does, and a bound ten
+times too large costs two starting points where a margin ten times too small
+costs the run. See <code class="docutils literal notranslate"><span class="pre">benchmarks/convexity_sweep.py</span></code> and annex C.</p>
+<p><strong>The sweep belongs to the master</strong>, and it is implemented in
+<code class="docutils literal notranslate"><span class="pre">gemseo-bilevel-outer-approximation</span></code>, under <code class="docutils literal notranslate"><span class="pre">convexity_sweep_points</span></code> and
+<code class="docutils literal notranslate"><span class="pre">convexity_sweep_max</span></code>; this package turns its two settings into those. Against
+a master predating them, <code class="docutils literal notranslate"><span class="pre">MASTER_SWEEPS_CONVEXITY</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> and the package
+drives the ladder itself, around the master’s mixed-integer solve, computing
+the bound from the objective as the master would. That is what makes the
+unbounded form work against any master: the master’s own convexity defaults to
+zero, so leaving it there would be a run with its cuts unguarded rather than a
+run without a sweep. Both <code class="docutils literal notranslate"><span class="pre">_convexity_sweep_driver</span></code> and
+<code class="docutils literal notranslate"><span class="pre">_convexity_sweep_fallback</span></code> are temporary and go once the master ships the
+sweep.</p>
+</li>
+</ul>
+</section>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Every setting is given by name.</strong> The three settings classes are keyword-only,
+since which one holds which setting follows what applies to what rather than an
+order a reader could rely on: a value given positionally would bind to whatever
+sits in that position, and a convexity margin arriving as a trust-region radius
+is a run that measures something else in silence.</p></li>
+<li><p><strong>The two constructions are two entry points.</strong> <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code> is the
+general one, naming any master that can choose a box and any sub-problem
+solver; <code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code> is the swept one, driving the master that
+implements the sweep with the parameters of that master chosen rather than
+supplied. What each holds is what applies to it: the swept entry point has no
+<code class="docutils literal notranslate"><span class="pre">master_algo_name</span></code>, no <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code>, no <code class="docutils literal notranslate"><span class="pre">convexity_margin</span></code> and no
+<code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code>, since a value to calibrate is what a sweep exists
+not to ask for.</p></li>
+<li><p><strong>A setting of the outer approximation no longer reaches a master that has
+none.</strong> <code class="docutils literal notranslate"><span class="pre">mechanism</span></code>, the two convexity values, <code class="docutils literal notranslate"><span class="pre">trust_region_radius</span></code>,
+<code class="docutils literal notranslate"><span class="pre">n_parallel_points</span></code>, <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> and <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> are the method’s names for
+settings of an outer-approximation master. They are translated only for a
+master declaring them, and setting one for a master that does not is refused
+where it is written, naming both the setting and what the master calls it,
+rather than sent blindly and rejected at execution. A master that is not an
+outer approximation is configured by <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> alone.</p></li>
+<li><p><strong>The master must be able to choose a box.</strong> The master problem is a relaxable
+mixed-integer non-linear one, whose relaxation the outer approximation solves
+before recovering the integers from it, so an algorithm that cannot hold an
+integer variable returns the relaxation rather than a box, and is refused when
+the settings are built.</p></li>
+<li><p>The master is executed by its name with the settings <code class="docutils literal notranslate"><span class="pre">to_master_settings</span></code>
+returns, rather than through a <code class="docutils literal notranslate"><span class="pre">BiLevelMasterOuterApproximation_Settings</span></code> model.
+A GEMSEO settings model names the algorithm it selects, and the settings of
+<code class="docutils literal notranslate"><span class="pre">OUTER_APPROXIMATION</span></code> name one no library provides, so a model would have run an
+algorithm other than the one <code class="docutils literal notranslate"><span class="pre">master_algo_name</span></code> asks for. That mismatch is a
+defect of the plugin declaring those settings, not of the algorithm.</p></li>
+</ul>
+</section>
+<section id="deprecated">
+<h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.options</span></code>, the pass-through to the master, is
+<code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code>, which says which of the two levels it configures. The
+old name still works, and warns; given both, <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> wins.</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>First public release.</p>
+<p>The method, its four constructions and the benchmark that measures them. The
+results are measurements on the problems reported, not a claim of generalization:
+the settings were tuned on those very problems, and the convexity margin is in
+the units of the objective, so it does not transfer between them unchanged.</p>
+<section id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>EGO, the Bayesian optimization of <code class="docutils literal notranslate"><span class="pre">egobox</span></code>, is a fifth baseline, and with it a
+comparison at one budget of five hundred evaluations that every method can
+afford, <code class="docutils literal notranslate"><span class="pre">benchmarks/small_budget.py</span></code>. It is the baseline of the regime the
+method targets, and at that budget it explores the hard multimodal cases
+better than anything else here, returning <span class="math notranslate nohighlight">\(1.99\)</span> on Rastrigin at five variables
+against <span class="math notranslate nohighlight">\(4.98\)</span> for DIRECT and <span class="math notranslate nohighlight">\(8.57\)</span> for this method. Its own cost, a hundred
+times this method’s on the same cell, is not counted in that table and is what
+an expensive objective would invert.</p></li>
+<li><p>Initial packaging of the project as a GEMSEO plugin, generated from the
+<a class="reference external" href="https://gitlab.com/gemseo/dev/copier-gemseo">GEMSEO copier template</a>.</p></li>
+<li><p>Dependency on <code class="docutils literal notranslate"><span class="pre">gemseo-bilevel-outer-approximation</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmark</span></code> dependency group with <code class="docutils literal notranslate"><span class="pre">gemseo-benchmark</span></code>, and the matching
+<code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">benchmark</span></code> environment.</p></li>
+<li><p>Design note for the box-subdivision outer approximation algorithm.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BoxSubdivision</span></code>, a Cartesian subdivision of a design space.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BoxConstraint</span></code>, the discipline expressing the selected box as a
+vector-valued constraint, with its analytic Jacobian.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_box_design_space</span></code>, building the design space of both levels.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.locate</span></code> and <code class="docutils literal notranslate"><span class="pre">BoxSubdivision.get_one_hot_names</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_box_start_adapter_class</span></code>, a <code class="docutils literal notranslate"><span class="pre">Benders</span></code> scenario adapter starting
+each sub-problem at the center of its box.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_box_samples</span></code>, the one-hot vectors of every box, to solve them all
+with the <code class="docutils literal notranslate"><span class="pre">CustomDOE</span></code> driver.</p></li>
+<li><p>Benchmark comparing the outer approximation with that enumeration.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/configurations.py</span></code>, the two named configurations of the master,
+<code class="docutils literal notranslate"><span class="pre">adaptive</span></code>, the default, and <code class="docutils literal notranslate"><span class="pre">pure_convexification</span></code>, whose constant is the
+order of the variation of the objective rather than an arbitrarily large
+number, and which the benchmarks now sweep over the range where it is worth
+using, reporting the cost as a fraction of the enumeration it replaces.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/configurations.py</span></code> sizes the trust region of the master to the
+design space for every configuration. The master’s default radius of ten is
+unrelated to that space, whose diameter is the sum over the components of the
+number of subdivisions minus one, and starting below it confines the search:
+with five variables and ten subdivisions each, that is the difference between
+solving Rastrigin, which no baseline here does, and returning a gap of
+sixteen. The benchmark page reports the comparison with the radius sized, the
+density sweep it corrects, and the constants of both mechanisms at the fine
+subdivision, where the convexity margin goes up rather than down.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/refine_some_variables.py</span></code>, comparing a coarse subdivision of every
+variable with a fine subdivision of some of them, and the <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code>
+problem it needs, multimodal in two variables and convex in the others.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/hierarchy.py</span></code>, subdividing coarsely and refining the boxes that
+look promising, with the same budget as a flat run, under three rules
+deciding what to refine: the value of the sub-problem solved in a box, the cut
+model of the master, which scores every box including those never solved, and
+a mix of the two, in two levels or in a deep hierarchy splitting every
+variable in two at each level. The deep one reaches the optimum of Ackley in
+five dimensions from three starting points out of six, which no flat
+subdivision here does; none of them beats the flat subdivisions elsewhere, a
+hierarchy being unable to return to a subdomain it passed over.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.max_step</span></code>, the largest trust-region step of the master in the
+distance induced by the weights of the boxes, to be passed as its <code class="docutils literal notranslate"><span class="pre">max_step</span></code>
+when a run stops early: the master’s own default of ten is smaller than the
+design space as soon as the subdivision is not coarse, and the run then ends
+on an infeasible master instead of on its optimality test.</p></li>
+<li><p>Benchmark comparing the method with the baselines of the problem class,
+multistart, CMA-ES and DIRECT, at equal budget of equivalent objective
+evaluations under both gradient-cost conventions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/run_baselines.py</span></code>, sweeping the baselines over the problems,
+the dimensions and the seeds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BoxMapping</span></code> and <code class="docutils literal notranslate"><span class="pre">create_normalized_box_design_space</span></code>, an alternative
+formulation solving the sub-problem in the normalized variables of the box.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.compute_bounds</span></code> and <code class="docutils literal notranslate"><span class="pre">BoxSubdivision.get_normalized_names</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/tune_convexification.py</span></code>, sweeping the convexification of both
+formulations, and the convexification tuned for each of them.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Changed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The multi-resolution encoding, one categorical variable per level, is part of
+the package rather than of the benchmarks: <code class="docutils literal notranslate"><span class="pre">MultiResolution</span></code> and
+<code class="docutils literal notranslate"><span class="pre">MultiResolutionMapping</span></code>. It reaches <span class="math notranslate nohighlight">\(m^L\)</span> subdivisions per component for
+<span class="math notranslate nohighlight">\(n m L\)</span> binaries, and on Styblinski-Tang at five variables, the problem the
+best flat density breaks on, two levels of four get within <span class="math notranslate nohighlight">\(0.27\)</span> of the
+optimum on forty binaries against the eighty of the flat encoding that matches
+it, for fewer evaluations.</p></li>
+<li><p>The hierarchies of subdivisions are part of the package too,
+<code class="docutils literal notranslate"><span class="pre">algos/opt/hierarchy.py</span></code>, driven by a callable that solves one level, so that
+a shape can be applied to another problem without copying a benchmark.</p></li>
+<li><p>The density of a subdivision is bounded above by a measurable ratio rather than
+by the number of boxes: the cut model carries as many coefficients as there are
+binaries, and a budget affords a few dozen cuts. On five variables, ten
+subdivisions per variable is the best density measured and sixteen is markedly
+worse, whatever the boxes they represent. It is bounded below by the spacing of
+the basins, and refining past them degrades the ranking rather than merely
+costing sub-problems, so no single density serves the four benchmark problems.</p></li>
+<li><p>The results show the hierarchies beside the flat subdivisions in a figure of
+their own, the distance to the optimum and the cost, with a tick per starting
+point reaching the optimum, and the frontier is measured over six starting
+points like the rest.</p></li>
+<li><p>The documentation follows the method rather than its history: methodology,
+implementation, usage, results and a conclusion, with the benchmark problems,
+the baselines and the sweeps that set the settings of the master moved to
+annexes A, B and C. The methodology derives the hierarchies of subdivisions,
+the scores that rank a box and what each shape can and cannot undo, and the
+implementation and usage pages describe the extensions and how to refine a
+box.</p></li>
+<li><p>The methodology describes what the method has grown since: what grows with the
+dimension, the boxes or the master, the trust region and the distance it uses,
+subdividing some variables only, and the three shapes of hierarchy, each with
+its figure. The results carry the extensions and end on the directions that
+follow from them.</p></li>
+<li><p>The documentation is illustrated, <code class="docutils literal notranslate"><span class="pre">docs/figures.py</span></code> drawing every figure for
+the light and the dark theme, and it is split so that the results are readable
+on their own: the benchmark page reports what the method achieves, a page of
+its own covers the tuning of the master, and two appendices describe and cite
+the benchmark problems and the baselines. The appendix on the baselines gives
+the algorithm of each, the settings it is run with, how the budget is enforced
+across methods called from Python and from a C extension, what is deliberately
+absent, and a figure of where each one evaluates the objective.</p></li>
+<li><p>The project is named <code class="docutils literal notranslate"><span class="pre">gemseo-box-subdivision</span></code>, since it is about the
+box-subdivision outer approximation rather than a collection of
+algorithms. The package is <code class="docutils literal notranslate"><span class="pre">gemseo_box_subdivision</span></code>.</p></li>
+<li><p>The GEMSEO monogram is no longer used as the logo of the documentation,
+being the registered mark of GEMSEO.</p></li>
+<li><p>The documentation is built with Sphinx instead of MkDocs, and published on
+GitHub Pages by a dedicated workflow.</p></li>
+<li><p>The documentation uses the PyData theme, with a navigation bar, a section
+navigation, a page outline and cards on the landing pages.</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The trust region of the master measures a distance. The design spaces of this
+package now weigh every subdivision alike, so that the distance between two
+boxes is the number of components a candidate changes. They used to inherit the
+default of <code class="docutils literal notranslate"><span class="pre">CatalogueDesignSpace</span></code>, which weighs a numeric catalogue by the
+catalogue values themselves; with the cost of a move charged on the weight the
+<strong>incumbent</strong> holds, leaving the first subdivision of a component was free and
+leaving the last cost <span class="math notranslate nohighlight">\(m_j - 1\)</span>, whatever the destination, so the region was
+lopsided rather than local and became infeasible at high indexes. Reported
+upstream. On Rastrigin with five variables and ten subdivisions this is the
+difference between a gap of <span class="math notranslate nohighlight">\(0.995\)</span> from two starting points out of six and the
+optimum from all six; the settings, the density sweep, the hierarchies and the
+multi-resolution encoding were all re-measured against it.</p></li>
+<li><p>The radius of the trust region is small, <code class="docutils literal notranslate"><span class="pre">TRUST_REGION_RADIUS</span> <span class="pre">=</span> <span class="pre">2</span></code> components,
+rather than the diameter of the design space that the documentation used to
+recommend. Once the distance is a distance, widening the region is markedly
+worse and removing it is worse still.</p></li>
+<li><p>The benchmark runner survives a budget spent inside a linearization, which
+GEMSEO reports as a missing output key rather than as the budget error raised
+underneath it; such a run used to crash instead of returning its best point.</p></li>
+<li><p>The multi-resolution encoding is measured with a trust region at all. Its
+radius was being taken from the diameter helper, which for unit weights returns
+the number of one-hot groups, so the region did not constrain; it is now scaled
+by the number of levels, this encoding having one group per level per variable.</p></li>
+<li><p>The benchmarks no longer mix the two mechanisms of the master, the adaptive
+repair of the cut slopes and the fixed convexification constant, which are
+different approaches. The configuration is now an explicit axis,
+<code class="docutils literal notranslate"><span class="pre">benchmarks/configurations.py</span></code>, and the settings and results reported by the
+documentation are measured with one mechanism at a time. The previously
+reported comparison of the two formulations, 96% against 58%, compared their
+tuning rather than the formulations, and the reported collapse of the method
+when the number of boxes grows is a property of the fixed constant rather than
+of the method: with the adaptive repair, Styblinski-Tang in five dimensions is
+solved from every starting point over a hundred thousand boxes as well as over
+thirty-two.</p></li>
+<li><p>The benchmarks no longer have their report stripped by the <code class="docutils literal notranslate"><span class="pre">T20</span></code> rule of
+ruff, whose unsafe fixes silently replaced the <code class="docutils literal notranslate"><span class="pre">print</span></code> calls by <code class="docutils literal notranslate"><span class="pre">pass</span></code>.</p></li>
+<li><p>The equations of the documentation are rendered: MathJax is served by the
+documentation itself instead of a CDN, which a network blocking third-party
+CDNs, or a local build, left unreachable.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="_autosummary/gemseo_box_subdivision.disciplines.scenario_adapters.box_start.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">gemseo_box_subdivision.disciplines.scenario_adapters.box_start</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.2.0 (2026-09-18)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/changelog.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

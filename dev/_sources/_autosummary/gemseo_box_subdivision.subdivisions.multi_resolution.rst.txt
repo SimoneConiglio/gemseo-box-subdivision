@@ -1,0 +1,12 @@
+﻿gemseo\_box\_subdivision.subdivisions.multi\_resolution
+=======================================================
+
+.. automodule:: gemseo_box_subdivision.subdivisions.multi_resolution
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      MultiResolution
+   

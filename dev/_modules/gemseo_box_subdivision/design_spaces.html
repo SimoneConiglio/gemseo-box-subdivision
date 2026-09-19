@@ -1,0 +1,751 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gemseo_box_subdivision.design_spaces &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/gemseo_box_subdivision/design_spaces';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">gemseo_box_subdivision.design_spaces</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for gemseo_box_subdivision.design_spaces</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2026 Simone Coniglio</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or</span>
+<span class="c1"># modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1"># License version 3 as published by the Free Software Foundation.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program; if not, write to the Free Software Foundation,</span>
+<span class="c1"># Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
+<span class="sd">"""The design space of a box-subdivided problem."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingProxyType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_bilevel_outer_approximation.algos.design_space.catalogue_design_space</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E501</span>
+    <span class="n">CatalogueDesignSpace</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">full</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ones</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">zeros</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.subdivisions.box</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxSubdivision</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.design_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">DesignSpace</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>
+
+<span class="n">DEFAULT_MAX_BOXES</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100_000</span>
+<span class="sd">"""The default limit on the number of boxes that :func:`.create_box_samples` builds."""</span>
+
+
+<div class="viewcode-block" id="create_box_design_space">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.design_spaces.html#gemseo_box_subdivision.design_spaces.create_box_design_space">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_box_design_space</span><span class="p">(</span>
+    <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span><span class="p">,</span>
+    <span class="n">design_space</span><span class="p">:</span> <span class="n">DesignSpace</span><span class="p">,</span>
+    <span class="n">margin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">BoxSubdivision</span><span class="o">.</span><span class="n">DEFAULT_BOUND_MARGIN</span><span class="p">,</span>
+    <span class="n">one_hot_names</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({}),</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({}),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CatalogueDesignSpace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Create the design space of a box-subdivided problem.</span>
+
+<span class="sd">    The returned design space gathers the variables of both levels:</span>
+
+<span class="sd">    - the variables of the original problem, whose bounds are widened by</span>
+<span class="sd">      :meth:`.BoxSubdivision.create_relaxed_design_space`, and which are solved</span>
+<span class="sd">      for in the sub-problem;</span>
+<span class="sd">    - one categorical variable per subdivided variable, selecting a subdivision</span>
+<span class="sd">      per component, which the main problem decides.</span>
+
+<span class="sd">    The ``Benders`` formulation splits the two levels apart on its own, by</span>
+<span class="sd">    keeping the categorical variables in the main problem.</span>
+
+<span class="sd">    The catalogue of a subdivided variable is the range of its subdivision</span>
+<span class="sd">    indexes, and every subdivision is weighed alike, so that the distance the</span>
+<span class="sd">    main problem measures is the **number of components** a candidate box</span>
+<span class="sd">    changes. Leaving the weights at the catalogue values, which is what a</span>
+<span class="sd">    catalogue design space does on its own, would not express a proximity: the</span>
+<span class="sd">    constraint charges the weights the *incumbent* holds on the components a</span>
+<span class="sd">    candidate changes and never reads what it changes them to, so leaving the</span>
+<span class="sd">    first subdivision would be free and leaving the last would cost the range,</span>
+<span class="sd">    however near the candidate is.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subdivision: The Cartesian subdivision of the design space.</span>
+<span class="sd">        design_space: The design space of the original problem.</span>
+<span class="sd">        margin: The relative margin applied to the bounds of the subdivided</span>
+<span class="sd">            variables, so that a box lying against a bound keeps the multiplier</span>
+<span class="sd">            of its face.</span>
+<span class="sd">        one_hot_names: The name of the one-hot variable of each subdivided</span>
+<span class="sd">            variable. If empty, suffix the design variable names with</span>
+<span class="sd">            :attr:`.BoxSubdivision.ONE_HOT_SUFFIX`.</span>
+<span class="sd">        weights: The weights of the subdivisions of each variable, used by the</span>
+<span class="sd">            main problem to measure the distance between two boxes.</span>
+<span class="sd">            If empty, weigh every subdivision alike, so that the distance is the</span>
+<span class="sd">            number of components a candidate box changes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The design space of the box-subdivided problem.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If a subdivided variable is not in the design space.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">unknown</span> <span class="o">:=</span> <span class="nb">set</span><span class="p">(</span><span class="n">subdivision</span><span class="o">.</span><span class="n">variable_names</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">design_space</span><span class="o">.</span><span class="n">variable_names</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The following variables are not in the design space: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">relaxed_design_space</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">create_relaxed_design_space</span><span class="p">(</span>
+        <span class="n">design_space</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span>
+    <span class="p">)</span>
+    <span class="n">box_design_space</span> <span class="o">=</span> <span class="n">CatalogueDesignSpace</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">design_space</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">box_design_space</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">relaxed_design_space</span><span class="p">)</span>
+    <span class="n">_add_categorical_variables</span><span class="p">(</span>
+        <span class="n">box_design_space</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">one_hot_names</span><span class="p">,</span> <span class="n">weights</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">box_design_space</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_categorical_variables</span><span class="p">(</span>
+    <span class="n">box_design_space</span><span class="p">:</span> <span class="n">CatalogueDesignSpace</span><span class="p">,</span>
+    <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span><span class="p">,</span>
+    <span class="n">design_space</span><span class="p">:</span> <span class="n">DesignSpace</span><span class="p">,</span>
+    <span class="n">one_hot_names</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add one categorical variable per subdivided variable.</span>
+
+<span class="sd">    The initial box of a variable is the one containing its initial value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        box_design_space: The design space to add the categorical variables to.</span>
+<span class="sd">        subdivision: The Cartesian subdivision of the design space.</span>
+<span class="sd">        design_space: The design space of the original problem.</span>
+<span class="sd">        one_hot_names: The name of the one-hot variable of each subdivided</span>
+<span class="sd">            variable.</span>
+<span class="sd">        weights: The weights of the subdivisions of each variable.</span>
+<span class="sd">    """</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">sizes</span>
+    <span class="n">n_subdivisions</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">n_subdivisions</span>
+    <span class="n">current_value</span> <span class="o">=</span> <span class="n">design_space</span><span class="o">.</span><span class="n">get_current_value</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">one_hot_name</span> <span class="ow">in</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">get_one_hot_names</span><span class="p">(</span>
+        <span class="n">one_hot_names</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">current_value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">subdivision</span><span class="o">.</span><span class="n">locate</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sizes</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">box_design_space</span><span class="o">.</span><span class="n">add_categorical_variable</span><span class="p">(</span>
+            <span class="n">one_hot_name</span><span class="p">,</span>
+            <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indexes</span><span class="p">],</span>
+            <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_subdivisions</span><span class="p">[</span><span class="n">variable_name</span><span class="p">])),</span>
+            <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">ones</span><span class="p">(</span><span class="n">n_subdivisions</span><span class="p">[</span><span class="n">variable_name</span><span class="p">])),</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_normalized_box_design_space">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.design_spaces.html#gemseo_box_subdivision.design_spaces.create_normalized_box_design_space">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_normalized_box_design_space</span><span class="p">(</span>
+    <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span><span class="p">,</span>
+    <span class="n">design_space</span><span class="p">:</span> <span class="n">DesignSpace</span><span class="p">,</span>
+    <span class="n">one_hot_names</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({}),</span>
+    <span class="n">normalized_names</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({}),</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({}),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CatalogueDesignSpace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Create the design space of a box-subdivided problem in normalized variables.</span>
+
+<span class="sd">    This is the counterpart of :func:`.create_box_design_space` for the</span>
+<span class="sd">    formulation based on :class:`.BoxMapping`: a subdivided variable is replaced</span>
+<span class="sd">    by its normalized variable, bounded by 0 and 1 whatever the box, and starting</span>
+<span class="sd">    at the center of the box. A variable that is not subdivided is kept as is.</span>
+
+<span class="sd">    Since the bounds of the sub-problem no longer depend on the box, this design</span>
+<span class="sd">    space needs neither the margin of :func:`.create_box_design_space` nor a</span>
+<span class="sd">    scenario adapter placing the starting point inside the box.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subdivision: The Cartesian subdivision of the design space.</span>
+<span class="sd">        design_space: The design space of the original problem.</span>
+<span class="sd">        one_hot_names: The name of the one-hot variable of each subdivided</span>
+<span class="sd">            variable. If empty, suffix the design variable names with</span>
+<span class="sd">            :attr:`.BoxSubdivision.ONE_HOT_SUFFIX`.</span>
+<span class="sd">        normalized_names: The name of the normalized variable of each subdivided</span>
+<span class="sd">            variable. If empty, suffix the design variable names with</span>
+<span class="sd">            :attr:`.BoxSubdivision.NORMALIZED_SUFFIX`.</span>
+<span class="sd">        weights: The weights of the subdivisions of each variable, used by the</span>
+<span class="sd">            main problem to measure the distance between two boxes.</span>
+<span class="sd">            If empty, weigh every subdivision alike, so that the distance is the</span>
+<span class="sd">            number of components a candidate box changes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The design space of the box-subdivided problem in normalized variables.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If a subdivided variable is not in the design space.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">unknown</span> <span class="o">:=</span> <span class="nb">set</span><span class="p">(</span><span class="n">subdivision</span><span class="o">.</span><span class="n">variable_names</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">design_space</span><span class="o">.</span><span class="n">variable_names</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The following variables are not in the design space: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">box_design_space</span> <span class="o">=</span> <span class="n">CatalogueDesignSpace</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">design_space</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">kept_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">design_space</span><span class="o">.</span><span class="n">variable_names</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">variable_names</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">kept_names</span><span class="p">:</span>
+        <span class="n">box_design_space</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">design_space</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">kept_names</span><span class="p">))</span>
+
+    <span class="n">sizes</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">sizes</span>
+    <span class="k">for</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">normalized_name</span> <span class="ow">in</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">get_normalized_names</span><span class="p">(</span>
+        <span class="n">normalized_names</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">sizes</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span>
+        <span class="n">box_design_space</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span>
+            <span class="n">normalized_name</span><span class="p">,</span>
+            <span class="n">lower_bound</span><span class="o">=</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">),</span>
+            <span class="n">upper_bound</span><span class="o">=</span><span class="n">ones</span><span class="p">(</span><span class="n">size</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">full</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">_add_categorical_variables</span><span class="p">(</span>
+        <span class="n">box_design_space</span><span class="p">,</span> <span class="n">subdivision</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">one_hot_names</span><span class="p">,</span> <span class="n">weights</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">box_design_space</span></div>
+
+
+
+<div class="viewcode-block" id="create_box_samples">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.design_spaces.html#gemseo_box_subdivision.design_spaces.create_box_samples">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_box_samples</span><span class="p">(</span>
+    <span class="n">subdivision</span><span class="p">:</span> <span class="n">BoxSubdivision</span><span class="p">,</span>
+    <span class="n">one_hot_names</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({}),</span>
+    <span class="n">max_boxes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_BOXES</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the one-hot vectors of every box of a subdivision.</span>
+
+<span class="sd">    Passing these samples to the ``CustomDOE`` driver of the main problem solves</span>
+<span class="sd">    the sub-problem of every box. This is the reference against which the outer</span>
+<span class="sd">    approximation has to be compared: it is exhaustive over the boxes, and it is</span>
+<span class="sd">    embarrassingly parallel, so the outer approximation is only worth its</span>
+<span class="sd">    complexity if it solves substantially fewer sub-problems.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subdivision: The Cartesian subdivision of the design space.</span>
+<span class="sd">        one_hot_names: The name of the one-hot variable of each subdivided</span>
+<span class="sd">            variable, used to order the columns as in the design space.</span>
+<span class="sd">        max_boxes: The maximum number of boxes to enumerate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The one-hot vectors, shaped ``(n_boxes, n_binaries)``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the subdivision has more boxes than ``max_boxes``.</span>
+<span class="sd">    """</span>
+    <span class="n">n_boxes</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">n_boxes</span>
+    <span class="k">if</span> <span class="n">n_boxes</span> <span class="o">&gt;</span> <span class="n">max_boxes</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The subdivision has </span><span class="si">{</span><span class="n">n_boxes</span><span class="si">}</span><span class="s2"> boxes, more than the maximum of "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">max_boxes</span><span class="si">}</span><span class="s2">; enumerating them is not tractable."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subdivision</span><span class="o">.</span><span class="n">get_one_hot_names</span><span class="p">(</span><span class="n">one_hot_names</span><span class="p">))</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">sizes</span>
+    <span class="n">n_subdivisions</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">n_subdivisions</span>
+    <span class="c1"># One choice per component, ordered as the one-hot blocks of the design space.</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="p">]</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">offsets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="n">sizes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_subdivisions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="n">n_boxes</span><span class="p">,</span> <span class="n">offset</span><span class="p">))</span>
+    <span class="n">ranges</span> <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">n_subdivisions</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">components</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">indexes</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">ranges</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">component</span><span class="p">),</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">components</span><span class="p">,</span> <span class="n">indexes</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">offsets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">component</span> <span class="o">*</span> <span class="n">n_subdivisions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">index</span>
+            <span class="n">samples</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">return</span> <span class="n">samples</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

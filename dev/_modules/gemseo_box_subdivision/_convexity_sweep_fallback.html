@@ -1,0 +1,728 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gemseo_box_subdivision._convexity_sweep_fallback &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/gemseo_box_subdivision/_convexity_sweep_fallback';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">gemseo_box_subdivision._convexity_sweep_fallback</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for gemseo_box_subdivision._convexity_sweep_fallback</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2026 Simone Coniglio</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or</span>
+<span class="c1"># modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1"># License version 3 as published by the Free Software Foundation.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program; if not, write to the Free Software Foundation,</span>
+<span class="c1"># Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
+<span class="sa">r</span><span class="sd">"""The convexity ladder, for a master that does not carry one yet.</span>
+
+<span class="sd">**This module is temporary.** The sweep belongs to the master of the outer</span>
+<span class="sd">approximation, and it is implemented there, in</span>
+<span class="sd">``gemseo_bilevel_outer_approximation.algos.opt.core.convexity_sweep``. What is</span>
+<span class="sd">here is the same policy, carried so that the stub of</span>
+<span class="sd">:mod:`~gemseo_box_subdivision._convexity_sweep_driver` can drive a released</span>
+<span class="sd">master that predates it.</span>
+<span class="sd">:mod:`~gemseo_box_subdivision.convexity_sweep` prefers the master's own copy and</span>
+<span class="sd">falls back to this one, so **delete this module** once the sweep ships upstream.</span>
+
+<span class="sd">The API is upstream's, deliberately, so that the stub behaves the same against</span>
+<span class="sd">either. See that module, and</span>
+<span class="sd">[annex C](../algorithm/tuning.md), for what the ladder is and why.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">geomspace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">isfinite</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="n">LADDER_DECADES</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="sa">r</span><span class="sd">"""The number of decades a ladder spans below its upper bound.</span>
+
+<span class="sd">Two decades covers the range over which the behaviour of either mechanism</span>
+<span class="sd">changes: over an objective spanning about eighty, a margin of $1$ leaves the</span>
+<span class="sd">cuts unusable and a margin of $100$ saturates. A ladder from</span>
+<span class="sd">$\kappa_{\max} / 100$ to $\kappa_{\max}$ therefore holds both the rung that</span>
+<span class="sd">explores and the rungs that exploit, whatever the scale of the objective.</span>
+<span class="sd">"""</span>
+
+<span class="n">HEADROOM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="sd">"""The factor applied to an upper bound read off the objective.</span>
+
+<span class="sd">The spread of the objective over the boxes **already solved** is a lower estimate</span>
+<span class="sd">of its spread over the design space, and badly so early in a run, when the boxes</span>
+<span class="sd">solved are the handful the first iterations proposed. Reading the bound off it</span>
+<span class="sd">without headroom is circular: the scale that would buy the exploration is the one</span>
+<span class="sd">the exploration would reveal, and a landscape whose first boxes look alike never</span>
+<span class="sd">escapes them.</span>
+
+<span class="sd">A factor is dimensionless, so it transfers between problems where an absolute</span>
+<span class="sd">margin does not, and erring high on it costs the probes of the low rungs rather</span>
+<span class="sd">than the result.</span>
+<span class="sd">"""</span>
+
+
+<div class="viewcode-block" id="convexity_ladder">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.convexity_ladder">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convexity_ladder</span><span class="p">(</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">decades</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">LADDER_DECADES</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Return the rungs of a convexity ladder.</span>
+
+<span class="sd">    The rungs are geometric from $\kappa_{\max} / 10^{\text{decades}}$ up to</span>
+<span class="sd">    $\kappa_{\max}$, the upper bound being the last one, so that a ladder of a</span>
+<span class="sd">    single point is the single value it would replace.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        max_value: The upper bound of the sweep, in the units of the objective.</span>
+<span class="sd">        n_points: The number of rungs.</span>
+<span class="sd">        decades: The number of decades the ladder spans below ``max_value``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The rungs, in increasing order.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When the upper bound is not positive, when the number of</span>
+<span class="sd">            rungs is not positive, or when the span is not positive while more</span>
+<span class="sd">            than one rung is asked for.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">max_value</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The upper bound of the sweep must be positive; got </span><span class="si">{</span><span class="n">max_value</span><span class="si">}</span><span class="s2">."</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n_points</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The number of rungs must be positive; got </span><span class="si">{</span><span class="n">n_points</span><span class="si">}</span><span class="s2">."</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">decades</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The span of the ladder must be non-negative; got </span><span class="si">{</span><span class="n">decades</span><span class="si">}</span><span class="s2">."</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n_points</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># A ladder of one rung is the value it replaces, and spans nothing by</span>
+        <span class="c1"># construction, so the span is not its business.</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">max_value</span><span class="p">),)</span>
+
+    <span class="k">if</span> <span class="n">decades</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="c1"># Every rung would be the upper bound, so every probe would be given the</span>
+        <span class="c1"># same value: that is the single value again, not a ladder of several,</span>
+        <span class="c1"># and a sweep built on it is refused as not increasing.</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"The span of a ladder of more than one rung must be positive; "</span>
+            <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="n">decades</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">n_points</span><span class="si">}</span><span class="s2"> rungs."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">rungs</span> <span class="o">=</span> <span class="n">geomspace</span><span class="p">(</span><span class="n">max_value</span> <span class="o">/</span> <span class="mf">10.0</span><span class="o">**</span><span class="n">decades</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">n_points</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">rung</span><span class="p">)</span> <span class="k">for</span> <span class="n">rung</span> <span class="ow">in</span> <span class="n">rungs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="objective_scale">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.objective_scale">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">objective_scale</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the variation of the objective over the values observed so far.</span>
+
+<span class="sd">    Both mechanisms are calibrated against the same quantity, the non-convexity</span>
+<span class="sd">    they have to dominate, whose order is the variation of the objective over the</span>
+<span class="sd">    design space. The master observes that variation as it solves sub-problems,</span>
+<span class="sd">    so the upper bound of a sweep needs no user at all, once corrected by the</span>
+<span class="sd">    headroom that a partial observation calls for.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        values: The objective values of the sub-problems already solved.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The spread of the finite values among them, or ``0.0`` when fewer than</span>
+<span class="sd">        two of them are finite, which is not yet a scale.</span>
+<span class="sd">    """</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">finite</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">finite</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">finite</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConvexitySweep">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.ConvexitySweep">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConvexitySweep</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A ladder of convexity values, and the rungs each probe deploys.</span>
+
+<span class="sd">    This is a policy rather than an optimizer: it says which value the master</span>
+<span class="sd">    should be given next, and knows nothing of the master itself.</span>
+<span class="sd">    """</span>
+
+    <span class="n">ladder</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""The rungs of the ladder, in increasing order."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check the ladder.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: When the ladder is empty or is not increasing.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ladder</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"The ladder of the sweep is empty."</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">second</span> <span class="o">&lt;=</span> <span class="n">first</span>
+            <span class="k">for</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ladder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ladder</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The rungs of the ladder must increase; got </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ladder</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConvexitySweep.from_bounds">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.ConvexitySweep.from_bounds">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_bounds</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">max_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">decades</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">LADDER_DECADES</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConvexitySweep</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the sweep of an upper bound and a number of points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_value: The upper bound of the sweep, in the units of the</span>
+<span class="sd">                objective.</span>
+<span class="sd">            n_points: The number of rungs.</span>
+<span class="sd">            decades: The number of decades the ladder spans below ``max_value``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The sweep.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">convexity_ladder</span><span class="p">(</span><span class="n">max_value</span><span class="p">,</span> <span class="n">n_points</span><span class="p">,</span> <span class="n">decades</span><span class="p">))</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The number of rungs, hence of probes."""</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ladder</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The upper bound of the sweep, the top rung."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ladder</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ConvexitySweep.rungs">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.ConvexitySweep.rungs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rungs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the rungs a probe deploys, in the order it deploys them.</span>
+
+<span class="sd">        A probe starts at the rung of its own index, which is what makes an</span>
+<span class="sd">        iteration span the ladder, and climbs from there. The probe at the top</span>
+<span class="sd">        rung has nowhere to climb, so a box it does not propose is a box no probe</span>
+<span class="sd">        will propose.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index: The index of the probe, from zero. An index past the ladder</span>
+<span class="sd">                is clamped to its top rung, the conservative end, which is where</span>
+<span class="sd">                a probe with no rung of its own belongs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The rungs, the probe's own first.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ladder</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">:]</span></div>
+
+
+<div class="viewcode-block" id="ConvexitySweep.probe_index">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.ConvexitySweep.probe_index">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">probe_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_probes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">probe</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the rung a probe starts from.</span>
+
+<span class="sd">        The probes and the rungs need not be equal in number: the probes spread</span>
+<span class="sd">        over the ladder, so that the tight trust region and the raw cuts explore</span>
+<span class="sd">        together and the wide region and the dominated cuts do too.</span>
+
+<span class="sd">        A master with nowhere to spread its probes gets the **top** rung. A lone</span>
+<span class="sd">        probe at the bottom is a run with its cuts unguarded, which converges</span>
+<span class="sd">        after two or three sub-problems and reports success far from the optimum,</span>
+<span class="sd">        and a single value belongs at the conservative end of the ladder.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n_probes: The number of parallel points of the master.</span>
+<span class="sd">            probe: The index of the probe, from zero.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The index of the rung the probe starts from.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">n_probes</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">probe</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">//</span> <span class="n">n_probes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

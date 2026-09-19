@@ -1,0 +1,12 @@
+﻿gemseo\_box\_subdivision.disciplines.scenario\_adapters.box\_start
+==================================================================
+
+.. automodule:: gemseo_box_subdivision.disciplines.scenario_adapters.box_start
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      create_box_start_adapter_class
+   

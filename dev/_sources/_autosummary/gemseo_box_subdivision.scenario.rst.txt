@@ -1,0 +1,24 @@
+﻿gemseo\_box\_subdivision.scenario
+=================================
+
+.. automodule:: gemseo_box_subdivision.scenario
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      FORMULATIONS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      create_box_subdivision_scenario
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BoxSubdivisionScenario
+   

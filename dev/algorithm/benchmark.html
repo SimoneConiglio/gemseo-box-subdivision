@@ -1,0 +1,1078 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Results &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="../_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/benchmark';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conclusion" href="conclusion.html" />
+    <link rel="prev" title="Usage in GEMSEO scenarios" href="usage.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">The method</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="methodology.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage in GEMSEO scenarios</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conclusion.html">Conclusion</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Annexes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="problems.html">Annex A: the benchmark problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="baselines.html">Annex B: the baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tuning.html">Annex C: tuning the master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Annex D: the extensions, measured</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">The algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Results</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!--
+ Copyright 2026 Simone Coniglio
+
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+ International License. To view a copy of this license, visit
+ http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+ Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="results">
+<h1>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h1>
+<p>What the method achieves, against the exhaustive enumeration of the boxes and
+against the three baselines of the problem class. The problems are described in
+<a class="reference internal" href="problems.html"><span class="std std-doc">one appendix</span></a> and the baselines in <a class="reference internal" href="baselines.html"><span class="std std-doc">the other</span></a>; how
+the settings were arrived at is <a class="reference internal" href="tuning.html"><span class="std std-doc">annex C</span></a>.</p>
+<p>Reproduce with <code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">benchmark</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong>Every selection on this page holds within its budget, and not beyond it.</strong>
+The runs are given a fixed number of equivalent evaluations, and a cell whose
+cost equals that budget was <strong>stopped by the budget rather than by its own
+criterion</strong>: its distance to the optimum is an upper bound on what the same
+configuration would reach with more evaluations, not a result. Ranking two such
+cells says which got further within the budget, which is a weaker statement than
+which solves the problem. Cells reporting a cost below the budget did end on
+their own, and those comparisons are between finished runs.</p>
+<p>Where a conclusion here rests on a truncated run it is marked. The honest
+summary is that if the goal were to solve a problem from every starting point
+whatever the cost, the first thing to spend is budget, and the choices compared
+here would have to be re-ranked at that larger budget.</p>
+</div>
+<section id="against-the-enumeration-of-the-boxes">
+<h2>Against the enumeration of the boxes<a class="headerlink" href="#against-the-enumeration-of-the-boxes" title="Link to this heading">#</a></h2>
+<p>The reference is the <strong>enumeration</strong>: solving the sub-problem of every box. It is
+exhaustive, embarrassingly parallel and needs no cuts, so the outer approximation
+is only worth its complexity if it reaches the same optimum after substantially
+fewer sub-problems. Both drive the same main problem through the same <code class="docutils literal notranslate"><span class="pre">Benders</span></code>
+formulation, so the comparison isolates the exploration strategy.</p>
+<p>Rastrigin in two dimensions, <span class="math notranslate nohighlight">\(10 \times 10 = 100\)</span> boxes, eight starting points,
+counted in <strong>executions of the objective discipline</strong>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>formulation</p></th>
+<th class="head"><p>method</p></th>
+<th class="head"><p>objective</p></th>
+<th class="head"><p>boxes solved</p></th>
+<th class="head"><p>executions</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>constraint</p></td>
+<td><p>enumeration</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p>100</p></td>
+<td><p>1427</p></td>
+</tr>
+<tr class="row-odd"><td><p>constraint</p></td>
+<td><p>outer approximation</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p>24 to 36</p></td>
+<td><p>341 to 521</p></td>
+</tr>
+<tr class="row-even"><td><p>normalized</p></td>
+<td><p>enumeration</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p>100</p></td>
+<td><p>1267</p></td>
+</tr>
+<tr class="row-odd"><td><p>normalized</p></td>
+<td><p>outer approximation</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p>20 to 36</p></td>
+<td><p>255 to 458</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>About <strong>three times cheaper for the same optimum</strong>, solving a quarter to a third
+of the boxes. Both formulations reach the optimum from seven starting points out
+of eight, so reliability no longer separates them; what does is cost. The
+normalized formulation enumerates for about 11% less, its sub-problems being
+bounded by their box instead of having to restore the feasibility of a box
+constraint, and its cheapest outer-approximation runs are cheaper still, <span class="math notranslate nohighlight">\(255\)</span>
+executions against <span class="math notranslate nohighlight">\(341\)</span>. It is therefore the one to prefer, by a small margin.</p>
+</section>
+<section id="against-the-baselines">
+<h2>Against the baselines<a class="headerlink" href="#against-the-baselines" title="Link to this heading">#</a></h2>
+<p>Four problems, two dimensions, three starting points, a budget of <span class="math notranslate nohighlight">\(500\)</span>
+equivalent evaluations per design variable under the adjoint convention. Each
+cell is the <strong>median distance to the optimum</strong>, the <strong>median cost</strong>, and the
+number of starting points from which the optimum was <strong>reached</strong>.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>problem</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(n\)</span></p></th>
+<th class="head"><p>box subdivision</p></th>
+<th class="head"><p>multistart</p></th>
+<th class="head"><p>CMA-ES</p></th>
+<th class="head"><p>DIRECT</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Rastrigin</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 543 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.00\)</span> · 631 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 649 · 3/3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Rastrigin</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span> · 823 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(3.98\)</span> · 2500 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(8.96\)</span> · 1945 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span> · 461 · 0/3</p></td>
+</tr>
+<tr class="row-even"><td><p>Ackley</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 347 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 745 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 417 · 3/3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ackley</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.43\)</span> · 892 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.55\)</span> · 2500 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2009 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.11\)</span> · 353 · 0/3</p></td>
+</tr>
+<tr class="row-even"><td><p>Styblinski-Tang</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 218 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 535 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1011 · 3/3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Styblinski-Tang</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 458 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2340 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1457 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2505 · 3/3</p></td>
+</tr>
+<tr class="row-even"><td><p>Griewank</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span> · 607 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span> · 1000 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.05\)</span> · 643 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span> · 1011 · 0/3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Griewank</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.06\)</span> · 1016 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.05\)</span> · 2500 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.03\)</span> · 1769 · 0/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span> · 397 · 0/3</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<img alt="Cost of each method on each problem, with the optima reached" class="only-light" src="../_images/results.svg" />
+<img alt="Cost of each method on each problem, with the optima reached" class="only-dark" src="../_images/results-dark.svg" />
+<p><strong>Where it works, it is the cheapest.</strong> Styblinski-Tang in five dimensions is
+solved for <span class="math notranslate nohighlight">\(458\)</span> evaluations, against <span class="math notranslate nohighlight">\(2340\)</span> for multistart, <span class="math notranslate nohighlight">\(1457\)</span> for CMA-ES
+and <span class="math notranslate nohighlight">\(2505\)</span> for DIRECT: the same answer, three to five times cheaper. In two
+dimensions it is the cheapest column on three problems out of four, <span class="math notranslate nohighlight">\(543\)</span>, <span class="math notranslate nohighlight">\(347\)</span>
+and <span class="math notranslate nohighlight">\(218\)</span> evaluations, roughly half of what the next method spends.</p>
+<p><strong>It is not the most reliable.</strong> On Ackley in five dimensions CMA-ES reaches the
+optimum every time and the method does not; on Griewank, DIRECT is closer at a
+fraction of the cost. DIRECT is a serious baseline at low dimension, cheap and
+reliable, so any claim for the method has to be made against it rather than
+against multistart alone.</p>
+<p><strong>The five-variable rows are the method at its default density</strong>, two
+subdivisions per variable, which bounds the enumeration and is not the best
+choice for three of these four problems. At ten subdivisions per variable
+Rastrigin in five dimensions is solved from every starting point for about <span class="math notranslate nohighlight">\(2100\)</span>
+evaluations, which <strong>no baseline here achieves at any budget tried</strong>, and Ackley
+and Griewank both improve as well. The next section is that sweep, and it is
+where the method’s case actually rests.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>These numbers are measurements, not a claim of generalization.</strong> The convexity
+margin and the number of subdivisions were tuned on these very problems, and the
+margin is an absolute quantity in the units of the objective, so it does not even
+transfer between them unchanged. A claim about the method needs a held-out set of
+problems and a protocol fixed in advance. Sweeping the margin rather than
+supplying it is how a run avoids choosing that value at all, and it is
+<a class="reference internal" href="#sweeping-the-convexity-rather-than-supplying-it">measured below</a>.</p>
+</div>
+</section>
+<section id="at-a-budget-every-method-can-afford">
+<h2>At a budget every method can afford<a class="headerlink" href="#at-a-budget-every-method-can-afford" title="Link to this heading">#</a></h2>
+<p>The comparison above gives every method <span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations <strong>per
+variable</strong>, which is generous to all of them and representative of nothing
+industrial. It also excludes Bayesian optimization, whose cost per iteration is
+cubic in the points gathered so far: one EGO run of <span class="math notranslate nohighlight">\(500\)</span> evaluations takes about
+two and a half minutes here against three seconds for the box subdivision, and at
+the budgets above it would measure wall time rather than method quality.</p>
+<p>So here is the same set of methods at <strong>one budget of <span class="math notranslate nohighlight">\(500\)</span> evaluations</strong>, which
+every one of them can afford, and which is the regime both EGO and this method
+are built for: an objective costing minutes, where a few hundred evaluations is
+the whole budget. Four problems, two dimensions each, three starting points, the
+median distance to the optimum and the number of starting points reaching it.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>problem</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(n\)</span></p></th>
+<th class="head"><p>box subdivision</p></th>
+<th class="head"><p>multistart</p></th>
+<th class="head"><p>CMA-ES</p></th>
+<th class="head"><p>DIRECT</p></th>
+<th class="head"><p>EGO</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Rastrigin</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.00\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ackley</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.58\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.32\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Styblinski-Tang</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong> · 218</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.29\)</span> · 29‡</p></td>
+</tr>
+<tr class="row-odd"><td><p>Griewank</p></td>
+<td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.007\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.067\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.048\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.009\)</span></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.008\)</span></strong></p></td>
+</tr>
+<tr class="row-even"><td><p>Rastrigin</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(8.57\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(9.95\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(11.20\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(1.99\)</span></strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>Ackley</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.43\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(17.06\)</span></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.05\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.11\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(2.90\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Styblinski-Tang</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3 · 458</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 1/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.003\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.14\)</span> · 219‡</p></td>
+</tr>
+<tr class="row-odd"><td><p>Griewank</p></td>
+<td><p>5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.061\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.096\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.381\)</span></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.011\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.104\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<img alt="What each method reaches at 500 evaluations, and what it costs to run" class="only-light" src="../_images/small_budget.svg" />
+<img alt="What each method reaches at 500 evaluations, and what it costs to run" class="only-dark" src="../_images/small_budget-dark.svg" />
+<p>The lower row is the caveat the upper one cannot show: the distance to the
+optimum is measured in evaluations, and EGO’s own time per run is two orders of
+magnitude above every other method’s. On an objective costing minutes that row
+vanishes; on these it decides.</p>
+<p>‡ EGO stopped on its own criterion, after <span class="math notranslate nohighlight">\(29\)</span> and <span class="math notranslate nohighlight">\(219\)</span> evaluations of the
+<span class="math notranslate nohighlight">\(500\)</span> it was allowed: its expected improvement collapses once the process models
+the landscape. Every other cell of the table spent its whole budget.</p>
+<p><strong>EGO is the best explorer of the hard multimodal cases at this budget</strong>, and by
+a wide margin where it matters most: on Rastrigin in five dimensions it returns
+<span class="math notranslate nohighlight">\(1.99\)</span> where the next best is DIRECT at <span class="math notranslate nohighlight">\(4.98\)</span> and the box subdivision at
+<span class="math notranslate nohighlight">\(8.57\)</span>. It also gets closest on Griewank in two dimensions. That is the result
+your intuition should keep: given few evaluations and a landscape of many
+basins, a surrogate over the whole history beats every method here that throws
+its history away.</p>
+<p><strong>It is also a hundred times more expensive in its own time</strong>, <span class="math notranslate nohighlight">\(444\)</span> seconds
+against <span class="math notranslate nohighlight">\(3\)</span> for the box subdivision on the same cell, and that cost is not
+counted anywhere in the table. On an objective costing minutes the ratio
+inverts and the table stands; on these analytic problems it does not.</p>
+<p><strong>The box subdivision is the cheapest route to a solved problem where the
+subdivision resolves the basins</strong>, Styblinski-Tang at <span class="math notranslate nohighlight">\(218\)</span> evaluations in two
+dimensions and <span class="math notranslate nohighlight">\(458\)</span> in five, both ending on their own criterion rather than on
+the budget. Where it does not resolve them, five hundred evaluations is simply
+too few for it: Rastrigin at five variables needs the <span class="math notranslate nohighlight">\(2103\)</span> of the density
+sweep below, and no method here solves that problem at this budget.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This table and the one above answer different questions, and neither supersedes
+the other. This one asks which method gets furthest when evaluations are scarce,
+which is the industrial case. The one above asks what each method reaches when
+evaluations are plentiful, which is where the box subdivision’s density can be
+afforded at all.</p>
+</div>
+</section>
+<section id="the-density-of-the-subdivision-decides">
+<h2>The density of the subdivision decides<a class="headerlink" href="#the-density-of-the-subdivision-decides" title="Link to this heading">#</a></h2>
+<p>The number of boxes is the Cartesian product of the subdivisions, so it explodes
+with the dimension, but the master does not see it: it sees the <strong>one-hot
+binaries</strong>, <span class="math notranslate nohighlight">\(\sum_j m_j\)</span>, which grow linearly. Five variables with ten
+subdivisions each is <span class="math notranslate nohighlight">\(100\,000\)</span> boxes and only <span class="math notranslate nohighlight">\(50\)</span> binaries.</p>
+<p>Five variables, the <code class="docutils literal notranslate"><span class="pre">adaptive</span></code> configuration, a budget of <span class="math notranslate nohighlight">\(2500\)</span>, three starting
+points. The median distance to the optimum, the median cost, and the number of
+starting points reaching it:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><span class="math notranslate nohighlight">\(m\)</span></p></th>
+<th class="head"><p>binaries</p></th>
+<th class="head"><p>boxes</p></th>
+<th class="head"><p>Rastrigin</p></th>
+<th class="head"><p>Ackley</p></th>
+<th class="head"><p>Styblinski-Tang</p></th>
+<th class="head"><p>Griewank</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>10</p></td>
+<td><p><span class="math notranslate nohighlight">\(32\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.98\)</span> · 823</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.43\)</span> · 892</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 458 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.06\)</span> · 1016</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>20</p></td>
+<td><p><span class="math notranslate nohighlight">\(10^3\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(6.70\)</span> · 714</p></td>
+<td><p><span class="math notranslate nohighlight">\(12.63\)</span> · 1277</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 846 · 3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.22\)</span> · 1547</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>10</strong></p></td>
+<td><p><strong>50</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(10^5\)</span></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 2103 · 3/3</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(6.30\)</span></strong> · 2500†</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 598 · 1/3</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.03\)</span></strong> · 2500†</p></td>
+</tr>
+<tr class="row-odd"><td><p>16</p></td>
+<td><p>80</p></td>
+<td><p><span class="math notranslate nohighlight">\(10^6\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.99\)</span> · 1706</p></td>
+<td><p><span class="math notranslate nohighlight">\(12.63\)</span> · 2500†</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 973 · 2/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.05\)</span> · 2500†</p></td>
+</tr>
+<tr class="row-even"><td><p>24</p></td>
+<td><p>120</p></td>
+<td><p><span class="math notranslate nohighlight">\(8 \cdot 10^6\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(3.59\)</span> · 1628</p></td>
+<td><p><span class="math notranslate nohighlight">\(8.53\)</span> · 2500†</p></td>
+<td><p><span class="math notranslate nohighlight">\(14.44\)</span> · 1098 · 1/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.08\)</span> · 2500†</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>† stopped by the budget, so the gap is an upper bound rather than a result.</p>
+<img alt="What the density of the subdivision does at five variables" class="only-light" src="../_images/density.svg" />
+<img alt="What the density of the subdivision does at five variables" class="only-dark" src="../_images/density-dark.svg" />
+<p><strong>Rastrigin in five dimensions is solved</strong>, from every starting point, for about
+<span class="math notranslate nohighlight">\(2100\)</span> evaluations, which no baseline achieves at any budget tried here. That is
+the headline of the whole benchmark, and it needs ten subdivisions per variable:
+at two or four the problem is not solved at all.</p>
+<p><strong>The Rastrigin and Styblinski-Tang columns are between finished runs</strong>, every
+cell ending below the budget, so what follows about them is a comparison of
+results. <strong>The Ackley and Griewank columns are not</strong>: from ten subdivisions
+upwards every run is stopped by the budget, so those two columns rank how far
+each density got in <span class="math notranslate nohighlight">\(2500\)</span> evaluations and say nothing about which density would
+win with more. Ackley’s apparent improvement with refinement is that kind of
+statement and no stronger.</p>
+<p><strong>There is a ceiling, and it is the binaries.</strong> Past ten subdivisions the quality
+falls away on Rastrigin, <span class="math notranslate nohighlight">\(1.99\)</span> at sixteen and <span class="math notranslate nohighlight">\(3.59\)</span> at twenty-four, while the
+cost falls too, which is the signature of a run ending early rather than
+searching harder. The cut model carries <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> coefficients and a budget
+buys a few dozen cuts to identify them, so a subdivision is usable while its
+<strong>binaries stay below the sub-problems a budget can pay for</strong>. Fifty against
+about fifty is the edge; eighty is past it. This is the rule the number of boxes
+never gave: <span class="math notranslate nohighlight">\(10^5\)</span> boxes are fine and <span class="math notranslate nohighlight">\(10^6\)</span> are not, for a reason that has
+nothing to do with either figure.</p>
+<p><strong>There is also a floor, and it is the basins.</strong> The subdivision has to separate
+the minima, which is why Rastrigin needs ten: its basins are about one unit apart
+over a range of ten.</p>
+<p><strong>And refining past the basins is not free.</strong> Styblinski-Tang has two basins per
+variable and is solved at two and four subdivisions; at ten it is not, <span class="math notranslate nohighlight">\(14.14\)</span>
+and one starting point out of three. Ten subdivisions cut each of its basins into
+five boxes, and a box holding no minimum of its own returns a value and a
+sensitivity that say nothing about where the minimum is, so the ranking degrades.
+The same reversal appears under the pure convexification and under three of the
+four trust-region radii, in <a class="reference internal" href="tuning.html#the-density-and-the-mechanism-are-not-independent"><span class="std std-ref">annex C</span></a>,
+so it belongs to the subdivision and not to the master.</p>
+<p>So the useful density sits between the basins and the binaries, and <strong>no single
+value serves all four problems</strong>: ten is best for three of them and worst for the
+fourth. The default of <code class="docutils literal notranslate"><span class="pre">benchmarks/baselines.py</span></code> bounds the enumeration rather
+than guessing, and the density is the first thing to sweep on a new problem.</p>
+</section>
+<section id="sweeping-the-convexity-rather-than-supplying-it">
+<h2>Sweeping the convexity rather than supplying it<a class="headerlink" href="#sweeping-the-convexity-rather-than-supplying-it" title="Link to this heading">#</a></h2>
+<p>Every number on this page above was obtained with a convexity margin chosen for
+the problem it was run on, in the units of that problem’s objective. That is the
+method’s standing criticism, and the answer is to
+<a class="reference internal" href="methodology.html#sweeping-it-instead-of-calibrating-it"><span class="std std-ref">sweep the value rather than supply it</span></a>:
+the master’s parallel probes carry a ladder of convexity values, a probe
+proposing a box already solved climbs a rung, and the bound of the ladder is read
+off the spread of the objective over the boxes already solved.</p>
+<p>Rastrigin and Ackley in two dimensions, whose objectives differ by a factor of
+four in scale, ten subdivisions, a budget of <span class="math notranslate nohighlight">\(1000\)</span>, six starting points. The
+median gap, the median cost and the starting points from which the optimum is
+reached:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>convexity</p></th>
+<th class="head"><p>Rastrigin, spans <span class="math notranslate nohighlight">\(\approx 80\)</span></p></th>
+<th class="head"><p>Ackley, spans <span class="math notranslate nohighlight">\(\approx 22\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>fixed, margin <span class="math notranslate nohighlight">\(10\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 226 · 4/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(10.415\)</span> · 208 · 1/6</p></td>
+</tr>
+<tr class="row-odd"><td><p>fixed, margin <span class="math notranslate nohighlight">\(100\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 543 · 6/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 428 · 4/6</p></td>
+</tr>
+<tr class="row-even"><td><p>sweep, <span class="math notranslate nohighlight">\(\kappa_{\max} = 100\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 491 · 6/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 517 · 6/6</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>sweep, no bound at all</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 489 · 6/6</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 601 · 6/6</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>No fixed margin is good on both problems, and the sweep is.</strong> The margin the
+tuning settled on, <span class="math notranslate nohighlight">\(100\)</span>, is the best fixed row and still reaches Ackley from
+four starting points out of six; the sweep reaches both problems from all six,
+and the last row is given no convexity value whatever.</p>
+<p><strong>Its bound is forgiving where a margin is brittle.</strong> A bound ten times too large
+costs <span class="math notranslate nohighlight">\(532\)</span> evaluations against <span class="math notranslate nohighlight">\(491\)</span> on Rastrigin and changes nothing that is
+reached there, because the low rungs stay on the ladder either way; a margin ten
+times too small reaches one starting point out of six. The bound is not free —
+the same over-estimate does cost two starting points on Ackley — it is merely
+forgiving.</p>
+<p><strong>It is not free, and it is not measured widely.</strong> Escalation costs
+mixed-integer solves rather than evaluations, which is why the swept rows cost
+what the calibrated one costs; and two problems in two dimensions establish no
+factor. The full table, the reading of the bound off the objective, and what the
+headroom is for are in
+<a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
+</section>
+<section id="the-extensions-and-what-they-are-worth">
+<h2>The extensions, and what they are worth<a class="headerlink" href="#the-extensions-and-what-they-are-worth" title="Link to this heading">#</a></h2>
+<p>Four extensions were built on the method and measured at equal budget, five
+variables, <span class="math notranslate nohighlight">\(2500\)</span> equivalent evaluations: subdividing some variables only, the
+multi-resolution encoding, the hierarchies of subdivisions, and the scores that
+rank a box. <strong>None of them becomes a default</strong>, and each says where the method’s
+difficulty lies. The tables are in
+<a class="reference internal" href="extensions.html"><span class="std std-doc">annex D</span></a>; the verdicts are:</p>
+<ul class="simple">
+<li><p><strong>subdividing some variables only</strong> wins where the multimodality is
+concentrated and loses where it is not, which is the requirement of the method
+restated. The cheapest configuration that works is not the one matching the
+multimodality exactly: the binaries govern here as everywhere else;</p></li>
+<li><p><strong>the multi-resolution encoding</strong> is the one construction that changes what a
+resolution costs in binaries — sixteen subdivisions per variable for forty
+binaries instead of eighty — and it earns its place on the one problem the
+density sweep breaks on, Styblinski-Tang. Fewer, wider levels beat more,
+narrower ones;</p></li>
+<li><p><strong>the hierarchies</strong> answer one specific shape of problem, a basin too broad for
+any affordable density: the deep shape solves Ackley at five variables, which
+nothing else here does. The frontier, the only shape able to undo a choice, is
+the worst of the family, because every node restarts a master and throws its
+cuts away;</p></li>
+<li><p><strong>the positional weighting of a subdivision stays the wrong choice</strong>, which is
+the trust-region metric conclusion reappearing in a second setting.</p></li>
+</ul>
+<p>Several of those comparisons are between runs the budget stopped, so
+<a class="reference internal" href="extensions.html#does-more-budget-change-the-answer"><span class="std std-ref">annex D</span></a> re-runs the one where
+it matters at twice and four times the budget. It corrects one margin — the flat
+subdivision reaches Ackley from two starting points out of six rather than none,
+so the hierarchy’s margin is four against two — and shows that past that, more
+budget buys nothing at all: both configurations stop on their own caps.</p>
+<p>What all of this establishes, and where it can go, is <a class="reference internal" href="conclusion.html"><span class="std std-doc">the conclusion</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="usage.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Usage in GEMSEO scenarios</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="conclusion.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Conclusion</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-enumeration-of-the-boxes">Against the enumeration of the boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-baselines">Against the baselines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#at-a-budget-every-method-can-afford">At a budget every method can afford</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-density-of-the-subdivision-decides">The density of the subdivision decides</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sweeping-the-convexity-rather-than-supplying-it">Sweeping the convexity rather than supplying it</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-extensions-and-what-they-are-worth">The extensions, and what they are worth</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/algorithm/benchmark.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

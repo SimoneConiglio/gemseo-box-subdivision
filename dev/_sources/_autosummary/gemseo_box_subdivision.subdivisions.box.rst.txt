@@ -1,0 +1,12 @@
+﻿gemseo\_box\_subdivision.subdivisions.box
+=========================================
+
+.. automodule:: gemseo_box_subdivision.subdivisions.box
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BoxSubdivision
+   

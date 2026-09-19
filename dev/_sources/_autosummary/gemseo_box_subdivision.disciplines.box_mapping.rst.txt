@@ -1,0 +1,12 @@
+﻿gemseo\_box\_subdivision.disciplines.box\_mapping
+=================================================
+
+.. automodule:: gemseo_box_subdivision.disciplines.box_mapping
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BoxMapping
+   

@@ -1,0 +1,1240 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>gemseo_box_subdivision.settings &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/gemseo_box_subdivision.settings';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gemseo_box_subdivision.convexity_sweep" href="gemseo_box_subdivision.convexity_sweep.html" />
+    <link rel="prev" title="gemseo_box_subdivision.scenario" href="gemseo_box_subdivision.scenario.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.scenario.html">gemseo_box_subdivision.scenario</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">gemseo_box_subdivision.settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.convexity_sweep.html">gemseo_box_subdivision.convexity_sweep</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.subdivisions.box.html">gemseo_box_subdivision.subdivisions.box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.subdivisions.multi_resolution.html">gemseo_box_subdivision.subdivisions.multi_resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.design_spaces.html">gemseo_box_subdivision.design_spaces</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.hierarchy.html">gemseo_box_subdivision.hierarchy</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.box_constraint.html">gemseo_box_subdivision.disciplines.box_constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.box_mapping.html">gemseo_box_subdivision.disciplines.box_mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.multi_resolution_mapping.html">gemseo_box_subdivision.disciplines.multi_resolution_mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.scenario_adapters.box_start.html">gemseo_box_subdivision.disciplines.scenario_adapters.box_start</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">gemseo_box_subdivision.settings</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-gemseo_box_subdivision.settings">
+<span id="gemseo-box-subdivision-settings"></span><h1>gemseo_box_subdivision.settings<a class="headerlink" href="#module-gemseo_box_subdivision.settings" title="Link to this heading">#</a></h1>
+<p>The settings of a box-subdivision run, in the units the method measures.</p>
+<p>The master of the outer approximation takes a dozen settings, several of which
+are coupled: two mechanisms that must not be combined, a trust-region radius
+whose unit is not obvious, and a convexity margin in the units of the objective.
+This module names them in the terms the methodology uses and rejects the
+combinations that measure nothing.</p>
+<p>The convexity margin is the one with no value that transfers between problems,
+and <a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></a> is the entry point that avoids choosing
+it, sweeping a ladder of values instead; see
+<a class="reference internal" href="gemseo_box_subdivision.convexity_sweep.html#module-gemseo_box_subdivision.convexity_sweep" title="gemseo_box_subdivision.convexity_sweep"><code class="xref py py-mod docutils literal notranslate"><span class="pre">convexity_sweep</span></code></a>.</p>
+<p>The two levels are solved by two algorithms, and both are settings like the
+rest: <a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_name" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_name"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_name</span></code></a> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.sub_problem_algo_name</span></code> name them, and
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_settings</span></code></a> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.sub_problem_algo_settings</span></code> carry whatever else
+each one takes. The defaults are the pair the benchmark measures, the
+outer-approximation master over SLSQP; naming another algorithm is checked
+against what that algorithm declares, so a setting the chosen algorithm does not
+have is refused when the settings are built rather than when the run starts.</p>
+<p class="rubric">Module Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.TRUST_REGION_RADIUS" title="gemseo_box_subdivision.settings.TRUST_REGION_RADIUS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TRUST_REGION_RADIUS</span></code></a></p></td>
+<td><p>The default radius of the trust region, in components changed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.CONVEXITY_MARGIN" title="gemseo_box_subdivision.settings.CONVEXITY_MARGIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONVEXITY_MARGIN</span></code></a></p></td>
+<td><p>The default convexity margin of the adaptive repair.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.MASTER_ALGO_NAME" title="gemseo_box_subdivision.settings.MASTER_ALGO_NAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MASTER_ALGO_NAME</span></code></a></p></td>
+<td><p>The default algorithm solving the master problem.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.N_PARALLEL_POINTS" title="gemseo_box_subdivision.settings.N_PARALLEL_POINTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">N_PARALLEL_POINTS</span></code></a></p></td>
+<td><p>The default number of points the master probes per iteration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.SUB_PROBLEM_ALGO_NAME" title="gemseo_box_subdivision.settings.SUB_PROBLEM_ALGO_NAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUB_PROBLEM_ALGO_NAME</span></code></a></p></td>
+<td><p>The default algorithm solving each sub-problem inside its box.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Classes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings</span></code></a>(*[, mechanism, ...])</p></td>
+<td><p>What every box-subdivision run needs, whichever master drives it.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code></a>(*[, mechanism, ...])</p></td>
+<td><p>The settings of a box-subdivision run, with the master you name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></a>(*[, mechanism, ...])</p></td>
+<td><p>The settings of a run that <strong>sweeps</strong> the convexity instead of choosing it.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.TRUST_REGION_RADIUS">
+<span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">TRUST_REGION_RADIUS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.TRUST_REGION_RADIUS" title="Link to this definition">#</a></dt>
+<dd><p>The default radius of the trust region, in components changed.</p>
+<p>A radius of two is what the measurements support, and it is far from the radius
+at which the region stops constraining. Letting the master change every component
+at once is markedly worse, and removing the region is worse still.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.CONVEXITY_MARGIN">
+<span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">CONVEXITY_MARGIN</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100.0</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.CONVEXITY_MARGIN" title="Link to this definition">#</a></dt>
+<dd><p>The default convexity margin of the adaptive repair.</p>
+<p>This is an <strong>absolute</strong> quantity in the units of the objective, so the default
+only suits an objective of the scale of the benchmark. It has to be set to the
+order of the variation of the objective over the design space.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.MASTER_ALGO_NAME">
+<span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">MASTER_ALGO_NAME</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BILEVEL_MASTER_OUTER_APPROXIMATION'</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.MASTER_ALGO_NAME" title="Link to this definition">#</a></dt>
+<dd><p>The default algorithm solving the master problem.</p>
+<p>The master decides which box to look into, so it is the outer approximation
+itself rather than an ordinary optimizer, and this is the one the plugin
+<code class="docutils literal notranslate"><span class="pre">gemseo-bilevel-outer-approximation</span></code> provides. Another master is allowed, any
+that handles integer variables, but only this one takes the settings
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.to_master_settings()</span></code></a> translates; the rest are
+driven by <a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_settings</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.N_PARALLEL_POINTS">
+<span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">N_PARALLEL_POINTS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.N_PARALLEL_POINTS" title="Link to this definition">#</a></dt>
+<dd><p>The default number of points the master probes per iteration.</p>
+<p>One trust-region radius per point, and under
+<a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></a> one rung of the convexity ladder per point
+as well: a probe per rung is what makes an iteration span the ladder, so the two
+counts are this one number rather than two that can disagree.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SUB_PROBLEM_ALGO_NAME">
+<span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">SUB_PROBLEM_ALGO_NAME</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SLSQP'</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.SUB_PROBLEM_ALGO_NAME" title="Link to this definition">#</a></dt>
+<dd><p>The default algorithm solving each sub-problem inside its box.</p>
+<p>A box is a continuous problem with bounds, and every result reported was measured
+with SLSQP over it. A derivative-free solver is a legitimate choice for an
+objective whose gradient is unavailable or noisy, but nothing here measures one.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">BaseBoxSubdivisionSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adaptive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trust_region_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_parallel_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_algo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SLSQP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_algo_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BaseBoxSubdivisionSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>What every box-subdivision run needs, whichever master drives it.</p>
+<p>A run is two algorithms: a master deciding which box to look into, and a
+solver running inside the box it chose. This class holds what belongs to the
+run rather than to either of them, and what the sub-problem level takes;
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code></a> and <a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></a>
+add the master.</p>
+<p>Every setting is given <strong>by name</strong>. They are a vocabulary rather than an
+order, and which class holds which is a matter of what applies to what, so an
+order would change under the reader; naming one refuses what it cannot take
+rather than binding it to whatever sits in that position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mechanism</strong> (<em>str</em>)</p></li>
+<li><p><strong>trust_region_radius</strong> (<em>int</em>)</p></li>
+<li><p><strong>n_parallel_points</strong> (<em>int</em>)</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>)</p></li>
+<li><p><strong>sub_problem_max_iter</strong> (<em>int</em>)</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>)</p></li>
+<li><p><strong>sub_problem_algo_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>sub_problem_algo_settings</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.MECHANISMS">
+<span class="sig-name descname"><span class="pre">MECHANISMS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('adaptive',</span> <span class="pre">'convexification')</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.MECHANISMS" title="Link to this definition">#</a></dt>
+<dd><p>The two mechanisms keeping the cuts usable on a non-convex problem.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.MASTER_TERMS">
+<span class="sig-name descname"><span class="pre">MASTER_TERMS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'convexification_constant':</span> <span class="pre">'convexification_constant',</span> <span class="pre">'convexity_margin':</span> <span class="pre">'min_dfk',</span> <span class="pre">'max_iter':</span> <span class="pre">'max_iter',</span> <span class="pre">'mechanism':</span> <span class="pre">'adapt',</span> <span class="pre">'n_parallel_points':</span> <span class="pre">'number_of_parallel_points',</span> <span class="pre">'tolerance':</span> <span class="pre">'ub_tol',</span> <span class="pre">'trust_region_radius':</span> <span class="pre">'max_step'}</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.MASTER_TERMS" title="Link to this definition">#</a></dt>
+<dd><p>What each setting of the method is called by the master it is meant for.</p>
+<p>The method names a quantity; the master names a setting. A master declaring
+the name on the right takes the setting on the left, and one that does not
+takes nothing of it, which is what makes a setting of the outer approximation
+inapplicable to another master.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.mechanism">
+<span class="sig-name descname"><span class="pre">mechanism</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'adaptive'</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.mechanism" title="Link to this definition">#</a></dt>
+<dd><p>How the master keeps its cuts usable, <code class="docutils literal notranslate"><span class="pre">&quot;adaptive&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;convexification&quot;</span></code>.</p>
+<p>They rest on different arguments and are <strong>not</strong> combined: the adaptive
+repair fixes the slope of each cut against the boxes already solved, while
+the convexification adds a convex term whose constant, once it dominates the
+concavity of the relaxation, makes the outer approximation convergent.
+Measuring the two together measures neither.</p>
+<p>This describes an outer approximation and nothing else, so it reaches a
+master only where that master declares the settings it drives; see
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.to_master_settings()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius">
+<span class="sig-name descname"><span class="pre">trust_region_radius</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius" title="Link to this definition">#</a></dt>
+<dd><p>The radius of the trust region of the master, in components changed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.n_parallel_points">
+<span class="sig-name descname"><span class="pre">n_parallel_points</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.n_parallel_points" title="Link to this definition">#</a></dt>
+<dd><p>The number of trust-region radii the master probes per iteration.</p>
+<p>The <strong>pure convexification probes a single point</strong> whatever this says, which
+is the configuration its constant was measured at; only the adaptive repair
+and a sweep spread the probes, a sweep because a probe per rung is what makes
+an iteration span its ladder.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.max_iter">
+<span class="sig-name descname"><span class="pre">max_iter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">80</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.max_iter" title="Link to this definition">#</a></dt>
+<dd><p>The number of iterations of the master, not of the sub-problems.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_max_iter">
+<span class="sig-name descname"><span class="pre">sub_problem_max_iter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">40</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_max_iter" title="Link to this definition">#</a></dt>
+<dd><p>The number of iterations of each sub-problem.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.tolerance">
+<span class="sig-name descname"><span class="pre">tolerance</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0001</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.tolerance" title="Link to this definition">#</a></dt>
+<dd><p>The tolerance on the upper bound of the master.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_name">
+<span class="sig-name descname"><span class="pre">sub_problem_algo_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SLSQP'</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the algorithm solving each sub-problem inside its box.</p>
+<p>Any GEMSEO optimizer, its name as the library factory knows it. The
+sub-problem is continuous and bounded, which is what
+<a class="reference internal" href="#gemseo_box_subdivision.settings.SUB_PROBLEM_ALGO_NAME" title="gemseo_box_subdivision.settings.SUB_PROBLEM_ALGO_NAME"><code class="xref py py-data docutils literal notranslate"><span class="pre">SUB_PROBLEM_ALGO_NAME</span></code></a> suits; a solver returning a point far from a
+local optimum of its box leaves the cut of that box wrong, rather than merely
+loose.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_settings">
+<span class="sig-name descname"><span class="pre">sub_problem_algo_settings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_settings" title="Link to this definition">#</a></dt>
+<dd><p>Any other setting of the sub-problem solver, passed through unchanged.</p>
+<p>These win over <code class="docutils literal notranslate"><span class="pre">sub_problem_max_iter</span></code>, which is the <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> of the
+solver under its own name.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.convexity_setting_name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">convexity_setting_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.convexity_setting_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the master setting the mechanism calibrates.</p>
+<p>The adaptive repair reads the convexity margin under <code class="docutils literal notranslate"><span class="pre">&quot;min_dfk&quot;</span></code>, the
+pure convexification its constant under <code class="docutils literal notranslate"><span class="pre">&quot;convexification_constant&quot;</span></code>.
+This is what a sweep of the convexity varies, and naming it here keeps
+the sweep from having to know which mechanism is active.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.master_algo_name">
+<span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">master_algo_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.master_algo_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the algorithm solving the master problem.</p>
+<p>Every run needs one, and the scenario executes it by this name, so it is
+part of the contract rather than of either construction: the general one
+takes it as a setting, the swept one pins it to the master implementing
+the sweep.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.convexity_value">
+<span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">convexity_value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.convexity_value" title="Link to this definition">#</a></dt>
+<dd><p>The value the mechanism calibrates, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is not known.</p>
+<p>A sweep reading its bound off the objective has none to give before the
+run has solved anything: only the master, which observes the objective,
+can compute one. <code class="docutils literal notranslate"><span class="pre">None</span></code> then leaves the master its own value rather
+than overwriting it, an unknown guard being no reason to impose a guard
+of zero.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_master_settings">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_master_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BaseBoxSubdivisionSettings.to_master_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_master_settings" title="Link to this definition">#</a></dt>
+<dd><p>Return the settings of the master problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>radius</strong> (<em>int</em><em> | </em><em>None</em>) – The radius of the trust region, overriding
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius"><code class="xref py py-attr docutils literal notranslate"><span class="pre">trust_region_radius</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The settings of the master problem.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.drive_the_master">
+<span class="sig-name descname"><span class="pre">drive_the_master</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BaseBoxSubdivisionSettings.drive_the_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.drive_the_master" title="Link to this definition">#</a></dt>
+<dd><p>Run the master under whatever this construction has to supply it.</p>
+<p>A master configured entirely by its settings needs nothing, which is the
+general case and what this yields. The swept construction overrides it
+where the installed master does not sweep on its own.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Nothing.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Iterator[None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.master_settings_the_run_needs">
+<span class="sig-name descname"><span class="pre">master_settings_the_run_needs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BaseBoxSubdivisionSettings.master_settings_the_run_needs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.master_settings_the_run_needs" title="Link to this definition">#</a></dt>
+<dd><p>Return what a run keeps of its master settings whatever it overrides.</p>
+<p>Nothing, in the general construction: its master is named and configured
+by the caller, so a caller giving that master settings of its own is
+choosing what it is given, the convexity included.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The settings a caller configuring the master does not override.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_sub_problem_settings">
+<span class="sig-name descname"><span class="pre">to_sub_problem_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BaseBoxSubdivisionSettings.to_sub_problem_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_sub_problem_settings" title="Link to this definition">#</a></dt>
+<dd><p>Return the settings of a sub-problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The settings of the algorithm solving a sub-problem inside its box.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.create_sub_problem_settings_model">
+<span class="sig-name descname"><span class="pre">create_sub_problem_settings_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BaseBoxSubdivisionSettings.create_sub_problem_settings_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.create_sub_problem_settings_model" title="Link to this definition">#</a></dt>
+<dd><p>Return the settings of a sub-problem, as a Pydantic model.</p>
+<p>This is what the <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation takes as its
+<code class="docutils literal notranslate"><span class="pre">sub_problem_algo_settings</span></code>, the model carrying the name of the
+algorithm it selects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The settings of a sub-problem, for <a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_name" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_name"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sub_problem_algo_name</span></code></a>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>BaseAlgorithmSettings</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">BoxSubdivisionSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adaptive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trust_region_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_parallel_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_algo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SLSQP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_algo_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity_margin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexification_constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_algo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BILEVEL_MASTER_OUTER_APPROXIMATION'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_algo_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BoxSubdivisionSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings</span></code></a></p>
+<p>The settings of a box-subdivision run, with the master you name.</p>
+<p>The defaults are the configuration the benchmark supports: the adaptive
+repair of the cut slopes, four probe points, a trust region of two
+components, and the outer-approximation master over SLSQP.</p>
+<p>Two of these settings decide whether a run works at all, and neither has a
+default that transfers between problems:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">convexity_margin</span></code></dt><dd><p>subtracted from an objective difference, so it is absolute and in the
+units of <em>your</em> objective. Start from the variation of the objective
+over the design space. It crosses a threshold and then saturates, so
+erring high costs sub-problems rather than quality.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">trust_region_radius</span></code></dt><dd><p>the number of components a candidate box may change. Keep it small.</p>
+</dd>
+</dl>
+<p>Not choosing either is what <a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></a> is for.</p>
+<p><strong>The mechanism belongs to the outer approximation, not to every master.</strong>
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.mechanism" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.mechanism"><code class="xref py py-attr docutils literal notranslate"><span class="pre">mechanism</span></code></a>, the two convexity values, the trust region and the
+parallel points are settings of an outer-approximation master, and a master
+that does not declare them is driven by <a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_algo_settings</span></code></a> alone,
+under its own names. Naming such a master <em>and</em> setting one of those is
+refused where it is written rather than silently ignored at execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mechanism</strong> (<em>str</em>)</p></li>
+<li><p><strong>trust_region_radius</strong> (<em>int</em>)</p></li>
+<li><p><strong>n_parallel_points</strong> (<em>int</em>)</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>)</p></li>
+<li><p><strong>sub_problem_max_iter</strong> (<em>int</em>)</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>)</p></li>
+<li><p><strong>sub_problem_algo_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>sub_problem_algo_settings</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>convexity_margin</strong> (<em>float</em>)</p></li>
+<li><p><strong>convexification_constant</strong> (<em>float</em>)</p></li>
+<li><p><strong>options</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>master_algo_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>master_algo_settings</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexity_margin">
+<span class="sig-name descname"><span class="pre">convexity_margin</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100.0</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexity_margin" title="Link to this definition">#</a></dt>
+<dd><p>The convexity margin of the adaptive repair, in the units of the objective.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexification_constant">
+<span class="sig-name descname"><span class="pre">convexification_constant</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100.0</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexification_constant" title="Link to this definition">#</a></dt>
+<dd><p>The constant of the convexification, in the units of the objective.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings.options">
+<span class="sig-name descname"><span class="pre">options</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.options" title="Link to this definition">#</a></dt>
+<dd><p>Any other setting of the master, passed through unchanged.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.2.0: </span>Use <a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_algo_settings</span></code></a>, which says which of the two levels it
+configures. Both may be given, in which case
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_algo_settings</span></code></a> wins.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_name">
+<span class="sig-name descname"><span class="pre">master_algo_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BILEVEL_MASTER_OUTER_APPROXIMATION'</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the algorithm solving the master problem.</p>
+<p>Any GEMSEO algorithm deciding the next box. The default is the outer
+approximation the method is built on, whose settings this class translates;
+another master is configured through <a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_algo_settings</span></code></a>, under the
+names it declares. Changing it changes the method, not merely its tuning.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings">
+<span class="sig-name descname"><span class="pre">master_algo_settings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="Link to this definition">#</a></dt>
+<dd><p>Any other setting of the master, passed through unchanged.</p>
+<p>These win over the settings this class translates, so a setting named both
+here and by the class takes the value given here. For a master that is not an
+outer approximation, this is the whole of its configuration.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexity_value">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">convexity_value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexity_value" title="Link to this definition">#</a></dt>
+<dd><p>The value of the convexity setting the mechanism calibrates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings">
+<span class="sig-name descname"><span class="pre">to_master_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#BoxSubdivisionSettings.to_master_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings" title="Link to this definition">#</a></dt>
+<dd><p>Return the settings of the master problem.</p>
+<p>For an outer approximation, the settings this class names are translated
+into the master’s own terms, the mechanism deciding which of the two
+constants is passed and which is switched off, so that the two can never
+be active at once. For any other master, none of them is: it is driven by
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_algo_settings</span></code></a> alone. <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> and <code class="docutils literal notranslate"><span class="pre">ub_tol</span></code> are sent
+under those names or not at all, so a master calling its iteration count
+or its tolerance anything else takes them from
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_algo_settings</span></code></a> like the rest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>radius</strong> (<em>int</em><em> | </em><em>None</em>) – The radius of the trust region, overriding
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius"><code class="xref py py-attr docutils literal notranslate"><span class="pre">trust_region_radius</span></code></a>. Used by the encodings whose
+distance counts something other than design variables.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The settings of the master problem.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.settings.</span></span><span class="sig-name descname"><span class="pre">SweptBoxSubdivisionSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adaptive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trust_region_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_parallel_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_algo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SLSQP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_problem_algo_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#SweptBoxSubdivisionSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings</span></code></a></p>
+<p>The settings of a run that <strong>sweeps</strong> the convexity instead of choosing it.</p>
+<p>The convexity is the one quantity of this method with no value that
+transfers between problems, and this is the entry point that does not ask
+for one. The master probes a ladder of convexity values across the parallel
+points it already spends on trust-region radii, the low rungs proposing the
+box next door and the high rungs the box across the design space, and
+redeploys a rung higher every probe that proposes nothing new.</p>
+<p><strong>The sweep is the master’s</strong>, so this names no master: it drives the one
+that implements it, under its own settings <code class="docutils literal notranslate"><span class="pre">convexity_sweep_points</span></code> and
+<code class="docutils literal notranslate"><span class="pre">convexity_sweep_max</span></code>. There is nothing to pass through either, since the
+parameters of the master are chosen here rather than supplied:</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.n_parallel_points" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.n_parallel_points"><code class="xref py py-attr docutils literal notranslate"><span class="pre">n_parallel_points</span></code></a></dt><dd><p>the probes <em>and</em> the rungs. A probe per rung is the whole construction,
+so the two are one number rather than two that can disagree; a single
+probe is given the top rung, the conservative end, since there is no
+ladder to span.</p>
+</dd>
+<dt><a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.max_value" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.max_value"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_value</span></code></a></dt><dd><p>the top of the ladder, or zero to read it off the objective as the run
+observes it, lifted by a decade of headroom.</p>
+</dd>
+</dl>
+<p>What is <strong>not</strong> here is as much of the point as what is: no convexity
+margin, no convexification constant, and no master to name. Those live on
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code></a>, which is the general construction, and
+supplying one alongside a sweep is the contradiction this split removes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mechanism</strong> (<em>str</em>)</p></li>
+<li><p><strong>trust_region_radius</strong> (<em>int</em>)</p></li>
+<li><p><strong>n_parallel_points</strong> (<em>int</em>)</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>)</p></li>
+<li><p><strong>sub_problem_max_iter</strong> (<em>int</em>)</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>)</p></li>
+<li><p><strong>sub_problem_algo_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>sub_problem_algo_settings</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>max_value</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.max_value">
+<span class="sig-name descname"><span class="pre">max_value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.max_value" title="Link to this definition">#</a></dt>
+<dd><p>The upper bound of the ladder, or zero to read it off the objective.</p>
+<p>Zero asks the master for the bound the run observes, the spread of the
+objective over the boxes already solved, lifted by <code class="xref py py-data docutils literal notranslate"><span class="pre">HEADROOM</span></code>. That
+spread is a lower estimate of the spread over the design space, and reading
+it literally is circular, which is what the headroom answers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.master_algo_name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">master_algo_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.master_algo_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the algorithm solving the master problem.</p>
+<p>The sweep is implemented in the master, so this entry point drives that
+master rather than one of the caller’s choosing. A master to name, and
+settings to pass it, are what <a class="reference internal" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code></a> is for.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.convexity_value">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">convexity_value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.convexity_value" title="Link to this definition">#</a></dt>
+<dd><p>The value the mechanism takes before the ladder is there.</p>
+<p>The <strong>top rung</strong> of a bounded sweep, which is what the master uses in the
+first iterations, before it has solved enough boxes to have a ladder at
+all, and what a master predating the sweep uses throughout. The tuning
+says an over-large margin costs sub-problems rather than quality, so the
+conservative end is where a lone value belongs.</p>
+<p>An unbounded sweep has no such value: its bound is the spread of the
+objective, which the run has not measured yet, so the master keeps
+whatever it uses by default until <a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.create_sweep" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.create_sweep"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sweep()</span></code></a> can compute one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.drive_the_master">
+<span class="sig-name descname"><span class="pre">drive_the_master</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#SweptBoxSubdivisionSettings.drive_the_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.drive_the_master" title="Link to this definition">#</a></dt>
+<dd><p>Sweep the convexity from outside a master that does not sweep.</p>
+<p>Where <a class="reference internal" href="gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY" title="gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY"><code class="xref py py-data docutils literal notranslate"><span class="pre">MASTER_SWEEPS_CONVEXITY</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code> the master varies the
+setting itself and this yields as the base does. Where it is <code class="docutils literal notranslate"><span class="pre">False</span></code>,
+leaving the master to its own value would leave it at zero, which is a
+run with its cuts unguarded rather than a run without a sweep, so the
+ladder is driven around its mixed-integer solve instead; see
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">_convexity_sweep_driver</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Nothing.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Iterator[None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.master_settings_the_run_needs">
+<span class="sig-name descname"><span class="pre">master_settings_the_run_needs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#SweptBoxSubdivisionSettings.master_settings_the_run_needs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.master_settings_the_run_needs" title="Link to this definition">#</a></dt>
+<dd><p>Return the sweep, which a run configuring its own master still needs.</p>
+<p>The sweep is what this entry point is, so a swept run reaching the master
+without it solves at the master’s own convexity, which is zero: the sweep
+is what the run needs of its master rather than one of the settings a
+caller overrides. Where the master does not sweep there is nothing to
+pass, <a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.drive_the_master" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.drive_the_master"><code class="xref py py-meth docutils literal notranslate"><span class="pre">drive_the_master()</span></code></a> applying the ladder around its solves
+instead; where it does, the two settings carrying the sweep are what must
+reach it whichever way the run is executed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The settings a caller configuring the master does not override.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.create_sweep">
+<span class="sig-name descname"><span class="pre">create_sweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#SweptBoxSubdivisionSettings.create_sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.create_sweep" title="Link to this definition">#</a></dt>
+<dd><p>Return the ladder this run asks for.</p>
+<p>This is the only place a ladder is built, so that the rungs are never
+counted twice: the driver passes the probes the master actually runs,
+which is what a probe per rung means, and a caller with no master to ask
+gets the probes this run would request of one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observed_scale</strong> (<em>float</em>) – The variation of the objective over the boxes already
+solved, which is the upper bound of a sweep given none. See
+<a class="reference internal" href="gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.objective_scale" title="gemseo_box_subdivision.convexity_sweep.objective_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">objective_scale()</span></code></a>.</p></li>
+<li><p><strong>n_points</strong> (<em>int</em>) – The rungs, which are the probes of the master. Zero takes
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.n_parallel_points" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.n_parallel_points"><code class="xref py py-attr docutils literal notranslate"><span class="pre">n_parallel_points</span></code></a>, the number this run asks a master
+for, which is what a master left to these settings runs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ladder, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when its upper bound is neither given nor
+observed yet.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.ConvexitySweep" title="gemseo_box_subdivision._convexity_sweep_fallback.ConvexitySweep"><em>ConvexitySweep</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.to_master_settings">
+<span class="sig-name descname"><span class="pre">to_master_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/settings.html#SweptBoxSubdivisionSettings.to_master_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.to_master_settings" title="Link to this definition">#</a></dt>
+<dd><p>Return the settings of the master problem.</p>
+<p>The sweep is asked for under the master’s own two settings, the rungs
+being the parallel points. Against a master predating the sweep, see
+<a class="reference internal" href="gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY" title="gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY"><code class="xref py py-data docutils literal notranslate"><span class="pre">MASTER_SWEEPS_CONVEXITY</span></code></a>, those two are not declared and are not
+passed. A bounded sweep is then left with its top rung, the conservative
+end, so it loses the cheap rungs rather than the result; an unbounded one
+has no rung to be left with and gives the master nothing rather than a
+guard of zero, as <a class="reference internal" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.convexity_value" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.convexity_value"><code class="xref py py-attr docutils literal notranslate"><span class="pre">convexity_value</span></code></a> describes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>radius</strong> (<em>int</em><em> | </em><em>None</em>) – The radius of the trust region, overriding
+<a class="reference internal" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius"><code class="xref py py-attr docutils literal notranslate"><span class="pre">trust_region_radius</span></code></a>. Used by the encodings whose
+distance counts something other than design variables.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The settings of the master problem.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="gemseo_box_subdivision.scenario.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">gemseo_box_subdivision.scenario</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gemseo_box_subdivision.convexity_sweep.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">gemseo_box_subdivision.convexity_sweep</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.TRUST_REGION_RADIUS"><code class="docutils literal notranslate"><span class="pre">TRUST_REGION_RADIUS</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.CONVEXITY_MARGIN"><code class="docutils literal notranslate"><span class="pre">CONVEXITY_MARGIN</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.MASTER_ALGO_NAME"><code class="docutils literal notranslate"><span class="pre">MASTER_ALGO_NAME</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.N_PARALLEL_POINTS"><code class="docutils literal notranslate"><span class="pre">N_PARALLEL_POINTS</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SUB_PROBLEM_ALGO_NAME"><code class="docutils literal notranslate"><span class="pre">SUB_PROBLEM_ALGO_NAME</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.MECHANISMS"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.MECHANISMS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.MASTER_TERMS"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.MASTER_TERMS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.mechanism"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.mechanism</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.trust_region_radius"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.trust_region_radius</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.n_parallel_points"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.n_parallel_points</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.max_iter"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.max_iter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_max_iter"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.sub_problem_max_iter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.tolerance"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.tolerance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_name"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.sub_problem_algo_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.sub_problem_algo_settings"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.sub_problem_algo_settings</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.convexity_setting_name"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.convexity_setting_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.master_algo_name"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.master_algo_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.convexity_value"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.convexity_value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_master_settings"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.to_master_settings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.drive_the_master"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.drive_the_master()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.master_settings_the_run_needs"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.master_settings_the_run_needs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_sub_problem_settings"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.to_sub_problem_settings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.create_sub_problem_settings_model"><code class="docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings.create_sub_problem_settings_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexity_margin"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.convexity_margin</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexification_constant"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.convexification_constant</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.options"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.options</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_name"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.master_algo_settings"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_settings</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.convexity_value"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.convexity_value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings"><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.to_master_settings()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.max_value"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings.max_value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.master_algo_name"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings.master_algo_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.convexity_value"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings.convexity_value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.drive_the_master"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings.drive_the_master()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.master_settings_the_run_needs"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings.master_settings_the_run_needs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.create_sweep"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings.create_sweep()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.to_master_settings"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings.to_master_settings()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/_autosummary/gemseo_box_subdivision.settings.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

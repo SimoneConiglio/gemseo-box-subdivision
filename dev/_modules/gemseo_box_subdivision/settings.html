@@ -1,0 +1,1346 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gemseo_box_subdivision.settings &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/gemseo_box_subdivision/settings';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">gemseo_box_subdivision.settings</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for gemseo_box_subdivision.settings</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2026 Simone Coniglio</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or</span>
+<span class="c1"># modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1"># License version 3 as published by the Free Software Foundation.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program; if not, write to the Free Software Foundation,</span>
+<span class="c1"># Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
+<span class="sa">r</span><span class="sd">"""The settings of a box-subdivision run, in the units the method measures.</span>
+
+<span class="sd">The master of the outer approximation takes a dozen settings, several of which</span>
+<span class="sd">are coupled: two mechanisms that must not be combined, a trust-region radius</span>
+<span class="sd">whose unit is not obvious, and a convexity margin in the units of the objective.</span>
+<span class="sd">This module names them in the terms the methodology uses and rejects the</span>
+<span class="sd">combinations that measure nothing.</span>
+
+<span class="sd">The convexity margin is the one with no value that transfers between problems,</span>
+<span class="sd">and :class:`.SweptBoxSubdivisionSettings` is the entry point that avoids choosing</span>
+<span class="sd">it, sweeping a ladder of values instead; see</span>
+<span class="sd">:mod:`~gemseo_box_subdivision.convexity_sweep`.</span>
+
+<span class="sd">The two levels are solved by two algorithms, and both are settings like the</span>
+<span class="sd">rest: :attr:`.BoxSubdivisionSettings.master_algo_name` and</span>
+<span class="sd">:attr:`.BoxSubdivisionSettings.sub_problem_algo_name` name them, and</span>
+<span class="sd">:attr:`.BoxSubdivisionSettings.master_algo_settings` and</span>
+<span class="sd">:attr:`.BoxSubdivisionSettings.sub_problem_algo_settings` carry whatever else</span>
+<span class="sd">each one takes. The defaults are the pair the benchmark measures, the</span>
+<span class="sd">outer-approximation master over SLSQP; naming another algorithm is checked</span>
+<span class="sd">against what that algorithm declares, so a setting the chosen algorithm does not</span>
+<span class="sd">have is refused when the settings are built rather than when the run starts.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.opt.factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizationLibraryFactory</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision</span><span class="w"> </span><span class="kn">import</span> <span class="n">convexity_sweep</span> <span class="k">as</span> <span class="n">_policy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.convexity_sweep</span><span class="w"> </span><span class="kn">import</span> <span class="n">MASTER_SWEEPS_CONVEXITY</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.convexity_sweep</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvexitySweep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.convexity_sweep</span><span class="w"> </span><span class="kn">import</span> <span class="n">convexity_ladder</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.base_algorithm_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAlgorithmSettings</span>
+
+<span class="n">TRUST_REGION_RADIUS</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="sd">"""The default radius of the trust region, in components changed.</span>
+
+<span class="sd">A radius of two is what the measurements support, and it is far from the radius</span>
+<span class="sd">at which the region stops constraining. Letting the master change every component</span>
+<span class="sd">at once is markedly worse, and removing the region is worse still.</span>
+<span class="sd">"""</span>
+
+<span class="n">CONVEXITY_MARGIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span>
+<span class="sd">"""The default convexity margin of the adaptive repair.</span>
+
+<span class="sd">This is an **absolute** quantity in the units of the objective, so the default</span>
+<span class="sd">only suits an objective of the scale of the benchmark. It has to be set to the</span>
+<span class="sd">order of the variation of the objective over the design space.</span>
+<span class="sd">"""</span>
+
+<span class="n">MASTER_ALGO_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"BILEVEL_MASTER_OUTER_APPROXIMATION"</span>
+<span class="sd">"""The default algorithm solving the master problem.</span>
+
+<span class="sd">The master decides which box to look into, so it is the outer approximation</span>
+<span class="sd">itself rather than an ordinary optimizer, and this is the one the plugin</span>
+<span class="sd">``gemseo-bilevel-outer-approximation`` provides. Another master is allowed, any</span>
+<span class="sd">that handles integer variables, but only this one takes the settings</span>
+<span class="sd">:meth:`.BoxSubdivisionSettings.to_master_settings` translates; the rest are</span>
+<span class="sd">driven by :attr:`.BoxSubdivisionSettings.master_algo_settings`.</span>
+<span class="sd">"""</span>
+
+<span class="n">N_PARALLEL_POINTS</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="sd">"""The default number of points the master probes per iteration.</span>
+
+<span class="sd">One trust-region radius per point, and under</span>
+<span class="sd">:class:`.SweptBoxSubdivisionSettings` one rung of the convexity ladder per point</span>
+<span class="sd">as well: a probe per rung is what makes an iteration span the ladder, so the two</span>
+<span class="sd">counts are this one number rather than two that can disagree.</span>
+<span class="sd">"""</span>
+
+<span class="n">SUB_PROBLEM_ALGO_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"SLSQP"</span>
+<span class="sd">"""The default algorithm solving each sub-problem inside its box.</span>
+
+<span class="sd">A box is a continuous problem with bounds, and every result reported was measured</span>
+<span class="sd">with SLSQP over it. A derivative-free solver is a legitimate choice for an</span>
+<span class="sd">objective whose gradient is unavailable or noisy, but nothing here measures one.</span>
+<span class="sd">"""</span>
+
+
+<div class="viewcode-block" id="BaseBoxSubdivisionSettings">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseBoxSubdivisionSettings</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""What every box-subdivision run needs, whichever master drives it.</span>
+
+<span class="sd">    A run is two algorithms: a master deciding which box to look into, and a</span>
+<span class="sd">    solver running inside the box it chose. This class holds what belongs to the</span>
+<span class="sd">    run rather than to either of them, and what the sub-problem level takes;</span>
+<span class="sd">    :class:`.BoxSubdivisionSettings` and :class:`.SweptBoxSubdivisionSettings`</span>
+<span class="sd">    add the master.</span>
+
+<span class="sd">    Every setting is given **by name**. They are a vocabulary rather than an</span>
+<span class="sd">    order, and which class holds which is a matter of what applies to what, so an</span>
+<span class="sd">    order would change under the reader; naming one refuses what it cannot take</span>
+<span class="sd">    rather than binding it to whatever sits in that position.</span>
+<span class="sd">    """</span>
+
+    <span class="n">MECHANISMS</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"adaptive"</span><span class="p">,</span> <span class="s2">"convexification"</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""The two mechanisms keeping the cuts usable on a non-convex problem."""</span>
+
+    <span class="n">MASTER_TERMS</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"mechanism"</span><span class="p">:</span> <span class="s2">"adapt"</span><span class="p">,</span>
+        <span class="s2">"convexity_margin"</span><span class="p">:</span> <span class="s2">"min_dfk"</span><span class="p">,</span>
+        <span class="s2">"convexification_constant"</span><span class="p">:</span> <span class="s2">"convexification_constant"</span><span class="p">,</span>
+        <span class="s2">"trust_region_radius"</span><span class="p">:</span> <span class="s2">"max_step"</span><span class="p">,</span>
+        <span class="s2">"n_parallel_points"</span><span class="p">:</span> <span class="s2">"number_of_parallel_points"</span><span class="p">,</span>
+        <span class="s2">"max_iter"</span><span class="p">:</span> <span class="s2">"max_iter"</span><span class="p">,</span>
+        <span class="s2">"tolerance"</span><span class="p">:</span> <span class="s2">"ub_tol"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="w">    </span><span class="sd">"""What each setting of the method is called by the master it is meant for.</span>
+
+<span class="sd">    The method names a quantity; the master names a setting. A master declaring</span>
+<span class="sd">    the name on the right takes the setting on the left, and one that does not</span>
+<span class="sd">    takes nothing of it, which is what makes a setting of the outer approximation</span>
+<span class="sd">    inapplicable to another master.</span>
+<span class="sd">    """</span>
+
+    <span class="n">mechanism</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"adaptive"</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""How the master keeps its cuts usable, ``"adaptive"`` or</span>
+<span class="sd">    ``"convexification"``.</span>
+
+<span class="sd">    They rest on different arguments and are **not** combined: the adaptive</span>
+<span class="sd">    repair fixes the slope of each cut against the boxes already solved, while</span>
+<span class="sd">    the convexification adds a convex term whose constant, once it dominates the</span>
+<span class="sd">    concavity of the relaxation, makes the outer approximation convergent.</span>
+<span class="sd">    Measuring the two together measures neither.</span>
+
+<span class="sd">    This describes an outer approximation and nothing else, so it reaches a</span>
+<span class="sd">    master only where that master declares the settings it drives; see</span>
+<span class="sd">    :meth:`.BoxSubdivisionSettings.to_master_settings`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">trust_region_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">TRUST_REGION_RADIUS</span>
+<span class="w">    </span><span class="sd">"""The radius of the trust region of the master, in components changed."""</span>
+
+    <span class="n">n_parallel_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">N_PARALLEL_POINTS</span>
+<span class="w">    </span><span class="sd">"""The number of trust-region radii the master probes per iteration.</span>
+
+<span class="sd">    The **pure convexification probes a single point** whatever this says, which</span>
+<span class="sd">    is the configuration its constant was measured at; only the adaptive repair</span>
+<span class="sd">    and a sweep spread the probes, a sweep because a probe per rung is what makes</span>
+<span class="sd">    an iteration span its ladder.</span>
+<span class="sd">    """</span>
+
+    <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span>
+<span class="w">    </span><span class="sd">"""The number of iterations of the master, not of the sub-problems."""</span>
+
+    <span class="n">sub_problem_max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="w">    </span><span class="sd">"""The number of iterations of each sub-problem."""</span>
+
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span>
+<span class="w">    </span><span class="sd">"""The tolerance on the upper bound of the master."""</span>
+
+    <span class="n">sub_problem_algo_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SUB_PROBLEM_ALGO_NAME</span>
+<span class="w">    </span><span class="sd">"""The name of the algorithm solving each sub-problem inside its box.</span>
+
+<span class="sd">    Any GEMSEO optimizer, its name as the library factory knows it. The</span>
+<span class="sd">    sub-problem is continuous and bounded, which is what</span>
+<span class="sd">    :data:`.SUB_PROBLEM_ALGO_NAME` suits; a solver returning a point far from a</span>
+<span class="sd">    local optimum of its box leaves the cut of that box wrong, rather than merely</span>
+<span class="sd">    loose.</span>
+<span class="sd">    """</span>
+
+    <span class="n">sub_problem_algo_settings</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Any other setting of the sub-problem solver, passed through unchanged.</span>
+
+<span class="sd">    These win over ``sub_problem_max_iter``, which is the ``max_iter`` of the</span>
+<span class="sd">    solver under its own name.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check the settings.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: When the mechanism is unknown, when a count is not</span>
+<span class="sd">                positive, when the sub-problem solver is unknown or does not take</span>
+<span class="sd">                a setting it is given, or when its settings select another</span>
+<span class="sd">                algorithm.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MECHANISMS</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"The mechanism must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MECHANISMS</span><span class="p">)</span><span class="si">}</span><span class="s2">; "</span>
+                <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="si">!r}</span><span class="s2">."</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"trust_region_radius"</span><span class="p">,</span> <span class="s2">"n_parallel_points"</span><span class="p">,</span> <span class="s2">"max_iter"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be positive; got </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">_check_settings_names</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sub_problem_algo_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_sub_problem_settings</span><span class="p">(),</span> <span class="s2">"sub-problems"</span>
+        <span class="p">)</span>
+        <span class="n">_check_sub_problem_settings_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_problem_algo_name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convexity_setting_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The name of the master setting the mechanism calibrates.</span>
+
+<span class="sd">        The adaptive repair reads the convexity margin under ``"min_dfk"``, the</span>
+<span class="sd">        pure convexification its constant under ``"convexification_constant"``.</span>
+<span class="sd">        This is what a sweep of the convexity varies, and naming it here keeps</span>
+<span class="sd">        the sweep from having to know which mechanism is active.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span> <span class="o">==</span> <span class="s2">"adaptive"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"min_dfk"</span>
+
+        <span class="k">return</span> <span class="s2">"convexification_constant"</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">master_algo_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The name of the algorithm solving the master problem.</span>
+
+<span class="sd">        Every run needs one, and the scenario executes it by this name, so it is</span>
+<span class="sd">        part of the contract rather than of either construction: the general one</span>
+<span class="sd">        takes it as a setting, the swept one pins it to the master implementing</span>
+<span class="sd">        the sweep.</span>
+<span class="sd">        """</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convexity_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The value the mechanism calibrates, or ``None`` when it is not known.</span>
+
+<span class="sd">        A sweep reading its bound off the objective has none to give before the</span>
+<span class="sd">        run has solved anything: only the master, which observes the objective,</span>
+<span class="sd">        can compute one. ``None`` then leaves the master its own value rather</span>
+<span class="sd">        than overwriting it, an unknown guard being no reason to impose a guard</span>
+<span class="sd">        of zero.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_outer_approximation_settings</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">swept</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the settings of the outer approximation, in its own terms.</span>
+
+<span class="sd">        The mechanism decides which of the two constants is passed and which is</span>
+<span class="sd">        switched off, so that the two can never be active at once.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: The radius of the trust region, overriding</span>
+<span class="sd">                :attr:`.trust_region_radius`. Used by the encodings whose</span>
+<span class="sd">                distance counts something other than design variables.</span>
+<span class="sd">            swept: Whether the convexity is swept, which keeps the parallel</span>
+<span class="sd">                points under the pure convexification: a probe per rung is what</span>
+<span class="sd">                makes an iteration span the ladder, so a sweep of a single probe</span>
+<span class="sd">                is not one.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings of the master, under the names it declares.</span>
+<span class="sd">        """</span>
+        <span class="n">adaptive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span> <span class="o">==</span> <span class="s2">"adaptive"</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"max_iter"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
+            <span class="s2">"ub_tol"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
+            <span class="s2">"adapt"</span><span class="p">:</span> <span class="n">adaptive</span><span class="p">,</span>
+            <span class="c1"># Choosing one mechanism switches the other off, whatever the value</span>
+            <span class="c1"># of the chosen one turns out to be.</span>
+            <span class="s2">"convexification_constant"</span> <span class="k">if</span> <span class="n">adaptive</span> <span class="k">else</span> <span class="s2">"min_dfk"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">"number_of_parallel_points"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_parallel_points</span> <span class="k">if</span> <span class="n">adaptive</span> <span class="ow">or</span> <span class="n">swept</span> <span class="k">else</span> <span class="mi">1</span>
+            <span class="p">),</span>
+            <span class="s2">"max_step"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trust_region_radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convexity_value</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s2">"min_dfk"</span> <span class="k">if</span> <span class="n">adaptive</span> <span class="k">else</span> <span class="s2">"convexification_constant"</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">settings</span>
+
+<div class="viewcode-block" id="BaseBoxSubdivisionSettings.to_master_settings">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_master_settings">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_master_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the settings of the master problem.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: The radius of the trust region, overriding</span>
+<span class="sd">                :attr:`.trust_region_radius`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings of the master problem.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="BaseBoxSubdivisionSettings.drive_the_master">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.drive_the_master">[docs]</a>
+    <span class="nd">@contextmanager</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drive_the_master</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Run the master under whatever this construction has to supply it.</span>
+
+<span class="sd">        A master configured entirely by its settings needs nothing, which is the</span>
+<span class="sd">        general case and what this yields. The swept construction overrides it</span>
+<span class="sd">        where the installed master does not sweep on its own.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            Nothing.</span>
+<span class="sd">        """</span>
+        <span class="k">yield</span></div>
+
+
+<div class="viewcode-block" id="BaseBoxSubdivisionSettings.master_settings_the_run_needs">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.master_settings_the_run_needs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">master_settings_the_run_needs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return what a run keeps of its master settings whatever it overrides.</span>
+
+<span class="sd">        Nothing, in the general construction: its master is named and configured</span>
+<span class="sd">        by the caller, so a caller giving that master settings of its own is</span>
+<span class="sd">        choosing what it is given, the convexity included.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings a caller configuring the master does not override.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="BaseBoxSubdivisionSettings.to_sub_problem_settings">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.to_sub_problem_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_sub_problem_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the settings of a sub-problem.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings of the algorithm solving a sub-problem inside its box.</span>
+<span class="sd">        """</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"max_iter"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_problem_max_iter</span><span class="p">}</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_problem_algo_settings</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">settings</span></div>
+
+
+<div class="viewcode-block" id="BaseBoxSubdivisionSettings.create_sub_problem_settings_model">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings.create_sub_problem_settings_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_sub_problem_settings_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseAlgorithmSettings</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the settings of a sub-problem, as a Pydantic model.</span>
+
+<span class="sd">        This is what the ``Benders`` formulation takes as its</span>
+<span class="sd">        ``sub_problem_algo_settings``, the model carrying the name of the</span>
+<span class="sd">        algorithm it selects.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings of a sub-problem, for :attr:`.sub_problem_algo_name`.</span>
+<span class="sd">        """</span>
+        <span class="n">settings_class</span> <span class="o">=</span> <span class="n">_get_settings_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_problem_algo_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">settings_class</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">to_sub_problem_settings</span><span class="p">())</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BoxSubdivisionSettings">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BoxSubdivisionSettings">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoxSubdivisionSettings</span><span class="p">(</span><span class="n">BaseBoxSubdivisionSettings</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""The settings of a box-subdivision run, with the master you name.</span>
+
+<span class="sd">    The defaults are the configuration the benchmark supports: the adaptive</span>
+<span class="sd">    repair of the cut slopes, four probe points, a trust region of two</span>
+<span class="sd">    components, and the outer-approximation master over SLSQP.</span>
+
+<span class="sd">    Two of these settings decide whether a run works at all, and neither has a</span>
+<span class="sd">    default that transfers between problems:</span>
+
+<span class="sd">    ``convexity_margin``</span>
+<span class="sd">        subtracted from an objective difference, so it is absolute and in the</span>
+<span class="sd">        units of *your* objective. Start from the variation of the objective</span>
+<span class="sd">        over the design space. It crosses a threshold and then saturates, so</span>
+<span class="sd">        erring high costs sub-problems rather than quality.</span>
+
+<span class="sd">    ``trust_region_radius``</span>
+<span class="sd">        the number of components a candidate box may change. Keep it small.</span>
+
+<span class="sd">    Not choosing either is what :class:`.SweptBoxSubdivisionSettings` is for.</span>
+
+<span class="sd">    **The mechanism belongs to the outer approximation, not to every master.**</span>
+<span class="sd">    :attr:`.mechanism`, the two convexity values, the trust region and the</span>
+<span class="sd">    parallel points are settings of an outer-approximation master, and a master</span>
+<span class="sd">    that does not declare them is driven by :attr:`.master_algo_settings` alone,</span>
+<span class="sd">    under its own names. Naming such a master *and* setting one of those is</span>
+<span class="sd">    refused where it is written rather than silently ignored at execution.</span>
+<span class="sd">    """</span>
+
+    <span class="n">convexity_margin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CONVEXITY_MARGIN</span>
+<span class="w">    </span><span class="sd">"""The convexity margin of the adaptive repair, in the units of the objective."""</span>
+
+    <span class="n">convexification_constant</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CONVEXITY_MARGIN</span>
+<span class="w">    </span><span class="sd">"""The constant of the convexification, in the units of the objective."""</span>
+
+    <span class="n">options</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Any other setting of the master, passed through unchanged.</span>
+
+<span class="sd">    .. deprecated:: 0.2.0</span>
+<span class="sd">        Use :attr:`.master_algo_settings`, which says which of the two levels it</span>
+<span class="sd">        configures. Both may be given, in which case</span>
+<span class="sd">        :attr:`.master_algo_settings` wins.</span>
+<span class="sd">    """</span>
+
+    <span class="n">master_algo_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MASTER_ALGO_NAME</span>
+<span class="w">    </span><span class="sd">"""The name of the algorithm solving the master problem.</span>
+
+<span class="sd">    Any GEMSEO algorithm deciding the next box. The default is the outer</span>
+<span class="sd">    approximation the method is built on, whose settings this class translates;</span>
+<span class="sd">    another master is configured through :attr:`.master_algo_settings`, under the</span>
+<span class="sd">    names it declares. Changing it changes the method, not merely its tuning.</span>
+<span class="sd">    """</span>
+
+    <span class="n">master_algo_settings</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Any other setting of the master, passed through unchanged.</span>
+
+<span class="sd">    These win over the settings this class translates, so a setting named both</span>
+<span class="sd">    here and by the class takes the value given here. For a master that is not an</span>
+<span class="sd">    outer approximation, this is the whole of its configuration.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check the settings.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: When a setting of the outer approximation is given to a</span>
+<span class="sd">                master that does not declare it, on top of what</span>
+<span class="sd">                :meth:`.BaseBoxSubdivisionSettings.__post_init__` refuses.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"The setting 'options' is deprecated; "</span>
+                <span class="s2">"use 'master_algo_settings' instead."</span><span class="p">,</span>
+                <span class="ne">FutureWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">master_algo_settings</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">master_algo_settings</span><span class="p">}</span>
+
+        <span class="n">_check_the_master_can_solve_it</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master_algo_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_the_master_takes_the_method_s_terms</span><span class="p">()</span>
+        <span class="n">_check_settings_names</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">master_algo_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_master_settings</span><span class="p">(),</span> <span class="s2">"master problem"</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convexity_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The value of the convexity setting the mechanism calibrates."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span> <span class="o">==</span> <span class="s2">"adaptive"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convexity_margin</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convexification_constant</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_the_master_takes_the_method_s_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Refuse a setting of the method the master cannot take.</span>
+
+<span class="sd">        A master that is not an outer approximation has no mechanism, no</span>
+<span class="sd">        convexity and no trust region, so a value given for one of them would go</span>
+<span class="sd">        nowhere. Leaving them at their defaults is how such a master is named;</span>
+<span class="sd">        setting one is a contradiction, and it is refused here rather than</span>
+<span class="sd">        dropped silently on the way to a master that never sees it.</span>
+
+<span class="sd">        What counts as *set* is a value differing from the default, which is all</span>
+<span class="sd">        a dataclass can tell: passing a default explicitly is indistinguishable</span>
+<span class="sd">        from not passing it, and is dropped rather than refused.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: When the master does not declare a setting that was set.</span>
+<span class="sd">        """</span>
+        <span class="n">declared</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_get_settings_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master_algo_name</span><span class="p">)</span><span class="o">.</span><span class="n">model_fields</span><span class="p">)</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)}</span>
+        <span class="n">refused</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">term</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MASTER_TERMS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">term</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">declared</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">defaults</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">refused</span><span class="p">:</span>
+            <span class="n">named</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> (</span><span class="si">{</span><span class="n">term</span><span class="si">!r}</span><span class="s2">)"</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">refused</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"The algorithm </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_algo_name</span><span class="si">!r}</span><span class="s2"> of the master problem does "</span>
+                <span class="sa">f</span><span class="s2">"not take </span><span class="si">{</span><span class="n">named</span><span class="si">}</span><span class="s2">; a master that is not an outer approximation is "</span>
+                <span class="s2">"configured by 'master_algo_settings', under the names it declares."</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BoxSubdivisionSettings.to_master_settings">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BoxSubdivisionSettings.to_master_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_master_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the settings of the master problem.</span>
+
+<span class="sd">        For an outer approximation, the settings this class names are translated</span>
+<span class="sd">        into the master's own terms, the mechanism deciding which of the two</span>
+<span class="sd">        constants is passed and which is switched off, so that the two can never</span>
+<span class="sd">        be active at once. For any other master, none of them is: it is driven by</span>
+<span class="sd">        :attr:`.master_algo_settings` alone. ``max_iter`` and ``ub_tol`` are sent</span>
+<span class="sd">        under those names or not at all, so a master calling its iteration count</span>
+<span class="sd">        or its tolerance anything else takes them from</span>
+<span class="sd">        :attr:`.master_algo_settings` like the rest.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: The radius of the trust region, overriding</span>
+<span class="sd">                :attr:`.trust_region_radius`. Used by the encodings whose</span>
+<span class="sd">                distance counts something other than design variables.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings of the master problem.</span>
+<span class="sd">        """</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_outer_approximation_settings</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">declared</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_get_settings_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master_algo_name</span><span class="p">)</span><span class="o">.</span><span class="n">model_fields</span><span class="p">)</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">declared</span><span class="p">}</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master_algo_settings</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">settings</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SweptBoxSubdivisionSettings">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SweptBoxSubdivisionSettings</span><span class="p">(</span><span class="n">BaseBoxSubdivisionSettings</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""The settings of a run that **sweeps** the convexity instead of choosing it.</span>
+
+<span class="sd">    The convexity is the one quantity of this method with no value that</span>
+<span class="sd">    transfers between problems, and this is the entry point that does not ask</span>
+<span class="sd">    for one. The master probes a ladder of convexity values across the parallel</span>
+<span class="sd">    points it already spends on trust-region radii, the low rungs proposing the</span>
+<span class="sd">    box next door and the high rungs the box across the design space, and</span>
+<span class="sd">    redeploys a rung higher every probe that proposes nothing new.</span>
+
+<span class="sd">    **The sweep is the master's**, so this names no master: it drives the one</span>
+<span class="sd">    that implements it, under its own settings ``convexity_sweep_points`` and</span>
+<span class="sd">    ``convexity_sweep_max``. There is nothing to pass through either, since the</span>
+<span class="sd">    parameters of the master are chosen here rather than supplied:</span>
+
+<span class="sd">    :attr:`.n_parallel_points`</span>
+<span class="sd">        the probes *and* the rungs. A probe per rung is the whole construction,</span>
+<span class="sd">        so the two are one number rather than two that can disagree; a single</span>
+<span class="sd">        probe is given the top rung, the conservative end, since there is no</span>
+<span class="sd">        ladder to span.</span>
+
+<span class="sd">    :attr:`.max_value`</span>
+<span class="sd">        the top of the ladder, or zero to read it off the objective as the run</span>
+<span class="sd">        observes it, lifted by a decade of headroom.</span>
+
+<span class="sd">    What is **not** here is as much of the point as what is: no convexity</span>
+<span class="sd">    margin, no convexification constant, and no master to name. Those live on</span>
+<span class="sd">    :class:`.BoxSubdivisionSettings`, which is the general construction, and</span>
+<span class="sd">    supplying one alongside a sweep is the contradiction this split removes.</span>
+<span class="sd">    """</span>
+
+    <span class="n">max_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="w">    </span><span class="sd">"""The upper bound of the ladder, or zero to read it off the objective.</span>
+
+<span class="sd">    Zero asks the master for the bound the run observes, the spread of the</span>
+<span class="sd">    objective over the boxes already solved, lifted by :data:`.HEADROOM`. That</span>
+<span class="sd">    spread is a lower estimate of the spread over the design space, and reading</span>
+<span class="sd">    it literally is circular, which is what the headroom answers.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check the settings.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: When the upper bound is negative, on top of what</span>
+<span class="sd">                :meth:`.BaseBoxSubdivisionSettings.__post_init__` refuses.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"The upper bound of the sweep must be positive, or zero to read "</span>
+                <span class="sa">f</span><span class="s2">"it off the objective; got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_value</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">_check_the_master_can_solve_it</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master_algo_name</span><span class="p">)</span>
+        <span class="n">_check_settings_names</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">master_algo_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_master_settings</span><span class="p">(),</span> <span class="s2">"master problem"</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">master_algo_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The name of the algorithm solving the master problem.</span>
+
+<span class="sd">        The sweep is implemented in the master, so this entry point drives that</span>
+<span class="sd">        master rather than one of the caller's choosing. A master to name, and</span>
+<span class="sd">        settings to pass it, are what :class:`.BoxSubdivisionSettings` is for.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">MASTER_ALGO_NAME</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convexity_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The value the mechanism takes before the ladder is there.</span>
+
+<span class="sd">        The **top rung** of a bounded sweep, which is what the master uses in the</span>
+<span class="sd">        first iterations, before it has solved enough boxes to have a ladder at</span>
+<span class="sd">        all, and what a master predating the sweep uses throughout. The tuning</span>
+<span class="sd">        says an over-large margin costs sub-problems rather than quality, so the</span>
+<span class="sd">        conservative end is where a lone value belongs.</span>
+
+<span class="sd">        An unbounded sweep has no such value: its bound is the spread of the</span>
+<span class="sd">        objective, which the run has not measured yet, so the master keeps</span>
+<span class="sd">        whatever it uses by default until :meth:`.create_sweep` can compute one.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="ow">or</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SweptBoxSubdivisionSettings.drive_the_master">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.drive_the_master">[docs]</a>
+    <span class="nd">@contextmanager</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drive_the_master</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Sweep the convexity from outside a master that does not sweep.</span>
+
+<span class="sd">        Where :data:`.MASTER_SWEEPS_CONVEXITY` is ``True`` the master varies the</span>
+<span class="sd">        setting itself and this yields as the base does. Where it is ``False``,</span>
+<span class="sd">        leaving the master to its own value would leave it at zero, which is a</span>
+<span class="sd">        run with its cuts unguarded rather than a run without a sweep, so the</span>
+<span class="sd">        ladder is driven around its mixed-integer solve instead; see</span>
+<span class="sd">        :mod:`~gemseo_box_subdivision._convexity_sweep_driver`.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            Nothing.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">MASTER_SWEEPS_CONVEXITY</span><span class="p">:</span>
+            <span class="k">yield</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Imported here: it patches the master, which nothing else needs, and</span>
+        <span class="c1"># both it and the patching go when the master ships the sweep.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision._convexity_sweep_driver</span><span class="w"> </span><span class="kn">import</span> <span class="n">drive_the_sweep</span>
+
+        <span class="k">with</span> <span class="n">drive_the_sweep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">yield</span></div>
+
+
+<div class="viewcode-block" id="SweptBoxSubdivisionSettings.master_settings_the_run_needs">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.master_settings_the_run_needs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">master_settings_the_run_needs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the sweep, which a run configuring its own master still needs.</span>
+
+<span class="sd">        The sweep is what this entry point is, so a swept run reaching the master</span>
+<span class="sd">        without it solves at the master's own convexity, which is zero: the sweep</span>
+<span class="sd">        is what the run needs of its master rather than one of the settings a</span>
+<span class="sd">        caller overrides. Where the master does not sweep there is nothing to</span>
+<span class="sd">        pass, :meth:`.drive_the_master` applying the ladder around its solves</span>
+<span class="sd">        instead; where it does, the two settings carrying the sweep are what must</span>
+<span class="sd">        reach it whichever way the run is executed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings a caller configuring the master does not override.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">MASTER_SWEEPS_CONVEXITY</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"convexity_sweep_points"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_parallel_points</span><span class="p">,</span>
+            <span class="s2">"convexity_sweep_max"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="SweptBoxSubdivisionSettings.create_sweep">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.create_sweep">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_sweep</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">observed_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">n_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConvexitySweep</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the ladder this run asks for.</span>
+
+<span class="sd">        This is the only place a ladder is built, so that the rungs are never</span>
+<span class="sd">        counted twice: the driver passes the probes the master actually runs,</span>
+<span class="sd">        which is what a probe per rung means, and a caller with no master to ask</span>
+<span class="sd">        gets the probes this run would request of one.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            observed_scale: The variation of the objective over the boxes already</span>
+<span class="sd">                solved, which is the upper bound of a sweep given none. See</span>
+<span class="sd">                :func:`.objective_scale`.</span>
+<span class="sd">            n_points: The rungs, which are the probes of the master. Zero takes</span>
+<span class="sd">                :attr:`.n_parallel_points`, the number this run asks a master</span>
+<span class="sd">                for, which is what a master left to these settings runs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The ladder, or ``None`` when its upper bound is neither given nor</span>
+<span class="sd">            observed yet.</span>
+<span class="sd">        """</span>
+        <span class="c1"># Read from the module, as the driver does, so that a benchmark</span>
+        <span class="c1"># changing the headroom changes this ladder too.</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="ow">or</span> <span class="n">observed_scale</span> <span class="o">*</span> <span class="n">_policy</span><span class="o">.</span><span class="n">HEADROOM</span>
+        <span class="k">if</span> <span class="n">max_value</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">ConvexitySweep</span><span class="p">(</span>
+            <span class="n">convexity_ladder</span><span class="p">(</span><span class="n">max_value</span><span class="p">,</span> <span class="n">n_points</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_parallel_points</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SweptBoxSubdivisionSettings.to_master_settings">
+<a class="viewcode-back" href="../../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings.to_master_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_master_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the settings of the master problem.</span>
+
+<span class="sd">        The sweep is asked for under the master's own two settings, the rungs</span>
+<span class="sd">        being the parallel points. Against a master predating the sweep, see</span>
+<span class="sd">        :data:`.MASTER_SWEEPS_CONVEXITY`, those two are not declared and are not</span>
+<span class="sd">        passed. A bounded sweep is then left with its top rung, the conservative</span>
+<span class="sd">        end, so it loses the cheap rungs rather than the result; an unbounded one</span>
+<span class="sd">        has no rung to be left with and gives the master nothing rather than a</span>
+<span class="sd">        guard of zero, as :attr:`.convexity_value` describes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: The radius of the trust region, overriding</span>
+<span class="sd">                :attr:`.trust_region_radius`. Used by the encodings whose</span>
+<span class="sd">                distance counts something other than design variables.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The settings of the master problem.</span>
+<span class="sd">        """</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_outer_approximation_settings</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">swept</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">MASTER_SWEEPS_CONVEXITY</span><span class="p">:</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s2">"convexity_sweep_points"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_parallel_points</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s2">"convexity_sweep_max"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span>
+
+        <span class="k">return</span> <span class="n">settings</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_the_master_can_solve_it</span><span class="p">(</span><span class="n">algo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check that an algorithm can solve the master problem at all.</span>
+
+<span class="sd">    Two things are asked of it, and a master failing either would fail in the</span>
+<span class="sd">    middle of a run rather than where it is named.</span>
+
+<span class="sd">    The master chooses a box, and a box is a one-hot assignment of binaries, so</span>
+<span class="sd">    the master problem is a **relaxable mixed-integer non-linear** one whatever</span>
+<span class="sd">    the algorithm solving it: the cuts and the convexification make it non-linear,</span>
+<span class="sd">    and its continuous relaxation is what the outer approximation solves before</span>
+<span class="sd">    recovering the integers from it. Relaxing is therefore the method working, not</span>
+<span class="sd">    a solver falling short — but an algorithm that cannot hold an integer variable</span>
+<span class="sd">    has no integers to recover and returns the relaxation itself, which is not a</span>
+<span class="sd">    box. That is refused where the master is named rather than at the first</span>
+<span class="sd">    iteration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        algo_name: The name of the algorithm.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When the algorithm does not handle integer variables.</span>
+<span class="sd">    """</span>
+    <span class="n">factory</span> <span class="o">=</span> <span class="n">OptimizationLibraryFactory</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">factory</span><span class="o">.</span><span class="n">is_available</span><span class="p">(</span><span class="n">algo_name</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The optimization algorithm </span><span class="si">{</span><span class="n">algo_name</span><span class="si">!r}</span><span class="s2"> is not available; "</span>
+            <span class="sa">f</span><span class="s2">"the available ones are </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">factory</span><span class="o">.</span><span class="n">algorithms</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">library</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get_class</span><span class="p">(</span><span class="n">factory</span><span class="o">.</span><span class="n">algo_names_to_libraries</span><span class="p">[</span><span class="n">algo_name</span><span class="p">])</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">ALGORITHM_INFOS</span><span class="p">[</span><span class="n">algo_name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">description</span><span class="o">.</span><span class="n">handle_integer_variables</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The algorithm </span><span class="si">{</span><span class="n">algo_name</span><span class="si">!r}</span><span class="s2"> of the master problem does not handle "</span>
+            <span class="s2">"integer variables, so it returns the relaxation rather than a box; "</span>
+            <span class="s2">"the master problem is a relaxable mixed-integer non-linear one "</span>
+            <span class="s2">"whatever solves it."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">description</span><span class="o">.</span><span class="n">for_linear_problems</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The algorithm </span><span class="si">{</span><span class="n">algo_name</span><span class="si">!r}</span><span class="s2"> of the master problem solves linear "</span>
+            <span class="s2">"problems only, and the master problem is a relaxable mixed-integer "</span>
+            <span class="s2">"**non-linear** one: the cuts and the convexification are what make "</span>
+            <span class="s2">"it so. GEMSEO would refuse it in the middle of the run."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_settings_class</span><span class="p">(</span><span class="n">algo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseAlgorithmSettings</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the class of the settings of an optimization algorithm.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        algo_name: The name of the algorithm, as the GEMSEO factory knows it.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The class of its settings.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When no optimization algorithm goes by that name.</span>
+<span class="sd">    """</span>
+    <span class="n">factory</span> <span class="o">=</span> <span class="n">OptimizationLibraryFactory</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">factory</span><span class="o">.</span><span class="n">is_available</span><span class="p">(</span><span class="n">algo_name</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The optimization algorithm </span><span class="si">{</span><span class="n">algo_name</span><span class="si">!r}</span><span class="s2"> is not available; "</span>
+            <span class="sa">f</span><span class="s2">"the available ones are </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">factory</span><span class="o">.</span><span class="n">algorithms</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">library</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get_class</span><span class="p">(</span><span class="n">factory</span><span class="o">.</span><span class="n">algo_names_to_libraries</span><span class="p">[</span><span class="n">algo_name</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">library</span><span class="o">.</span><span class="n">ALGORITHM_INFOS</span><span class="p">[</span><span class="n">algo_name</span><span class="p">]</span><span class="o">.</span><span class="n">Settings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_settings_names</span><span class="p">(</span>
+    <span class="n">algo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">level</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check that an algorithm takes every setting it is given.</span>
+
+<span class="sd">    The names are checked here so that a setting of one algorithm passed to</span>
+<span class="sd">    another is refused where it is written, rather than in the middle of a run.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        algo_name: The name of the algorithm.</span>
+<span class="sd">        settings: The settings it is to be given.</span>
+<span class="sd">        level: The level of the method it solves, for the error message.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When the algorithm does not take one of the settings.</span>
+<span class="sd">    """</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">_get_settings_class</span><span class="p">(</span><span class="n">algo_name</span><span class="p">)</span><span class="o">.</span><span class="n">model_fields</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The algorithm </span><span class="si">{</span><span class="n">algo_name</span><span class="si">!r}</span><span class="s2"> of the </span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2"> does not take "</span>
+            <span class="sa">f</span><span class="s2">"the following settings: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_sub_problem_settings_model</span><span class="p">(</span><span class="n">algo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check that the settings of an algorithm select that very algorithm.</span>
+
+<span class="sd">    A settings model carries the name of the algorithm it selects, and it is that</span>
+<span class="sd">    name, not the one asked for here, that the ``Benders`` formulation executes.</span>
+<span class="sd">    The two differ for an algorithm whose plugin declares them inconsistently, in</span>
+<span class="sd">    which case naming it would silently run something else.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        algo_name: The name of the algorithm.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When the settings of the algorithm select another one.</span>
+<span class="sd">    """</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">_get_settings_class</span><span class="p">(</span><span class="n">algo_name</span><span class="p">)</span><span class="o">.</span><span class="n">_TARGET_CLASS_NAME</span>
+    <span class="k">if</span> <span class="n">selected</span> <span class="o">!=</span> <span class="n">algo_name</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The settings of the algorithm </span><span class="si">{</span><span class="n">algo_name</span><span class="si">!r}</span><span class="s2"> select </span><span class="si">{</span><span class="n">selected</span><span class="si">!r}</span><span class="s2"> "</span>
+            <span class="s2">"instead, so the sub-problems would be solved by another algorithm "</span>
+            <span class="s2">"than the one named; this is a defect of the plugin providing it."</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

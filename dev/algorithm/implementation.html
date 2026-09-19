@@ -1,0 +1,892 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Implementation &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="../_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/implementation';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Usage in GEMSEO scenarios" href="usage.html" />
+    <link rel="prev" title="Methodology" href="methodology.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">The method</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="methodology.html">Methodology</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage in GEMSEO scenarios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conclusion.html">Conclusion</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Annexes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="problems.html">Annex A: the benchmark problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="baselines.html">Annex B: the baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tuning.html">Annex C: tuning the master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Annex D: the extensions, measured</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">The algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Implementation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!--
+ Copyright 2026 Simone Coniglio
+
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+ International License. To view a copy of this license, visit
+ http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+ Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="implementation">
+<h1>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h1>
+<p>The package contributes building blocks to GEMSEO rather than a monolithic
+algorithm: the subdivision, the two ways of confining a sub-problem to a box, the
+design spaces of both levels, and a scenario adapter. Assembling them is not left
+to the caller, because the assembly is a set of invariants rather than a set of
+choices.</p>
+<section id="the-layers">
+<h2>The layers<a class="headerlink" href="#the-layers" title="Link to this heading">#</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>BoxSubdivisionScenario        a GEMSEO scenario; owns the assembly
+   └── BoxSubdivisionSettings the settings, in the units the method measures
+          └── subdivisions/   how a design space is cut into boxes
+              design_spaces   the design spaces a subdivision builds
+              disciplines/    the mapping, the constraint, the adapter
+              hierarchy       refining a box rather than subdividing finely
+</pre></div>
+</div>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.scenario.html#gemseo_box_subdivision.scenario.BoxSubdivisionScenario" title="gemseo_box_subdivision.scenario.BoxSubdivisionScenario"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxSubdivisionScenario</span></code></a> derives from
+<code class="docutils literal notranslate"><span class="pre">MDOScenario</span></code> and builds the composition in its constructor: it chains the
+mapping in front of the objective, builds the design space from the <strong>same</strong>
+subdivision, derives the names the master optimizes over from the design space
+rather than from a literal, selects the <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation, and for the
+constraint formulation wires the scenario adapter and declares the box
+constraint. Its <code class="docutils literal notranslate"><span class="pre">execute</span></code> supplies the settings of the master, so a run needs no
+configuration of the master at all.</p>
+<p>The settings name the master’s in the terms of the methodology, a
+<code class="docutils literal notranslate"><span class="pre">trust_region_radius</span></code> in components changed rather than a <code class="docutils literal notranslate"><span class="pre">max_step</span></code> in
+unexplained units, and <code class="docutils literal notranslate"><span class="pre">to_master_settings</span></code> is the only place that translates
+them. Four invariants live in that one place:</p>
+<ul class="simple">
+<li><p><strong>the two mechanisms are kept apart</strong>: choosing one zeroes the other’s
+constant, so a run can never measure an average of the two;</p></li>
+<li><p><strong>those terms describe an outer-approximation master</strong>, so they are translated
+only for a master declaring them; setting one for a master that has none of
+them is refused rather than sent, such a master being driven by
+<code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> alone;</p></li>
+<li><p><strong>the master is executed by its name</strong> with those settings, not through a
+settings model: a GEMSEO settings model names the algorithm it selects, and the
+settings of <code class="docutils literal notranslate"><span class="pre">OUTER_APPROXIMATION</span></code> name one no library provides, so a model
+would run something other than the algorithm asked for. The sub-problem is the
+other way round, the <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation taking the model that
+<code class="docutils literal notranslate"><span class="pre">create_sub_problem_settings_model</span></code> builds;</p></li>
+<li><p><strong>both names are checked against what the algorithm declares</strong>, when the
+settings are built rather than in the middle of a run.</p></li>
+</ul>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code></a> and
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></a> are the
+two constructions, sharing
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.settings.html#gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings" title="gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseBoxSubdivisionSettings</span></code></a> for what
+belongs to the run rather than to either level. The swept one names no master —
+the sweep is implemented in one — and carries no convexity value; its ladder has
+one rung per parallel point of the master, which is what pairs a probe with a
+rung. The scenario takes either.</p>
+<p>Where the installed master predates the sweep,
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY" title="gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY"><code class="xref py py-data docutils literal notranslate"><span class="pre">MASTER_SWEEPS_CONVEXITY</span></code></a> is
+<code class="docutils literal notranslate"><span class="pre">False</span></code> and <code class="docutils literal notranslate"><span class="pre">drive_the_master</span></code> wraps the run in a driver that applies the ladder
+around the master’s mixed-integer solve, deploying a probe one rung higher while
+it proposes a box already solved. That driver is temporary — it goes when the
+master ships the sweep — and it exists because the alternative is not a run
+without a sweep but a run whose cuts are unguarded, the master’s own convexity
+defaulting to zero.</p>
+<p>Everything below those two is public and usable on its own, which is what
+<a class="reference internal" href="usage.html"><span class="std std-doc">Usage</span></a> calls composing by hand.</p>
+</section>
+<section id="the-subdivision">
+<h2>The subdivision<a class="headerlink" href="#the-subdivision" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxSubdivision</span></code></a>
+describes the Cartesian subdivision: per variable, the lower and upper bounds of
+each subdivision of each component, shaped <code class="docutils literal notranslate"><span class="pre">(size,</span> <span class="pre">n_subdivisions)</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subdivision</span> <span class="o">=</span> <span class="n">BoxSubdivision</span><span class="o">.</span><span class="n">from_design_space</span><span class="p">(</span><span class="n">design_space</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span>
+<span class="n">subdivision</span><span class="o">.</span><span class="n">n_boxes</span>      <span class="c1"># exponential in the number of components</span>
+<span class="n">subdivision</span><span class="o">.</span><span class="n">n_binaries</span>   <span class="c1"># linear in it: this is what sizes the master</span>
+</pre></div>
+</div>
+<p>It also carries the helpers the rest of the package shares: <code class="docutils literal notranslate"><span class="pre">compute_bounds</span></code> for
+the box selected by a one-hot vector, <code class="docutils literal notranslate"><span class="pre">locate</span></code> for the subdivision containing a
+value, and the naming conventions <code class="docutils literal notranslate"><span class="pre">get_one_hot_names</span></code> and <code class="docutils literal notranslate"><span class="pre">get_normalized_names</span></code>
+so that every component agrees on the variable names.</p>
+</section>
+<section id="one-hot-layout">
+<h2>One-hot layout<a class="headerlink" href="#one-hot-layout" title="Link to this heading">#</a></h2>
+<p>For a variable of size <span class="math notranslate nohighlight">\(s\)</span> with <span class="math notranslate nohighlight">\(m\)</span> subdivisions, the one-hot vector has length
+<span class="math notranslate nohighlight">\(s \times m\)</span> and is <strong>component-major</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[ comp 0: k=0 .. k=m-1 | comp 1: k=0 .. k=m-1 | ... ]
+</pre></div>
+</div>
+<p>This is the layout that <code class="docutils literal notranslate"><span class="pre">CatalogueDesignSpace.add_categorical_variable</span></code> produces,
+and the one the master assumes when it derives
+<code class="docutils literal notranslate"><span class="pre">n_members</span> <span class="pre">=</span> <span class="pre">variable_size</span> <span class="pre">/</span> <span class="pre">n_catalogues</span></code> and emits one sum-to-one row per
+component. Every part of the package must agree with it, otherwise the master
+selects one box while the sub-problem enforces another, silently.</p>
+</section>
+<section id="formulation-1-the-box-as-a-constraint">
+<h2>Formulation 1: the box as a constraint<a class="headerlink" href="#formulation-1-the-box-as-a-constraint" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.disciplines.box_constraint.html#gemseo_box_subdivision.disciplines.box_constraint.BoxConstraint" title="gemseo_box_subdivision.disciplines.box_constraint.BoxConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxConstraint</span></code></a> computes
+<span class="math notranslate nohighlight">\(g_{\text{box}}\)</span> as a single vector-valued output of dimension <span class="math notranslate nohighlight">\(2n\)</span>, upper faces
+first, with an analytic Jacobian with respect to both <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
+<p>Keeping the <span class="math notranslate nohighlight">\(2n\)</span> components in <strong>one</strong> function keeps the cut bookkeeping to a
+single entry per sub-problem solve.</p>
+<section id="the-bound-margin">
+<h3>The bound margin<a class="headerlink" href="#the-bound-margin" title="Link to this heading">#</a></h3>
+<p>A box lying against the border of the design space has a face that <em>coincides</em>
+with a bound of the design space. When the sub-problem optimum lies on that face,
+both are active, and GEMSEO attributes the multiplier to the bound. The box
+constraint is then left with a multiplier of zero, and the sensitivity of that
+box is silently computed as zero — for the first and the last subdivision of
+<em>every</em> variable.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.create_relaxed_design_space</span></code> widens the bounds by a small
+relative margin so they stay inactive. On a one-dimensional problem whose exact
+multiplier is <span class="math notranslate nohighlight">\(5.76\)</span>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>relative margin</p></th>
+<th class="head"><p>multiplier of the box constraint</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(10^{-6}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span>, attributed to the bound</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(10^{-5}\)</span> and above</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.76\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The threshold is the tolerance under which a bound counts as active, hence the
+default of <span class="math notranslate nohighlight">\(10^{-4}\)</span>. The box itself is still enforced by the constraint, so the
+design variables stay in the original bounds up to the constraint tolerance.</p>
+</section>
+<section id="the-starting-point">
+<h3>The starting point<a class="headerlink" href="#the-starting-point" title="Link to this heading">#</a></h3>
+<p>The sub-problem is solved by a local algorithm, so its starting point decides
+which local minimum of the box it reaches. Neither policy offered by GEMSEO
+suits a subdivision:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">reset_x0_before_opt</span></code> restarts every sub-problem from the initial value of the
+design space, which lies outside of all the boxes but one;</p></li>
+<li><p>warm-starting from the previous sub-problem makes the result depend on the
+order in which the boxes are visited;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_x0_before_opt</span></code> cannot help, since the main problem decides the box, not
+the design variables.</p></li>
+</ul>
+<p>This is not a detail: with the default policy, <strong>even the exhaustive enumeration
+of the 100 boxes of the benchmark missed the global optimum</strong>, returning <span class="math notranslate nohighlight">\(1.92\)</span>
+instead of <span class="math notranslate nohighlight">\(0\)</span>, because most sub-problems started outside their own box and the
+local solver stalled on a face.</p>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.disciplines.scenario_adapters.box_start.html#gemseo_box_subdivision.disciplines.scenario_adapters.box_start.create_box_start_adapter_class" title="gemseo_box_subdivision.disciplines.scenario_adapters.box_start.create_box_start_adapter_class"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_box_start_adapter_class()</span></code></a>
+returns a <code class="docutils literal notranslate"><span class="pre">Benders</span></code> scenario adapter that starts each sub-problem at the center
+of the selected box, which is feasible by construction and independent of the
+order of the boxes.</p>
+</section>
+</section>
+<section id="formulation-2-the-box-as-normalized-variables">
+<h2>Formulation 2: the box as normalized variables<a class="headerlink" href="#formulation-2-the-box-as-normalized-variables" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.disciplines.box_mapping.html#gemseo_box_subdivision.disciplines.box_mapping.BoxMapping" title="gemseo_box_subdivision.disciplines.box_mapping.BoxMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxMapping</span></code></a> maps
+<span class="math notranslate nohighlight">\((\xi, \alpha)\)</span> to <span class="math notranslate nohighlight">\(x\)</span>, again with an analytic Jacobian. Because the bounds of
+the sub-problem no longer depend on the box, this formulation needs <strong>neither</strong>
+the margin <strong>nor</strong> the scenario adapter: <span class="math notranslate nohighlight">\(\xi = 0.5\)</span> is the center of whichever
+box.</p>
+<p>The discipline is chained before the objective, so the sub-problem solves for
+<span class="math notranslate nohighlight">\(\xi\)</span> while the disciplines keep receiving <span class="math notranslate nohighlight">\(x\)</span>.</p>
+</section>
+<section id="the-design-spaces">
+<h2>The design spaces<a class="headerlink" href="#the-design-spaces" title="Link to this heading">#</a></h2>
+<p>Both levels live in one <code class="docutils literal notranslate"><span class="pre">CatalogueDesignSpace</span></code>, which the <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation
+splits on its own by keeping the categorical variables in the main problem:</p>
+<dl class="simple myst">
+<dt><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.design_spaces.html#gemseo_box_subdivision.design_spaces.create_box_design_space" title="gemseo_box_subdivision.design_spaces.create_box_design_space"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_box_design_space()</span></code></a></dt><dd><p>the original variables with widened bounds, plus one categorical variable per
+subdivided variable. For the constraint formulation.</p>
+</dd>
+<dt><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.design_spaces.html#gemseo_box_subdivision.design_spaces.create_normalized_box_design_space" title="gemseo_box_subdivision.design_spaces.create_normalized_box_design_space"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_normalized_box_design_space()</span></code></a></dt><dd><p>the normalized variables bounded by <span class="math notranslate nohighlight">\(0\)</span> and <span class="math notranslate nohighlight">\(1\)</span>, plus the same categorical
+variables. For the normalized formulation.</p>
+</dd>
+</dl>
+<p>In both cases the catalogue of a subdivided variable is the range of its
+subdivision indexes, so the default weights make two consecutive subdivisions
+neighbours in the distance used by the master, and the initial box is the one
+containing the initial value of the design space.</p>
+</section>
+<section id="enumerating-the-boxes">
+<h2>Enumerating the boxes<a class="headerlink" href="#enumerating-the-boxes" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.design_spaces.html#gemseo_box_subdivision.design_spaces.create_box_samples" title="gemseo_box_subdivision.design_spaces.create_box_samples"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_box_samples()</span></code></a>
+returns the one-hot vector of every box. Passing them to the <code class="docutils literal notranslate"><span class="pre">CustomDOE</span></code> driver
+of the main problem solves the sub-problem of every box, which is the reference
+the method has to beat — and, being a driver of the same problem, makes the
+comparison isolate the exploration strategy.</p>
+</section>
+<section id="the-extensions">
+<h2>The extensions<a class="headerlink" href="#the-extensions" title="Link to this heading">#</a></h2>
+<p>Four extensions of the method are implemented, all of them in the package, so
+that each can be applied to another problem by importing it rather than by
+copying a benchmark.</p>
+<section id="subdividing-some-of-the-variables-only">
+<h3>Subdividing some of the variables only<a class="headerlink" href="#subdividing-some-of-the-variables-only" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.from_design_space" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.from_design_space"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_design_space()</span></code></a>
+takes the variables to subdivide, and the design spaces keep the others as they
+are, so a variable left out stays an ordinary variable of the sub-problem:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subdivision</span> <span class="o">=</span> <span class="n">BoxSubdivision</span><span class="o">.</span><span class="n">from_design_space</span><span class="p">(</span><span class="n">design_space</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_split"</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Nothing else changes: <a class="reference internal" href="../_autosummary/gemseo_box_subdivision.disciplines.box_mapping.html#gemseo_box_subdivision.disciplines.box_mapping.BoxMapping" title="gemseo_box_subdivision.disciplines.box_mapping.BoxMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoxMapping</span></code></a> maps the subdivided variables alone,
+and the master carries binaries for them alone.</p>
+</section>
+<section id="the-multi-resolution-encoding">
+<h3>The multi-resolution encoding<a class="headerlink" href="#the-multi-resolution-encoding" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.multi_resolution.html#gemseo_box_subdivision.subdivisions.multi_resolution.MultiResolution" title="gemseo_box_subdivision.subdivisions.multi_resolution.MultiResolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiResolution</span></code></a>
+and
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.disciplines.multi_resolution_mapping.html#gemseo_box_subdivision.disciplines.multi_resolution_mapping.MultiResolutionMapping" title="gemseo_box_subdivision.disciplines.multi_resolution_mapping.MultiResolutionMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiResolutionMapping</span></code></a>
+are the counterparts of <code class="docutils literal notranslate"><span class="pre">BoxSubdivision</span></code> and <code class="docutils literal notranslate"><span class="pre">BoxMapping</span></code> for a box chosen by one
+categorical variable per level, used exactly as the flat pair is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subdivision</span> <span class="o">=</span> <span class="n">MultiResolution</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="n">branching</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">space</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">create_design_space</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Three contracts carry the construction. <strong><code class="docutils literal notranslate"><span class="pre">locate</span></code> is a base conversion</strong>,
+writing a position in base <span class="math notranslate nohighlight">\(m\)</span> and reading off <span class="math notranslate nohighlight">\(L\)</span> digits, one one-hot vector per
+level, with <code class="docutils literal notranslate"><span class="pre">compute_bounds</span></code> its inverse. <strong>The Jacobian blocks are constant</strong>,
+the width <span class="math notranslate nohighlight">\(\Delta_j m^{-L}\)</span> not depending on the levels, which is what keeps the
+post-optimal sensitivity of the <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation valid. <strong>The catalogue
+weights are ones</strong>, set explicitly, so the trust region counts the digits a
+candidate changes rather than what those digits are worth.</p>
+</section>
+<section id="the-radius-of-the-trust-region">
+<h3>The radius of the trust region<a class="headerlink" href="#the-radius-of-the-trust-region" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_step</span></code></a>
+returns the radius at which the region stops constraining the master, which with
+unit catalogue weights is the number of subdivided components. It is a property
+of the subdivision rather than a setting, and its docstring records that it is
+<strong>not</strong> the radius to use; <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.trust_region_radius</span></code> is.</p>
+<p>The multi-resolution encoding has one one-hot group per level per component, so
+its <code class="docutils literal notranslate"><span class="pre">max_step</span></code> is <span class="math notranslate nohighlight">\(L\)</span> times larger and the scenario scales the radius by the
+number of levels before executing. Leaving it unscaled measures the encoding with
+a region far tighter than the one it is compared against.</p>
+</section>
+<section id="the-hierarchies">
+<h3>The hierarchies<a class="headerlink" href="#the-hierarchies" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.hierarchy.html#module-gemseo_box_subdivision.hierarchy" title="gemseo_box_subdivision.hierarchy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hierarchy</span></code></a> holds the scoring rules and the three
+shapes. A shape is a <strong>loop around the method</strong> rather than a change to it, so it
+is driven by a callable solving one level and reporting the boxes it solved:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="p">):</span>
+    <span class="o">...</span>  <span class="c1"># build and execute a scenario over these bounds</span>
+    <span class="k">return</span> <span class="n">subdivision</span><span class="p">,</span> <span class="n">read_solved_boxes</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+
+
+<span class="n">refine_deep</span><span class="p">(</span><span class="n">solve</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">branching</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Returning <strong>no solved box</strong> ends the search, which is how a caller reports that
+its budget is spent or that its master became infeasible. Each shape returns the
+bounds of every region it visited.</p>
+<dl class="simple myst">
+<dt><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.read_solved_boxes" title="gemseo_box_subdivision.hierarchy.read_solved_boxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_solved_boxes()</span></code></a></dt><dd><p>reads back the value and the post-optimal sensitivity of every box a master
+solved, from the database of its problem, as
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.SolvedBox" title="gemseo_box_subdivision.hierarchy.SolvedBox"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolvedBox</span></code></a> records.</p>
+</dd>
+<dt><a class="reference internal" href="../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.compute_cut_model" title="gemseo_box_subdivision.hierarchy.compute_cut_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_cut_model()</span></code></a></dt><dd><p>evaluates the cuts of a master over <strong>every</strong> box of its subdivision, including
+those it never solved, which is what lets a ranking propose an unvisited box.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rank_by_value</span></code>, <code class="docutils literal notranslate"><span class="pre">rank_by_cuts</span></code>, <code class="docutils literal notranslate"><span class="pre">rank_mixed</span></code></dt><dd><p>the three rules, collected in
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.RANKINGS" title="gemseo_box_subdivision.hierarchy.RANKINGS"><code class="xref py py-data docutils literal notranslate"><span class="pre">RANKINGS</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">refine_deep</span></code>, <code class="docutils literal notranslate"><span class="pre">refine_two_levels</span></code>, <code class="docutils literal notranslate"><span class="pre">refine_frontier</span></code></dt><dd><p>the three shapes, collected in
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.hierarchy.html#gemseo_box_subdivision.hierarchy.SHAPES" title="gemseo_box_subdivision.hierarchy.SHAPES"><code class="xref py py-data docutils literal notranslate"><span class="pre">SHAPES</span></code></a>. Only the
+frontier can return to a box it passed over, holding a priority queue of open
+boxes from every level.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">benchmarks/hierarchy.py</span></code> is then only the GEMSEO wiring and the budget
+accounting: <code class="docutils literal notranslate"><span class="pre">Level</span></code>, a counter spending a share of the budget of a run and
+raising when that share is gone, so that a hierarchy and a flat run are compared
+at equal cost.</p>
+</section>
+</section>
+<section id="what-is-checked">
+<h2>What is checked<a class="headerlink" href="#what-is-checked" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The Jacobians of <code class="docutils literal notranslate"><span class="pre">BoxConstraint</span></code> and <code class="docutils literal notranslate"><span class="pre">BoxMapping</span></code> are verified against finite
+differences and complex step, at <strong>relaxed</strong> one-hot values, since the master
+relaxes them.</p></li>
+<li><p>The sensitivity is verified end to end: the multiplier of an active face of a
+sub-problem is compared with the exact slope of the objective.</p></li>
+<li><p>The one-hot layout of the design space and of the disciplines are
+cross-checked, so a disagreement cannot pass silently.</p></li>
+<li><p>The Jacobian of <code class="docutils literal notranslate"><span class="pre">MultiResolutionMapping</span></code> is verified against finite
+differences at <strong>relaxed</strong> one-hot values too, and <code class="docutils literal notranslate"><span class="pre">locate</span></code> against
+<code class="docutils literal notranslate"><span class="pre">compute_bounds</span></code>: every box returned must contain the value that selected it,
+and every box has the same width whichever it is.</p></li>
+<li><p>The hierarchies are tested against a stub solver rather than a scenario, so
+their contract is checked on its own: a descending shape nests and narrows,
+the frontier does not nest, the cut model is defined at boxes never solved, and
+a level returning no solved box ends the search.</p></li>
+<li><p>The border-box degeneracy is pinned by a regression test that asserts both the
+broken behaviour without a margin and the correct one with it.</p></li>
+<li><p>The scenario is checked to derive the master’s variables from the design space,
+by building the same problem for a variable that is not called <code class="docutils literal notranslate"><span class="pre">x</span></code>, and to
+select the right adapter and constraint for each formulation. The settings are
+checked to keep the two mechanisms apart in both directions, one constant on
+and the other off.</p></li>
+<li><p>The entry point is checked to reproduce a hand-composed run to the digit, and
+the benchmarks are run through it, so that a change to the assembly shows up as
+a change to the published numbers rather than passing unnoticed.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="methodology.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Methodology</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="usage.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Usage in GEMSEO scenarios</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-layers">The layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-subdivision">The subdivision</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-hot-layout">One-hot layout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formulation-1-the-box-as-a-constraint">Formulation 1: the box as a constraint</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-bound-margin">The bound margin</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-starting-point">The starting point</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formulation-2-the-box-as-normalized-variables">Formulation 2: the box as normalized variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-design-spaces">The design spaces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enumerating-the-boxes">Enumerating the boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-extensions">The extensions</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#subdividing-some-of-the-variables-only">Subdividing some of the variables only</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-multi-resolution-encoding">The multi-resolution encoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-radius-of-the-trust-region">The radius of the trust region</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-hierarchies">The hierarchies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-checked">What is checked</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/algorithm/implementation.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

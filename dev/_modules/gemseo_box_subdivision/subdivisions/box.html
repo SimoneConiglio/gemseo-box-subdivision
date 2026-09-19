@@ -1,0 +1,902 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gemseo_box_subdivision.subdivisions.box &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/gemseo_box_subdivision/subdivisions/box';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">gemseo_box_subdivision.subdivisions.box</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for gemseo_box_subdivision.subdivisions.box</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2026 Simone Coniglio</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or</span>
+<span class="c1"># modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1"># License version 3 as published by the Free Software Foundation.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program; if not, write to the Free Software Foundation,</span>
+<span class="c1"># Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
+<span class="sd">"""A Cartesian subdivision of a design space."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingProxyType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">atleast_1d</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">clip</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">isfinite</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">linspace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">searchsorted</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.design_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">DesignSpace</span>
+
+
+<div class="viewcode-block" id="BoxSubdivision">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoxSubdivision</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A Cartesian subdivision of a design space.</span>
+
+<span class="sd">    Each scalar component of each design variable is split into contiguous</span>
+<span class="sd">    subdivisions. The Cartesian product of these subdivisions defines the boxes</span>
+<span class="sd">    in which a sub-problem can be solved.</span>
+
+<span class="sd">    The subdivision of a component is described by its bounds,</span>
+<span class="sd">    so that the box selected by a one-hot vector :math:`\alpha` has bounds</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \ell_j(\alpha) = \sum_k l_{j,k} \alpha_{j,k},</span>
+<span class="sd">        \qquad</span>
+<span class="sd">        u_j(\alpha) = \sum_k u_{j,k} \alpha_{j,k},</span>
+
+<span class="sd">    which are affine in :math:`\alpha`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">DEFAULT_BOUND_MARGIN</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-4</span>
+<span class="w">    </span><span class="sd">"""The default relative margin of :meth:`.create_relaxed_design_space`."""</span>
+
+    <span class="n">ONE_HOT_SUFFIX</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"_box"</span>
+<span class="w">    </span><span class="sd">"""The default suffix of the one-hot variable selecting a subdivision."""</span>
+
+    <span class="n">NORMALIZED_SUFFIX</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"_normalized"</span>
+<span class="w">    </span><span class="sd">"""The default suffix of the normalized variable of a box."""</span>
+
+    <span class="n">__lower_bounds</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""The lower bounds of the subdivisions, shaped ``(size, n_subdivisions)``."""</span>
+
+    <span class="n">__upper_bounds</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""The upper bounds of the subdivisions, shaped ``(size, n_subdivisions)``."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lower_bounds</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">upper_bounds</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lower_bounds: The lower bounds of the subdivisions of each variable,</span>
+<span class="sd">                shaped ``(size, n_subdivisions)``.</span>
+<span class="sd">            upper_bounds: The upper bounds of the subdivisions of each variable,</span>
+<span class="sd">                shaped ``(size, n_subdivisions)``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the bounds do not describe a consistent subdivision.</span>
+<span class="sd">        """</span>  <span class="c1"># noqa: D205, D212</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">upper_bounds</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"The lower and upper bounds must be defined "</span>
+                <span class="s2">"for the same variables; got "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">)</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">upper_bounds</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lower_bounds</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"The subdivision must include at least one variable."</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__lower_bounds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__upper_bounds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">lower_bound</span> <span class="ow">in</span> <span class="n">lower_bounds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">lower_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__as_matrix</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"lower"</span><span class="p">)</span>
+            <span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__as_matrix</span><span class="p">(</span><span class="n">upper_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"upper"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lower_bound</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">upper_bound</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"The bounds of the subdivisions of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have the same "</span>
+                    <span class="sa">f</span><span class="s2">"shape; got </span><span class="si">{</span><span class="n">lower_bound</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">upper_bound</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">."</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">lower_bound</span> <span class="o">&gt;=</span> <span class="n">upper_bound</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"The subdivisions of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have a lower bound "</span>
+                    <span class="s2">"strictly smaller than their upper bound."</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__lower_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">lower_bound</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__upper_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">upper_bound</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__as_matrix</span><span class="p">(</span><span class="n">bound</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the bounds of the subdivisions of a variable as a matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bound: The bounds of the subdivisions of the variable.</span>
+<span class="sd">            name: The name of the variable.</span>
+<span class="sd">            kind: The kind of bound, either ``"lower"`` or ``"upper"``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The bounds, shaped ``(size, n_subdivisions)``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the bounds are not a finite matrix.</span>
+<span class="sd">        """</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">atleast_1d</span><span class="p">(</span><span class="n">bound</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"The </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> bounds of the subdivisions of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be a matrix "</span>
+                <span class="sa">f</span><span class="s2">"shaped (size, n_subdivisions); got </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2"> dimension(s)."</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isfinite</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> bounds of the subdivisions of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be finite."</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">matrix</span>
+
+<div class="viewcode-block" id="BoxSubdivision.from_design_space">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.from_design_space">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_design_space</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">design_space</span><span class="p">:</span> <span class="n">DesignSpace</span><span class="p">,</span>
+        <span class="n">n_subdivisions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">variable_names</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoxSubdivision</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create a uniform subdivision of a design space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            design_space: The design space to subdivide.</span>
+<span class="sd">            n_subdivisions: The number of subdivisions of every variable,</span>
+<span class="sd">                or of each variable.</span>
+<span class="sd">            variable_names: The variables to subdivide.</span>
+<span class="sd">                If empty, subdivide all the variables of the design space.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The uniform subdivision of the design space.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If a variable is unknown, has a non-finite bound,</span>
+<span class="sd">                or has a non-positive number of subdivisions.</span>
+<span class="sd">        """</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">variable_names</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">design_space</span><span class="o">.</span><span class="n">variable_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unknown</span> <span class="o">:=</span> <span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">design_space</span><span class="o">.</span><span class="n">variable_names</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"The following variables are not in the design space: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">lower_bounds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">upper_bounds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">n_subdivisions</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_subdivisions</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">n_subdivisions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The number of subdivisions of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be positive; got </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">."</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">design_space</span><span class="o">.</span><span class="n">get_lower_bounds</span><span class="p">([</span><span class="n">name</span><span class="p">])</span>
+            <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">design_space</span><span class="o">.</span><span class="n">get_upper_bounds</span><span class="p">([</span><span class="n">name</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">isfinite</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">isfinite</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The variable </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have finite bounds to be subdivided."</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="c1"># linspace over the last axis gives the n + 1 breakpoints of each</span>
+            <span class="c1"># component, from which the n subdivisions are read as consecutive pairs.</span>
+            <span class="n">breakpoints</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">lower_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">breakpoints</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">upper_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">breakpoints</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The names of the subdivided variables."""</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__lower_bounds</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The size of each subdivided variable."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">bound</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">bound</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lower_bounds</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_subdivisions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The number of subdivisions of each variable."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">bound</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">bound</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lower_bounds</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_boxes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The number of boxes of the Cartesian subdivision."""</span>
+        <span class="n">n_boxes</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_subdivisions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">n_boxes</span> <span class="o">*=</span> <span class="n">n</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">n_boxes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_binaries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The number of binary variables encoding the choice of a box.</span>
+
+<span class="sd">        This is the size of the master problem, linear in the number of design</span>
+<span class="sd">        variable components, whereas :attr:`.n_boxes` is exponential in it.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_subdivisions</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""The largest trust-region step of the master, with the default weights.</span>
+
+<span class="sd">        The master restricts each of its iterations to a neighbourhood of the</span>
+<span class="sd">        incumbent box: writing $w_j$ for the weights of the catalogue of a</span>
+<span class="sd">        component and $\alpha$ for the incumbent, a candidate $\alpha'$ must</span>
+<span class="sd">        satisfy</span>
+
+<span class="sd">        $$</span>
+<span class="sd">        \sum_{j \,:\, \alpha'_j = \alpha_j} w_j(\alpha)</span>
+<span class="sd">        \ \ge\ \sum_j w_j(\alpha) - \texttt{max\_step},</span>
+<span class="sd">        $$</span>
+
+<span class="sd">        so the cost of a move is the sum of the weights the **incumbent** holds</span>
+<span class="sd">        over the components the candidate changes. The constraint never reads</span>
+<span class="sd">        what those components change *to*, so no weighting of an ordered</span>
+<span class="sd">        catalogue makes it a proximity; with the weights this package sets, all</span>
+<span class="sd">        equal, it is the **number of components changed**, which is a distance.</span>
+
+<span class="sd">        This property is the largest such distance, the number of components of</span>
+<span class="sd">        the subdivision, at which the trust region is inactive.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            A radius that large is not what works: the master explores better</span>
+<span class="sd">            when it may change only a couple of components per iteration, see</span>
+<span class="sd">            [the results](../../algorithm/benchmark.md). This property says where</span>
+<span class="sd">            the region stops constraining, not what to set.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<div class="viewcode-block" id="BoxSubdivision.get_lower_bounds">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_lower_bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_lower_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the lower bounds of the subdivisions of a variable.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the variable.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The lower bounds, shaped ``(size, n_subdivisions)``.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lower_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BoxSubdivision.get_upper_bounds">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_upper_bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_upper_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the upper bounds of the subdivisions of a variable.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the variable.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The upper bounds, shaped ``(size, n_subdivisions)``.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__upper_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BoxSubdivision.create_relaxed_design_space">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.create_relaxed_design_space">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_relaxed_design_space</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">design_space</span><span class="p">:</span> <span class="n">DesignSpace</span><span class="p">,</span>
+        <span class="n">margin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_BOUND_MARGIN</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DesignSpace</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy of a design space whose bounds are slightly widened.</span>
+
+<span class="sd">        When a box lies against the border of the design space, the face of the</span>
+<span class="sd">        box and the bound of the design space coincide. Both are then active at</span>
+<span class="sd">        a sub-problem optimum lying on that face, and the Lagrange multiplier is</span>
+<span class="sd">        attributed to the bound rather than to the box constraint. The</span>
+<span class="sd">        sensitivity of the sub-problem optimum with respect to the box selection</span>
+<span class="sd">        would then be computed as zero for every border box.</span>
+
+<span class="sd">        Widening the bounds by a small margin keeps them inactive, so that the</span>
+<span class="sd">        multiplier is carried by the box constraint. The box itself is still</span>
+<span class="sd">        enforced, by the constraint, hence the design variables remain in the</span>
+<span class="sd">        original bounds up to the constraint tolerance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            design_space: The design space to relax.</span>
+<span class="sd">            margin: The margin, relative to the range of each variable.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A copy of the design space with widened bounds.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the margin is negative.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"The margin must be non-negative; got </span><span class="si">{</span><span class="n">margin</span><span class="si">}</span><span class="s2">."</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">relaxed_design_space</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">design_space</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_names</span><span class="p">:</span>
+            <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">relaxed_design_space</span><span class="o">.</span><span class="n">get_lower_bounds</span><span class="p">([</span><span class="n">name</span><span class="p">])</span>
+            <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">relaxed_design_space</span><span class="o">.</span><span class="n">get_upper_bounds</span><span class="p">([</span><span class="n">name</span><span class="p">])</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">margin</span> <span class="o">*</span> <span class="p">(</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span>
+            <span class="n">relaxed_design_space</span><span class="o">.</span><span class="n">set_lower_bound</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">lower_bound</span> <span class="o">-</span> <span class="n">offset</span><span class="p">)</span>
+            <span class="n">relaxed_design_space</span><span class="o">.</span><span class="n">set_upper_bound</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">upper_bound</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">relaxed_design_space</span></div>
+
+
+<div class="viewcode-block" id="BoxSubdivision.get_one_hot_names">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_one_hot_names">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_one_hot_names</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">overrides</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({})</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the name of the one-hot variable of each subdivided variable.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            overrides: The names to use instead of the default ones.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The name of the one-hot variable of each subdivided variable.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">overrides</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">ONE_HOT_SUFFIX</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_names</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BoxSubdivision.locate">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.locate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">locate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the index of the subdivision containing each component of a value.</span>
+
+<span class="sd">        A value lying on the border between two subdivisions is assigned to the</span>
+<span class="sd">        first of them, and a value outside the original bounds is assigned to the</span>
+<span class="sd">        closest subdivision.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the variable.</span>
+<span class="sd">            value: The value of the variable.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The index of the subdivision of each component.</span>
+<span class="sd">        """</span>
+        <span class="n">upper_bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__upper_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">n_subdivisions</span> <span class="o">=</span> <span class="n">upper_bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">searchsorted</span><span class="p">(</span><span class="n">upper_bounds</span><span class="p">[</span><span class="n">component</span><span class="p">],</span> <span class="n">component_value</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">component_value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">clip</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n_subdivisions</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BoxSubdivision.get_normalized_names">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_normalized_names">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_normalized_names</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">overrides</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({})</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the name of the normalized variable of each subdivided variable.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            overrides: The names to use instead of the default ones.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The name of the normalized variable of each subdivided variable.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">overrides</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">NORMALIZED_SUFFIX</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_names</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BoxSubdivision.compute_bounds">
+<a class="viewcode-back" href="../../../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.compute_bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Compute the bounds of the box selected by a one-hot vector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the variable.</span>
+<span class="sd">            one_hot: The flat one-hot vector selecting a subdivision per component.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The lower and upper bounds of the selected box.</span>
+<span class="sd">        """</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">one_hot</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_subdivisions</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__lower_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__upper_bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Conclusion &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=eb5aabcf"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="../_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/conclusion';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Annex A: the benchmark problems" href="problems.html" />
+    <link rel="prev" title="Results" href="benchmark.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">The method</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="methodology.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage in GEMSEO scenarios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">Results</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Conclusion</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Annexes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="problems.html">Annex A: the benchmark problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="baselines.html">Annex B: the baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tuning.html">Annex C: tuning the master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Annex D: the extensions, measured</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">The algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Conclusion</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!--
+ Copyright 2026 Simone Coniglio
+
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+ International License. To view a copy of this license, visit
+ http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+ Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="conclusion">
+<h1>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h1>
+<p>The box-subdivision outer approximation separates the exploration of a design
+space from its local exploitation: a Cartesian subdivision turns the choice of a
+region into a categorical variable, a mixed-integer master decides which box to
+look into from the cuts of the boxes already solved, and a local solver does the
+rest inside it.</p>
+<section id="what-the-method-is-once-measured">
+<h2>What the method is, once measured<a class="headerlink" href="#what-the-method-is-once-measured" title="Link to this heading">#</a></h2>
+<p><strong>It is a method for a landscape of few, well-separated basins.</strong> Where the
+subdivision resolves them, it reaches the optimum for three to five times fewer
+evaluations than multistart, CMA-ES or DIRECT, and for about a quarter of the
+cost of enumerating the boxes it replaces. Where it does not, it is the worst of
+the four, and no setting recovers it.</p>
+<p><strong>Its size is set by the binaries, not by the boxes.</strong> The master grows as
+<span class="math notranslate nohighlight">\(\sum_j m_j\)</span> while the boxes grow as <span class="math notranslate nohighlight">\(\prod_j m_j\)</span>, so a hundred thousand boxes
+over five variables is a master of fifty binaries, and that density solves
+Rastrigin in five dimensions, which none of the baselines does. The limit is the
+ratio between those binaries and the sub-problems a budget can pay for: past
+some fifty coefficients for fifty cuts, the cut model is underdetermined and the
+quality collapses.</p>
+<p><strong>Two settings decide whether a run works at all</strong>, and both fail silently when
+wrong: the guard against non-convexity, the adaptive repair of the cut slopes or
+the convexification constant, never both; and the trust region of the master,
+which has to measure the <strong>number of components a candidate changes</strong> and to keep
+a radius of about two. Weighing the subdivisions by their own indexes, which the
+upstream design space does by default for a numeric catalogue, is not a distance
+at all, and it cost this method its best result until it was found.</p>
+<p>Of those two, the guard is the one the method should stop asking for, and a
+measurement says it can: sweeping a ladder of convexity values across the
+parallel probes the master already runs reaches the optimum on Rastrigin and on
+Ackley from every starting point, with no value supplied at all, where no single
+margin serves both. It is two problems in two dimensions, and the factor of ten
+its unbounded form needs was chosen on them, so it is a direction rather than an
+established result, see
+<a class="reference internal" href="benchmark.html#sweeping-the-convexity-rather-than-supplying-it"><span class="std std-ref">the results</span></a>,
+with the full table in
+<a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
+</section>
+<section id="what-is-established-and-what-is-not">
+<h2>What is established, and what is not<a class="headerlink" href="#what-is-established-and-what-is-not" title="Link to this heading">#</a></h2>
+<p>Established:</p>
+<ul class="simple">
+<li><p>against the exhaustive enumeration of the boxes, the outer approximation
+reaches the same optimum solving about a quarter of them, at about a quarter of
+the cost;</p></li>
+<li><p>the sub-problem starting point and the guard against non-convexity are both
+decisive, and both fail silently when wrong;</p></li>
+<li><p>where the subdivision resolves the basins, the method reaches the optimum for
+three to five times fewer evaluations than multistart, CMA-ES or DIRECT;</p></li>
+<li><p>a subdivision fine enough to resolve them stays tractable, the master growing
+with the binaries and not with the boxes: Rastrigin in five dimensions, out of
+reach of every baseline here, is solved over <span class="math notranslate nohighlight">\(100\,000\)</span> boxes;</p></li>
+<li><p>subdividing only the variables the objective is multimodal in solves a problem
+that subdividing every variable coarsely does not, and loses when the
+multimodality is spread over all of them;</p></li>
+<li><p>the trust region has to be <strong>tight</strong> and measured in components changed: a
+radius of two solves Rastrigin at five variables from every starting point,
+where the diameter of the design space reaches it from two out of six and no
+region at all from one;</p></li>
+<li><p>the ordinal proximity between neighbouring boxes, which the constraint appears
+to promise, is worth nothing here: measured through a stub it is as reliable
+as counting components and half again as expensive, multimodality behaving
+like a categorical choice rather than a discrete one;</p></li>
+<li><p>the multi-resolution encoding reaches a resolution on <strong>fewer binaries</strong>, two
+levels of four reaching sixteen subdivisions per component on forty binaries
+against eighty, and it is not worse at that resolution: on Styblinski-Tang,
+the problem the best flat density breaks on, it gets within <span class="math notranslate nohighlight">\(0.27\)</span> of the
+optimum for fewer evaluations than the flat encoding that matches it. Its cost
+is a cut model additive over the digits, so fewer and wider levels beat more
+and narrower ones;</p></li>
+<li><p>a hierarchy of subdivisions loses to the flat method wherever a flat
+subdivision can resolve the basins, and wins on the one case it cannot, a
+basin too broad for any affordable density: on Ackley at five variables the
+deep hierarchy reaches the optimum from four starting points out of six
+against two for the flat method, both having stopped on their own criteria.</p></li>
+</ul>
+<p>Not established:</p>
+<ul class="simple">
+<li><p><strong>anything beyond the budget each comparison was run at.</strong> A run whose cost
+equals its budget was stopped rather than finished, and ranking two of them
+says which got further, not which is better. Where it was checked, on Ackley
+at five variables, a larger budget did change the answer, from no starting
+point reaching the optimum to two out of six, and then stopped changing it:
+both configurations end at the same evaluation whether they are allowed
+<span class="math notranslate nohighlight">\(5000\)</span> or <span class="math notranslate nohighlight">\(10\,000\)</span>, because what binds them is their own stopping rule and
+not the budget. Every other truncated cell carries the same caveat until it is
+re-run.</p></li>
+<li><p><strong>generalization.</strong> The constants and the number of subdivisions were tuned on
+the problems then reported. A claim about the method needs a held-out set or a
+protocol fixed in advance.</p></li>
+<li><p><strong>a rule for the number of subdivisions.</strong> It has to follow the spacing of the
+basins rather than the dimension, and that spacing is not known a priori. The
+sweep gives a ceiling, the binaries a budget can identify, and a floor, the
+basins, but no single value serves the four problems: ten subdivisions per
+variable is the best density for three of them and the worst for the fourth.
+Estimating the spacing, from the curvature or from a first sampling, is the
+most valuable next step, and the same estimate would say which variables to
+subdivide at all.</p></li>
+<li><p><strong>the convergence guarantee of the convexification.</strong> A run ends on the trust
+region or on the stall counter, never on the optimality test, so the guarantee
+is out of reach whatever the constant, and lifting both caps to recover it
+costs the sub-problems the method exists to save.</p></li>
+<li><p><strong>behaviour with constraints.</strong> Every problem here is bound-constrained only.</p></li>
+<li><p><strong>the industrial case.</strong> The method earns its complexity when a sub-problem
+costs minutes, which is the regime none of these analytic problems is in, and
+the one where the baselines that need an algebraic form cannot compete. The
+comparison with Bayesian optimization now exists, at a budget of five hundred
+evaluations, and it is the one that should worry a claim made for this method:
+EGO explores the hard multimodal cases better at that budget, returning <span class="math notranslate nohighlight">\(1.99\)</span>
+on Rastrigin at five variables where this method returns <span class="math notranslate nohighlight">\(8.57\)</span>. What is not
+counted there is EGO’s own cost, a hundred times this method’s on the same
+cell, which an expensive objective would invert. Establishing the method
+against it needs a case where that inversion is real, not an analytic problem
+where it is argued.</p></li>
+</ul>
+</section>
+<section id="where-this-can-go">
+<h2>Where this can go<a class="headerlink" href="#where-this-can-go" title="Link to this heading">#</a></h2>
+<p>Five directions follow from the measurements above, in the order in which they
+would pay.</p>
+<p><strong>A subdivision that follows the basins.</strong> Everything on this page turns on the
+subdivision resolving the basins of the landscape, and the method has no way of
+knowing their spacing. Estimating it, from the curvature at a first sampling or
+from the failures of the local solves themselves, would replace the one setting
+that is tuned by hand and would say, at the same time, which variables deserve
+subdividing at all.</p>
+<p><strong>A convexity nobody has to calibrate.</strong> The margin and the constant are
+absolute quantities in the units of the objective, and that is the criticism this
+method has not answered. Sweeping them instead of choosing them costs nothing the
+master is not already paying: its parallel points are a sweep of the
+trust-region radius, and the same probes can carry a ladder of convexity values,
+one iteration then returning the box next door and the box across the design
+space at once, with every probe that proposes nothing new redeployed a rung
+higher. Implemented in the master, it solves both two-dimensional problems from
+every starting point without being given a value, which no fixed margin does.
+What it needs to become a result is a held-out problem: the decade of headroom
+its unbounded form needs was itself chosen on the two problems it is reported on,
+and neither the five-variable cases nor the pure convexification has been swept
+properly.</p>
+<p><strong>A master that keeps its cuts while the boxes change.</strong> The hierarchies all
+restart a master per node, which is what makes them lose. A master over a
+<strong>growing set of leaves</strong>, adding binaries as a box is split and keeping every
+cut, would be the genuine lazy branch-and-bound: the frontier without its cost.
+It cannot be built on a catalogue design space fixed at construction, so it means
+writing the master problem rather than calling it.</p>
+<p><strong>A bound worth the name.</strong> A run ends on its trust region or on its stall
+counter, never on its optimality test, because the convexification degrades the
+lower bound by its own constant. Reporting the bound net of a term that vanishes
+at every integer point would make the gap meaningful, and a meaningful gap is
+what turns the method into one that can stop on a proof rather than on a budget.</p>
+<p><strong>The regime the method is for.</strong> Every problem here is analytic and
+bound-constrained, where a sub-problem costs microseconds. The method is built
+for a sub-problem that costs minutes and comes with an adjoint, and for
+constraints that make a box infeasible rather than merely expensive. Bayesian
+optimization is now in the comparison, and at a small budget it is the method to
+beat on the hardest landscapes; what the benchmark cannot show is the one thing
+that would decide between them, an objective expensive enough that the cost of
+fitting a surrogate stops being free. A case of that kind is what would establish
+either.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="benchmark.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Results</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="problems.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Annex A: the benchmark problems</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-method-is-once-measured">What the method is, once measured</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-established-and-what-is-not">What is established, and what is not</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-this-can-go">Where this can go</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/algorithm/conclusion.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
