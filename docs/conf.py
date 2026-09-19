@@ -23,6 +23,13 @@ from shutil import copyfile
 from sysconfig import get_paths
 
 REPOSITORY_URL = "https://github.com/SimoneConiglio/gemseo-box-subdivision"
+SITE_URL = "https://simoneconiglio.github.io/gemseo-box-subdivision"
+
+# Two builds are published, the released one at the root of the site and the
+# integration branch under /dev/, so a page has to say which one is being read:
+# the development build documents code that is not in any release.
+CHANNEL = environ.get("DOCS_CHANNEL", "local")
+DEVELOPMENT = CHANNEL == "dev"
 
 project = "gemseo-box-subdivision"
 author = "Simone Coniglio"
@@ -103,10 +110,16 @@ html_theme_options = {
     "footer_start": ["copyright"],
     "footer_end": ["theme-version"],
 }
+if DEVELOPMENT:
+    html_theme_options["announcement"] = (
+        "This is the documentation of the <strong>development branch</strong>, "
+        "which describes code that is in no release. "
+        f'The released documentation is <a href="{SITE_URL}/">here</a>.'
+    )
 html_context = {
     "github_user": "SimoneConiglio",
     "github_repo": "gemseo-box-subdivision",
-    "github_version": "main",
+    "github_version": "develop" if DEVELOPMENT else "main",
     "doc_path": "docs",
     "default_mode": "auto",
 }
