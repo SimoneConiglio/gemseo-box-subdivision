@@ -26,9 +26,11 @@ from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approxima
 )
 from numpy import array
 from numpy import cos
+from numpy import ndarray
 from numpy import pi
 from numpy import sin
 from numpy import zeros
+from numpy.testing import assert_allclose
 
 from gemseo_box_subdivision import BoxSubdivisionScenario
 from gemseo_box_subdivision import BoxSubdivisionSettings
@@ -495,3 +497,82 @@ def test_the_settings_are_given_by_name() -> None:
     assert BoxSubdivisionSettings(
         mechanism="adaptive", convexity_margin=50.0
     ).convexity_value == pytest.approx(50.0)
+
+
+class Quadratic(Discipline):
+    """A quadratic whose optimum needs a different box per component."""
+
+    def __init__(self, target: ndarray) -> None:
+        super().__init__()
+        self.__target = target
+        self.io.input_grammar.update_from_data({"x": zeros(target.size)})
+        self.io.output_grammar.update_from_data({"f": zeros(1)})
+        self.default_input_data = {"x": zeros(target.size)}
+
+    def _run(self, input_data):  # noqa: ANN001, ANN202
+        return {"f": array([float(((input_data["x"] - self.__target) ** 2).sum())])}
+
+    def _compute_jacobian(self, input_names=(), output_names=()) -> None:  # noqa: ANN001
+        self._init_jacobian(input_names, output_names)
+        self.jac["f"]["x"] = (2 * (self.io.data["x"] - self.__target)).reshape(1, -1)
+
+
+@pytest.mark.parametrize("formulation", ["normalized", "constraint"])
+def test_a_variable_of_several_components_chooses_a_box_per_component(
+    formulation,
+) -> None:
+    """Check that each component of an array variable selects its own box.
+
+    A variable of size $s$ subdivided into $m$ is $s$ independent choices of
+    one subdivision out of $m$, not one choice shared by the components, so the
+    master carries one sum-to-one group per component. The sizes are taken apart,
+    two components and four subdivisions, because a square case cannot tell a
+    grouping by component from a grouping by subdivision.
+    """
+    target = array([0.9, -0.9])
+    space = DesignSpace()
+    space.add_variable("x", lower_bound=-1.0, upper_bound=1.0, size=2, value=zeros(2))
+    scenario = BoxSubdivisionScenario(
+        [Quadratic(target)],
+        "f",
+        space,
+        n_subdivisions=4,
+        formulation=formulation,
+        settings=BoxSubdivisionSettings(max_iter=30),
+    )
+    scenario.execute()
+
+    one_hot = scenario.optimization_result.x_opt
+    assert one_hot.size == 8, "two components of four subdivisions is eight binaries"
+
+    # The optimum is at the top of the first component's range and at the bottom
+    # of the second's, so the two components take opposite ends of the ladder: a
+    # master choosing one subdivision for the whole variable cannot express it.
+    assert_allclose(one_hot[:4], [0.0, 0.0, 0.0, 1.0], atol=1e-6)
+    assert_allclose(one_hot[4:], [1.0, 0.0, 0.0, 0.0], atol=1e-6)
+    assert scenario.optimization_result.f_opt < 1e-8
+
+
+def test_the_components_of_a_variable_are_independent_under_the_levels() -> None:
+    """Check the same of the multi-resolution encoding, level by level."""
+    target = array([0.9, -0.9])
+    space = DesignSpace()
+    space.add_variable("x", lower_bound=-1.0, upper_bound=1.0, size=2, value=zeros(2))
+    scenario = BoxSubdivisionScenario(
+        [Quadratic(target)],
+        "f",
+        space,
+        n_subdivisions=2,
+        levels=2,
+        settings=BoxSubdivisionSettings(max_iter=40),
+    )
+    scenario.execute()
+
+    one_hot = scenario.optimization_result.x_opt
+    assert one_hot.size == 8, "two components, two levels, two branches"
+
+    # One group per component per level, the coarse level first: the upper half
+    # then its upper quarter for the first component, the lower half then its
+    # lower quarter for the second.
+    assert_allclose(one_hot, [0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0], atol=1e-6)
+    assert scenario.optimization_result.f_opt < 1e-8
