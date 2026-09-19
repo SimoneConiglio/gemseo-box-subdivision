@@ -62,8 +62,8 @@ directions that follow.
 :link: problems
 :link-type: doc
 
-The benchmark problems, the baselines and how each is run, and the sweeps that
-set the settings of the master.
+The benchmark problems, the baselines and how each is run, the sweeps that set
+the settings of the master, and the extensions table by table.
 :::
 
 ::::
@@ -86,4 +86,5 @@ conclusion
 problems
 baselines
 tuning
+extensions
 ```

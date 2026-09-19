@@ -35,37 +35,43 @@ constraint formulation wires the scenario adapter and declares the box
 constraint. Its `execute` supplies the settings of the master, so a run needs no
 configuration of the master at all.
 
-{py:class}`~gemseo_box_subdivision.settings.BoxSubdivisionSettings` names those
-settings in the terms of the methodology, a `trust_region_radius` in components
-changed rather than a `max_step` in unexplained units, and its
-`to_master_settings` is the only place that translates them. It is also where the
-two mechanisms are kept apart: choosing one zeroes the other's constant, so a run
-can never measure an average of the two. Those terms describe an
-**outer-approximation** master, so they are translated only for a master
-declaring them, and setting one for a master that has none of them is refused
-rather than sent: such a master is driven by `master_algo_settings` alone.
+The settings name the master's in the terms of the methodology, a
+`trust_region_radius` in components changed rather than a `max_step` in
+unexplained units, and `to_master_settings` is the only place that translates
+them. Four invariants live in that one place:
 
-There are **two settings classes**, one per construction, sharing
-{py:class}`~gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings`, which
-holds what belongs to the run rather than to either level.
-{py:class}`~gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings` sweeps
-the convexity instead of calibrating it, so it names no master — the sweep is
-implemented in one — and carries neither convexity value; its ladder has one rung
-per parallel point of the master, which is what pairs a probe with a rung. The
-scenario takes either.
+- **the two mechanisms are kept apart**: choosing one zeroes the other's
+  constant, so a run can never measure an average of the two;
+- **those terms describe an outer-approximation master**, so they are translated
+  only for a master declaring them; setting one for a master that has none of
+  them is refused rather than sent, such a master being driven by
+  `master_algo_settings` alone;
+- **the master is executed by its name** with those settings, not through a
+  settings model: a GEMSEO settings model names the algorithm it selects, and the
+  settings of `OUTER_APPROXIMATION` name one no library provides, so a model
+  would run something other than the algorithm asked for. The sub-problem is the
+  other way round, the `Benders` formulation taking the model that
+  `create_sub_problem_settings_model` builds;
+- **both names are checked against what the algorithm declares**, when the
+  settings are built rather than in the middle of a run.
 
-The algorithm of each of the two levels is a setting, and each is delivered where
-its level expects it. The master is executed **by its name**,
-`master_algo_name` with the settings `to_master_settings` returns, rather than
-through a settings model: a GEMSEO settings model names the algorithm it selects,
-and the settings of `OUTER_APPROXIMATION` name one no library provides, so a
-model would run something other than the algorithm asked for. The sub-problem
-solver is the other way round, the `Benders` formulation taking a settings model,
-which `create_sub_problem_settings_model` builds from `sub_problem_algo_name`
-and `to_sub_problem_settings`. Both names are checked against what the algorithm
-declares when the settings are built, so a setting one level's algorithm does not
-have, or a name no library provides, is refused where it is written rather than
-in the middle of a run.
+{py:class}`~gemseo_box_subdivision.settings.BoxSubdivisionSettings` and
+{py:class}`~gemseo_box_subdivision.settings.SweptBoxSubdivisionSettings` are the
+two constructions, sharing
+{py:class}`~gemseo_box_subdivision.settings.BaseBoxSubdivisionSettings` for what
+belongs to the run rather than to either level. The swept one names no master —
+the sweep is implemented in one — and carries no convexity value; its ladder has
+one rung per parallel point of the master, which is what pairs a probe with a
+rung. The scenario takes either.
+
+Where the installed master predates the sweep,
+{py:data}`~gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY` is
+`False` and `drive_the_master` wraps the run in a driver that applies the ladder
+around the master's mixed-integer solve, deploying a probe one rung higher while
+it proposes a box already solved. That driver is temporary — it goes when the
+master ships the sweep — and it exists because the alternative is not a run
+without a sweep but a run whose cuts are unguarded, the master's own convexity
+defaulting to zero.
 
 Everything below those two is public and usable on its own, which is what
 [Usage](usage.md) calls composing by hand.
@@ -202,10 +208,8 @@ copying a benchmark.
 ### Subdividing some of the variables only
 
 {py:meth}`~gemseo_box_subdivision.subdivisions.box.BoxSubdivision.from_design_space`
-takes the variables to subdivide, and
-{py:func}`~gemseo_box_subdivision.design_spaces.create_normalized_box_design_space`
-keeps the others as they are, so a variable left out of the subdivision stays an
-ordinary variable of the sub-problem, solved by the local solver at every box:
+takes the variables to subdivide, and the design spaces keep the others as they
+are, so a variable left out stays an ordinary variable of the sub-problem:
 
 ```python
 subdivision = BoxSubdivision.from_design_space(design_space, 10, ["x_split"])
@@ -217,33 +221,23 @@ and the master carries binaries for them alone.
 ### The multi-resolution encoding
 
 {py:class}`~gemseo_box_subdivision.subdivisions.multi_resolution.MultiResolution`
-is the counterpart of `BoxSubdivision` for a box chosen by one categorical
-variable per level, and
+and
 {py:class}`~gemseo_box_subdivision.disciplines.multi_resolution_mapping.MultiResolutionMapping`
-the counterpart of `BoxMapping` for it. The pair is used exactly as the flat one
-is, the mapping chained before the objective discipline:
+are the counterparts of `BoxSubdivision` and `BoxMapping` for a box chosen by one
+categorical variable per level, used exactly as the flat pair is:
 
 ```python
 subdivision = MultiResolution(lower_bounds, upper_bounds, branching=4, levels=2)
 space = subdivision.create_design_space()
 ```
 
-Three details carry the construction.
-
-**`locate` is a base conversion.** Placing a design value means writing its
-position in the range in base $m$ and reading off $L$ digits, each of which
-becomes the one-hot vector of a level. `compute_bounds` is the inverse, summing
-what each digit contributes.
-
-**The Jacobian blocks are constant.** The width $\Delta_j m^{-L}$ does not depend
-on the levels, so the derivative with respect to a level is the value that digit
-contributes and the derivative with respect to the normalized point is the width
-of the smallest box. Neither depends on the other inputs, which is what keeps the
-post-optimal sensitivity of the `Benders` formulation valid.
-
-**The catalogue weights are ones.** `create_design_space` sets them explicitly,
-so that the distance of the trust region counts the digits a candidate changes
-rather than what those digits are worth.
+Three contracts carry the construction. **`locate` is a base conversion**,
+writing a position in base $m$ and reading off $L$ digits, one one-hot vector per
+level, with `compute_bounds` its inverse. **The Jacobian blocks are constant**,
+the width $\Delta_j m^{-L}$ not depending on the levels, which is what keeps the
+post-optimal sensitivity of the `Benders` formulation valid. **The catalogue
+weights are ones**, set explicitly, so the trust region counts the digits a
+candidate changes rather than what those digits are worth.
 
 ### The radius of the trust region
 
@@ -253,20 +247,16 @@ unit catalogue weights is the number of subdivided components. It is a property
 of the subdivision rather than a setting, and its docstring records that it is
 **not** the radius to use; `BoxSubdivisionSettings.trust_region_radius` is.
 
-{py:attr}`~gemseo_box_subdivision.subdivisions.multi_resolution.MultiResolution.max_step`
-returns the same quantity for the multi-resolution encoding, which has one
-one-hot group per level per component. That is why the scenario scales the
-radius by the number of levels before executing: two whole variables is $2L$
-groups there against $2$ in the flat encoding, and leaving it unscaled measures
-the encoding with a region far tighter than the one it is being compared
-against.
+The multi-resolution encoding has one one-hot group per level per component, so
+its `max_step` is $L$ times larger and the scenario scales the radius by the
+number of levels before executing. Leaving it unscaled measures the encoding with
+a region far tighter than the one it is compared against.
 
 ### The hierarchies
 
-{py:mod}`~gemseo_box_subdivision.hierarchy` holds the scoring rules and
-the three shapes. A shape is a **loop around the method** rather than a change to
-it, so it is driven by a callable that solves one level and reports the boxes it
-solved, leaving the caller its own scenario and its own accounting of the budget:
+{py:mod}`~gemseo_box_subdivision.hierarchy` holds the scoring rules and the three
+shapes. A shape is a **loop around the method** rather than a change to it, so it
+is driven by a callable solving one level and reporting the boxes it solved:
 
 ```python
 def solve(lower_bound, upper_bound, n_subdivisions):
