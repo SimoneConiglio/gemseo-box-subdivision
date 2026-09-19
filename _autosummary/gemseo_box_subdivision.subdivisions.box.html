@@ -1,0 +1,871 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>gemseo_box_subdivision.subdivisions.box &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=0340080d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="../_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/gemseo_box_subdivision.subdivisions.box';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gemseo_box_subdivision.subdivisions.multi_resolution" href="gemseo_box_subdivision.subdivisions.multi_resolution.html" />
+    <link rel="prev" title="gemseo_box_subdivision.convexity_sweep" href="gemseo_box_subdivision.convexity_sweep.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../algorithm/index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.scenario.html">gemseo_box_subdivision.scenario</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.settings.html">gemseo_box_subdivision.settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.convexity_sweep.html">gemseo_box_subdivision.convexity_sweep</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">gemseo_box_subdivision.subdivisions.box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.subdivisions.multi_resolution.html">gemseo_box_subdivision.subdivisions.multi_resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.design_spaces.html">gemseo_box_subdivision.design_spaces</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.hierarchy.html">gemseo_box_subdivision.hierarchy</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.box_constraint.html">gemseo_box_subdivision.disciplines.box_constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.box_mapping.html">gemseo_box_subdivision.disciplines.box_mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.multi_resolution_mapping.html">gemseo_box_subdivision.disciplines.multi_resolution_mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gemseo_box_subdivision.disciplines.scenario_adapters.box_start.html">gemseo_box_subdivision.disciplines.scenario_adapters.box_start</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">gemseo_box_subdivision.subdivisions.box</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-gemseo_box_subdivision.subdivisions.box">
+<span id="gemseo-box-subdivision-subdivisions-box"></span><h1>gemseo_box_subdivision.subdivisions.box<a class="headerlink" href="#module-gemseo_box_subdivision.subdivisions.box" title="Link to this heading">#</a></h1>
+<p>A Cartesian subdivision of a design space.</p>
+<p class="rubric">Classes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoxSubdivision</span></code></a>(lower_bounds, upper_bounds)</p></td>
+<td><p>A Cartesian subdivision of a design space.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gemseo_box_subdivision.subdivisions.box.</span></span><span class="sig-name descname"><span class="pre">BoxSubdivision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower_bounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_bounds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A Cartesian subdivision of a design space.</p>
+<p>Each scalar component of each design variable is split into contiguous
+subdivisions. The Cartesian product of these subdivisions defines the boxes
+in which a sub-problem can be solved.</p>
+<p>The subdivision of a component is described by its bounds,
+so that the box selected by a one-hot vector <span class="math notranslate nohighlight">\(\alpha\)</span> has bounds</p>
+<div class="math notranslate nohighlight">
+\[\ell_j(\alpha) = \sum_k l_{j,k} \alpha_{j,k},
+\qquad
+u_j(\alpha) = \sum_k u_{j,k} \alpha_{j,k},\]</div>
+<p>which are affine in <span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lower_bounds</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>ndarray</em><em>]</em>)</p></li>
+<li><p><strong>upper_bounds</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>ndarray</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.DEFAULT_BOUND_MARGIN">
+<span class="sig-name descname"><span class="pre">DEFAULT_BOUND_MARGIN</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0001</span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.DEFAULT_BOUND_MARGIN" title="Link to this definition">#</a></dt>
+<dd><p>The default relative margin of <a class="reference internal" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.create_relaxed_design_space" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.create_relaxed_design_space"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_relaxed_design_space()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.ONE_HOT_SUFFIX">
+<span class="sig-name descname"><span class="pre">ONE_HOT_SUFFIX</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_box'</span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.ONE_HOT_SUFFIX" title="Link to this definition">#</a></dt>
+<dd><p>The default suffix of the one-hot variable selecting a subdivision.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.NORMALIZED_SUFFIX">
+<span class="sig-name descname"><span class="pre">NORMALIZED_SUFFIX</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_normalized'</span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.NORMALIZED_SUFFIX" title="Link to this definition">#</a></dt>
+<dd><p>The default suffix of the normalized variable of a box.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.from_design_space">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_design_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">design_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_subdivisions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.from_design_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.from_design_space" title="Link to this definition">#</a></dt>
+<dd><p>Create a uniform subdivision of a design space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>design_space</strong> (<em>DesignSpace</em>) – The design space to subdivide.</p></li>
+<li><p><strong>n_subdivisions</strong> (<em>int</em><em> | </em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em>) – The number of subdivisions of every variable,
+or of each variable.</p></li>
+<li><p><strong>variable_names</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – The variables to subdivide.
+If empty, subdivide all the variables of the design space.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The uniform subdivision of the design space.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If a variable is unknown, has a non-finite bound,
+    or has a non-positive number of subdivisions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision">BoxSubdivision</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.variable_names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">variable_names</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.variable_names" title="Link to this definition">#</a></dt>
+<dd><p>The names of the subdivided variables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.sizes">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sizes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.sizes" title="Link to this definition">#</a></dt>
+<dd><p>The size of each subdivided variable.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_subdivisions">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_subdivisions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_subdivisions" title="Link to this definition">#</a></dt>
+<dd><p>The number of subdivisions of each variable.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_boxes">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_boxes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_boxes" title="Link to this definition">#</a></dt>
+<dd><p>The number of boxes of the Cartesian subdivision.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_binaries">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_binaries</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_binaries" title="Link to this definition">#</a></dt>
+<dd><p>The number of binary variables encoding the choice of a box.</p>
+<p>This is the size of the master problem, linear in the number of design
+variable components, whereas <a class="reference internal" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_boxes" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_boxes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">n_boxes</span></code></a> is exponential in it.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">max_step</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step" title="Link to this definition">#</a></dt>
+<dd><p>The largest trust-region step of the master, with the default weights.</p>
+<p>The master restricts each of its iterations to a neighbourhood of the
+incumbent box: writing $w_j$ for the weights of the catalogue of a
+component and $alpha$ for the incumbent, a candidate $alpha’$ must
+satisfy</p>
+<p>$$
+sum_{j ,:, alpha’_j = alpha_j} w_j(alpha)
+gesum_j w_j(alpha) - texttt{max_step},
+$$</p>
+<p>so the cost of a move is the sum of the weights the <strong>incumbent</strong> holds
+over the components the candidate changes. The constraint never reads
+what those components change <em>to</em>, so no weighting of an ordered
+catalogue makes it a proximity; with the weights this package sets, all
+equal, it is the <strong>number of components changed</strong>, which is a distance.</p>
+<p>This property is the largest such distance, the number of components of
+the subdivision, at which the trust region is inactive.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A radius that large is not what works: the master explores better
+when it may change only a couple of components per iteration, see
+[the results](../../algorithm/benchmark.md). This property says where
+the region stops constraining, not what to set.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_lower_bounds">
+<span class="sig-name descname"><span class="pre">get_lower_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.get_lower_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_lower_bounds" title="Link to this definition">#</a></dt>
+<dd><p>Return the lower bounds of the subdivisions of a variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – The name of the variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The lower bounds, shaped <code class="docutils literal notranslate"><span class="pre">(size,</span> <span class="pre">n_subdivisions)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>ndarray</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_upper_bounds">
+<span class="sig-name descname"><span class="pre">get_upper_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.get_upper_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_upper_bounds" title="Link to this definition">#</a></dt>
+<dd><p>Return the upper bounds of the subdivisions of a variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – The name of the variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The upper bounds, shaped <code class="docutils literal notranslate"><span class="pre">(size,</span> <span class="pre">n_subdivisions)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>ndarray</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.create_relaxed_design_space">
+<span class="sig-name descname"><span class="pre">create_relaxed_design_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">design_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">margin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.create_relaxed_design_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.create_relaxed_design_space" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of a design space whose bounds are slightly widened.</p>
+<p>When a box lies against the border of the design space, the face of the
+box and the bound of the design space coincide. Both are then active at
+a sub-problem optimum lying on that face, and the Lagrange multiplier is
+attributed to the bound rather than to the box constraint. The
+sensitivity of the sub-problem optimum with respect to the box selection
+would then be computed as zero for every border box.</p>
+<p>Widening the bounds by a small margin keeps them inactive, so that the
+multiplier is carried by the box constraint. The box itself is still
+enforced, by the constraint, hence the design variables remain in the
+original bounds up to the constraint tolerance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>design_space</strong> (<em>DesignSpace</em>) – The design space to relax.</p></li>
+<li><p><strong>margin</strong> (<em>float</em>) – The margin, relative to the range of each variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A copy of the design space with widened bounds.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the margin is negative.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>DesignSpace</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_one_hot_names">
+<span class="sig-name descname"><span class="pre">get_one_hot_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">mappingproxy({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.get_one_hot_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_one_hot_names" title="Link to this definition">#</a></dt>
+<dd><p>Return the name of the one-hot variable of each subdivided variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>overrides</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – The names to use instead of the default ones.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The name of the one-hot variable of each subdivided variable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.locate">
+<span class="sig-name descname"><span class="pre">locate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.locate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.locate" title="Link to this definition">#</a></dt>
+<dd><p>Return the index of the subdivision containing each component of a value.</p>
+<p>A value lying on the border between two subdivisions is assigned to the
+first of them, and a value outside the original bounds is assigned to the
+closest subdivision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the variable.</p></li>
+<li><p><strong>value</strong> (<em>ndarray</em>) – The value of the variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the subdivision of each component.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>ndarray</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_normalized_names">
+<span class="sig-name descname"><span class="pre">get_normalized_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">mappingproxy({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.get_normalized_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_normalized_names" title="Link to this definition">#</a></dt>
+<dd><p>Return the name of the normalized variable of each subdivided variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>overrides</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – The names to use instead of the default ones.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The name of the normalized variable of each subdivided variable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.compute_bounds">
+<span class="sig-name descname"><span class="pre">compute_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gemseo_box_subdivision/subdivisions/box.html#BoxSubdivision.compute_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.compute_bounds" title="Link to this definition">#</a></dt>
+<dd><p>Compute the bounds of the box selected by a one-hot vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the variable.</p></li>
+<li><p><strong>one_hot</strong> (<em>ndarray</em>) – The flat one-hot vector selecting a subdivision per component.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The lower and upper bounds of the selected box.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>, <em>ndarray</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="gemseo_box_subdivision.convexity_sweep.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">gemseo_box_subdivision.convexity_sweep</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gemseo_box_subdivision.subdivisions.multi_resolution.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">gemseo_box_subdivision.subdivisions.multi_resolution</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.DEFAULT_BOUND_MARGIN"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.DEFAULT_BOUND_MARGIN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.ONE_HOT_SUFFIX"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.ONE_HOT_SUFFIX</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.NORMALIZED_SUFFIX"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.NORMALIZED_SUFFIX</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.from_design_space"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.from_design_space()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.variable_names"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.variable_names</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.sizes"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.sizes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_subdivisions"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.n_subdivisions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_boxes"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.n_boxes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.n_binaries"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.n_binaries</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.max_step</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_lower_bounds"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.get_lower_bounds()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_upper_bounds"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.get_upper_bounds()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.create_relaxed_design_space"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.create_relaxed_design_space()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_one_hot_names"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.get_one_hot_names()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.locate"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.locate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.get_normalized_names"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.get_normalized_names()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.compute_bounds"><code class="docutils literal notranslate"><span class="pre">BoxSubdivision.compute_bounds()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/_autosummary/gemseo_box_subdivision.subdivisions.box.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

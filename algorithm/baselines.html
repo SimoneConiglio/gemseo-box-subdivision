@@ -1,0 +1,856 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Annex B: the baselines &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=0340080d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="../_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/baselines';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Annex C: tuning the master" href="tuning.html" />
+    <link rel="prev" title="Annex A: the benchmark problems" href="problems.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">The method</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="methodology.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage in GEMSEO scenarios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conclusion.html">Conclusion</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Annexes</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="problems.html">Annex A: the benchmark problems</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Annex B: the baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tuning.html">Annex C: tuning the master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Annex D: the extensions, measured</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">The algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Annex B: the baselines</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!--
+ Copyright 2026 Simone Coniglio
+
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+ International License. To view a copy of this license, visit
+ http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+ Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="annex-b-the-baselines">
+<h1>Annex B: the baselines<a class="headerlink" href="#annex-b-the-baselines" title="Link to this heading">#</a></h1>
+<p>Enumerating the boxes measures the exploration of the master, but it is not what
+a practitioner would otherwise use. The comparison therefore also runs the three
+methods that actually address a bound-constrained multimodal non-linear program,
+chosen so that the three families of the class are represented: a <strong>restart of a
+local solver</strong>, a <strong>stochastic search</strong>, and a <strong>deterministic partition</strong>. They
+are run in <code class="docutils literal notranslate"><span class="pre">benchmarks/baselines.py</span></code>.</p>
+<img alt="Where each method evaluates the objective on Rastrigin" class="only-light" src="../_images/sampling.png" />
+<img alt="Where each method evaluates the objective on Rastrigin" class="only-dark" src="../_images/sampling-dark.png" />
+<p>The four sampling patterns are the methods themselves: the box subdivision
+clusters its evaluations inside the boxes it decided to look into; multistart
+scatters local solves over the whole space; CMA-ES contracts an ellipsoid onto
+one basin; DIRECT lays a lattice refined where it looks promising.</p>
+<section id="multistart-of-a-local-solver">
+<h2>Multistart of a local solver<a class="headerlink" href="#multistart-of-a-local-solver" title="Link to this heading">#</a></h2>
+<p><strong>The idea.</strong> Draw <span class="math notranslate nohighlight">\(N\)</span> starting points over the design space, run a local solver
+from each, keep the best result. It is the reference of the class and the
+ancestor of the multi-level single-linkage family (Rinnooy Kan and Timmer, 1987),
+whose refinements decide which starting points are worth a local solve at all.
+With infinitely many starts it converges to the global optimum with probability
+one, which says nothing about any finite budget.</p>
+<p><strong>What it exploits.</strong> Nothing about the landscape: the starting points are
+independent, so the <span class="math notranslate nohighlight">\(k\)</span>-th local solve knows nothing of the <span class="math notranslate nohighlight">\(k-1\)</span> before it. That
+is the structural difference with the method benchmarked here, whose master
+decides the next box from the cuts of every box already solved.</p>
+<p><strong>How it is run.</strong> GEMSEO’s <code class="docutils literal notranslate"><span class="pre">MultiStart</span></code>, with <span class="math notranslate nohighlight">\(50\)</span> starting points from its
+default design of experiments, and SLSQP (Kraft, 1988) as the local solver.
+SLSQP builds a quadratic model of the Lagrangian and solves a quadratic program
+at each iteration; it is the solver the box-subdivision sub-problems use by
+default, and the one they were run with here, so the comparison isolates <strong>how
+the starting regions are chosen</strong> rather than how they are exploited.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">OptimizationLibraryFactory</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">algo_name</span><span class="o">=</span><span class="s2">"MultiStart"</span><span class="p">,</span>
+    <span class="n">n_start</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">opt_algo_settings</span><span class="o">=</span><span class="p">{},</span>        <span class="c1"># MultiStart apportions its own budget</span>
+    <span class="n">doe_algo_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"seed"</span><span class="p">:</span> <span class="n">seed</span><span class="p">},</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>              <span class="c1"># the counter stops the run, not this</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">opt_algo_settings</span></code> must not carry a <code class="docutils literal notranslate"><span class="pre">max_iter</span></code>: <code class="docutils literal notranslate"><span class="pre">MultiStart</span></code> apportions its own
+budget across the starts, and a <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> there makes it return <code class="docutils literal notranslate"><span class="pre">inf</span></code> after
+<strong>zero</strong> evaluations, reporting success. The benchmark asserts that every method
+evaluates something and returns a finite value.</p>
+</div>
+</section>
+<section id="cma-es">
+<h2>CMA-ES<a class="headerlink" href="#cma-es" title="Link to this heading">#</a></h2>
+<p><strong>The idea.</strong> The covariance matrix adaptation evolution strategy (Hansen and
+Ostermeier, 2001) samples a population from a multivariate normal
+<span class="math notranslate nohighlight">\(\mathcal{N}(m, \sigma^2 C)\)</span>, ranks it, and moves the distribution towards the
+better half: the mean <span class="math notranslate nohighlight">\(m\)</span> becomes a weighted average of the selected points, the
+covariance <span class="math notranslate nohighlight">\(C\)</span> accumulates the directions that worked, and the step size <span class="math notranslate nohighlight">\(\sigma\)</span>
+follows the length of the path the mean has travelled. After a few generations
+the ellipsoid is aligned with the local valley structure, which is what the third
+panel of the figure shows.</p>
+<p><strong>What it exploits.</strong> Second-order structure, learnt from ranks alone: no
+gradient, and invariance to any increasing transformation of the objective. It is
+the strongest baseline here on a landscape whose ripple hides a single broad
+basin, Ackley in five dimensions, where it reaches the optimum every time and the
+box subdivision does not.</p>
+<p><strong>How it is run.</strong> The <code class="docutils literal notranslate"><span class="pre">cma</span></code> package, from the same starting point as the other
+methods, with an initial standard deviation of a quarter of the range,
+<span class="math notranslate nohighlight">\(\sigma_0 = (u - l)/4\)</span>, the bounds passed as a box constraint, and the budget
+enforced by its own <code class="docutils literal notranslate"><span class="pre">maxfevals</span></code>, which is exact.</p>
+</section>
+<section id="direct">
+<h2>DIRECT<a class="headerlink" href="#direct" title="Link to this heading">#</a></h2>
+<p><strong>The idea.</strong> <em>DIviding RECTangles</em> (Jones, Perttunen and Stuckey, 1993) samples
+the centre of the design space, then repeatedly splits hyperrectangles. A
+rectangle <span class="math notranslate nohighlight">\(j\)</span> of centre value <span class="math notranslate nohighlight">\(f_j\)</span> and size <span class="math notranslate nohighlight">\(d_j\)</span> is <strong>potentially optimal</strong> if
+there is a Lipschitz constant <span class="math notranslate nohighlight">\(\tilde K &gt; 0\)</span> for which</p>
+<div class="math notranslate nohighlight">
+\[
+f_j - \tilde K d_j \le f_i - \tilde K d_i \quad \forall i,
+\qquad
+f_j - \tilde K d_j \le f_{\min} - \varepsilon \left| f_{\min} \right|,
+\]</div>
+<p>that is, if it lies on the lower-right convex hull of the cloud of points
+<span class="math notranslate nohighlight">\((d_i, f_i)\)</span>. Every potentially optimal rectangle is split along its longest
+side, so the method balances a global search, the large rectangles, against a
+local one, the low-valued rectangles, <strong>without ever choosing a Lipschitz
+constant</strong>. It converges to the global optimum in the limit for a continuous
+objective, by density of the samples.</p>
+<p><strong>What it exploits.</strong> The geometry of the space rather than the shape of the
+objective, at the price of a partition that is regular and dimension-bound: the
+number of rectangles grows quickly with <span class="math notranslate nohighlight">\(n\)</span>, which is why it is excellent in two
+dimensions and loses its edge in five.</p>
+<p><strong>How it is run.</strong> <code class="docutils literal notranslate"><span class="pre">scipy.optimize.direct</span></code>, which ignores the starting point,
+being deterministic, with <code class="docutils literal notranslate"><span class="pre">maxfun</span></code> and <code class="docutils literal notranslate"><span class="pre">maxiter</span></code> set to the budget.</p>
+</section>
+<section id="ego-bayesian-optimization">
+<h2>EGO, Bayesian optimization<a class="headerlink" href="#ego-bayesian-optimization" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">egobox</span></code> (Lafage, 2022), the Rust implementation of efficient global
+optimization (Jones, Schonlau and Welch, 1998). A Gaussian process is fitted to
+everything evaluated so far, and the next point maximizes an expected improvement
+over it: the surrogate carries the whole memory of the run, and the acquisition
+decides between refining a known basin and probing an unexplored one.</p>
+<p>This is the baseline of the regime the method targets. Where an evaluation costs
+minutes, the cost of fitting a surrogate is free by comparison and a few hundred
+evaluations is the whole budget, which is exactly the case the outer
+approximation is built for.</p>
+<p>It is therefore the one baseline that a comparison <strong>at equal evaluations on
+analytic problems flatters least</strong>. Its own cost is not counted here, and on
+these problems that cost dominates: a run of five hundred evaluations takes some
+two and a half minutes against three seconds for the box subdivision, a hundred
+times more for the same budget. On an industrial objective that ratio inverts,
+and nothing in this benchmark measures the inversion.</p>
+<p>Its budget is enforced natively and exactly, the number of calls being
+<code class="docutils literal notranslate"><span class="pre">n_doe</span> <span class="pre">+</span> <span class="pre">max_iters</span></code> with a batch of one. It is capped that way rather than by the
+counter because <code class="docutils literal notranslate"><span class="pre">egobox</span></code> is a Rust extension: an exception raised inside its
+objective surfaces as an opaque panic instead of propagating, as it does for the
+C extension of DIRECT. The initial design of experiments is five points per
+variable, kept below half the budget so that the surrogate is used rather than
+merely fitted.</p>
+<p>It has a <strong>stopping criterion of its own</strong>, and it fires: on Styblinski-Tang the
+expected improvement collapses once the process models the landscape, and the run
+ends after twenty-nine evaluations of the five hundred it was allowed, a gap of
+<span class="math notranslate nohighlight">\(0.286\)</span> from the optimum. A cost below the budget means EGO finished, not that it
+was cut off.</p>
+</section>
+<section id="the-four-compared">
+<h2>The four compared<a class="headerlink" href="#the-four-compared" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>multistart</p></th>
+<th class="head"><p>CMA-ES</p></th>
+<th class="head"><p>DIRECT</p></th>
+<th class="head"><p>EGO</p></th>
+<th class="head"><p>box subdivision</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>gradient</p></td>
+<td><p>yes, in each local solve</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+<td><p>yes, in each sub-problem</p></td>
+</tr>
+<tr class="row-odd"><td><p>stochastic</p></td>
+<td><p>the starting points</p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>the initial design</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p>exploits the past</p></td>
+<td><p>no</p></td>
+<td><p>the covariance</p></td>
+<td><p>the partition</p></td>
+<td><p>the surrogate, over every point</p></td>
+<td><p>the cuts of every solved box</p></td>
+</tr>
+<tr class="row-odd"><td><p>limit guarantee</p></td>
+<td><p>with infinitely many starts</p></td>
+<td><p>none</p></td>
+<td><p>dense sampling</p></td>
+<td><p>dense sampling</p></td>
+<td><p>out of reach, see <a class="reference internal" href="tuning.html#the-two-caps-that-end-a-run"><span class="std std-ref">annex C</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>parallel</p></td>
+<td><p>the starts</p></td>
+<td><p>the population</p></td>
+<td><p>the potentially optimal rectangles</p></td>
+<td><p>a batch of the acquisition</p></td>
+<td><p>the boxes of an iteration</p></td>
+</tr>
+<tr class="row-odd"><td><p>own cost per iteration</p></td>
+<td><p>negligible</p></td>
+<td><p>negligible</p></td>
+<td><p>negligible</p></td>
+<td><p><strong>cubic in the points so far</strong></p></td>
+<td><p>one mixed-integer solve</p></td>
+</tr>
+<tr class="row-even"><td><p>natural regime</p></td>
+<td><p>a few basins, cheap objective</p></td>
+<td><p>rippled landscapes, no gradient</p></td>
+<td><p>low dimension</p></td>
+<td><p>costly objective, small budget</p></td>
+<td><p>costly sub-problem with an adjoint</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>EGO and the box subdivision are the two built for the same regime, which is what
+makes the comparison between them the informative one and the row on their own
+cost the caveat that goes with it.</p>
+</section>
+<section id="counting-a-budget-across-methods-that-differ-that-much">
+<h2>Counting a budget across methods that differ that much<a class="headerlink" href="#counting-a-budget-across-methods-that-differ-that-much" title="Link to this heading">#</a></h2>
+<p>A method using the gradient cannot be compared with one that does not on the
+number of objective evaluations alone: the gradient is information, and it is not
+free. The budget is therefore counted in <strong>equivalent</strong> evaluations, under the
+two conventions that bracket the truth:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>convention</p></th>
+<th class="head"><p>a gradient costs</p></th>
+<th class="head"><p>the case it represents</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>adjoint</p></td>
+<td><p><span class="math notranslate nohighlight">\(1\)</span> evaluation</p></td>
+<td><p>an adjoint is available, which is what the method targets</p></td>
+</tr>
+<tr class="row-odd"><td><p>finite differences</p></td>
+<td><p><span class="math notranslate nohighlight">\(n\)</span> evaluations</p></td>
+<td><p>the objective is a black box</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>CMA-ES and DIRECT are unaffected by the convention, so reporting both brackets
+the comparison instead of picking the flattering one. The budget itself is <span class="math notranslate nohighlight">\(500\)</span>
+equivalent evaluations per design variable, since a fixed budget would favour the
+low-dimensional cases of whichever method converges fastest there.</p>
+<p><strong>How the budget is enforced.</strong> The objective and its gradient are wrapped in a
+counter that raises as soon as the budget is spent, and the run is stopped
+wherever it happens to be:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">BudgetedCounter</span><span class="p">(</span><span class="n">Counter</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__adjoint</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__budget</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BudgetExceededError</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That works for the methods driven from Python, and <strong>not</strong> for the two called
+from a C extension, where raising gives a <code class="docutils literal notranslate"><span class="pre">SystemError</span></code> instead of unwinding:
+CMA-ES and DIRECT are therefore capped by their own <code class="docutils literal notranslate"><span class="pre">maxfevals</span></code> and <code class="docutils literal notranslate"><span class="pre">maxfun</span></code>.
+Those caps are exact to within a rounding: DIRECT finishes the iteration it is
+in, so it overshoots by about one percent, <span class="math notranslate nohighlight">\(1011\)</span> evaluations for a budget of
+<span class="math notranslate nohighlight">\(1000\)</span>, which the budget test tolerates.</p>
+</section>
+<section id="what-is-deliberately-absent">
+<h2>What is deliberately absent<a class="headerlink" href="#what-is-deliberately-absent" title="Link to this heading">#</a></h2>
+<p><strong>Relaxation-based global solvers</strong>, BARON, SCIP, Couenne or Alpine, build convex
+relaxations from the <strong>algebraic form</strong> of the problem. The sub-problem of an
+industrial case does not have one: it is a disciplinary optimization or a
+multidisciplinary analysis. They are the right comparison for a polynomial
+program, and no comparison at all for this one.</p>
+<p><strong>Basin hopping</strong>, <strong>particle swarm</strong> and <strong>simulated annealing</strong> are variations
+on the two families already represented, a restarted local solver and a
+stochastic search, and would not separate the methods further.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Rinnooy Kan, A. H. G., &amp; Timmer, G. T. (1987). <em>Stochastic global optimization
+methods. Part II: Multi level methods.</em> Mathematical Programming, 39(1), 57-78.</p></li>
+<li><p>Kraft, D. (1988). <em>A software package for sequential quadratic programming.</em>
+DFVLR-FB 88-28, DLR German Aerospace Center.</p></li>
+<li><p>Hansen, N., &amp; Ostermeier, A. (2001). <em>Completely derandomized self-adaptation in
+evolution strategies.</em> Evolutionary Computation, 9(2), 159-195.</p></li>
+<li><p>Hansen, N. (2016). <em>The CMA evolution strategy: a tutorial.</em> arXiv:1604.00772.</p></li>
+<li><p>Jones, D. R., Schonlau, M., &amp; Welch, W. J. (1998). <em>Efficient global
+optimization of expensive black-box functions.</em> Journal of Global Optimization,
+13(4), 455-492.</p></li>
+<li><p>Lafage, R. (2022). <em>egobox, a Rust toolbox for efficient global optimization.</em>
+Journal of Open Source Software, 7(78), 4737.</p></li>
+<li><p>Jones, D. R., Perttunen, C. D., &amp; Stuckey, B. E. (1993). <em>Lipschitzian
+optimization without the Lipschitz constant.</em> Journal of Optimization Theory
+and Applications, 79(1), 157-181.</p></li>
+<li><p>Jones, D. R., Schonlau, M., &amp; Welch, W. J. (1998). <em>Efficient global
+optimization of expensive black-box functions.</em> Journal of Global Optimization,
+13(4), 455-492.</p></li>
+<li><p>Virtanen, P., et al. (2020). <em>SciPy 1.0: fundamental algorithms for scientific
+computing in Python.</em> Nature Methods, 17, 261-272.</p></li>
+<li><p>Gallard, F., et al. (2018). <em>GEMS: a Python library for automation of
+multidisciplinary design optimization process generation.</em> AIAA/ASCE/AHS/ASC
+Structures, Structural Dynamics, and Materials Conference.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="problems.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Annex A: the benchmark problems</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tuning.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Annex C: tuning the master</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multistart-of-a-local-solver">Multistart of a local solver</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cma-es">CMA-ES</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#direct">DIRECT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ego-bayesian-optimization">EGO, Bayesian optimization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-four-compared">The four compared</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#counting-a-budget-across-methods-that-differ-that-much">Counting a budget across methods that differ that much</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-deliberately-absent">What is deliberately absent</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/algorithm/baselines.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

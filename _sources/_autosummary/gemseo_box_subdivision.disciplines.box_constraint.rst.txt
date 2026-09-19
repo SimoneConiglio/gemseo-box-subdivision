@@ -1,0 +1,12 @@
+﻿gemseo\_box\_subdivision.disciplines.box\_constraint
+====================================================
+
+.. automodule:: gemseo_box_subdivision.disciplines.box_constraint
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BoxConstraint
+   

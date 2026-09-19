@@ -1,0 +1,1186 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Usage in GEMSEO scenarios &#8212; gemseo-box-subdivision</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=87860dd6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=0340080d"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="../_static/mathjax/tex-svg-full.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/usage';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Results" href="benchmark.html" />
+    <link rel="prev" title="Implementation" href="implementation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gemseo-box-subdivision</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    The algorithm
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/gemseo-box-subdivision/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">The method</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="methodology.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Usage in GEMSEO scenarios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conclusion.html">Conclusion</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Annexes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="problems.html">Annex A: the benchmark problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="baselines.html">Annex B: the baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tuning.html">Annex C: tuning the master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Annex D: the extensions, measured</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">The algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Usage in GEMSEO scenarios</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!--
+ Copyright 2026 Simone Coniglio
+
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+ International License. To view a copy of this license, visit
+ http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
+ Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<section class="tex2jax_ignore mathjax_ignore" id="usage-in-gemseo-scenarios">
+<h1>Usage in GEMSEO scenarios<a class="headerlink" href="#usage-in-gemseo-scenarios" title="Link to this heading">#</a></h1>
+<p>Both formulations build an ordinary GEMSEO scenario with the <code class="docutils literal notranslate"><span class="pre">Benders</span></code>
+formulation, and are solved by default by the <code class="docutils literal notranslate"><span class="pre">BiLevelMasterOuterApproximation</span></code>
+algorithm over SLSQP. Both algorithms are
+<a class="reference internal" href="#the-algorithm-of-each-of-the-two-levels">settings like the rest</a>.</p>
+<section id="the-entry-point">
+<h2>The entry point<a class="headerlink" href="#the-entry-point" title="Link to this heading">#</a></h2>
+<p>One call builds the scenario, one executes it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.design_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">DesignSpace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxSubdivisionScenario</span>
+
+<span class="n">design_space</span> <span class="o">=</span> <span class="n">DesignSpace</span><span class="p">()</span>
+<span class="n">design_space</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">lower_bound</span><span class="o">=-</span><span class="mf">4.1</span><span class="p">,</span> <span class="n">upper_bound</span><span class="o">=</span><span class="mf">5.9</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+<span class="n">scenario</span> <span class="o">=</span> <span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">objective_discipline</span><span class="p">],</span> <span class="s2">"f"</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+<span class="n">scenario</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>What this owns, so that you cannot get it wrong: chaining the mapping <strong>before</strong>
+the objective discipline, building the design space from the <strong>same</strong>
+subdivision, naming the one-hot variables the master optimizes over after your
+design variables rather than after a literal, selecting the <code class="docutils literal notranslate"><span class="pre">Benders</span></code>
+formulation, and sizing the trust region in components changed. None of those is
+a decision; every one of them is a way to produce a silently wrong run.</p>
+<p>The result is an ordinary GEMSEO scenario. <code class="docutils literal notranslate"><span class="pre">scenario.subdivision</span></code> is the
+subdivision it built, and everything else about it works as usual.</p>
+</section>
+<section id="the-settings-that-are-yours-to-choose">
+<h2>The settings that are yours to choose<a class="headerlink" href="#the-settings-that-are-yours-to-choose" title="Link to this heading">#</a></h2>
+<p>Two, and neither has a default that transfers between problems. The class holds
+more, and <a class="reference internal" href="#every-setting-and-what-it-defaults-to">every one of them is listed below</a>;
+these are the two that a new problem actually asks of you:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxSubdivisionSettings</span>
+
+<span class="n">scenario</span> <span class="o">=</span> <span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">objective_discipline</span><span class="p">],</span>
+    <span class="s2">"f"</span><span class="p">,</span>
+    <span class="n">design_space</span><span class="p">,</span>
+    <span class="n">n_subdivisions</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">settings</span><span class="o">=</span><span class="n">BoxSubdivisionSettings</span><span class="p">(</span>
+        <span class="n">convexity_margin</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span>  <span class="c1"># in the units of *your* objective</span>
+        <span class="n">trust_region_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># in components changed</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">convexity_margin</span></code> is subtracted from an objective difference, so it is absolute
+and in the units of the objective. Start from the variation of the objective over
+the design space; it crosses a threshold and then saturates, so erring high costs
+sub-problems rather than quality.</p>
+<p><code class="docutils literal notranslate"><span class="pre">n_subdivisions</span></code> has to resolve the basins of the landscape and keep the binaries
+below the sub-problems a budget can pay for, and refining past the basins makes
+things worse rather than merely slower, see
+<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a>.</p>
+<p>The other mechanism is selected, never mixed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BoxSubdivisionSettings</span><span class="p">(</span><span class="n">mechanism</span><span class="o">=</span><span class="s2">"convexification"</span><span class="p">,</span> <span class="n">convexification_constant</span><span class="o">=</span><span class="mf">50.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Choosing one switches the other’s constant off, so a run always measures one
+mechanism rather than an average of two.</p>
+<section id="not-choosing-the-convexity-at-all">
+<h3>Not choosing the convexity at all<a class="headerlink" href="#not-choosing-the-convexity-at-all" title="Link to this heading">#</a></h3>
+<p>Both are absolute quantities in the units of the objective, which is the one
+thing about this method that does not transfer between problems. The way out is
+to stop supplying a value. The master already probes a <strong>ladder</strong> of
+trust-region radii per iteration, one per parallel point; the same probes can
+sweep a ladder of convexity values, the low rungs proposing the box next door
+and the high rungs the box across the design space, with every probe that
+proposes nothing new redeployed a rung higher. What is then asked of you is an
+upper bound, or nothing at all. It is a <strong>separate entry point</strong> rather than a
+setting of the one above, because a run that sweeps has no convexity to calibrate
+and does not name its master: the sweep lives in one particular master, and this
+drives it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision</span><span class="w"> </span><span class="kn">import</span> <span class="n">SweptBoxSubdivisionSettings</span>
+
+<span class="c1"># An upper bound, instead of a calibrated margin.</span>
+<span class="n">SweptBoxSubdivisionSettings</span><span class="p">(</span><span class="n">max_value</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+
+<span class="c1"># Or nothing at all: the bound is computed from the objective as the run</span>
+<span class="c1"># observes it, the spread over the boxes already solved with a decade of</span>
+<span class="c1"># headroom, so the run asks for no number in the units of the objective.</span>
+<span class="n">SweptBoxSubdivisionSettings</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The rungs are the <strong>parallel points</strong>, <code class="docutils literal notranslate"><span class="pre">n_parallel_points</span></code>, which are the probes
+the master already spends on trust-region radii: a probe per rung is the whole
+construction, so the two are one number rather than two that can disagree.</p>
+<p>On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
+the unbounded sweep reaches the optimum from every starting point on both, which
+no single margin does, see
+<a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
+<p>The sweep is the <strong>master’s</strong>, under its settings <code class="docutils literal notranslate"><span class="pre">convexity_sweep_points</span></code> and
+<code class="docutils literal notranslate"><span class="pre">convexity_sweep_max</span></code>, which this entry point fills from the parallel points and
+the upper bound.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A master predating the sweep does not have those settings, so the package
+<strong>drives the ladder itself</strong>, around the master’s mixed-integer solve, computing
+the bound from the objective exactly as the master would. That is what makes the
+unbounded form work against any master: the master’s own convexity defaults to
+zero, and leaving it there would be a run with its cuts unguarded rather than a
+run without a sweep.
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY" title="gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY"><code class="xref py py-data docutils literal notranslate"><span class="pre">MASTER_SWEEPS_CONVEXITY</span></code></a> says
+which master is installed, and the driving stops the day it says the master
+sweeps.</p>
+<p>The sweep holds over a run that configures its own master, <code class="docutils literal notranslate"><span class="pre">scenario.execute</span></code>
+being given a settings model or keyword arguments: it is what the run needs of
+its master rather than one of the settings the caller is overriding. A driven run
+switches the adaptive repair on, because the master reads the margin only behind
+it, and a master that sweeps on its own is given the two settings carrying the
+sweep, whatever else the caller passes; settings with no room for them are
+refused where they are given, rather than run unswept. What such a run does
+override is the number of parallel points, which is the number of rungs: a master
+left with one probe is given the top rung, the conservative end, rather than a
+ladder.</p>
+</div>
+</section>
+</section>
+<section id="the-algorithm-of-each-of-the-two-levels">
+<h2>The algorithm of each of the two levels<a class="headerlink" href="#the-algorithm-of-each-of-the-two-levels" title="Link to this heading">#</a></h2>
+<p>A run is two algorithms: a master deciding which box to look into, and a solver
+running inside the box it chose. The general construction names both, with
+whatever else each one takes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BoxSubdivisionSettings</span><span class="p">(</span>
+    <span class="c1"># The master, and anything else it takes under its own name.</span>
+    <span class="n">master_algo_name</span><span class="o">=</span><span class="s2">"BILEVEL_MASTER_OUTER_APPROXIMATION"</span><span class="p">,</span>
+    <span class="n">master_algo_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"upper_bound_stall"</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+    <span class="c1"># The solver of each sub-problem, and its own settings.</span>
+    <span class="n">sub_problem_algo_name</span><span class="o">=</span><span class="s2">"NLOPT_COBYLA"</span><span class="p">,</span>
+    <span class="n">sub_problem_algo_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"ftol_rel"</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The defaults are the pair every result reported here was measured with, the
+outer-approximation master over SLSQP, and the two pass-throughs win over the
+settings the class translates: a <code class="docutils literal notranslate"><span class="pre">max_step</span></code> in <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> overrides
+<code class="docutils literal notranslate"><span class="pre">trust_region_radius</span></code>, and a <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> in <code class="docutils literal notranslate"><span class="pre">sub_problem_algo_settings</span></code> overrides
+<code class="docutils literal notranslate"><span class="pre">sub_problem_max_iter</span></code>. A name no GEMSEO library provides, and a setting the
+algorithm named does not have, are both refused when the settings are built
+rather than in the middle of a run.</p>
+<p>What each of the two is free to be is not the same thing:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">sub_problem_algo_name</span></code></dt><dd><p>any GEMSEO optimizer. A box is a continuous problem with bounds, which is what
+SLSQP suits; a derivative-free solver such as <code class="docutils literal notranslate"><span class="pre">NLOPT_COBYLA</span></code> is the reasonable
+choice for an objective whose gradient is unavailable or noisy, and nothing
+here measures one. What the method needs of it is a <strong>local optimum of the
+box</strong>: the cut of a box is built at the point it returns, so a solver stopping
+early leaves that cut wrong rather than merely loose, and its iteration budget
+is a setting of the method rather than a detail.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">master_algo_name</span></code></dt><dd><p>any algorithm that can <strong>choose a box</strong>, which means one handling integer
+variables: the master problem is a relaxable mixed-integer non-linear one, and
+an ordinary optimizer would return its relaxation rather than a box, so it is
+refused outright. Changing it changes the method rather than its tuning. The
+settings this class names in the method’s terms — the mechanism, the convexity,
+the trust region, the parallel points — belong to the <strong>outer approximation</strong>,
+and they reach only a master declaring them; naming another master while
+setting one of them is refused where it is written. Such a master is driven by
+<code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> alone, which reaches every setting it declares, among
+them those
+<a class="reference internal" href="#the-settings-of-the-master-in-their-own-terms">the table below</a> names for the
+outer approximation.</p>
+</dd>
+</dl>
+</section>
+<section id="every-setting-and-what-it-defaults-to">
+<h2>Every setting, and what it defaults to<a class="headerlink" href="#every-setting-and-what-it-defaults-to" title="Link to this heading">#</a></h2>
+<p>There are <strong>two entry points</strong>, and the settings below are split the way they
+are. The general construction names its master and its sub-problem solver and
+calibrates the convexity; the swept one drives the master that sweeps, with the
+parameters of that master chosen rather than supplied. Both are given to the same
+scenario, under <code class="docutils literal notranslate"><span class="pre">settings=</span></code>.</p>
+<p>Eight settings are common to both:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>setting</p></th>
+<th class="head"><p>default</p></th>
+<th class="head"><p>what it is</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mechanism</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;adaptive&quot;</span></code></p></td>
+<td><p>which guard against the non-convexity of the relaxed problem, <code class="docutils literal notranslate"><span class="pre">adaptive</span></code> or <code class="docutils literal notranslate"><span class="pre">convexification</span></code>, never both. It describes an outer approximation, so it reaches only a master declaring it</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trust_region_radius</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(2\)</span></p></td>
+<td><p>the radius of the trust region of the master, counted in <strong>components changed</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_parallel_points</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(4\)</span></p></td>
+<td><p>the trust-region radii the master probes per iteration. Under the swept entry point this is also the number of rungs, a probe per rung. The <strong>pure convexification probes a single point</strong> whatever this says, unless a sweep spreads them</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(80\)</span></p></td>
+<td><p>iterations of the <strong>master</strong>, not of the sub-problems</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sub_problem_max_iter</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(40\)</span></p></td>
+<td><p>iterations of each sub-problem</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(10^{-4}\)</span></p></td>
+<td><p>the tolerance on the upper bound of the master</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sub_problem_algo_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;SLSQP&quot;</span></code></p></td>
+<td><p>the algorithm solving each sub-problem inside its box, free under either entry point</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sub_problem_algo_settings</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>anything else that solver takes, passed through; it wins over <code class="docutils literal notranslate"><span class="pre">sub_problem_max_iter</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings</span></code>, the general construction, adds the master and the
+convexity you calibrate:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>setting</p></th>
+<th class="head"><p>default</p></th>
+<th class="head"><p>what it is</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">convexity_margin</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(100.0\)</span></p></td>
+<td><p>the margin the adaptive repair enforces, <strong>in the units of the objective</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(100.0\)</span></p></td>
+<td><p>the constant the pure convexification adds, <strong>in the units of the objective</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">master_algo_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;BILEVEL_MASTER_OUTER_APPROXIMATION&quot;</span></code></p></td>
+<td><p>the algorithm deciding the next box. Any master that handles integer variables; the default is the outer approximation whose settings this class translates</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>anything else the master takes, passed through under <strong>its own</strong> names. For a master that is not an outer approximation, this is the whole of its configuration</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">options</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p><strong>deprecated</strong>, use <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code>. It still works and warns, and <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> wins when both are given</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code>, the swept construction, adds one number and takes
+away four:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>setting</p></th>
+<th class="head"><p>default</p></th>
+<th class="head"><p>what it is</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_value</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p>the top of the ladder, or zero to have the master read it off the objective as the run observes it, lifted by a decade of headroom</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>It names <strong>no master</strong>, since the sweep is implemented in one particular master
+and this entry point drives it, and it has no <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> to pass it,
+no <code class="docutils literal notranslate"><span class="pre">convexity_margin</span></code> and no <code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code>: a value to calibrate is
+the thing a sweep exists not to ask for. See
+<a class="reference internal" href="#not-choosing-the-convexity-at-all">the sweep</a>.</p>
+<p>Two things a reader looks for here and does not find. <code class="docutils literal notranslate"><span class="pre">n_subdivisions</span></code> is an
+argument of the scenario rather than a setting of either class, since it defines
+the boxes rather than how they are searched. And the settings of the master under
+<strong>its own</strong> names, which <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> reaches, are
+<a class="reference internal" href="#the-settings-of-the-master-in-their-own-terms">a table of their own</a>.</p>
+</section>
+<section id="which-methodology-to-set-up">
+<h2>Which methodology to set up<a class="headerlink" href="#which-methodology-to-set-up" title="Link to this heading">#</a></h2>
+<p>Five constructions are available, and they are not alternatives to be tried at
+random: each answers a different reason for the flat subdivision to be out of
+reach. Read down the first column until one matches the problem.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>If the problem is</p></th>
+<th class="head"><p>then use</p></th>
+<th class="head"><p>because</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>multimodal in every variable, few enough variables that <span class="math notranslate nohighlight">\(n m\)</span> binaries stay affordable</p></td>
+<td><p>the <strong>flat subdivision</strong>, below</p></td>
+<td><p>it is the cheapest and the most reliable of the five</p></td>
+</tr>
+<tr class="row-odd"><td><p>multimodal in a few variables and smooth in the rest</p></td>
+<td><p><strong>subdividing some variables only</strong></p></td>
+<td><p>a variable left out keeps all its basins inside every box, which is harmless when it has none</p></td>
+</tr>
+<tr class="row-even"><td><p>needing a resolution whose <span class="math notranslate nohighlight">\(n m\)</span> binaries the budget cannot identify</p></td>
+<td><p>the <strong>multi-resolution encoding</strong></p></td>
+<td><p>it reaches <span class="math notranslate nohighlight">\(m^L\)</span> subdivisions per component for <span class="math notranslate nohighlight">\(n m L\)</span> binaries</p></td>
+</tr>
+<tr class="row-odd"><td><p>one broad basin that no affordable density separates</p></td>
+<td><p>a <strong>hierarchy</strong>, deep and narrow</p></td>
+<td><p>each level is small enough to be determined by a quarter of the budget</p></td>
+</tr>
+<tr class="row-even"><td><p>solved already, but too slowly</p></td>
+<td><p>the <strong>settings</strong>, above</p></td>
+<td><p>the density and the trust-region radius move results further than any of the constructions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The rule behind the table is the one the methodology derives: what a budget buys
+is a few dozen sub-problem solves, and the cut model has one coefficient per
+binary, so a subdivision is usable while its binaries stay below the cuts that
+can be afforded. Every construction here is a different way of spending fewer
+binaries on the same resolution.</p>
+</section>
+<section id="subdividing-some-of-the-variables-only">
+<h2>Subdividing some of the variables only<a class="headerlink" href="#subdividing-some-of-the-variables-only" title="Link to this heading">#</a></h2>
+<p>The number of boxes being the Cartesian product of the subdivisions, subdividing
+every variable is out of reach as soon as there are a few of them. Pass the
+variables to subdivide, and the others stay ordinary variables of the
+sub-problem:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># A mapping names the variables to subdivide, and how finely each one.</span>
+<span class="n">BoxSubdivisionScenario</span><span class="p">([</span><span class="n">discipline</span><span class="p">],</span> <span class="s2">"f"</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="o">=</span><span class="p">{</span><span class="s2">"x_split"</span><span class="p">:</span> <span class="mi">10</span><span class="p">})</span>
+
+<span class="c1"># Several of them, at densities of their own.</span>
+<span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">discipline</span><span class="p">],</span> <span class="s2">"f"</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="o">=</span><span class="p">{</span><span class="s2">"x_1"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"x_2"</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># The same density for a named few, when one number is enough.</span>
+<span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">discipline</span><span class="p">],</span> <span class="s2">"f"</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">variable_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"x_split"</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This is worth it when the objective is close to unimodal in the variables left
+out: one of them keeps all of its basins inside every box, and the local solve
+returns the one it starts in. See
+<a class="reference internal" href="tuning.html#refining-some-variables-only-and-when-it-pays"><span class="std std-ref">annex C</span></a>,
+where it solves a problem that subdividing every variable coarsely does not, and
+loses on the problems that are multimodal in every variable.</p>
+</section>
+<section id="a-resolution-the-binaries-cannot-afford-the-multi-resolution-encoding">
+<h2>A resolution the binaries cannot afford: the multi-resolution encoding<a class="headerlink" href="#a-resolution-the-binaries-cannot-afford-the-multi-resolution-encoding" title="Link to this heading">#</a></h2>
+<p>When the density needed would cost more binaries than the budget can identify,
+choose a box with <strong>one categorical variable per level</strong> instead of one over the
+whole subdivision. The levels are the digits of the box index in base <span class="math notranslate nohighlight">\(m\)</span>, so
+<span class="math notranslate nohighlight">\(L\)</span> levels of <span class="math notranslate nohighlight">\(m\)</span> subdivisions reach <span class="math notranslate nohighlight">\(m^L\)</span> subdivisions per component for
+<span class="math notranslate nohighlight">\(n m L\)</span> binaries, and the whole thing stays in a single master.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">objective_discipline</span><span class="p">],</span>
+    <span class="s2">"f"</span><span class="p">,</span>
+    <span class="n">design_space</span><span class="p">,</span>
+    <span class="n">n_subdivisions</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>  <span class="c1"># the branching of a level</span>
+    <span class="n">levels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># a resolution of 4 ** 2 = 16 per component</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The mapping is chained before the objective discipline exactly as <code class="docutils literal notranslate"><span class="pre">BoxMapping</span></code>
+is, and the objective keeps receiving <code class="docutils literal notranslate"><span class="pre">x</span></code> under its own name.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code class="docutils literal notranslate"><span class="pre">max_step</span></code> must be scaled by the number of levels. The distance counts the
+one-hot groups a candidate changes and this encoding has <span class="math notranslate nohighlight">\(nL\)</span> of them, so the
+radius of two that suits a flat subdivision would let the master move two
+<strong>digits</strong> rather than two variables. Leaving it at
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.multi_resolution.html#gemseo_box_subdivision.subdivisions.multi_resolution.MultiResolution.max_step" title="gemseo_box_subdivision.subdivisions.multi_resolution.MultiResolution.max_step"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_step</span></code></a>,
+where the region stops constraining, is markedly worse still.</p>
+</div>
+<p>Two limits are worth knowing before choosing it. The cut model is linear in the
+one-hot variables, so over the digits it is <strong>additive</strong>: it cannot express that
+what a fine digit is worth depends on the coarse digit it sits inside, and
+adding levels makes that assumption bind harder. And weighting the levels by
+what their digit is worth, rather than alike, is the worst configuration
+measured. What it achieves is in
+<a class="reference internal" href="extensions.html#the-multi-resolution-encoding"><span class="std std-ref">annex D</span></a>.</p>
+</section>
+<section id="refining-a-box-and-hierarchies">
+<h2>Refining a box, and hierarchies<a class="headerlink" href="#refining-a-box-and-hierarchies" title="Link to this heading">#</a></h2>
+<p>A box of a subdivision is an ordinary design space, so refining it is running the
+method again inside its bounds. The three shapes described in
+<a class="reference internal" href="methodology.html#hierarchies-of-subdivisions"><span class="std std-ref">the methodology</span></a> are in the package,
+and each is a loop around the method rather than a change to it: you give it a
+callable that solves one level and reports the boxes it solved, which leaves you
+your own scenario and your own accounting of the budget.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.design_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">DesignSpace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BoxSubdivisionScenario</span><span class="p">,</span>
+    <span class="n">read_solved_boxes</span><span class="p">,</span>
+    <span class="n">refine_deep</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Run the method once over these bounds."""</span>
+    <span class="k">if</span> <span class="n">budget_is_spent</span><span class="p">():</span>
+        <span class="c1"># No solved box ends the search, which is how a budget ends it.</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[]</span>
+
+    <span class="n">space</span> <span class="o">=</span> <span class="n">DesignSpace</span><span class="p">()</span>
+    <span class="n">space</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span>
+        <span class="s2">"x"</span><span class="p">,</span> <span class="n">lower_bound</span><span class="o">=</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="o">=</span><span class="n">upper_bound</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">lower_bound</span><span class="o">.</span><span class="n">size</span>
+    <span class="p">)</span>
+    <span class="n">scenario</span> <span class="o">=</span> <span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">objective_discipline</span><span class="p">],</span> <span class="s2">"f"</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="o">=</span><span class="n">n_subdivisions</span>
+    <span class="p">)</span>
+    <span class="n">scenario</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">scenario</span><span class="o">.</span><span class="n">subdivision</span><span class="p">,</span> <span class="n">read_solved_boxes</span><span class="p">(</span>
+        <span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">optimization_problem</span>
+    <span class="p">)</span>
+
+
+<span class="n">visited</span> <span class="o">=</span> <span class="n">refine_deep</span><span class="p">(</span><span class="n">solve</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">branching</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">read_solved_boxes</span></code> reads back the value and the post-optimal sensitivity of
+every box the master solved, which is what the shapes rank on.
+<code class="docutils literal notranslate"><span class="pre">refine_two_levels</span></code> and <code class="docutils literal notranslate"><span class="pre">refine_frontier</span></code> take the same callable, and each
+returns the bounds of every region it visited.</p>
+<p>Which box to refine is the whole question, and the rules are in <code class="docutils literal notranslate"><span class="pre">RANKINGS</span></code>:
+<code class="docutils literal notranslate"><span class="pre">&quot;value&quot;</span></code> ranks the boxes whose sub-problem was solved, <code class="docutils literal notranslate"><span class="pre">&quot;cuts&quot;</span></code> ranks <strong>every</strong>
+box of the subdivision by the cut model of the master, which is defined at boxes
+it never solved, and <code class="docutils literal notranslate"><span class="pre">&quot;mixed&quot;</span></code> alternates the two.</p>
+<p><code class="docutils literal notranslate"><span class="pre">benchmarks/hierarchy.py</span></code> wires this to the benchmark problems, sharing one
+budget between the levels so that a hierarchy and a flat run are compared at
+equal cost.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>None of the three beats the flat subdivision on a problem a flat subdivision can
+resolve, and each node restarts a master and discards its parent’s cuts. Reach
+for one only in the case they answer, a basin too broad for any affordable
+density, where the deep shape reaches an optimum the flat method does not, see
+<a class="reference internal" href="extensions.html#the-hierarchies"><span class="std std-ref">annex D</span></a>. If what you
+need is resolution rather than a change of region, the multi-resolution encoding
+above keeps every level in one master and discards nothing.</p>
+</div>
+</section>
+<section id="constraints-of-the-original-problem">
+<h2>Constraints of the original problem<a class="headerlink" href="#constraints-of-the-original-problem" title="Link to this heading">#</a></h2>
+<p>A box may contain no point satisfying the original constraints. Declare such a
+constraint with <code class="docutils literal notranslate"><span class="pre">main_level=True</span></code> so an infeasible sub-problem produces a
+feasibility cut instead of stalling the master:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="s2">"g"</span><span class="p">,</span> <span class="n">main_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="enumerating-the-boxes-instead">
+<h2>Enumerating the boxes instead<a class="headerlink" href="#enumerating-the-boxes-instead" title="Link to this heading">#</a></h2>
+<p>The same scenario, driven exhaustively, which is the reference to compare
+against:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.doe.factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">DOELibraryFactory</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.design_spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_box_samples</span>
+
+<span class="n">DOELibraryFactory</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+    <span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">optimization_problem</span><span class="p">,</span>
+    <span class="n">algo_name</span><span class="o">=</span><span class="s2">"CustomDOE"</span><span class="p">,</span>
+    <span class="n">samples</span><span class="o">=</span><span class="n">create_box_samples</span><span class="p">(</span><span class="n">subdivision</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="applying-this-to-a-new-problem">
+<h2>Applying this to a new problem<a class="headerlink" href="#applying-this-to-a-new-problem" title="Link to this heading">#</a></h2>
+<p>The order below is the one the measurements support, and it is deliberately not
+the order in which the constructions were built.</p>
+<ol class="arabic simple">
+<li><p><strong>Start flat and coarse.</strong> <code class="docutils literal notranslate"><span class="pre">n_subdivisions=2</span></code> or <code class="docutils literal notranslate"><span class="pre">4</span></code>, everything else left at
+its default. This is cheap and tells you whether the landscape is one the
+method suits at all.</p></li>
+<li><p><strong>Scale the convexity margin to the objective.</strong> <code class="docutils literal notranslate"><span class="pre">convexity_margin</span></code> is
+subtracted from an objective difference, so it is absolute, in the units of
+<em>your</em> objective, and a value tuned on another problem means nothing. Take the
+range of the objective over the design space as a first value. It crosses a
+threshold and then saturates, so erring high costs sub-problems rather than
+quality.</p></li>
+<li><p><strong>Sweep the density before anything else.</strong> It moves results further than any
+other choice, and it has a floor and a ceiling: fine enough to separate the
+basins, coarse enough that the binaries stay below the sub-problem solves the
+budget affords. Refining past the basins actively degrades the ranking, so
+more is not safer.</p></li>
+<li><p><strong>Then try <code class="docutils literal notranslate"><span class="pre">trust_region_radius</span></code> either side of two.</strong> It is the second most
+decisive setting and it is cheap to test.</p></li>
+<li><p><strong>Only then reach for a construction</strong>, using the table above to choose
+which; each answers one specific reason for the flat subdivision to fail.</p></li>
+</ol>
+<p>Both mechanism sweeps are in <code class="docutils literal notranslate"><span class="pre">benchmarks/tune_convexification.py</span></code>, which sweeps
+each separately, and the budget question is worth settling too: a run whose cost
+equals its budget was stopped rather than finished, so raise the budget until the
+cost stops moving before comparing anything, see
+<a class="reference internal" href="extensions.html#does-more-budget-change-the-answer"><span class="std std-ref">the results</span></a>.</p>
+</section>
+<section id="composing-it-by-hand">
+<h2>Composing it by hand<a class="headerlink" href="#composing-it-by-hand" title="Link to this heading">#</a></h2>
+<p>The classes underneath stay public, and
+<a class="reference internal" href="implementation.html"><span class="std std-doc">the implementation</span></a> describes them. Use them when you need a
+composition :class:<code class="docutils literal notranslate"><span class="pre">.BoxSubdivisionScenario</span></code> does not cover; otherwise prefer the
+scenario, which is what the tests and the benchmarks use.</p>
+<p>The table below names the settings of the master in <strong>its</strong> terms rather than the
+package’s, which is what you need when composing by hand.
+:class:<code class="docutils literal notranslate"><span class="pre">.BoxSubdivisionSettings</span></code> is the translation:
+<code class="docutils literal notranslate"><span class="pre">convexity_margin</span></code> is <code class="docutils literal notranslate"><span class="pre">min_dfk</span></code>, <code class="docutils literal notranslate"><span class="pre">trust_region_radius</span></code> is <code class="docutils literal notranslate"><span class="pre">max_step</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">mechanism</span></code> chooses which of <code class="docutils literal notranslate"><span class="pre">adapt</span></code> and <code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code> is active
+while switching the other off.</p>
+<section id="the-settings-of-the-master-in-their-own-terms">
+<h3>The settings of the master, in their own terms<a class="headerlink" href="#the-settings-of-the-master-in-their-own-terms" title="Link to this heading">#</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Left to their defaults, the master’s two safeguards are both off: the cuts are
+then invalid on a multimodal problem, the master converges after two or three
+sub-problems and reports success on a point far from the optimum. One of them
+<strong>must</strong> be set, see <a class="reference internal" href="methodology.html#id1"><span class="std std-ref">Convexification</span></a>.</p>
+</div>
+<p>The master offers <strong>two different mechanisms</strong> against the non-convexity of the
+relaxed problem, and they are not meant to be combined:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">adaptive</span></code></dt><dd><p><code class="docutils literal notranslate"><span class="pre">adapt=True</span></code> with a convexity margin <code class="docutils literal notranslate"><span class="pre">min_dfk</span></code>, the constant left at zero. The
+master repairs its cut slopes against the boxes it has already solved. This is
+the recommended configuration.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">convexification</span></code></dt><dd><p><code class="docutils literal notranslate"><span class="pre">adapt=False</span></code> with <code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code> <span class="math notranslate nohighlight">\(\kappa &gt; 0\)</span>, the margin left at
+zero. The master adds <span class="math notranslate nohighlight">\(\kappa\, C(\alpha)\)</span> to the relaxed problem, which is the
+configuration carrying the convergence guarantee, at the price of a lower bound
+degraded by <span class="math notranslate nohighlight">\(\kappa\)</span>, see <a class="reference internal" href="tuning.html#the-master-has-two-mechanisms-and-they-must-not-be-combined"><span class="std std-ref">annex C</span></a>.</p>
+</dd>
+</dl>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Recommended</p></th>
+<th class="head"><p>Why</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adapt</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>repairs the cut slopes against the boxes already solved</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_dfk</span></code></p></td>
+<td><p>the range of the objective over the design space, roughly</p></td>
+<td><p>the convexity margin the repair enforces; it is an <strong>absolute</strong> quantity in the units of the objective and has to be scaled to the problem</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">convexification_constant</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span> with <code class="docutils literal notranslate"><span class="pre">adapt=True</span></code>; otherwise the order of the variation of the objective</p></td>
+<td><p>the other mechanism; use it <em>instead of</em>, not with, the adaptive repair. Raising it beyond that order buys nothing and decays the result, see <a class="reference internal" href="tuning.html#the-pure-convexification-and-the-range-where-it-is-worth-using"><span class="std std-ref">annex C</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">number_of_parallel_points</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(4\)</span></p></td>
+<td><p>the master probes one radius per point, so that a feasible master stays available. A single point still works, from six starting points out of eight against eight; eight points are as reliable as four and nearly twice as expensive</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_step</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(2\)</span></p></td>
+<td><p>the radius of the trust region of the master, counted in <strong>components changed</strong>, the design spaces of this package weighing every subdivision alike. Keep it small: widening it to <a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_step</span></code></a>, where the region stops constraining, loses Rastrigin at five variables, and removing the region is worse still, see <a class="reference internal" href="tuning.html#how-wide-the-radius-should-be"><span class="std std-ref">annex C</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ub_tol</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(10^{-4}\)</span></p></td>
+<td><p>convergence tolerance on the upper bound</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\ge 80\)</span></p></td>
+<td><p>master iterations, not sub-problem iterations</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The first two rows are the ones with no transferable value, and
+<a class="reference internal" href="#not-choosing-the-convexity-at-all">the sweep</a> is how a run avoids choosing
+either. A master that sweeps takes two settings more, <code class="docutils literal notranslate"><span class="pre">convexity_sweep_points</span></code>
+and <code class="docutils literal notranslate"><span class="pre">convexity_sweep_max</span></code>, which <code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code> fills from the
+parallel points and the upper bound;
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.convexity_sweep.html#gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY" title="gemseo_box_subdivision.convexity_sweep.MASTER_SWEEPS_CONVEXITY"><code class="xref py py-data docutils literal notranslate"><span class="pre">MASTER_SWEEPS_CONVEXITY</span></code></a> says
+whether the installed master declares them.</p>
+<p>And one choice that is not a setting of the algorithm but of the subdivision:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Choice</p></th>
+<th class="head"><p>Recommended</p></th>
+<th class="head"><p>Why</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_subdivisions</span></code></p></td>
+<td><p>fine enough to resolve the basins, over the variables the objective is multimodal in</p></td>
+<td><p>a box that still holds several basins defeats the local solve, and the number of boxes costs evaluations rather than master size, the binaries growing linearly. See <a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="implementation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Implementation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="benchmark.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Results</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-entry-point">The entry point</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-settings-that-are-yours-to-choose">The settings that are yours to choose</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#not-choosing-the-convexity-at-all">Not choosing the convexity at all</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-algorithm-of-each-of-the-two-levels">The algorithm of each of the two levels</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#every-setting-and-what-it-defaults-to">Every setting, and what it defaults to</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-methodology-to-set-up">Which methodology to set up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subdividing-some-of-the-variables-only">Subdividing some of the variables only</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-resolution-the-binaries-cannot-afford-the-multi-resolution-encoding">A resolution the binaries cannot afford: the multi-resolution encoding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refining-a-box-and-hierarchies">Refining a box, and hierarchies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-of-the-original-problem">Constraints of the original problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enumerating-the-boxes-instead">Enumerating the boxes instead</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-this-to-a-new-problem">Applying this to a new problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composing-it-by-hand">Composing it by hand</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-settings-of-the-master-in-their-own-terms">The settings of the master, in their own terms</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/SimoneConiglio/gemseo-box-subdivision/edit/main/docs/algorithm/usage.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Simone Coniglio.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

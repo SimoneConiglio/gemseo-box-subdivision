@@ -1,0 +1,20 @@
+﻿gemseo\_box\_subdivision.design\_spaces
+=======================================
+
+.. automodule:: gemseo_box_subdivision.design_spaces
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      DEFAULT_MAX_BOXES
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      create_box_design_space
+      create_box_samples
+      create_normalized_box_design_space
+   

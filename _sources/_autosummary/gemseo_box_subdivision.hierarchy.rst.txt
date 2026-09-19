@@ -1,0 +1,33 @@
+﻿gemseo\_box\_subdivision.hierarchy
+==================================
+
+.. automodule:: gemseo_box_subdivision.hierarchy
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      SolveLevel
+      RANKINGS
+      SHAPES
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      compute_cut_model
+      rank_by_cuts
+      rank_by_value
+      rank_mixed
+      read_solved_boxes
+      refine_deep
+      refine_frontier
+      refine_two_levels
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SolvedBox
+   

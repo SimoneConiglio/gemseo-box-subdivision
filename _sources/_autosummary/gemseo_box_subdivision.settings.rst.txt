@@ -1,0 +1,24 @@
+﻿gemseo\_box\_subdivision.settings
+=================================
+
+.. automodule:: gemseo_box_subdivision.settings
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TRUST_REGION_RADIUS
+      CONVEXITY_MARGIN
+      MASTER_ALGO_NAME
+      N_PARALLEL_POINTS
+      SUB_PROBLEM_ALGO_NAME
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BaseBoxSubdivisionSettings
+      BoxSubdivisionSettings
+      SweptBoxSubdivisionSettings
+   

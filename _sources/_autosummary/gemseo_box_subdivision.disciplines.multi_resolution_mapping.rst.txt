@@ -1,0 +1,12 @@
+﻿gemseo\_box\_subdivision.disciplines.multi\_resolution\_mapping
+===============================================================
+
+.. automodule:: gemseo_box_subdivision.disciplines.multi_resolution_mapping
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      MultiResolutionMapping
+   
