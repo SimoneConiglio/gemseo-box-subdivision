@@ -50,13 +50,6 @@ measuring them together measures neither.
   Driven by `adapt` and the convexity margin `min_dfk`, with no convexification
   constant.
 
-:::{warning}
-An earlier version of this page reported a single sweep with **both** mechanisms
-active, and concluded that the convexification constant was decisive and not
-transferable between formulations. That measurement was confounded and its
-conclusion is withdrawn. The two are swept apart below.
-:::
-
 ### The adaptive repair, which reaches the optimum most often
 
 Rastrigin, ten subdivisions per variable, no convexification constant. Two
@@ -290,8 +283,9 @@ headroom. Two problems in two dimensions do not establish a factor.
 :::
 
 :::{note}
-The table above is the master doing the sweeping. Driven instead by the stub,
-against a master predating the sweep, every Rastrigin row is identical and three
+The table above is the master doing the sweeping. Driven instead by this
+package, against a master predating the sweep, every Rastrigin row is identical
+and three
 Ackley rows differ by a starting point or two: $5/6$ rather than $6/6$ at
 $\kappa_{\max} = 100$, $5/6$ rather than $4/6$ at $\kappa_{\max} = 1000$, and
 $1/6$ rather than $3/6$ with no headroom. Patching the master from outside cannot
@@ -496,8 +490,8 @@ waste sub-problems, it degrades the ranking.
 under both mechanisms, $14.43$ to $6.30$ and $14.43$ to $4.95$, and reaches the
 optimum only once out of three even then. Its single broad basin over a range of
 sixty is what no density of this benchmark resolves; the deep hierarchy of
-[the benchmark](benchmark.md#the-extensions-and-what-they-are-worth) is the only
-configuration here that does.
+[annex D](extensions.md#the-hierarchies) is the only configuration here that
+does.
 
 ### A hierarchy of subdivisions, and the rule that refines it
 
@@ -574,12 +568,12 @@ out. It follows that
 The frontier result is worth stating plainly because it refutes the obvious next
 idea. A **best-first search over the boxes of every level**, scored by the cut
 model that produced them, is the spatial branch-and-bound these shapes gesture
-at, and it is the construction an earlier version of this page proposed as the
-missing ingredient. Measured, it is the worst of the family. What a hierarchy
+at, and it is the obvious thing to reach for. Measured, it is the worst of the
+family. What a hierarchy
 lacks is not the ability to reconsider; it is a model worth reconsidering with,
 and every node it adds makes that model thinner. The construction that keeps one
 model over every level is the
-[multi-resolution encoding](benchmark.md#the-extensions-and-what-they-are-worth),
+[multi-resolution encoding](extensions.md#the-multi-resolution-encoding),
 not a better search over separate ones.
 
 So the hierarchy is not a default. What it is, is the one construction here that

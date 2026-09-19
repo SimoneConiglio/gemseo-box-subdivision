@@ -46,6 +46,8 @@ Ackley from every starting point, with no value supplied at all, where no single
 margin serves both. It is two problems in two dimensions, and the factor of ten
 its unbounded form needs was chosen on them, so it is a direction rather than an
 established result, see
+[the results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it),
+with the full table in
 [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
 ## What is established, and what is not

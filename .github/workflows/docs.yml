@@ -48,6 +48,16 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_build/html
+      # The Pages artifact above is a tarball only the deployment can read, and
+      # the deployment runs on the default branch alone, so a change to the
+      # documentation was reviewable only once merged. This one is a plain
+      # archive: download it from the run and open index.html.
+      - name: Upload the documentation to browse
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-${{ github.event.pull_request.number || github.sha }}
+          path: docs/_build/html
+          retention-days: 14
 
   deploy:
     name: Deploy to GitHub Pages

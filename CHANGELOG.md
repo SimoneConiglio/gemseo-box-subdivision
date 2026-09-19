@@ -26,6 +26,19 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- The documentation covers the convexity sweep where a reader meets the method
+  rather than only in its annex: the methodology derives it after the two
+  mechanisms it replaces, and the results carry what it reaches. The extensions
+  move to an annex of their own, so the results page carries one table per
+  question and its verdicts, and the notes recording what an earlier version of
+  a page reported are gone: a withdrawn measurement is not a finding.
+- The documentation build uploads a browsable archive on every run, so a change
+  to it can be read before it reaches the branch that publishes.
+
 ## 0.2.0 (2026-09-18)
 
 The settings, in two entry points: the general construction, which names the

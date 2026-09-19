@@ -191,8 +191,8 @@ is the right constraint for a genuinely categorical variable, where no two
 categories are nearer than any others, and it is what the bilevel outer
 approximation was written for.
 
-A subdivided variable looks ordinal, and an earlier version of this package took
-the invitation, weighting each subdivision by its own index. That makes the
+A subdivided variable looks ordinal, and taking that invitation — weighting each
+subdivision by its own index — is the obvious thing to do. It makes the
 region **lopsided rather than local**: leaving the first subdivision of a
 component is free, leaving the last costs $m_j - 1$, and neither has anything to
 do with where the candidate lands.
@@ -395,6 +395,53 @@ The adaptive repair keeps the bound usable and, on the benchmark, reaches the
 optimum from every starting point, but it enforces convexity only against the
 boxes already visited, so it carries no guarantee.
 
+### Sweeping it instead of calibrating it
+
+Both mechanisms ask for the same thing in the end: a number in the **units of the
+objective**, of the order of the variation the cuts have to dominate. That number
+is the standing criticism of the method, because the user is asked for it before
+the run has measured anything. A margin of $100$ reaches the optimum from every
+starting point on Rastrigin, which spans about eighty, and is the worst of those
+tried on Ackley, which spans about twenty-two, so a better default does not
+answer the criticism: no single number is right for two problems.
+
+Not choosing does. The master already refuses to choose its trust-region radius:
+it probes one radius per parallel point, over $[\Delta/2, \Delta]$, so **its
+parallel points are a sweep rather than a batch**. The same probes can carry a
+ladder of convexity values $\kappa_1 < \dots < \kappa_N$, geometric below an
+upper bound, one rung per probe:
+
+- **probe $k$ solves the master at rung $k$**, so one iteration spans the ladder
+  instead of repeating one value. The two ladders pair up, the tight region with
+  the raw cuts and the wide one with the dominated cuts, so an iteration returns
+  the exploitative box *and* the exploratory one;
+- **a probe proposing a box already solved climbs one rung**, and again, until it
+  proposes a new box or the ladder is exhausted. Escalating changes the cuts,
+  which is what moves the master elsewhere, and it costs one more mixed-integer
+  solve and **no objective evaluation** — the currency this method is measured
+  in;
+- **every probe exhausting the ladder is a stopping criterion**, and a stronger
+  one than a single value proposing nothing: no convexity up to $\kappa_{\max}$
+  proposes a box that has not been solved.
+
+What is left to supply is the upper bound alone, the rungs being the probes. And
+the bound need not be supplied either: both mechanisms are calibrated against the
+variation of the objective over the design space, which the master **observes** as
+it solves boxes, so the bound can be read off the spread of the values already
+obtained. Read literally that estimate is circular — the first boxes are the
+handful the first iterations proposed, and on a broad basin they look alike — so
+it is taken with a decade of headroom, a **dimensionless** factor, which is not
+the quantity the criticism is about.
+
+The sweep is a loop over the master's own probes, so it belongs to the master and
+is implemented there. What this package supplies is
+[`SweptBoxSubdivisionSettings`](usage.md#not-choosing-the-convexity-at-all), the
+entry point of a run that calibrates nothing, and a driver that sweeps from
+outside a master predating the loop. What the sweep costs and what it reaches is
+in [the results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it),
+and the measurements behind it in
+[annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
+
 ## Subdividing some variables only
 
 Nothing requires every variable to be subdivided. A variable left out stays an
@@ -539,7 +586,7 @@ coefficients, so a quarter of the budget is enough to determine one, and the
 resolution reached is $2^4$ per variable without any level ever being large.
 
 The measured behaviour of the three shapes, and of the two scores, is in
-[the results](benchmark.md#the-extensions-and-what-they-are-worth).
+[annex D](extensions.md#the-hierarchies).
 
 ## One master, several levels: the multi-resolution encoding
 
@@ -621,7 +668,7 @@ with no effective region at all, the encoding looks considerably worse than it
 is.
 
 What it is worth is in
-[the results](benchmark.md#the-extensions-and-what-they-are-worth).
+[annex D](extensions.md#the-multi-resolution-encoding).
 
 ## Relation to spatial branch-and-bound
 

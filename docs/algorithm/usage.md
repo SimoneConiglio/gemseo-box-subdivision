@@ -330,7 +330,7 @@ what a fine digit is worth depends on the coarse digit it sits inside, and
 adding levels makes that assumption bind harder. And weighting the levels by
 what their digit is worth, rather than alike, is the worst configuration
 measured. What it achieves is in
-[the results](benchmark.md#the-extensions-and-what-they-are-worth).
+[annex D](extensions.md#the-multi-resolution-encoding).
 
 ## Refining a box, and hierarchies
 
@@ -392,7 +392,7 @@ None of the three beats the flat subdivision on a problem a flat subdivision can
 resolve, and each node restarts a master and discards its parent's cuts. Reach
 for one only in the case they answer, a basin too broad for any affordable
 density, where the deep shape reaches an optimum the flat method does not, see
-[the results](benchmark.md#the-extensions-and-what-they-are-worth). If what you
+[annex D](extensions.md#the-hierarchies). If what you
 need is resolution rather than a change of region, the multi-resolution encoding
 above keeps every level in one master and discards nothing.
 :::
@@ -452,7 +452,7 @@ Both mechanism sweeps are in `benchmarks/tune_convexification.py`, which sweeps
 each separately, and the budget question is worth settling too: a run whose cost
 equals its budget was stopped rather than finished, so raise the budget until the
 cost stops moving before comparing anything, see
-[the results](benchmark.md#does-more-budget-change-the-answer).
+[the results](extensions.md#does-more-budget-change-the-answer).
 
 ## Composing it by hand
 
