@@ -328,9 +328,14 @@ forgiving.
 
 **It is not free, and it is not measured widely.** Escalation costs
 mixed-integer solves rather than evaluations, which is why the swept rows cost
-what the calibrated one costs; and two problems in two dimensions establish no
-factor. The full table, the reading of the bound off the objective, and what the
-headroom is for are in
+what the calibrated one costs. The table above is two problems in two dimensions,
+which establish no factor: the decade of headroom the unbounded form needs was
+chosen on them. What reaches further is the
+[comparison against the baselines](#against-the-baselines), where the swept
+configuration is measured on four problems in two dimensions and five — and even
+there, one mechanism only, the adaptive repair, the pure convexification having
+never been swept. The full table, the reading of the bound off the objective, and
+what the headroom is for are in
 [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
 ## The extensions, and what they are worth

@@ -145,19 +145,22 @@ from the failures of the local solves themselves, would replace the one setting
 that is tuned by hand and would say, at the same time, which variables deserve
 subdividing at all.
 
-**A convexity nobody has to calibrate.** The margin and the constant are
-absolute quantities in the units of the objective, and that is the criticism this
-method has not answered. Sweeping them instead of choosing them costs nothing the
-master is not already paying: its parallel points are a sweep of the
-trust-region radius, and the same probes can carry a ladder of convexity values,
-one iteration then returning the box next door and the box across the design
-space at once, with every probe that proposes nothing new redeployed a rung
-higher. Implemented in the master, it solves both two-dimensional problems from
-every starting point without being given a value, which no fixed margin does.
-What it needs to become a result is a held-out problem: the decade of headroom
-its unbounded form needs was itself chosen on the two problems it is reported on,
-and neither the five-variable cases nor the pure convexification has been swept
-properly.
+**Finishing the convexity nobody has to calibrate.** The margin and the constant
+are absolute quantities in the units of the objective, which was the criticism
+this method had not answered; the sweep answers it, and the answer is measured
+rather than proposed. Across the comparison against the baselines, four problems
+in two dimensions and five, the swept configuration matches the calibrated margin
+on every row and reaches the optimum from more starting points on two of them,
+one of those at five variables, with no value supplied at all.
+
+Three things are missing before that is a result rather than a measurement. The
+decade of **headroom** the unbounded form needs was chosen on the two problems
+annex C reports it on, so it wants a **held-out problem**. The **pure
+convexification has never been swept**, every measurement above sweeping the
+adaptive repair alone, and the two mechanisms fail differently. And the loop
+belongs to the master, where a released one does not yet implement it, so this
+package drives it from outside: that driver is temporary and goes the day
+`MASTER_SWEEPS_CONVEXITY` says the master sweeps.
 
 **A master that keeps its cuts while the boxes change.** The hierarchies all
 restart a master per node, which is what makes them lose. A master over a
