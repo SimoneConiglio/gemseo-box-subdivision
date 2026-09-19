@@ -31,23 +31,25 @@ ratio between those binaries and the sub-problems a budget can pay for: past
 some fifty coefficients for fifty cuts, the cut model is underdetermined and the
 quality collapses.
 
-**Two settings decide whether a run works at all**, and both fail silently when
-wrong: the guard against non-convexity, the adaptive repair of the cut slopes or
-the convexification constant, never both; and the trust region of the master,
-which has to measure the **number of components a candidate changes** and to keep
-a radius of about two. Weighing the subdivisions by their own indexes, which the
-upstream design space does by default for a numeric catalogue, is not a distance
-at all, and it cost this method its best result until it was found.
+**Two settings decided whether a run worked at all**, and both failed silently
+when wrong: the guard against non-convexity, the adaptive repair of the cut
+slopes or the convexification constant, never both; and the trust region of the
+master, which has to measure the **number of components a candidate changes** and
+to keep a radius of about two. Weighing the subdivisions by their own indexes,
+which the upstream design space does by default for a numeric catalogue, is not a
+distance at all, and it cost this method its best result until it was found.
 
-Of those two, the guard is the one the method should stop asking for, and a
-measurement says it can: sweeping a ladder of convexity values across the
-parallel probes the master already runs reaches the optimum on Rastrigin and on
-Ackley from every starting point, with no value supplied at all, where no single
-margin serves both. It is two problems in two dimensions, and the factor of ten
-its unbounded form needs was chosen on them, so it is a direction rather than an
-established result, see
+**The guard is no longer one of them.** Sweeping a ladder of convexity values
+across the parallel probes the master already runs, with no value supplied,
+reaches the same distance to the optimum as the calibrated configuration on every
+row of the comparison against the baselines, and reaches it from more starting
+points on two of them. A user tunes the density of the subdivision now, not the
+units of their own objective. The trust region remains, and so does the
+subdivision: what the sweep removes is one of the two, not both, and it is
+measured on four problems in two dimensions and five, which is this benchmark
+rather than a held-out set. See
 [the results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it),
-with the full table in
+with the tables in
 [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
 ## What is established, and what is not
@@ -60,7 +62,9 @@ Established:
 - the sub-problem starting point and the guard against non-convexity are both
   decisive, and both fail silently when wrong;
 - where the subdivision resolves the basins, the method reaches the optimum for
-  three to five times fewer evaluations than multistart, CMA-ES or DIRECT;
+  three to five times fewer evaluations than multistart, CMA-ES or DIRECT, and it
+  does so **with no convexity value supplied**: the swept configuration matches
+  the calibrated one on every row of that comparison and is more reliable on two;
 - a subdivision fine enough to resolve them stays tractable, the master growing
   with the binaries and not with the boxes: Rastrigin in five dimensions, out of
   reach of every baseline here, is solved over $100\,000$ boxes;
@@ -99,8 +103,10 @@ Not established:
   $5000$ or $10\,000$, because what binds them is their own stopping rule and
   not the budget. Every other truncated cell carries the same caveat until it is
   re-run.
-- **generalization.** The constants and the number of subdivisions were tuned on
-  the problems then reported. A claim about the method needs a held-out set or a
+- **generalization.** The number of subdivisions, the trust-region radius and
+  the headroom of the unbounded sweep were all chosen on the problems then
+  reported. The convexity margin has left that list, the swept configuration
+  supplying none, but a claim about the method still needs a held-out set or a
   protocol fixed in advance.
 - **a rule for the number of subdivisions.** It has to follow the spacing of the
   basins rather than the dimension, and that spacing is not known a priori. The

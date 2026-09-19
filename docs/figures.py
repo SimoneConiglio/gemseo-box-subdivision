@@ -62,6 +62,9 @@ SECOND = "#1c7ed6"
 THIRD = "#2f9e44"
 """The colour of the third series of a figure."""
 
+FOURTH = "#ae3ec9"
+"""The colour of the fourth series of a figure."""
+
 
 def rastrigin(x, y):
     """Return the Rastrigin function of two variables."""
@@ -786,14 +789,18 @@ def draw_results(foreground: str):
         "Griewank 2",
         "Griewank 5",
     )
+    # The swept column is what a user gets having tuned nothing; the calibrated
+    # one carries a margin chosen on these very problems.
     costs = {
-        "box subdivision": (543, 823, 347, 892, 218, 458, 607, 1016),
+        "box subdivision, swept": (457, 899, 613, 361, 334, 601, 556, 1009),
+        "box subdivision, margin 100": (543, 823, 347, 892, 218, 458, 607, 1016),
         "multistart": (1000, 2500, 1000, 2500, 1000, 2340, 1000, 2500),
         "CMA-ES": (631, 1945, 745, 2009, 535, 1457, 643, 1769),
         "DIRECT": (649, 461, 417, 353, 1011, 2505, 1011, 397),
     }
     reached = {
-        "box subdivision": (3, 0, 2, 0, 3, 2, 0, 0),
+        "box subdivision, swept": (3, 0, 3, 0, 3, 3, 0, 0),
+        "box subdivision, margin 100": (3, 0, 2, 0, 3, 2, 0, 0),
         "multistart": (2, 0, 3, 0, 3, 3, 0, 0),
         "CMA-ES": (0, 0, 3, 3, 2, 2, 0, 0),
         "DIRECT": (3, 0, 3, 0, 3, 3, 0, 0),
@@ -801,12 +808,12 @@ def draw_results(foreground: str):
     # The budget is 500 equivalent evaluations per design variable, so a bar
     # reaching it is a run stopped by the budget rather than by itself.
     budgets = tuple(500 * int(label.split()[-1]) for label in labels)
-    colours = (ACCENT, SECOND, THIRD, "#868e96")
+    colours = (ACCENT, FOURTH, SECOND, THIRD, "#868e96")
     figure, axes = plt.subplots(figsize=(8.6, 3.6))
     positions = arange(len(labels))
-    width = 0.2
+    width = 0.16
     for index, (name, values) in enumerate(costs.items()):
-        offset = (index - 1.5) * width
+        offset = (index - 2) * width
         bars = axes.bar(
             positions + offset, values, width, color=colours[index], label=name
         )
@@ -845,7 +852,7 @@ def draw_results(foreground: str):
         "Cost at equal budget, a tick per starting point reaching the optimum",
         pad=26,
     )
-    axes.legend(ncols=4, fontsize=8, loc="upper center", bbox_to_anchor=(0.5, 1.10))
+    axes.legend(ncols=5, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, 1.10))
     return figure
 
 
