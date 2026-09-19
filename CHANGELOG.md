@@ -26,24 +26,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Changed
-
-- The documentation covers the convexity sweep where a reader meets the method
-  rather than only in its annex: the methodology derives it after the two
-  mechanisms it replaces, and the results carry what it reaches. The extensions
-  move to an annex of their own, so the results page carries one table per
-  question and its verdicts, and the notes recording what an earlier version of
-  a page reported are gone: a withdrawn measurement is not a finding.
-- The documentation build uploads a browsable archive on every run, so a change
-  to it can be read before it reaches the branch that publishes.
-- The integration branch has a published documentation of its own, under `/dev/`
-  of the same site, saying on every page that it documents code in no release.
-  Both builds are written to the `gh-pages` branch, which is what the site is
-  served from; see `CONTRIBUTING.md`.
-
-## 0.2.0 (2026-09-18)
+## 0.2.0 (2026-09-19)
 
 The settings, in two entry points: the general construction, which names the
 master and the solver running inside a box, and the swept one, which asks the
@@ -51,6 +34,13 @@ master to sweep the convexity rather than asking its user for a margin in the
 units of an objective they have not measured. What each entry point holds is
 what applies to it, every setting is given by name, and a setting of an outer
 approximation no longer reaches a master that has none.
+
+Measured against the baselines, the swept construction — nothing tuned, no
+convexity value supplied — reaches the same distance to the optimum as the
+calibrated one on every problem of the benchmark, and reaches it from more
+starting points on two of them. The numbers this release reports are therefore
+the ones a user gets without first tuning the method to the problem they are
+about to solve.
 
 ### Added
 
@@ -138,12 +128,37 @@ approximation no longer reaches a master that has none.
   `OUTER_APPROXIMATION` name one no library provides, so a model would have run an
   algorithm other than the one `master_algo_name` asks for. That mismatch is a
   defect of the plugin declaring those settings, not of the algorithm.
+- **The documentation reports the method as a user gets it.** The comparison
+  against the baselines carried a convexity margin chosen on the problems it
+  reports; it now carries the swept configuration beside it, and the landing
+  page sends a reader to the sweep rather than to a chapter on calibrating a
+  constant. The methodology derives the sweep where the mechanisms it replaces
+  are derived, the results carry what it reaches, the extensions move to an
+  annex of their own, and the notes recording what an earlier version of a page
+  reported are gone: a withdrawn measurement is not a finding.
+- The published documentation has **two builds**: the released one at the root
+  of the site and the integration branch under `/dev/`, which says on every page
+  that it documents code in no release. Both are written to the `gh-pages`
+  branch, which the site is served from, and every build — a pull request's
+  included — uploads a browsable archive, so a change can be read before it is
+  published. See `CONTRIBUTING.md`.
 
 ### Deprecated
 
 - `BoxSubdivisionSettings.options`, the pass-through to the master, is
   `master_algo_settings`, which says which of the two levels it configures. The
   old name still works, and warns; given both, `master_algo_settings` wins.
+
+### Fixed
+
+- A variable of size $s$ subdivided into $m$ was always $s$ independent choices
+  of one subdivision out of $m$, one one-hot group per component, and it still
+  is; what was missing was a test that could tell. Every array-variable test
+  used two components and two subdivisions, and a square case cannot distinguish
+  a grouping by component from a grouping by subdivision. The cases added take
+  the two sizes apart, and the usage chapter states the rule: the density is per
+  component, so one variable of size five and five variables of size one give
+  the same master.
 
 ## 0.1.0 (2026-09-15)
 
