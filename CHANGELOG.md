@@ -38,6 +38,10 @@ and this project adheres to
   a page reported are gone: a withdrawn measurement is not a finding.
 - The documentation build uploads a browsable archive on every run, so a change
   to it can be read before it reaches the branch that publishes.
+- The integration branch has a published documentation of its own, under `/dev/`
+  of the same site, saying on every page that it documents code in no release.
+  Both builds are written to the `gh-pages` branch, which is what the site is
+  served from; see `CONTRIBUTING.md`.
 
 ## 0.2.0 (2026-09-18)
 
