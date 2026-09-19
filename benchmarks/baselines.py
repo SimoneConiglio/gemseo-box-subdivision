@@ -57,6 +57,7 @@ from benchmarks.configurations import TRUST_REGION_RADIUS
 from benchmarks.problems import Counter
 from benchmarks.problems import Objective
 from gemseo_box_subdivision import BoxSubdivisionScenario
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -102,7 +103,14 @@ def default_n_subdivisions(dimension: int, max_boxes: int = MAX_BOXES) -> int:
     return max(2, int(max_boxes ** (1.0 / dimension)))
 
 
-METHODS = ("box_subdivision", "multistart", "cmaes", "direct", "egobox")
+METHODS = (
+    "box_subdivision",
+    "box_subdivision_swept",
+    "multistart",
+    "cmaes",
+    "direct",
+    "egobox",
+)
 """The methods compared."""
 
 
@@ -290,6 +298,65 @@ def run_box_subdivision(
         )
 
     return _result("box_subdivision", problem, dimension, seed, counter, adjoint)
+
+
+def run_swept_box_subdivision(
+    problem: Problem,
+    dimension: int,
+    seed: int,
+    budget: int,
+    adjoint: bool,
+    n_subdivisions: int = 0,
+) -> Result:
+    """Run the method with the convexity swept rather than calibrated.
+
+    The same method as :func:`.run_box_subdivision`, asked for through the entry
+    point that supplies **no convexity value at all**: the ladder is spread over
+    the parallel probes the master already runs, and its upper bound is read off
+    the spread of the objective over the boxes already solved.
+
+    This is the configuration a user gets without tuning anything, which is what
+    makes it the one to compare against the baselines: every other row of this
+    benchmark carries a margin chosen on the problem it is run on.
+
+    Args:
+        problem: The problem.
+        dimension: The number of design variables.
+        seed: The seed of the starting point.
+        budget: The budget in equivalent objective evaluations.
+        adjoint: Whether a gradient costs one objective evaluation.
+        n_subdivisions: The number of subdivisions per variable.
+            If zero, use :func:`.default_n_subdivisions`.
+
+    Returns:
+        The outcome of the run.
+    """
+    counter = BudgetedCounter(problem, dimension, budget, adjoint)
+    design_space = _design_space(
+        problem, dimension, _starting_point(problem, dimension, seed)
+    )
+    scenario = BoxSubdivisionScenario(
+        [Objective(counter, dimension)],
+        "f",
+        design_space,
+        n_subdivisions=n_subdivisions or default_n_subdivisions(dimension),
+        settings=SweptBoxSubdivisionSettings(
+            trust_region_radius=TRUST_REGION_RADIUS,
+            n_parallel_points=CONFIGURATIONS[DEFAULT_CONFIGURATION][
+                "number_of_parallel_points"
+            ],
+            max_iter=10000,
+            tolerance=1e-4,
+        ),
+    )
+
+    # Executed without arguments, so that the run is the one the settings
+    # describe: the master is named and configured by them, and the ladder is
+    # driven around its solves where the installed master does not sweep.
+    with suppress(BudgetExceededError, KeyError):
+        scenario.execute()
+
+    return _result("box_subdivision_swept", problem, dimension, seed, counter, adjoint)
 
 
 def run_multistart(
@@ -494,6 +561,7 @@ def _result(
 
 RUNNERS = {
     "box_subdivision": run_box_subdivision,
+    "box_subdivision_swept": run_swept_box_subdivision,
     "multistart": run_multistart,
     "cmaes": run_cmaes,
     "direct": run_direct,
