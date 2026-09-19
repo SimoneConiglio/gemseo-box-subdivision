@@ -20,6 +20,7 @@ import pytest
 from gemseo.algos.design_space import DesignSpace
 from numpy import array
 from numpy import inf
+from numpy import zeros
 from numpy.testing import assert_allclose
 
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
@@ -32,6 +33,42 @@ def design_space() -> DesignSpace:
     design_space.add_variable("x", lower_bound=0.0, upper_bound=1.0, size=2, value=0.5)
     design_space.add_variable("y", lower_bound=-2.0, upper_bound=2.0, value=0.0)
     return design_space
+
+
+def test_a_variable_of_several_components_is_subdivided_per_component() -> None:
+    """Check that each component of an array variable carries its own bounds.
+
+    The sizes are taken apart, three components and four subdivisions, since a
+    square case cannot tell the bounds of a component from the bounds of a
+    subdivision. Each component is subdivided over **its own** range, so the
+    bounds of one say nothing about the bounds of another.
+    """
+    space = DesignSpace()
+    space.add_variable(
+        "x",
+        lower_bound=array([0.0, -1.0, 10.0]),
+        upper_bound=array([1.0, 1.0, 20.0]),
+        size=3,
+        value=array([0.5, 0.0, 15.0]),
+    )
+    subdivision = BoxSubdivision.from_design_space(space, 4)
+
+    assert subdivision.get_lower_bounds("x").shape == (3, 4)
+    assert subdivision.n_binaries == 12
+    assert subdivision.n_boxes == 4**3
+    assert_allclose(subdivision.get_lower_bounds("x")[1], [-1.0, -0.5, 0.0, 0.5])
+    assert_allclose(subdivision.get_upper_bounds("x")[2], [12.5, 15.0, 17.5, 20.0])
+
+    # A one-hot picking the first subdivision of the first component, the last of
+    # the second and the second of the third: three independent choices.
+    one_hot = zeros(12)
+    for component, index in enumerate((0, 3, 1)):
+        one_hot[component * 4 + index] = 1.0
+
+    lower, upper = subdivision.compute_bounds("x", one_hot)
+    assert_allclose(lower, [0.0, 0.5, 12.5])
+    assert_allclose(upper, [0.25, 1.0, 15.0])
+    assert_allclose(subdivision.locate("x", array([0.9, -0.9, 19.0])), [3, 0, 3])
 
 
 def test_uniform_subdivision(design_space) -> None:
