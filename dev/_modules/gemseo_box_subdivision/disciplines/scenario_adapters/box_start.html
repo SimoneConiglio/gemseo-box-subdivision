@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=8f957b8b"></script>
+    <script src="../../../../_static/documentation_options.js?v=c3f75c50"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -480,7 +480,6 @@
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_pre_run</span><span class="p">()</span>
             <span class="n">design_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">optimization_problem</span><span class="o">.</span><span class="n">design_space</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">data</span>
-            <span class="n">current_value</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">one_hot_name</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">variable_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">design_space</span> <span class="ow">or</span> <span class="n">one_hot_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
                     <span class="k">continue</span>
@@ -488,10 +487,12 @@
                 <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">subdivision</span><span class="o">.</span><span class="n">compute_bounds</span><span class="p">(</span>
                     <span class="n">variable_name</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">one_hot_name</span><span class="p">]</span>
                 <span class="p">)</span>
-                <span class="n">current_value</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">lower_bound</span> <span class="o">+</span> <span class="n">upper_bound</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
-
-            <span class="k">if</span> <span class="n">current_value</span><span class="p">:</span>
-                <span class="n">design_space</span><span class="o">.</span><span class="n">set_current_value</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span>
+                <span class="c1"># One variable at a time: a design space holding variables that</span>
+                <span class="c1"># are not subdivided rejects a current value covering only some</span>
+                <span class="c1"># of its variables, and those others keep the value they have.</span>
+                <span class="n">design_space</span><span class="o">.</span><span class="n">set_current_variable</span><span class="p">(</span>
+                    <span class="n">variable_name</span><span class="p">,</span> <span class="p">(</span><span class="n">lower_bound</span> <span class="o">+</span> <span class="n">upper_bound</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+                <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">BoxStartScenarioAdapter</span></div>
 
