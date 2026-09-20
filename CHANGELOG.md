@@ -26,6 +26,16 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- The constraint formulation no longer fails when only some of the variables
+  are subdivided: the adapter starting a sub-problem inside its box sets the
+  starting point of the subdivided variables one at a time, instead of handing
+  the design space a current value covering part of its variables, which it
+  rejects. The variables that are not subdivided keep the value they have.
+
 ## 0.2.0 (2026-09-19)
 
 The settings, in two entry points: the general construction, which names the
