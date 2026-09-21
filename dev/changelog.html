@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=a102dcdb"></script>
+    <script src="_static/documentation_options.js?v=5d73c67c"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -466,11 +466,28 @@ the master then cuts on a value nothing computed. Supplying an adapter lets
 the caller restore a startable point inside the box first. Applying the method
 to the EX-link engine, whose design box is 94 % unanalysable, is what asked
 for it.</p></li>
+<li><p>A constraint whose <strong>name</strong> differs from the discipline output it is built
+from is now refused by <code class="docutils literal notranslate"><span class="pre">add_constraint</span></code>, where it is written, instead of
+raising <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> the first time the master linearizes the sub-problem
+adapter — several iterations into a run, which a short one never reaches.
+Three ordinary ways of writing a constraint rename it: <code class="docutils literal notranslate"><span class="pre">constraint_name=</span></code>,
+which is how a band is written as two inequalities on one output;
+<code class="docutils literal notranslate"><span class="pre">positive=True</span></code>, which GEMSEO names <code class="docutils literal notranslate"><span class="pre">-g</span></code>; and a non-zero <code class="docutils literal notranslate"><span class="pre">value</span></code>, which it
+names <code class="docutils literal notranslate"><span class="pre">[g-0.5]</span></code>. The message names the limitation and the way around it, a
+<code class="docutils literal notranslate"><span class="pre">LinearCombination</span></code> giving each side its own discipline output.</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>Added<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">find_renamed_constraints</span></code>, <code class="docutils literal notranslate"><span class="pre">check_constraint_names</span></code> and
+<code class="docutils literal notranslate"><span class="pre">guard_renamed_constraints</span></code>, which read and enforce that rule, for a
+composition built by hand rather than through <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionScenario</span></code>.</p></li>
 </ul>
 </section>
 </section>
-<section id="id1">
-<h2>0.2.0 (2026-09-19)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h2>0.2.0 (2026-09-19)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>The settings, in two entry points: the general construction, which names the
 master and the solver running inside a box, and the swept one, which asks the
 master to sweep the convexity rather than asking its user for a margin in the
@@ -483,8 +500,8 @@ calibrated one on every problem of the benchmark, and reaches it from more
 starting points on two of them. The numbers this release reports are therefore
 the ones a user gets without first tuning the method to the problem they are
 about to solve.</p>
-<section id="id2">
-<h3>Added<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul>
 <li><p>The algorithm of each of the two levels is a setting, with its own settings:
 <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_name</span></code> and <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> for the
@@ -594,8 +611,8 @@ published. See <code class="docutils literal notranslate"><span class="pre">CONT
 old name still works, and warns; given both, <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> wins.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Fixed<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A variable of size <span class="math notranslate nohighlight">\(s\)</span> subdivided into <span class="math notranslate nohighlight">\(m\)</span> was always <span class="math notranslate nohighlight">\(s\)</span> independent choices
 of one subdivision out of <span class="math notranslate nohighlight">\(m\)</span>, one one-hot group per component, and it still
@@ -608,15 +625,15 @@ the same master.</p></li>
 </ul>
 </section>
 </section>
-<section id="id4">
-<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<section id="id5">
+<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
 <p>First public release.</p>
 <p>The method, its four constructions and the benchmark that measures them. The
 results are measurements on the problems reported, not a claim of generalization:
 the settings were tuned on those very problems, and the convexity margin is in
 the units of the objective, so it does not transfer between them unchanged.</p>
-<section id="id5">
-<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id6">
+<h3>Added<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>EGO, the Bayesian optimization of <code class="docutils literal notranslate"><span class="pre">egobox</span></code>, is a fifth baseline, and with it a
 comparison at one budget of five hundred evaluations that every method can
@@ -685,8 +702,8 @@ formulation solving the sub-problem in the normalized variables of the box.</p><
 formulations, and the convexification tuned for each of them.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>Changed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The multi-resolution encoding, one categorical variable per level, is part of
 the package rather than of the benchmarks: <code class="docutils literal notranslate"><span class="pre">MultiResolution</span></code> and
@@ -740,8 +757,8 @@ GitHub Pages by a dedicated workflow.</p></li>
 navigation, a page outline and cards on the landing pages.</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>Fixed<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The trust region of the master measures a distance. The design spaces of this
 package now weigh every subdivision alike, so that the distance between two
@@ -828,19 +845,20 @@ CDNs, or a local build, left unreachable.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Fixed</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fixed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Fixed</a></li>
 </ul>
 </li>
 </ul>

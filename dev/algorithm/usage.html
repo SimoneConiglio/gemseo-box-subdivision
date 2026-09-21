@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=a102dcdb"></script>
+    <script src="../_static/documentation_options.js?v=5d73c67c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -913,6 +913,70 @@ feasibility cut instead of stalling the master:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="s2">"g"</span><span class="p">,</span> <span class="n">main_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<section id="a-constraint-must-be-named-after-its-output">
+<h3>A constraint must be named after its output<a class="headerlink" href="#a-constraint-must-be-named-after-its-output" title="Link to this heading">#</a></h3>
+<p>A constraint reaches the master through the post-optimal analysis of the
+sub-problem, which needs its Jacobian. The adapter builds that Jacobian by
+asking the <strong>discipline producing the output</strong> for it, and it asks under the
+<em>name of the constraint</em>, so the two have to be the same name. A constraint
+named anything else is the output of no discipline.</p>
+<p>Three ordinary ways of writing a constraint rename it, and each is refused where
+it is written:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>written as</p></th>
+<th class="head"><p>named</p></th>
+<th class="head"><p>why one writes it</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">constraint_name=&quot;g_upper&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g_upper</span></code></p></td>
+<td><p>a band $</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">positive=True</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-g</span></code></p></td>
+<td><p>a constraint of the other sense</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">value=0.5</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[g-0.5]</span></code></p></td>
+<td><p>a bound that is not zero</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Give each side its own <strong>discipline output</strong> instead, and constrain that output
+under its own name. A <code class="docutils literal notranslate"><span class="pre">LinearCombination</span></code> per side has an exact constant
+Jacobian, and costs one discipline:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.disciplines.linear_combination</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearCombination</span>
+
+<span class="n">scenario</span> <span class="o">=</span> <span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">discipline</span><span class="p">,</span>
+        <span class="n">LinearCombination</span><span class="p">([</span><span class="s2">"r"</span><span class="p">],</span> <span class="s2">"r_upper"</span><span class="p">,</span> <span class="n">input_coefficients</span><span class="o">=</span><span class="p">{</span><span class="s2">"r"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span> <span class="n">offset</span><span class="o">=-</span><span class="n">h</span><span class="p">),</span>
+        <span class="n">LinearCombination</span><span class="p">([</span><span class="s2">"r"</span><span class="p">],</span> <span class="s2">"r_lower"</span><span class="p">,</span> <span class="n">input_coefficients</span><span class="o">=</span><span class="p">{</span><span class="s2">"r"</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">},</span> <span class="n">offset</span><span class="o">=-</span><span class="n">h</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="s2">"f"</span><span class="p">,</span>
+    <span class="n">design_space</span><span class="p">,</span>
+    <span class="n">n_subdivisions</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"r_upper"</span><span class="p">,</span> <span class="s2">"r_lower"</span><span class="p">):</span>
+    <span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">main_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">positive=True</span></code> constraint becomes a negated one, <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">0</span></code> like the others.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The limitation is upstream, in the pairing of
+<code class="docutils literal notranslate"><span class="pre">MDOScenarioAdapterBenders._compute_jacobian</span></code> with
+<code class="docutils literal notranslate"><span class="pre">MDOScenarioAdapter._compute_auxiliary_jacobians</span></code>, and it is reached only
+through <code class="docutils literal notranslate"><span class="pre">Benders</span></code>. Left alone it surfaces as a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> the first time the
+master linearizes the adapter — several iterations into a run, which a one- or
+two-iteration smoke test never reaches, and from a module the caller never
+named. What this package does is refuse it at <code class="docutils literal notranslate"><span class="pre">add_constraint</span></code>, with the way
+around it in the message.</p>
+</div>
+</section>
 </section>
 <section id="enumerating-the-boxes-instead">
 <h2>Enumerating the boxes instead<a class="headerlink" href="#enumerating-the-boxes-instead" title="Link to this heading">#</a></h2>
@@ -1159,7 +1223,10 @@ whether the installed master declares them.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subdividing-some-of-the-variables-only">Subdividing some of the variables only</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-resolution-the-binaries-cannot-afford-the-multi-resolution-encoding">A resolution the binaries cannot afford: the multi-resolution encoding</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refining-a-box-and-hierarchies">Refining a box, and hierarchies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-of-the-original-problem">Constraints of the original problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-of-the-original-problem">Constraints of the original problem</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-constraint-must-be-named-after-its-output">A constraint must be named after its output</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enumerating-the-boxes-instead">Enumerating the boxes instead</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-a-sub-problem-starts">Where a sub-problem starts</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-this-to-a-new-problem">Applying this to a new problem</a></li>

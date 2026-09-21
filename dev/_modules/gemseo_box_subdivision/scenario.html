@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=a102dcdb"></script>
+    <script src="../../_static/documentation_options.js?v=5d73c67c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -444,6 +444,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.scenarios.mdo_scenario</span><span class="w"> </span><span class="kn">import</span> <span class="n">MDOScenario</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.settings.formulations</span><span class="w"> </span><span class="kn">import</span> <span class="n">DisciplinaryOpt_Settings</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.constraints</span><span class="w"> </span><span class="kn">import</span> <span class="n">guard_renamed_constraints</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.design_spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_box_design_space</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.design_spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_normalized_box_design_space</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.box_constraint</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxConstraint</span>
@@ -613,6 +614,7 @@
                 <span class="n">scenario_adapter_cls</span><span class="p">,</span>
                 <span class="n">name</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="n">guard_renamed_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formulation</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">subdivision</span> <span class="o">=</span> <span class="n">BoxSubdivision</span><span class="o">.</span><span class="n">from_design_space</span><span class="p">(</span>
@@ -664,6 +666,10 @@
             <span class="c1"># The box is enforced by a constraint of the sub-problem, which the</span>
             <span class="c1"># formulation only knows about once it is declared.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">BoxConstraint</span><span class="o">.</span><span class="n">DEFAULT_OUTPUT_NAME</span><span class="p">)</span>
+
+        <span class="c1"># A constraint the sub-problem adapter cannot linearize is refused where</span>
+        <span class="c1"># it is written, rather than as a KeyError several master iterations in.</span>
+        <span class="n">guard_renamed_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formulation</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__init_multi_resolution</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
