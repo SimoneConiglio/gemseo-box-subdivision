@@ -505,6 +505,52 @@ DOELibraryFactory().execute(
 )
 ```
 
+## Where a sub-problem starts
+
+Each box is handed to a local solver, so its **starting point** decides which of
+the box's minima the cut is built from. The default is the center of the box:
+independent of the order the boxes are visited, which warm-starting from the
+previous sub-problem is not, and inside the box, which the initial value of the
+design space is not.
+
+The center is a point, and a problem may have no value there. Where the
+disciplines reject it — a geometry that does not close, a simulation that does
+not converge, an operating point outside a table — the solver returns the center
+unchanged, and the master builds the cut of that box on a value nothing
+computed. The whole run is then a tour of starting points.
+
+`scenario_adapter_cls` hands that policy to the caller, under every
+construction:
+
+```python
+from gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders import (
+    MDOScenarioAdapterBenders,
+)
+
+
+class RestoringAdapter(MDOScenarioAdapterBenders):
+    def _pre_run(self) -> None:
+        super()._pre_run()
+        problem = self.scenario.formulation.optimization_problem
+        problem.design_space.set_current_value(a_startable_point_in(self.io.data))
+
+
+BoxSubdivisionScenario(
+    [discipline], "f", space, n_subdivisions=4, scenario_adapter_cls=RestoringAdapter
+)
+```
+
+`self.io.data` carries the one-hot variables the master chose, so
+{meth}`~.BoxSubdivision.compute_bounds` gives the box being solved and the policy
+can search inside it. {func}`.create_box_start_adapter_class` is the default
+one, written the same way.
+
+This is what applying the method to the
+[EX-link engine](https://simoneconiglio.github.io/Atkinson-cycle-engine-optimisation-/)
+needed: 94 % of that design box is a geometry the model cannot analyse, and
+reports a flat penalty with a zero gradient, so a box centered there is not a
+place a solver can start.
+
 ## Applying this to a new problem
 
 The order below is the one the measurements support, and it is deliberately not
