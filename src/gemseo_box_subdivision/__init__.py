@@ -39,6 +39,10 @@ across the parallel probes the master already runs.
 
 from __future__ import annotations
 
+from gemseo_box_subdivision.constraints import RENAMING_SHAPES
+from gemseo_box_subdivision.constraints import check_constraint_names
+from gemseo_box_subdivision.constraints import find_renamed_constraints
+from gemseo_box_subdivision.constraints import guard_renamed_constraints
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
 from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
 from gemseo_box_subdivision.convexity_sweep import convexity_ladder
@@ -46,8 +50,15 @@ from gemseo_box_subdivision.convexity_sweep import objective_scale
 from gemseo_box_subdivision.design_spaces import create_box_design_space
 from gemseo_box_subdivision.design_spaces import create_box_samples
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
+from gemseo_box_subdivision.diagnostics import MarginReport
+from gemseo_box_subdivision.diagnostics import log_margin_report
+from gemseo_box_subdivision.diagnostics import read_margin_report
 from gemseo_box_subdivision.disciplines.box_constraint import BoxConstraint
 from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
+from gemseo_box_subdivision.disciplines.couplings import keep_couplings_internal
+from gemseo_box_subdivision.disciplines.couplings import (
+    keep_every_mda_couplings_internal,
+)
 from gemseo_box_subdivision.disciplines.multi_resolution_mapping import (
     MultiResolutionMapping,
 )
@@ -73,6 +84,7 @@ from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
 __all__ = [
     "MASTER_SWEEPS_CONVEXITY",
     "RANKINGS",
+    "RENAMING_SHAPES",
     "SHAPES",
     "BaseBoxSubdivisionSettings",
     "BoxConstraint",
@@ -81,10 +93,12 @@ __all__ = [
     "BoxSubdivisionScenario",
     "BoxSubdivisionSettings",
     "ConvexitySweep",
+    "MarginReport",
     "MultiResolution",
     "MultiResolutionMapping",
     "SolvedBox",
     "SweptBoxSubdivisionSettings",
+    "check_constraint_names",
     "compute_cut_model",
     "convexity_ladder",
     "create_box_design_space",
@@ -92,7 +106,13 @@ __all__ = [
     "create_box_start_adapter_class",
     "create_box_subdivision_scenario",
     "create_normalized_box_design_space",
+    "find_renamed_constraints",
+    "guard_renamed_constraints",
+    "keep_couplings_internal",
+    "keep_every_mda_couplings_internal",
+    "log_margin_report",
     "objective_scale",
+    "read_margin_report",
     "read_solved_boxes",
     "refine_deep",
     "refine_frontier",

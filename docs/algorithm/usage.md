@@ -66,7 +66,11 @@ scenario = BoxSubdivisionScenario(
 `convexity_margin` is subtracted from an objective difference, so it is absolute
 and in the units of the objective. Start from the variation of the objective over
 the design space; it crosses a threshold and then saturates, so erring high costs
-sub-problems rather than quality.
+sub-problems rather than quality. That is measured on **unconstrained**
+benchmarks; on a problem whose boxes can be infeasible the scale is the spread
+over every box solved, and the margin cannot admit a box the feasibility gate
+rejects, see
+[what the margin reaches](#what-the-margin-reaches-and-what-it-does-not).
 
 `n_subdivisions` has to resolve the basins of the landscape and keep the binaries
 below the sub-problems a budget can pay for, and refining past the basins makes
@@ -415,6 +419,167 @@ feasibility cut instead of stalling the master:
 scenario.formulation.add_constraint("g", main_level=True)
 ```
 
+### A constraint must be named after its output
+
+A constraint reaches the master through the post-optimal analysis of the
+sub-problem, which needs its Jacobian. The adapter builds that Jacobian by
+asking the **discipline producing the output** for it, and it asks under the
+*name of the constraint*, so the two have to be the same name. A constraint
+named anything else is the output of no discipline.
+
+Three ordinary ways of writing a constraint rename it, and each is refused where
+it is written:
+
+| written as | named | why one writes it |
+|------------|-------|-------------------|
+| `constraint_name="g_upper"` | `g_upper` | a band $|r| \le h$, as two inequalities on one output |
+| `positive=True` | `-g` | a constraint of the other sense |
+| `value=0.5` | `[g-0.5]` | a bound that is not zero |
+
+Give each side its own **discipline output** instead, and constrain that output
+under its own name. A `LinearCombination` per side has an exact constant
+Jacobian, and costs one discipline:
+
+```python
+from gemseo.disciplines.linear_combination import LinearCombination
+
+scenario = BoxSubdivisionScenario(
+    [
+        discipline,
+        LinearCombination(["r"], "r_upper", input_coefficients={"r": 1.0}, offset=-h),
+        LinearCombination(["r"], "r_lower", input_coefficients={"r": -1.0}, offset=-h),
+    ],
+    "f",
+    design_space,
+    n_subdivisions=10,
+)
+for name in ("r_upper", "r_lower"):
+    scenario.formulation.add_constraint(name, main_level=True)
+```
+
+A `positive=True` constraint becomes a negated one, `<= 0` like the others.
+
+:::{note}
+The limitation is upstream, in the pairing of
+`MDOScenarioAdapterBenders._compute_jacobian` with
+`MDOScenarioAdapter._compute_auxiliary_jacobians`, and it is reached only
+through `Benders`. Left alone it surfaces as a `KeyError` the first time the
+master linearizes the adapter — several iterations into a run, which a one- or
+two-iteration smoke test never reaches, and from a module the caller never
+named. What this package does is refuse it at `add_constraint`, with the way
+around it in the message.
+
+### What the margin reaches, and what it does not
+
+`main_level=True` does not add the constraint to the master. It adds, once, an
+*equality* constraint on `is_feasible`, so a box whose sub-problem has no
+feasible point is cut on that rather than admitted.
+
+`convexity_margin` reaches the master as `min_dfk`, and the adaptive repair
+subtracts it from **differences of objective value between solved boxes**:
+
+```text
+rhs = l_df_k - df_k + min_dfk
+```
+
+`df_k` runs over the whole history the repair is given, and that history is the
+feasible and the infeasible boxes **together**. An infeasible box still carries
+an objective value and a slope, so it still produces an objective cut, and that
+cut is repaired with the same margin.
+
+Two consequences, and they pull in opposite directions from what you might
+expect:
+
+1. **The scale to calibrate against is the spread of the objective over every
+   box solved**, not over the boxes that were admitted. A problem whose
+   infeasible boxes report a large penalty has a much wider spread than its
+   feasible ones do, and that wider spread is the one the margin is compared
+   against.
+2. **The margin does not reach the `is_feasible` gate.** The master passes
+   `min_dfk` to its inequality-constraint cuts but hard-codes `0.0` for the
+   equality ones, and the feasibility cut is an equality. So what decides
+   *admissibility* is a mechanism no value of `convexity_margin` relaxes: a run
+   that returns nothing feasible is not a run whose margin was mis-scaled, and
+   raising the margin will not admit a box.
+
+A run does not look any different from the outside, so read it back:
+
+```python
+from gemseo_box_subdivision import read_margin_report
+
+scenario.execute()
+report = read_margin_report(scenario.formulation.optimization_problem)
+print(report.describe())
+# 6 boxes solved, 3 admitted and 3 cut on feasibility; the objective spreads
+# over 2.3 across them, which is the scale to calibrate the convexity margin in.
+```
+
+`report.spread` is that scale. A run that admitted no box at all sets
+`report.found_nothing_feasible`, and says so with a warning of its own accord,
+since it is otherwise indistinguishable from a run the margin governed well.
+
+:::{tip}
+The clean way out is not to calibrate at all.
+[The sweep](#not-choosing-the-convexity-at-all) reads this very scale off the
+run — {py:func}`~gemseo_box_subdivision.convexity_sweep.objective_scale`, over
+every box solved, infeasible ones included — and sweeps a ladder around it, so
+a constrained problem needs no number in the units of an objective whose spread
+its penalties decide.
+:::
+
+:::{warning}
+Do not count feasible points in the database of the **sub-problem**. Under the
+normalized formulation the sub-problem solves for the normalized coordinate of
+its box, so every box writes to the same keys — the centre of every box is
+`0.5` — and a later box overwrites an earlier one. That database reports the
+last box solved rather than the run, and reading it can show a run finding
+nothing feasible when the master's own record shows it found the optimum. The
+master's database carries one entry per box, with its value and its
+`is_feasible` flag, and is what {func}`.read_margin_report` reads.
+
+## Coupled problems: the disciplines are chained
+
+The disciplines handed to the scenario are collapsed into a **single chain**,
+with the mapping of the boxes in front of them. A chain evaluates each
+discipline once, in the order given, so handing it a set of coupled disciplines
+gives a feed-forward evaluation rather than a converged one — and no warning.
+
+The sub-problem's formulation is `DisciplinaryOpt`, so the sub-problem cannot
+itself be an MDF scenario. A coupled problem is therefore posed by **building
+the MDA explicitly** and handing it over among the disciplines:
+
+```python
+from gemseo import create_mda
+
+mda = create_mda("MDAGaussSeidel", [first, second], tolerance=1e-10)
+
+scenario = BoxSubdivisionScenario(
+    [mda, objective_discipline], "f", design_space, n_subdivisions=4
+)
+scenario.formulation.add_constraint("g", constraint_type="ineq", main_level=True)
+```
+
+An MDA both consumes and produces its couplings, and a chain treats every input
+that no earlier discipline produces as an input of the chain, so the couplings
+would become inputs of the chain. The scenario stops that: an MDA it is handed
+is no longer differentiated with respect to its **own** couplings, which inside
+a chain are internal.
+
+That is the right derivative rather than a way round an error. A coupling enters
+an MDA as an *initial guess* and leaves it converged, and a converged fixed point
+does not depend on where the iteration started, so the derivative is zero.
+{func}`.keep_couplings_internal` does it, and can be applied by hand to a
+composition built without the scenario.
+
+:::{note}
+Without it the failure appears only once there is a **constraint** to
+differentiate, since that is when the adapter computes its auxiliary Jacobians:
+`ValueError: Variable y2 is both a coupling and a design variable`, from the
+Jacobian assembly. The same scenario without a constraint runs, which is what
+made it awkward to find. Under `MDF` the question never arises, the formulation
+knowing the couplings are internal.
+:::
+
 ## Enumerating the boxes instead
 
 The same scenario, driven exhaustively, which is the reference to compare
@@ -432,6 +597,52 @@ DOELibraryFactory().execute(
 )
 ```
 
+## Where a sub-problem starts
+
+Each box is handed to a local solver, so its **starting point** decides which of
+the box's minima the cut is built from. The default is the center of the box:
+independent of the order the boxes are visited, which warm-starting from the
+previous sub-problem is not, and inside the box, which the initial value of the
+design space is not.
+
+The center is a point, and a problem may have no value there. Where the
+disciplines reject it — a geometry that does not close, a simulation that does
+not converge, an operating point outside a table — the solver returns the center
+unchanged, and the master builds the cut of that box on a value nothing
+computed. The whole run is then a tour of starting points.
+
+`scenario_adapter_cls` hands that policy to the caller, under every
+construction:
+
+```python
+from gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders import (
+    MDOScenarioAdapterBenders,
+)
+
+
+class RestoringAdapter(MDOScenarioAdapterBenders):
+    def _pre_run(self) -> None:
+        super()._pre_run()
+        problem = self.scenario.formulation.optimization_problem
+        problem.design_space.set_current_value(a_startable_point_in(self.io.data))
+
+
+BoxSubdivisionScenario(
+    [discipline], "f", space, n_subdivisions=4, scenario_adapter_cls=RestoringAdapter
+)
+```
+
+`self.io.data` carries the one-hot variables the master chose, so
+{meth}`~.BoxSubdivision.compute_bounds` gives the box being solved and the policy
+can search inside it. {func}`.create_box_start_adapter_class` is the default
+one, written the same way.
+
+This is what applying the method to the
+[EX-link engine](https://simoneconiglio.github.io/Atkinson-cycle-engine-optimisation-/)
+needed: 94 % of that design box is a geometry the model cannot analyse, and
+reports a flat penalty with a zero gradient, so a box centered there is not a
+place a solver can start.
+
 ## Applying this to a new problem
 
 The order below is the one the measurements support, and it is deliberately not
@@ -446,6 +657,14 @@ the order in which the constructions were built.
    range of the objective over the design space as a first value. It crosses a
    threshold and then saturates, so erring high costs sub-problems rather than
    quality.
+
+   That sentence is measured on the **unconstrained** benchmarks. On a problem
+   whose boxes can be infeasible, the range to take is the range over **every
+   box solved**, infeasible ones included, which a penalised branch can make far
+   wider than the design space suggests — and no value of it will admit a box
+   the feasibility gate rejects. See
+   [what the margin reaches](#what-the-margin-reaches-and-what-it-does-not), and
+   read the run back with {func}`.read_margin_report` rather than assuming.
 3. **Sweep the density before anything else.** It moves results further than any
    other choice, and it has a floor and a ceiling: fine enough to separate the
    basins, coarse enough that the binaries stay below the sub-problem solves the
@@ -502,7 +721,7 @@ relaxed problem, and they are not meant to be combined:
 | Setting | Recommended | Why |
 |---------|-------------|-----|
 | `adapt` | `True` | repairs the cut slopes against the boxes already solved |
-| `min_dfk` | the range of the objective over the design space, roughly | the convexity margin the repair enforces; it is an **absolute** quantity in the units of the objective and has to be scaled to the problem |
+| `min_dfk` | the range of the objective over the design space, roughly, or over **every box solved** where some are infeasible | the convexity margin the repair enforces; it is an **absolute** quantity in the units of the objective and has to be scaled to the problem. It guards the objective cuts, an infeasible box's included, but not the `is_feasible` gate, which is repaired with a margin of zero, see [what the margin reaches](#what-the-margin-reaches-and-what-it-does-not) |
 | `convexification_constant` | $0$ with `adapt=True`; otherwise the order of the variation of the objective | the other mechanism; use it *instead of*, not with, the adaptive repair. Raising it beyond that order buys nothing and decays the result, see [annex C](tuning.md#the-pure-convexification-and-the-range-where-it-is-worth-using) |
 | `number_of_parallel_points` | $4$ | the master probes one radius per point, so that a feasible master stays available. A single point still works, from six starting points out of eight against eight; eight points are as reliable as four and nearly twice as expensive |
 | `max_step` | $2$ | the radius of the trust region of the master, counted in **components changed**, the design spaces of this package weighing every subdivision alike. Keep it small: widening it to {py:attr}`~gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step`, where the region stops constraining, loses Rastrigin at five variables, and removing the region is worse still, see [annex C](tuning.md#how-wide-the-radius-should-be) |

@@ -36,6 +36,88 @@ and this project adheres to
   the design space a current value covering part of its variables, which it
   rejects. The variables that are not subdivided keep the value they have.
 
+### Added
+
+- `BoxSubdivisionScenario.scenario_adapter_cls`, the adapter running the
+  sub-problem of a box, which is where its **starting point** is decided. The
+  center of a box was the policy of every construction and the only one the
+  normalized formulation could express; it is still the default, and it now
+  assumes something a caller may need to deny. A problem whose disciplines
+  reject the center of a box — an unanalysable geometry, a simulation that does
+  not converge there — returns that center unchanged from its local solver, and
+  the master then cuts on a value nothing computed. Supplying an adapter lets
+  the caller restore a startable point inside the box first. Applying the method
+  to the EX-link engine, whose design box is 94 % unanalysable, is what asked
+  for it.
+
+- A constraint whose **name** differs from the discipline output it is built
+  from is now refused by `add_constraint`, where it is written, instead of
+  raising `KeyError` the first time the master linearizes the sub-problem
+  adapter — several iterations into a run, which a short one never reaches.
+  Three ordinary ways of writing a constraint rename it: `constraint_name=`,
+  which is how a band is written as two inequalities on one output;
+  `positive=True`, which GEMSEO names `-g`; and a non-zero `value`, which it
+  names `[g-0.5]`. The message names the limitation and the way around it, a
+  `LinearCombination` giving each side its own discipline output.
+
+### Added
+
+- `find_renamed_constraints`, `check_constraint_names` and
+  `guard_renamed_constraints`, which read and enforce that rule, for a
+  composition built by hand rather than through `BoxSubdivisionScenario`.
+
+- `read_margin_report` and `MarginReport`, which say what the convexity margin
+  was doing over a finished run: how many boxes were solved, how many of them
+  were cut on *feasibility* rather than admitted, the best feasible value, and
+  the spread of the objective over **every box solved**, which is the scale the
+  margin has to be calibrated in and the one the sweep reads. A run that
+  admitted no box at all now **logs a warning**, being otherwise
+  indistinguishable from a run the margin governed well: what rejects a box is
+  the `is_feasible` gate, so no value of the margin would have admitted one.
+
+### Documentation
+
+- *What the margin reaches, and what it does not*, with the repair written out:
+  the margin is subtracted from differences of objective value over the whole
+  history the master is given, which is the feasible and the infeasible boxes
+  **together**, so an infeasible box's objective cut is guarded like any other
+  and the scale to calibrate against is the spread over every box solved. What
+  the margin does not reach is the `is_feasible` gate, an *equality* constraint
+  the master repairs with a margin of zero — the master passes `min_dfk` to its
+  inequality-constraint cuts only — so no value of it will admit a box the gate
+  rejects. The section points at the sweep, which reads that same scale off the
+  run and asks for no number at all.
+- The tuning guidance now says that "erring high costs sub-problems rather than
+  quality" is measured on the unconstrained benchmarks, and that the range to
+  scale the margin to is the range over **every box solved**, which a penalised
+  branch can make far wider than the design space suggests.
+- A warning against counting feasible points in the database of the
+  *sub-problem*: under the normalized formulation every box writes to the same
+  keys, the centre of every box being `0.5`, so a later box overwrites an
+  earlier one and that database reports the last box solved rather than the run.
+
+- An MDA can now be a discipline of a `BoxSubdivisionScenario` once a
+  constraint is attached. The disciplines are collapsed into one chain, which
+  treats the couplings of an MDA as inputs of the chain, so the adapter asked
+  the MDA for derivatives with respect to its own couplings as soon as there
+  was a constraint to differentiate, and the Jacobian assembly refused with
+  `Variable y2 is both a coupling and a design variable`. Inside a chain those
+  couplings are internal, and the derivative that is no longer asked for is
+  zero: a coupling enters an MDA as an initial guess and leaves it converged,
+  and a converged fixed point does not depend on where the iteration started.
+
+### Added
+
+- `keep_couplings_internal` and `keep_every_mda_couplings_internal`, which do
+  that to an MDA, for a composition built without the scenario.
+
+### Documentation
+
+- *Coupled problems: the disciplines are chained*, saying that the disciplines
+  are chained and that a coupled problem therefore needs its MDA built
+  explicitly — a reader handing the scenario five coupled disciplines otherwise
+  gets a feed-forward evaluation and no warning.
+
 ## 0.2.0 (2026-09-19)
 
 The settings, in two entry points: the general construction, which names the
