@@ -61,6 +61,9 @@ if TYPE_CHECKING:
 
     from gemseo.algos.design_space import DesignSpace
     from gemseo.core.discipline import Discipline
+    from gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders import (  # noqa: E501
+        MDOScenarioAdapterBenders,
+    )
     from numpy import ndarray
 
 FORMULATIONS: tuple[str, ...] = ("normalized", "constraint")
@@ -118,6 +121,7 @@ class BoxSubdivisionScenario(MDOScenario):
         formulation: str = "normalized",
         weights: Mapping[str, ndarray] = MappingProxyType({}),
         settings: BaseBoxSubdivisionSettings | None = None,
+        scenario_adapter_cls: type[MDOScenarioAdapterBenders] | None = None,
         name: str = "",
     ) -> None:
         """
@@ -164,6 +168,14 @@ class BoxSubdivisionScenario(MDOScenario):
                 it. If ``None``, use the defaults of
                 :class:`.BoxSubdivisionSettings`, whose convexity margin only
                 suits an objective of the scale of the benchmark.
+            scenario_adapter_cls: The adapter running the sub-problem of a box,
+                which is where its **starting point** is decided. If ``None``,
+                start each sub-problem at the center of its box, which is the
+                policy every measurement here was taken with. Pass a class of
+                your own when the center of a box is not a point your problem
+                can be evaluated at: a local solver started at a point its
+                disciplines reject returns that point unchanged, and the master
+                then cuts on a value that was never computed.
             name: The name of the scenario.
 
         Raises:
@@ -199,6 +211,7 @@ class BoxSubdivisionScenario(MDOScenario):
                 n_subdivisions,
                 names,
                 levels,
+                scenario_adapter_cls,
                 name,
             )
             return
@@ -208,7 +221,7 @@ class BoxSubdivisionScenario(MDOScenario):
         )
         # The names the master optimizes over are the one-hot variables of the
         # subdivision, never a literal: they follow the design space.
-        settings_of_formulation = {
+        settings_of_formulation: dict[str, Any] = {
             "formulation_name": "Benders",
             "main_problem_design_variables": list(
                 self.subdivision.get_one_hot_names({}).values()
@@ -218,6 +231,9 @@ class BoxSubdivisionScenario(MDOScenario):
             ),
             "sub_problem_formulation_settings": DisciplinaryOpt_Settings(),
         }
+        if scenario_adapter_cls is not None:
+            settings_of_formulation["scenario_adapter_cls"] = scenario_adapter_cls
+
         if formulation == "normalized":
             # The mapping is chained *before* the objective, so the sub-problem
             # solves for the normalized variables while the disciplines keep
@@ -239,8 +255,12 @@ class BoxSubdivisionScenario(MDOScenario):
                     self.subdivision, design_space, weights=weights
                 ),
                 name=name,
-                scenario_adapter_cls=create_box_start_adapter_class(self.subdivision),
-                **settings_of_formulation,
+                **{
+                    "scenario_adapter_cls": create_box_start_adapter_class(
+                        self.subdivision
+                    ),
+                    **settings_of_formulation,
+                },
             )
             # The box is enforced by a constraint of the sub-problem, which the
             # formulation only knows about once it is declared.
@@ -254,6 +274,7 @@ class BoxSubdivisionScenario(MDOScenario):
         branching: int | Mapping[str, int],
         names: tuple[str, ...],
         levels: int,
+        scenario_adapter_cls: type[MDOScenarioAdapterBenders] | None,
         name: str,
     ) -> None:
         """Build the scenario of a multi-resolution encoding.
@@ -265,6 +286,8 @@ class BoxSubdivisionScenario(MDOScenario):
             branching: The number of subdivisions of a component at each level.
             names: The variables to subdivide.
             levels: The number of levels.
+            scenario_adapter_cls: The adapter running the sub-problem of a box,
+                or ``None`` to use the default one.
             name: The name of the scenario.
 
         Raises:
@@ -303,6 +326,11 @@ class BoxSubdivisionScenario(MDOScenario):
                 self.box_settings.create_sub_problem_settings_model()
             ),
             sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
+            **(
+                {}
+                if scenario_adapter_cls is None
+                else {"scenario_adapter_cls": scenario_adapter_cls}
+            ),
         )
 
     def execute(self, algo_settings_model: Any = None, **algo_settings: Any) -> None:
