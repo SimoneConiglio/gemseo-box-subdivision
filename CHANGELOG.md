@@ -66,6 +66,36 @@ and this project adheres to
   `guard_renamed_constraints`, which read and enforce that rule, for a
   composition built by hand rather than through `BoxSubdivisionScenario`.
 
+- `read_margin_report` and `MarginReport`, which say what the convexity margin
+  was doing over a finished run: how many boxes were solved, how many of them
+  were cut on *feasibility* rather than admitted, the best feasible value, and
+  the spread of the objective over **every box solved**, which is the scale the
+  margin has to be calibrated in and the one the sweep reads. A run that
+  admitted no box at all now **logs a warning**, being otherwise
+  indistinguishable from a run the margin governed well: what rejects a box is
+  the `is_feasible` gate, so no value of the margin would have admitted one.
+
+### Documentation
+
+- *What the margin reaches, and what it does not*, with the repair written out:
+  the margin is subtracted from differences of objective value over the whole
+  history the master is given, which is the feasible and the infeasible boxes
+  **together**, so an infeasible box's objective cut is guarded like any other
+  and the scale to calibrate against is the spread over every box solved. What
+  the margin does not reach is the `is_feasible` gate, an *equality* constraint
+  the master repairs with a margin of zero — the master passes `min_dfk` to its
+  inequality-constraint cuts only — so no value of it will admit a box the gate
+  rejects. The section points at the sweep, which reads that same scale off the
+  run and asks for no number at all.
+- The tuning guidance now says that "erring high costs sub-problems rather than
+  quality" is measured on the unconstrained benchmarks, and that the range to
+  scale the margin to is the range over **every box solved**, which a penalised
+  branch can make far wider than the design space suggests.
+- A warning against counting feasible points in the database of the
+  *sub-problem*: under the normalized formulation every box writes to the same
+  keys, the centre of every box being `0.5`, so a later box overwrites an
+  earlier one and that database reports the last box solved rather than the run.
+
 - An MDA can now be a discipline of a `BoxSubdivisionScenario` once a
   constraint is attached. The disciplines are collapsed into one chain, which
   treats the couplings of an MDA as inputs of the chain, so the adapter asked

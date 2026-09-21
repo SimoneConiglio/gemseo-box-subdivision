@@ -50,6 +50,9 @@ from gemseo_box_subdivision.convexity_sweep import objective_scale
 from gemseo_box_subdivision.design_spaces import create_box_design_space
 from gemseo_box_subdivision.design_spaces import create_box_samples
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
+from gemseo_box_subdivision.diagnostics import MarginReport
+from gemseo_box_subdivision.diagnostics import log_margin_report
+from gemseo_box_subdivision.diagnostics import read_margin_report
 from gemseo_box_subdivision.disciplines.box_constraint import BoxConstraint
 from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
 from gemseo_box_subdivision.disciplines.couplings import keep_couplings_internal
@@ -90,6 +93,7 @@ __all__ = [
     "BoxSubdivisionScenario",
     "BoxSubdivisionSettings",
     "ConvexitySweep",
+    "MarginReport",
     "MultiResolution",
     "MultiResolutionMapping",
     "SolvedBox",
@@ -106,7 +110,9 @@ __all__ = [
     "guard_renamed_constraints",
     "keep_couplings_internal",
     "keep_every_mda_couplings_internal",
+    "log_margin_report",
     "objective_scale",
+    "read_margin_report",
     "read_solved_boxes",
     "refine_deep",
     "refine_frontier",
