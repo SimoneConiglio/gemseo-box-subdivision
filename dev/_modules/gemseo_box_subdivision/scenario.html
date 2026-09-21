@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=5d73c67c"></script>
+    <script src="../../_static/documentation_options.js?v=f23586f5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -447,6 +447,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.constraints</span><span class="w"> </span><span class="kn">import</span> <span class="n">guard_renamed_constraints</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.design_spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_box_design_space</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.design_spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_normalized_box_design_space</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_margin_report</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.box_constraint</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxConstraint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.box_mapping</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxMapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.multi_resolution_mapping</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -757,6 +758,25 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Whatever a GEMSEO scenario returns.</span>
 <span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__execute</span><span class="p">(</span><span class="n">algo_settings_model</span><span class="p">,</span> <span class="o">**</span><span class="n">algo_settings</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># What a margin was doing is only knowable once the run is over,</span>
+            <span class="c1"># and a run it could not govern is indistinguishable from one it</span>
+            <span class="c1"># governed well -- which is the whole reason for saying so.</span>
+            <span class="n">log_margin_report</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">optimization_problem</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algo_settings_model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">algo_settings</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Execute the scenario, without reporting on the margin.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            algo_settings_model: The settings of the master, or ``None``.</span>
+<span class="sd">            **algo_settings: The settings of the master, as keyword arguments.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Whatever a GEMSEO scenario returns.</span>
+<span class="sd">        """</span>
         <span class="c1"># Whatever the run supplies its master applies to every execution, not</span>
         <span class="c1"># only to the one this class configures: settings given here override</span>
         <span class="c1"># what the master is told, never what the run needs of it.</span>
@@ -787,7 +807,6 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="n">_keeping</span><span class="p">(</span><span class="n">algo_settings_model</span><span class="p">,</span> <span class="n">needed</span><span class="p">),</span> <span class="o">**</span><span class="n">algo_settings</span>
             <span class="p">)</span></div>
-</div>
 
 
 

@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=5d73c67c"></script>
+    <script src="_static/documentation_options.js?v=f23586f5"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -483,6 +483,37 @@ names <code class="docutils literal notranslate"><span class="pre">[g-0.5]</span
 <li><p><code class="docutils literal notranslate"><span class="pre">find_renamed_constraints</span></code>, <code class="docutils literal notranslate"><span class="pre">check_constraint_names</span></code> and
 <code class="docutils literal notranslate"><span class="pre">guard_renamed_constraints</span></code>, which read and enforce that rule, for a
 composition built by hand rather than through <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionScenario</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_margin_report</span></code> and <code class="docutils literal notranslate"><span class="pre">MarginReport</span></code>, which say what the convexity margin
+was doing over a finished run: how many boxes were solved, how many of them
+were cut on <em>feasibility</em> rather than admitted, the best feasible value, and
+the spread of the objective over <strong>every box solved</strong>, which is the scale the
+margin has to be calibrated in and the one the sweep reads. A run that
+admitted no box at all now <strong>logs a warning</strong>, being otherwise
+indistinguishable from a run the margin governed well: what rejects a box is
+the <code class="docutils literal notranslate"><span class="pre">is_feasible</span></code> gate, so no value of the margin would have admitted one.</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><em>What the margin reaches, and what it does not</em>, with the repair written out:
+the margin is subtracted from differences of objective value over the whole
+history the master is given, which is the feasible and the infeasible boxes
+<strong>together</strong>, so an infeasible box’s objective cut is guarded like any other
+and the scale to calibrate against is the spread over every box solved. What
+the margin does not reach is the <code class="docutils literal notranslate"><span class="pre">is_feasible</span></code> gate, an <em>equality</em> constraint
+the master repairs with a margin of zero — the master passes <code class="docutils literal notranslate"><span class="pre">min_dfk</span></code> to its
+inequality-constraint cuts only — so no value of it will admit a box the gate
+rejects. The section points at the sweep, which reads that same scale off the
+run and asks for no number at all.</p></li>
+<li><p>The tuning guidance now says that “erring high costs sub-problems rather than
+quality” is measured on the unconstrained benchmarks, and that the range to
+scale the margin to is the range over <strong>every box solved</strong>, which a penalised
+branch can make far wider than the design space suggests.</p></li>
+<li><p>A warning against counting feasible points in the database of the
+<em>sub-problem</em>: under the normalized formulation every box writes to the same
+keys, the centre of every box being <code class="docutils literal notranslate"><span class="pre">0.5</span></code>, so a later box overwrites an
+earlier one and that database reports the last box solved rather than the run.</p></li>
 </ul>
 </section>
 </section>
@@ -846,6 +877,7 @@ CDNs, or a local build, left unreachable.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
