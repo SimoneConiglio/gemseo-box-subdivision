@@ -16,31 +16,32 @@ r"""What the convexity margin was doing, read back from a run.
 
 A constraint declared with ``main_level=True`` does not reach the master as a
 constraint. It reaches it as a **feasibility cut**: the formulation adds, once,
-a constraint on ``is_feasible``, and a box whose sub-problem has no feasible
-point is cut on that rather than on its objective value.
+an *equality* constraint on ``is_feasible``, and a box whose sub-problem has no
+feasible point is cut on that rather than admitted.
 
-The convexity margin reaches the master as ``min_dfk``, which relaxes the
-**objective** cuts. Nothing relaxes the feasibility cuts, and nothing should: a
-box holding no feasible point genuinely holds none, whatever the convexity of
-the objective. A box is cut on feasibility *exactly*.
+The convexity margin reaches the master as ``min_dfk``, and the adaptive repair
+compares it against **differences of objective value between solved boxes**::
 
-The consequence is worth reporting rather than leaving to be discovered. On a
-problem where most boxes are infeasible, what decides which boxes stay
-admissible is the feasibility cuts, so the one setting the tuning guidance
-directs a user to has little or no purchase on their run. The margin is
-calibrated against the objective, and the objective is not what is steering.
+    rhs = l_df_k - df_k + min_dfk
 
-This module reads that off a finished run, from the database of the **master**,
-which carries one entry per box solved with its value and its ``is_feasible``
-flag.
+``df_k`` runs over the whole history the repair is given, which is the feasible
+and the infeasible boxes **together**: an infeasible box still carries an
+objective value and a slope, so it still produces an objective cut, and that cut
+is repaired with the same margin. The scale to calibrate the margin against is
+therefore the spread of the objective over **every box solved**, which is what
+:func:`.objective_scale` reads and what the sweep uses.
 
-:::{warning}
-The database of the *sub-problem* is not a record of the boxes. Under the
-normalized formulation the sub-problem solves for the normalized coordinate of
-its box, so every box writes to the same keys — the centre of every box is
-``0.5`` — and a later box overwrites an earlier one. Counting feasible points
-there reports the last box solved rather than the run.
-:::
+What the margin does *not* reach is the ``is_feasible`` gate itself. The master
+passes ``min_dfk`` to its inequality-constraint cuts but hard-codes ``0.0`` for
+the equality ones, and the feasibility cut is an equality. So on a problem where
+most boxes are infeasible, the margin still guards every objective cut, while
+what decides **admissibility** is a mechanism no margin relaxes. A run that
+returns nothing feasible is not a run whose margin was mis-scaled.
+
+Which is the case for not calibrating a margin at all:
+:class:`.SweptBoxSubdivisionSettings` reads the scale off the run, over every
+box solved, and sweeps a ladder around it.
+
 """
 
 from __future__ import annotations
@@ -74,7 +75,13 @@ class MarginReport:
     """The best objective value over the feasible boxes, or ``None`` if none."""
 
     spread: float
-    """The spread of the objective over the feasible boxes, zero below two."""
+    """The spread of the objective over **every** box solved, zero below two.
+
+    This is the scale the convexity margin is compared against, since the repair
+    subtracts it from differences of objective value between solved boxes, and
+    an infeasible box produces an objective cut like any other. It is the
+    quantity :func:`.objective_scale` reads for the sweep.
+    """
 
     @property
     def n_infeasible(self) -> int:
@@ -83,13 +90,24 @@ class MarginReport:
 
     @property
     def margin_governs(self) -> bool:
-        """Whether the convexity margin could have governed the exploration.
+        """Whether the convexity margin had anything to act on.
 
-        The margin relaxes the objective cuts against one another, so it takes
-        two feasible boxes for it to have anything to act on. A run below that
-        was steered by its feasibility cuts, which the margin does not reach.
+        The repair subtracts the margin from differences of objective value
+        between solved boxes, so it takes two solved boxes -- of either kind,
+        an infeasible one producing an objective cut like any other -- for the
+        margin to enter the master at all.
         """
-        return self.n_feasible > 1
+        return self.n_solved > 1
+
+    @property
+    def found_nothing_feasible(self) -> bool:
+        """Whether the run admitted no box, which no margin can change.
+
+        Admissibility is decided by the ``is_feasible`` gate, an equality
+        constraint the master repairs with a margin of zero whatever
+        ``convexity_margin`` says.
+        """
+        return self.n_feasible == 0
 
     def describe(self) -> str:
         """Return a one-line account of the run, in the terms of the margin.
@@ -98,22 +116,29 @@ class MarginReport:
             The account, naming how each box was cut.
         """
         counts = (
-            f"{self.n_solved} boxes solved, {self.n_feasible} feasible and "
+            f"{self.n_solved} boxes solved, {self.n_feasible} admitted and "
             f"{self.n_infeasible} cut on feasibility"
         )
         if not self.margin_governs:
             return (
-                f"{counts}. The convexity margin relaxes the objective cuts, "
-                "and fewer than two boxes produced one, so what steered this "
-                "run was the feasibility cuts, which no margin relaxes: "
-                "calibrating the margin against the objective cannot change it."
+                f"{counts}. The convexity margin is subtracted from differences "
+                "of objective value between solved boxes, and fewer than two "
+                "were solved, so it never entered the master."
             )
 
-        return (
-            f"{counts}; the objective spreads over {self.spread:.3g} across the "
-            "feasible boxes, which is the scale the convexity margin is "
-            "calibrated in."
+        scale = (
+            f"{counts}; the objective spreads over {self.spread:.3g} across "
+            "them, which is the scale to calibrate the convexity margin in"
         )
+        if self.found_nothing_feasible:
+            return (
+                f"{scale}. No box was admitted, though: what rejects a box is "
+                "the is_feasible gate, which the master repairs with a margin "
+                "of zero whatever the convexity margin says, so no value of it "
+                "would have admitted one."
+            )
+
+        return f"{scale}."
 
 
 def read_margin_report(problem: OptimizationProblem) -> MarginReport:
@@ -147,16 +172,17 @@ def read_margin_report(problem: OptimizationProblem) -> MarginReport:
         n_solved=len(values),
         n_feasible=len(feasible),
         best_feasible=min(feasible) if feasible else None,
-        spread=max(feasible) - min(feasible) if len(feasible) > 1 else 0.0,
+        # Over every box solved, which is the history the repair is given.
+        spread=max(values) - min(values) if len(values) > 1 else 0.0,
     )
 
 
 def log_margin_report(problem: OptimizationProblem) -> MarginReport:
     """Report what the convexity margin was doing, at the end of a run.
 
-    A run the margin cannot have governed is worth a warning: it is
-    indistinguishable from a run it governed well, and the setting the tuning
-    guidance sends a user to is not the one deciding it.
+    A run that admitted no box is worth a warning: it is indistinguishable
+    from a run the margin governed well, and the setting the tuning guidance
+    sends a user to is not the one that would have admitted a box.
 
     Args:
         problem: The optimization problem of the master.
@@ -168,7 +194,7 @@ def log_margin_report(problem: OptimizationProblem) -> MarginReport:
     if report.n_solved == 0:
         return report
 
-    if report.margin_governs:
+    if report.margin_governs and not report.found_nothing_feasible:
         LOGGER.info("%s", report.describe())
     else:
         LOGGER.warning("%s", report.describe())

@@ -38,6 +38,7 @@ from gemseo_box_subdivision import BoxSubdivisionScenario
 from gemseo_box_subdivision import BoxSubdivisionSettings
 from gemseo_box_subdivision import MarginReport
 from gemseo_box_subdivision import log_margin_report
+from gemseo_box_subdivision import objective_scale
 from gemseo_box_subdivision import read_margin_report
 
 LOGGER_NAME = "gemseo_box_subdivision.diagnostics"
@@ -81,7 +82,9 @@ def test_the_report_counts_the_boxes_of_each_kind() -> None:
     assert report.n_feasible == 2
     assert report.n_infeasible == 2
     assert report.best_feasible == pytest.approx(-1.9)
-    assert report.spread == pytest.approx(0.8)
+    # Over every box solved: an infeasible box produces an objective cut like
+    # any other, and the repair is given both histories together.
+    assert report.spread == pytest.approx(0.8 - -1.9)
     assert report.margin_governs
 
 
@@ -97,26 +100,57 @@ def test_a_run_without_a_main_level_constraint_has_no_feasibility_cut() -> None:
     assert report.margin_governs
 
 
-def test_the_margin_cannot_govern_a_run_with_no_feasible_box() -> None:
+def test_a_run_that_admitted_no_box_says_the_margin_is_not_the_knob() -> None:
     """Check the case the report exists for, every box cut on feasibility.
 
-    The margin relaxes the objective cuts, so a run producing fewer than two of
-    them was steered by cuts no margin reaches.
+    The margin still guarded the objective cuts those boxes produced; what
+    rejected every one of them is the ``is_feasible`` gate, which the master
+    repairs with a margin of zero whatever the convexity margin says.
     """
     report = read_margin_report(master_problem((0.4, 0), (0.8, 0), (1.2, 0)))
     assert report.n_feasible == 0
     assert report.best_feasible is None
-    assert not report.margin_governs
-    assert "no margin relaxes" in report.describe()
+    assert report.found_nothing_feasible
+    # The margin did enter the master: three boxes, hence objective cuts.
+    assert report.margin_governs
+    assert report.spread == pytest.approx(0.8)
+    assert "is_feasible gate" in report.describe()
 
 
-def test_a_single_feasible_box_leaves_nothing_to_relax() -> None:
-    """Check the boundary: one objective cut has no other to be relaxed against."""
+def test_the_margin_enters_the_master_from_two_boxes_of_either_kind() -> None:
+    """Check that an infeasible box counts towards the margin having an effect.
+
+    The repair subtracts the margin from differences of objective value over
+    the whole history it is given, which is both kinds of box together.
+    """
     report = read_margin_report(master_problem((-1.9, 1), (0.4, 0)))
     assert report.n_feasible == 1
     assert report.best_feasible == pytest.approx(-1.9)
-    assert report.spread == pytest.approx(0.0)
+    assert report.margin_governs
+    assert report.spread == pytest.approx(2.3)
+
+
+def test_one_box_leaves_the_margin_nothing_to_subtract_from() -> None:
+    """Check the boundary: one cut has no other to be compared against."""
+    report = read_margin_report(master_problem((-1.9, 1)))
+    assert report.n_solved == 1
     assert not report.margin_governs
+    assert report.spread == pytest.approx(0.0)
+    assert "never entered the master" in report.describe()
+
+
+def test_the_spread_is_the_scale_the_sweep_reads() -> None:
+    """Check the report against the sweep, which must read the same scale.
+
+    `objective_scale` is what the swept entry point computes its ladder from,
+    over every box solved; a report disagreeing with it would send a caller
+    calibrating by hand to a different number than the sweep uses.
+    """
+    values = (-1.9, 0.4, -1.1, 0.8)
+    report = read_margin_report(
+        master_problem(*((value, index % 2) for index, value in enumerate(values)))
+    )
+    assert report.spread == pytest.approx(objective_scale(values))
 
 
 def test_an_entry_carrying_no_value_is_not_a_solved_box() -> None:
@@ -132,7 +166,7 @@ def test_an_entry_carrying_no_value_is_not_a_solved_box() -> None:
     assert report.n_feasible == 1
 
 
-def test_a_run_the_margin_cannot_govern_warns(caplog) -> None:  # noqa: ANN001
+def test_a_run_that_admitted_no_box_warns(caplog) -> None:  # noqa: ANN001
     """Check that such a run says so, rather than looking like any other."""
     with caplog.at_level(logging.WARNING, LOGGER_NAME):
         log_margin_report(master_problem((0.4, 0), (0.8, 0)))
@@ -140,7 +174,7 @@ def test_a_run_the_margin_cannot_govern_warns(caplog) -> None:  # noqa: ANN001
     assert [
         record
         for record in caplog.records
-        if record.levelno == logging.WARNING and "feasibility cuts" in record.message
+        if record.levelno == logging.WARNING and "is_feasible gate" in record.message
     ]
 
 
@@ -163,19 +197,18 @@ def test_an_empty_run_reports_nothing() -> None:
 
 
 @pytest.mark.parametrize(
-    ("n_feasible", "governs"),
+    ("n_solved", "governs"),
     [(0, False), (1, False), (2, True)],
 )
-def test_two_feasible_boxes_are_what_the_margin_acts_on(n_feasible, governs) -> None:  # noqa: ANN001
-    """Check the rule: a margin relaxes one objective cut against another."""
+def test_two_solved_boxes_are_what_the_margin_acts_on(n_solved, governs) -> None:  # noqa: ANN001
+    """Check the rule: the margin is subtracted from a difference of values."""
     report = MarginReport(
-        n_solved=5, n_feasible=n_feasible, best_feasible=0.0, spread=1.0
+        n_solved=n_solved, n_feasible=0, best_feasible=None, spread=1.0
     )
     assert report.margin_governs is governs
-    assert report.n_infeasible == 5 - n_feasible
 
 
-def test_the_spread_is_the_scale_the_margin_is_calibrated_in() -> None:
+def test_the_report_names_the_scale() -> None:
     """Check that the report names the scale, which is what transfers badly."""
     report = MarginReport(n_solved=4, n_feasible=3, best_feasible=-1.9, spread=0.801)
     assert "0.801" in report.describe()

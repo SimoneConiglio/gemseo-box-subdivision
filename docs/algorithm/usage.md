@@ -67,9 +67,10 @@ scenario = BoxSubdivisionScenario(
 and in the units of the objective. Start from the variation of the objective over
 the design space; it crosses a threshold and then saturates, so erring high costs
 sub-problems rather than quality. That is measured on **unconstrained**
-benchmarks; on a problem whose boxes can be infeasible the margin may have no
-purchase on the search at all, see
-[what the margin does not reach](#what-the-margin-does-not-reach).
+benchmarks; on a problem whose boxes can be infeasible the scale is the spread
+over every box solved, and the margin cannot admit a box the feasibility gate
+rejects, see
+[what the margin reaches](#what-the-margin-reaches-and-what-it-does-not).
 
 `n_subdivisions` has to resolve the basins of the landscape and keep the binaries
 below the sub-problems a budget can pay for, and refining past the basins makes
@@ -418,23 +419,38 @@ feasibility cut instead of stalling the master:
 scenario.formulation.add_constraint("g", main_level=True)
 ```
 
-### What the margin does not reach
+### What the margin reaches, and what it does not
 
-`main_level=True` does not add the constraint to the master. It adds, once, a
-constraint on `is_feasible`, so a box whose sub-problem has no feasible point
-enters the master as a **feasibility cut** rather than as an objective cut.
+`main_level=True` does not add the constraint to the master. It adds, once, an
+*equality* constraint on `is_feasible`, so a box whose sub-problem has no
+feasible point is cut on that rather than admitted.
 
-`convexity_margin` reaches the master as `min_dfk`, which relaxes the
-**objective** cuts. Nothing relaxes the feasibility cuts, and nothing should: a
-box holding no feasible point genuinely holds none, whatever the convexity of
-the objective over it. **An infeasible box is cut exactly**, and the guard the
-margin provides does not apply to it.
+`convexity_margin` reaches the master as `min_dfk`, and the adaptive repair
+subtracts it from **differences of objective value between solved boxes**:
 
-So on a problem where most boxes are infeasible, what decides which boxes stay
-admissible is the feasibility cuts, and the one setting
-[the recipe](#applying-this-to-a-new-problem) sends you to has little or no
-purchase on your run. A margin swept over three orders of magnitude opening the
-same boxes and returning the same answer is that case, not a saturated margin.
+```text
+rhs = l_df_k - df_k + min_dfk
+```
+
+`df_k` runs over the whole history the repair is given, and that history is the
+feasible and the infeasible boxes **together**. An infeasible box still carries
+an objective value and a slope, so it still produces an objective cut, and that
+cut is repaired with the same margin.
+
+Two consequences, and they pull in opposite directions from what you might
+expect:
+
+1. **The scale to calibrate against is the spread of the objective over every
+   box solved**, not over the boxes that were admitted. A problem whose
+   infeasible boxes report a large penalty has a much wider spread than its
+   feasible ones do, and that wider spread is the one the margin is compared
+   against.
+2. **The margin does not reach the `is_feasible` gate.** The master passes
+   `min_dfk` to its inequality-constraint cuts but hard-codes `0.0` for the
+   equality ones, and the feasibility cut is an equality. So what decides
+   *admissibility* is a mechanism no value of `convexity_margin` relaxes: a run
+   that returns nothing feasible is not a run whose margin was mis-scaled, and
+   raising the margin will not admit a box.
 
 A run does not look any different from the outside, so read it back:
 
@@ -444,17 +460,22 @@ from gemseo_box_subdivision import read_margin_report
 scenario.execute()
 report = read_margin_report(scenario.formulation.optimization_problem)
 print(report.describe())
-# 6 boxes solved, 3 feasible and 3 cut on feasibility; the objective spreads
-# over 0.801 across the feasible boxes, which is the scale the convexity
-# margin is calibrated in.
+# 6 boxes solved, 3 admitted and 3 cut on feasibility; the objective spreads
+# over 2.3 across them, which is the scale to calibrate the convexity margin in.
 ```
 
-`report.spread` is the range to scale the margin to — the objective over the
-**feasible** boxes, not over the design space. A run in which fewer than two
-boxes were feasible produced fewer than two objective cuts for the margin to
-relax against each other, and `report.margin_governs` is then `False`; such a
-run logs a warning of its own accord, since it is otherwise indistinguishable
-from a run the margin governed well.
+`report.spread` is that scale. A run that admitted no box at all sets
+`report.found_nothing_feasible`, and says so with a warning of its own accord,
+since it is otherwise indistinguishable from a run the margin governed well.
+
+:::{tip}
+The clean way out is not to calibrate at all.
+[The sweep](#not-choosing-the-convexity-at-all) reads this very scale off the
+run — {py:func}`~gemseo_box_subdivision.convexity_sweep.objective_scale`, over
+every box solved, infeasible ones included — and sweeps a ladder around it, so
+a constrained problem needs no number in the units of an objective whose spread
+its penalties decide.
+:::
 
 :::{warning}
 Do not count feasible points in the database of the **sub-problem**. Under the
@@ -500,11 +521,12 @@ the order in which the constructions were built.
    quality.
 
    That sentence is measured on the **unconstrained** benchmarks. On a problem
-   whose boxes can be infeasible, the range to take is the range over the
-   **feasible** boxes, which is not the range over the design space, and the
-   margin may be steering nothing at all: see
-   [what the margin does not reach](#what-the-margin-does-not-reach), and read
-   the run back with {func}`.read_margin_report` rather than assuming it did.
+   whose boxes can be infeasible, the range to take is the range over **every
+   box solved**, infeasible ones included, which a penalised branch can make far
+   wider than the design space suggests — and no value of it will admit a box
+   the feasibility gate rejects. See
+   [what the margin reaches](#what-the-margin-reaches-and-what-it-does-not), and
+   read the run back with {func}`.read_margin_report` rather than assuming.
 3. **Sweep the density before anything else.** It moves results further than any
    other choice, and it has a floor and a ceiling: fine enough to separate the
    basins, coarse enough that the binaries stay below the sub-problem solves the
@@ -561,7 +583,7 @@ relaxed problem, and they are not meant to be combined:
 | Setting | Recommended | Why |
 |---------|-------------|-----|
 | `adapt` | `True` | repairs the cut slopes against the boxes already solved |
-| `min_dfk` | the range of the objective over the design space, roughly, or over the **feasible boxes** where some are infeasible | the convexity margin the repair enforces; it is an **absolute** quantity in the units of the objective and has to be scaled to the problem. It relaxes the objective cuts only: a box cut on feasibility is cut exactly, see [what the margin does not reach](#what-the-margin-does-not-reach) |
+| `min_dfk` | the range of the objective over the design space, roughly, or over **every box solved** where some are infeasible | the convexity margin the repair enforces; it is an **absolute** quantity in the units of the objective and has to be scaled to the problem. It guards the objective cuts, an infeasible box's included, but not the `is_feasible` gate, which is repaired with a margin of zero, see [what the margin reaches](#what-the-margin-reaches-and-what-it-does-not) |
 | `convexification_constant` | $0$ with `adapt=True`; otherwise the order of the variation of the objective | the other mechanism; use it *instead of*, not with, the adaptive repair. Raising it beyond that order buys nothing and decays the result, see [annex C](tuning.md#the-pure-convexification-and-the-range-where-it-is-worth-using) |
 | `number_of_parallel_points` | $4$ | the master probes one radius per point, so that a feasible master stays available. A single point still works, from six starting points out of eight against eight; eight points are as reliable as four and nearly twice as expensive |
 | `max_step` | $2$ | the radius of the trust region of the master, counted in **components changed**, the design spaces of this package weighing every subdivision alike. Keep it small: widening it to {py:attr}`~gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step`, where the region stops constraining, loses Rastrigin at five variables, and removing the region is worse still, see [annex C](tuning.md#how-wide-the-radius-should-be) |
