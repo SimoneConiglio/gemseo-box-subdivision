@@ -26,6 +26,36 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `read_margin_report` and `MarginReport`, which say what the convexity margin
+  was doing over a finished run: how many boxes were solved, how many of them
+  were cut on *feasibility* rather than on their objective value, the best
+  feasible value and the spread of the objective over the feasible boxes, which
+  is the scale the margin has to be calibrated in. A run in which fewer than two
+  boxes were feasible produced fewer than two objective cuts for the margin to
+  relax against each other, so the margin cannot have governed it; such a run
+  now **logs a warning**, being otherwise indistinguishable from a run the
+  margin governed well.
+
+### Documentation
+
+- *What the margin does not reach*, saying that a constraint declared with
+  `main_level=True` enters the master as a feasibility cut on `is_feasible`,
+  that `convexity_margin` relaxes the objective cuts only, and that an
+  infeasible box is therefore cut **exactly** — which is right, a box holding no
+  feasible point holding none whatever the convexity, but means the setting the
+  tuning guidance sends a user to is not the mechanism deciding such a run.
+- The tuning guidance now says that "erring high costs sub-problems rather than
+  quality" is measured on the unconstrained benchmarks, and that the range to
+  scale the margin to is the range over the **feasible** boxes.
+- A warning against counting feasible points in the database of the
+  *sub-problem*: under the normalized formulation every box writes to the same
+  keys, the centre of every box being `0.5`, so a later box overwrites an
+  earlier one and that database reports the last box solved rather than the run.
+
 ## 0.2.0 (2026-09-19)
 
 The settings, in two entry points: the general construction, which names the

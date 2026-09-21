@@ -38,6 +38,7 @@ from gemseo.settings.formulations import DisciplinaryOpt_Settings
 
 from gemseo_box_subdivision.design_spaces import create_box_design_space
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
+from gemseo_box_subdivision.diagnostics import log_margin_report
 from gemseo_box_subdivision.disciplines.box_constraint import BoxConstraint
 from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
 from gemseo_box_subdivision.disciplines.multi_resolution_mapping import (
@@ -306,6 +307,24 @@ class BoxSubdivisionScenario(MDOScenario):
         Args:
             algo_settings_model: The settings of the master, overriding those of
                 the scenario, the model naming the algorithm to execute.
+            **algo_settings: The settings of the master, as keyword arguments.
+
+        Returns:
+            Whatever a GEMSEO scenario returns.
+        """
+        try:
+            return self.__execute(algo_settings_model, **algo_settings)
+        finally:
+            # What a margin was doing is only knowable once the run is over,
+            # and a run it could not govern is indistinguishable from one it
+            # governed well -- which is the whole reason for saying so.
+            log_margin_report(self.formulation.optimization_problem)
+
+    def __execute(self, algo_settings_model: Any, **algo_settings: Any) -> None:
+        """Execute the scenario, without reporting on the margin.
+
+        Args:
+            algo_settings_model: The settings of the master, or ``None``.
             **algo_settings: The settings of the master, as keyword arguments.
 
         Returns:
