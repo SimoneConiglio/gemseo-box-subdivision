@@ -36,6 +36,20 @@ and this project adheres to
   the design space a current value covering part of its variables, which it
   rejects. The variables that are not subdivided keep the value they have.
 
+### Added
+
+- `BoxSubdivisionScenario.scenario_adapter_cls`, the adapter running the
+  sub-problem of a box, which is where its **starting point** is decided. The
+  center of a box was the policy of every construction and the only one the
+  normalized formulation could express; it is still the default, and it now
+  assumes something a caller may need to deny. A problem whose disciplines
+  reject the center of a box — an unanalysable geometry, a simulation that does
+  not converge there — returns that center unchanged from its local solver, and
+  the master then cuts on a value nothing computed. Supplying an adapter lets
+  the caller restore a startable point inside the box first. Applying the method
+  to the EX-link engine, whose design box is 94 % unanalysable, is what asked
+  for it.
+
 - A constraint whose **name** differs from the discipline output it is built
   from is now refused by `add_constraint`, where it is written, instead of
   raising `KeyError` the first time the master linearizes the sub-problem
