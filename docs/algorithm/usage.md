@@ -222,6 +222,8 @@ Eight settings are common to both:
 | `tolerance` | $10^{-4}$ | the tolerance on the upper bound of the master |
 | `sub_problem_algo_name` | `"SLSQP"` | the algorithm solving each sub-problem inside its box, free under either entry point |
 | `sub_problem_algo_settings` | `{}` | anything else that solver takes, passed through; it wins over `sub_problem_max_iter` |
+| `constraint_margin` | $0$ | the convexity margin of the **constraint** cuts, in *their* units. See [the caveat below](#relaxing-a-constraint-cut) |
+| `constraint_convexification_constant` | $0$ | the convexification constant of the **constraint** cuts, in *their* units, the other mechanism |
 
 `BoxSubdivisionSettings`, the general construction, adds the master and the
 convexity you calibrate:
@@ -252,6 +254,29 @@ argument of the scenario rather than a setting of either class, since it defines
 the boxes rather than how they are searched. And the settings of the master under
 **its own** names, which `master_algo_settings` reaches, are
 [a table of their own](#the-settings-of-the-master-in-their-own-terms).
+
+### Relaxing a constraint cut
+
+A constraint cut is a linearization of a constraint in the one-hot variables, so
+it is an outer approximation only while that constraint is convex over the
+boxes; where it is concave the cut excludes boxes the constraint admits. The two
+settings above apply to those cuts the mechanisms the objective's cuts already
+get — the adaptive repair with a margin, and the convexification — since the
+released master applies `min_dfk` to an inequality cut and a hard-coded zero to
+an equality one, and convexifies neither.
+
+:::{warning}
+**They only take effect under `linearized=True`**, and that construction needs a
+constraint depending on the **categorical variables alone**. A constraint of the
+original problem resolved inside a box does not: declared with `main_level=True`
+it reaches the master as the `is_feasible` gate, and that gate accumulates no
+cut history at all, so there is nothing for either setting to relax. On such a
+run the steering is done entirely by the **objective** cuts, those of the
+infeasible boxes included, which `convexity_margin` already guards; see
+[Constraints of the original problem](#constraints-of-the-original-problem).
+
+Leave both at zero unless your constraint is one of the master's own.
+:::
 
 ## Which methodology to set up
 

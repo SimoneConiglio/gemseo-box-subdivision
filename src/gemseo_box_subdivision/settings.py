@@ -158,6 +158,42 @@ class BaseBoxSubdivisionSettings(ABC):
     :meth:`.BoxSubdivisionSettings.to_master_settings`.
     """
 
+    constraint_margin: float = 0.0
+    r"""The convexity margin of the **constraint** cuts, in *their* units.
+
+    A constraint of the original problem declared at the main level reaches the
+    master as a cut of its own, linearized in the one-hot variables, and such a
+    cut is an outer approximation only while the constraint is convex over the
+    boxes. Where it is **concave** the linearization lies *above* it, so the cut
+    excludes boxes the constraint admits, and the master stops steering towards
+    a region it has already cut away.
+
+    This is the guard against that, and it is the same repair the objective gets
+    under :attr:`.BoxSubdivisionSettings.convexity_margin` -- the slopes of the
+    cuts fixed against the boxes already solved, with a margin -- applied to the
+    constraint cuts instead. It is in the units of the **constraints**, which are
+    not the units of the objective, hence a number of its own rather than the
+    objective's reused.
+
+    Zero, the default, leaves the cuts exactly as the master builds them.
+
+    It is read only under ``mechanism="adaptive"``, the convexification reading
+    :attr:`.constraint_convexification_constant` instead; the two are selected,
+    never combined, as they are for the objective.
+    """
+
+    constraint_convexification_constant: float = 0.0
+    r"""The convexification constant of the **constraint** cuts, in *their* units.
+
+    The other mechanism, applied to the constraint cuts rather than to the
+    objective's: a convex term is added to each cut, and once its constant
+    dominates the concavity of the constraint over the boxes the cuts are an
+    outer approximation again.
+
+    Zero, the default, leaves the cuts exactly as the master builds them, and it
+    is read only under ``mechanism="convexification"``.
+    """
+
     trust_region_radius: int = TRUST_REGION_RADIUS
     """The radius of the trust region of the master, in components changed."""
 
@@ -235,6 +271,28 @@ class BaseBoxSubdivisionSettings(ABC):
             return "min_dfk"
 
         return "convexification_constant"
+
+    @property
+    def constraint_relaxation(self) -> tuple[float, float]:
+        """The relaxation of the constraint cuts, as a margin and a constant.
+
+        The mechanism selects which of the two is active and switches the other
+        off, exactly as it does for the objective: the two are never combined,
+        so that a run measures one of them rather than an average.
+
+        Returns:
+            The margin of the adaptive repair and the convexification constant,
+            the one the mechanism does not name being zero.
+        """
+        if self.mechanism == "adaptive":
+            return self.constraint_margin, 0.0
+
+        return 0.0, self.constraint_convexification_constant
+
+    @property
+    def relaxes_the_constraints(self) -> bool:
+        """Whether the run relaxes the constraint cuts of its master."""
+        return any(self.constraint_relaxation)
 
     @property
     @abstractmethod
@@ -317,14 +375,38 @@ class BaseBoxSubdivisionSettings(ABC):
     def drive_the_master(self) -> Iterator[None]:
         """Run the master under whatever this construction has to supply it.
 
-        A master configured entirely by its settings needs nothing, which is the
-        general case and what this yields. The swept construction overrides it
-        where the installed master does not sweep on its own.
+        A master configured entirely by its settings needs nothing of the
+        objective, which is the general case; the swept construction overrides
+        that where the installed master does not sweep on its own. The
+        relaxation of the **constraint** cuts is supplied under either
+        construction, the released master applying neither mechanism to a
+        constraint cut on its own terms.
 
         Yields:
             Nothing.
         """
-        yield
+        with self.relax_the_constraint_cuts():
+            yield
+
+    @contextmanager
+    def relax_the_constraint_cuts(self) -> Iterator[None]:
+        """Relax the constraint cuts of the master, where a value asks for it.
+
+        Yields:
+            Nothing.
+        """
+        if not self.relaxes_the_constraints:
+            yield
+            return
+
+        # Imported here: it patches the master, which nothing else needs, and
+        # both it and the patching go when the master ships the mechanism.
+        from gemseo_box_subdivision._constraint_relaxation_driver import (  # noqa: PLC0415
+            relax_the_constraints,
+        )
+
+        with relax_the_constraints(self):
+            yield
 
     def master_settings_the_run_needs(self) -> dict[str, Any]:
         """Return what a run keeps of its master settings whatever it overrides.
@@ -620,16 +702,17 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         Yields:
             Nothing.
         """
-        if MASTER_SWEEPS_CONVEXITY:
-            yield
-            return
+        with self.relax_the_constraint_cuts():
+            if MASTER_SWEEPS_CONVEXITY:
+                yield
+                return
 
-        # Imported here: it patches the master, which nothing else needs, and
-        # both it and the patching go when the master ships the sweep.
-        from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
+            # Imported here: it patches the master, which nothing else needs,
+            # and both it and the patching go when the master ships the sweep.
+            from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep  # noqa: PLC0415
 
-        with drive_the_sweep(self):
-            yield
+            with drive_the_sweep(self):
+                yield
 
     def master_settings_the_run_needs(self) -> dict[str, Any]:
         """Return the sweep, which a run configuring its own master still needs.
