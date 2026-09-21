@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=c3f75c50"></script>
+    <script src="../_static/documentation_options.js?v=a102dcdb"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -930,6 +930,47 @@ against:</p>
 </pre></div>
 </div>
 </section>
+<section id="where-a-sub-problem-starts">
+<h2>Where a sub-problem starts<a class="headerlink" href="#where-a-sub-problem-starts" title="Link to this heading">#</a></h2>
+<p>Each box is handed to a local solver, so its <strong>starting point</strong> decides which of
+the box’s minima the cut is built from. The default is the center of the box:
+independent of the order the boxes are visited, which warm-starting from the
+previous sub-problem is not, and inside the box, which the initial value of the
+design space is not.</p>
+<p>The center is a point, and a problem may have no value there. Where the
+disciplines reject it — a geometry that does not close, a simulation that does
+not converge, an operating point outside a table — the solver returns the center
+unchanged, and the master builds the cut of that box on a value nothing
+computed. The whole run is then a tour of starting points.</p>
+<p><code class="docutils literal notranslate"><span class="pre">scenario_adapter_cls</span></code> hands that policy to the caller, under every
+construction:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MDOScenarioAdapterBenders</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RestoringAdapter</span><span class="p">(</span><span class="n">MDOScenarioAdapterBenders</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pre_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_pre_run</span><span class="p">()</span>
+        <span class="n">problem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">optimization_problem</span>
+        <span class="n">problem</span><span class="o">.</span><span class="n">design_space</span><span class="o">.</span><span class="n">set_current_value</span><span class="p">(</span><span class="n">a_startable_point_in</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+
+
+<span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">discipline</span><span class="p">],</span> <span class="s2">"f"</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">scenario_adapter_cls</span><span class="o">=</span><span class="n">RestoringAdapter</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">self.io.data</span></code> carries the one-hot variables the master chose, so
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.compute_bounds" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.compute_bounds"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_bounds()</span></code></a> gives the box being solved and the policy
+can search inside it. <a class="reference internal" href="../_autosummary/gemseo_box_subdivision.disciplines.scenario_adapters.box_start.html#gemseo_box_subdivision.disciplines.scenario_adapters.box_start.create_box_start_adapter_class" title="gemseo_box_subdivision.disciplines.scenario_adapters.box_start.create_box_start_adapter_class"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_box_start_adapter_class()</span></code></a> is the default
+one, written the same way.</p>
+<p>This is what applying the method to the
+<a class="reference external" href="https://simoneconiglio.github.io/Atkinson-cycle-engine-optimisation-/">EX-link engine</a>
+needed: 94 % of that design box is a geometry the model cannot analyse, and
+reports a flat penalty with a zero gradient, so a box centered there is not a
+place a solver can start.</p>
+</section>
 <section id="applying-this-to-a-new-problem">
 <h2>Applying this to a new problem<a class="headerlink" href="#applying-this-to-a-new-problem" title="Link to this heading">#</a></h2>
 <p>The order below is the one the measurements support, and it is deliberately not
@@ -1120,6 +1161,7 @@ whether the installed master declares them.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refining-a-box-and-hierarchies">Refining a box, and hierarchies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-of-the-original-problem">Constraints of the original problem</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enumerating-the-boxes-instead">Enumerating the boxes instead</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-a-sub-problem-starts">Where a sub-problem starts</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-this-to-a-new-problem">Applying this to a new problem</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composing-it-by-hand">Composing it by hand</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-settings-of-the-master-in-their-own-terms">The settings of the master, in their own terms</a></li>

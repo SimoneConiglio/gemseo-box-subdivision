@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=c3f75c50"></script>
+    <script src="../../_static/documentation_options.js?v=a102dcdb"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -466,6 +466,9 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.design_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">DesignSpace</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.core.discipline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Discipline</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E501</span>
+        <span class="n">MDOScenarioAdapterBenders</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndarray</span>
 
 <span class="n">FORMULATIONS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"normalized"</span><span class="p">,</span> <span class="s2">"constraint"</span><span class="p">)</span>
@@ -525,6 +528,7 @@
         <span class="n">formulation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"normalized"</span><span class="p">,</span>
         <span class="n">weights</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">({}),</span>
         <span class="n">settings</span><span class="p">:</span> <span class="n">BaseBoxSubdivisionSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">scenario_adapter_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">MDOScenarioAdapterBenders</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -567,6 +571,14 @@
 <span class="sd">                it. If ``None``, use the defaults of</span>
 <span class="sd">                :class:`.BoxSubdivisionSettings`, whose convexity margin only</span>
 <span class="sd">                suits an objective of the scale of the benchmark.</span>
+<span class="sd">            scenario_adapter_cls: The adapter running the sub-problem of a box,</span>
+<span class="sd">                which is where its **starting point** is decided. If ``None``,</span>
+<span class="sd">                start each sub-problem at the center of its box, which is the</span>
+<span class="sd">                policy every measurement here was taken with. Pass a class of</span>
+<span class="sd">                your own when the center of a box is not a point your problem</span>
+<span class="sd">                can be evaluated at: a local solver started at a point its</span>
+<span class="sd">                disciplines reject returns that point unchanged, and the master</span>
+<span class="sd">                then cuts on a value that was never computed.</span>
 <span class="sd">            name: The name of the scenario.</span>
 
 <span class="sd">        Raises:</span>
@@ -598,6 +610,7 @@
                 <span class="n">n_subdivisions</span><span class="p">,</span>
                 <span class="n">names</span><span class="p">,</span>
                 <span class="n">levels</span><span class="p">,</span>
+                <span class="n">scenario_adapter_cls</span><span class="p">,</span>
                 <span class="n">name</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span>
@@ -607,7 +620,7 @@
         <span class="p">)</span>
         <span class="c1"># The names the master optimizes over are the one-hot variables of the</span>
         <span class="c1"># subdivision, never a literal: they follow the design space.</span>
-        <span class="n">settings_of_formulation</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">settings_of_formulation</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"formulation_name"</span><span class="p">:</span> <span class="s2">"Benders"</span><span class="p">,</span>
             <span class="s2">"main_problem_design_variables"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">subdivision</span><span class="o">.</span><span class="n">get_one_hot_names</span><span class="p">({})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
@@ -617,6 +630,9 @@
             <span class="p">),</span>
             <span class="s2">"sub_problem_formulation_settings"</span><span class="p">:</span> <span class="n">DisciplinaryOpt_Settings</span><span class="p">(),</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="n">scenario_adapter_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">settings_of_formulation</span><span class="p">[</span><span class="s2">"scenario_adapter_cls"</span><span class="p">]</span> <span class="o">=</span> <span class="n">scenario_adapter_cls</span>
+
         <span class="k">if</span> <span class="n">formulation</span> <span class="o">==</span> <span class="s2">"normalized"</span><span class="p">:</span>
             <span class="c1"># The mapping is chained *before* the objective, so the sub-problem</span>
             <span class="c1"># solves for the normalized variables while the disciplines keep</span>
@@ -638,8 +654,12 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">subdivision</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
                 <span class="p">),</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">scenario_adapter_cls</span><span class="o">=</span><span class="n">create_box_start_adapter_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subdivision</span><span class="p">),</span>
-                <span class="o">**</span><span class="n">settings_of_formulation</span><span class="p">,</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="s2">"scenario_adapter_cls"</span><span class="p">:</span> <span class="n">create_box_start_adapter_class</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">subdivision</span>
+                    <span class="p">),</span>
+                    <span class="o">**</span><span class="n">settings_of_formulation</span><span class="p">,</span>
+                <span class="p">},</span>
             <span class="p">)</span>
             <span class="c1"># The box is enforced by a constraint of the sub-problem, which the</span>
             <span class="c1"># formulation only knows about once it is declared.</span>
@@ -653,6 +673,7 @@
         <span class="n">branching</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
         <span class="n">names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
         <span class="n">levels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">scenario_adapter_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">MDOScenarioAdapterBenders</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build the scenario of a multi-resolution encoding.</span>
@@ -664,6 +685,8 @@
 <span class="sd">            branching: The number of subdivisions of a component at each level.</span>
 <span class="sd">            names: The variables to subdivide.</span>
 <span class="sd">            levels: The number of levels.</span>
+<span class="sd">            scenario_adapter_cls: The adapter running the sub-problem of a box,</span>
+<span class="sd">                or ``None`` to use the default one.</span>
 <span class="sd">            name: The name of the scenario.</span>
 
 <span class="sd">        Raises:</span>
@@ -702,6 +725,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">box_settings</span><span class="o">.</span><span class="n">create_sub_problem_settings_model</span><span class="p">()</span>
             <span class="p">),</span>
             <span class="n">sub_problem_formulation_settings</span><span class="o">=</span><span class="n">DisciplinaryOpt_Settings</span><span class="p">(),</span>
+            <span class="o">**</span><span class="p">(</span>
+                <span class="p">{}</span>
+                <span class="k">if</span> <span class="n">scenario_adapter_cls</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="p">{</span><span class="s2">"scenario_adapter_cls"</span><span class="p">:</span> <span class="n">scenario_adapter_cls</span><span class="p">}</span>
+            <span class="p">),</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="BoxSubdivisionScenario.execute">
