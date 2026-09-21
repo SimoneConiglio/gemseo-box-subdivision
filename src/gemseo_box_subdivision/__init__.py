@@ -39,6 +39,10 @@ across the parallel probes the master already runs.
 
 from __future__ import annotations
 
+from gemseo_box_subdivision.constraints import RENAMING_SHAPES
+from gemseo_box_subdivision.constraints import check_constraint_names
+from gemseo_box_subdivision.constraints import find_renamed_constraints
+from gemseo_box_subdivision.constraints import guard_renamed_constraints
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
 from gemseo_box_subdivision.convexity_sweep import ConvexitySweep
 from gemseo_box_subdivision.convexity_sweep import convexity_ladder
@@ -73,6 +77,7 @@ from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
 __all__ = [
     "MASTER_SWEEPS_CONVEXITY",
     "RANKINGS",
+    "RENAMING_SHAPES",
     "SHAPES",
     "BaseBoxSubdivisionSettings",
     "BoxConstraint",
@@ -85,6 +90,7 @@ __all__ = [
     "MultiResolutionMapping",
     "SolvedBox",
     "SweptBoxSubdivisionSettings",
+    "check_constraint_names",
     "compute_cut_model",
     "convexity_ladder",
     "create_box_design_space",
@@ -92,6 +98,8 @@ __all__ = [
     "create_box_start_adapter_class",
     "create_box_subdivision_scenario",
     "create_normalized_box_design_space",
+    "find_renamed_constraints",
+    "guard_renamed_constraints",
     "objective_scale",
     "read_solved_boxes",
     "refine_deep",

@@ -36,6 +36,7 @@ from gemseo.core.chains.chain import MDOChain
 from gemseo.scenarios.mdo_scenario import MDOScenario
 from gemseo.settings.formulations import DisciplinaryOpt_Settings
 
+from gemseo_box_subdivision.constraints import guard_renamed_constraints
 from gemseo_box_subdivision.design_spaces import create_box_design_space
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
 from gemseo_box_subdivision.disciplines.box_constraint import BoxConstraint
@@ -203,6 +204,7 @@ class BoxSubdivisionScenario(MDOScenario):
                 scenario_adapter_cls,
                 name,
             )
+            guard_renamed_constraints(self.formulation)
             return
 
         self.subdivision = BoxSubdivision.from_design_space(
@@ -254,6 +256,10 @@ class BoxSubdivisionScenario(MDOScenario):
             # The box is enforced by a constraint of the sub-problem, which the
             # formulation only knows about once it is declared.
             self.formulation.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME)
+
+        # A constraint the sub-problem adapter cannot linearize is refused where
+        # it is written, rather than as a KeyError several master iterations in.
+        guard_renamed_constraints(self.formulation)
 
     def __init_multi_resolution(
         self,
