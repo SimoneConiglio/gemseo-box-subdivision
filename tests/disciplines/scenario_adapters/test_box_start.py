@@ -181,6 +181,43 @@ def test_subdivided_variable_outside_the_sub_problem() -> None:
     assert value is not None
 
 
+def test_sub_problem_keeps_the_variables_that_are_not_subdivided() -> None:
+    """Check that a sub-problem mixing subdivided and whole variables runs.
+
+    Subdividing some of the variables only leaves the others as ordinary
+    variables of the sub-problem, so the starting point the adapter sets covers
+    part of the sub-problem design space; the rest keeps the value it has.
+    """
+    design_space = DesignSpace()
+    design_space.add_variable("x", lower_bound=0.0, upper_bound=1.0, value=0.5)
+    design_space.add_variable("y", lower_bound=0.0, upper_bound=1.0, value=0.25)
+    subdivision = BoxSubdivision.from_design_space(design_space, N_SUBDIVISIONS, ["x"])
+    scenario = create_scenario(
+        [Sum(), BoxConstraint(subdivision)],
+        "s",
+        create_box_design_space(subdivision, design_space),
+        formulation_name="Benders",
+        # Only the box is decided by the main problem: the sub-problem solves
+        # for the subdivided x *and* for the whole y.
+        main_problem_design_variables=["x_box"],
+        sub_problem_algo_settings=SLSQP_Settings(max_iter=10),
+        sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
+        scenario_adapter_cls=create_box_start_adapter_class(subdivision),
+    )
+    scenario.formulation.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME)
+    sub_design_space = scenario.formulation.sub_problem_design_space
+    assert set(sub_design_space) == {"x", "y"}
+
+    index = 2
+    one_hot = zeros(N_SUBDIVISIONS)
+    one_hot[index] = 1.0
+    value = float(
+        scenario.formulation.optimization_problem.objective.evaluate(one_hot).ravel()[0]
+    )
+    # The minimum of x + y over the box of x and the whole range of y.
+    assert value == pytest.approx(subdivision.get_lower_bounds("x")[0, index], abs=1e-6)
+
+
 class Sum(Discipline):
     """A discipline summing two scalar variables."""
 

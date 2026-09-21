@@ -30,6 +30,12 @@ and this project adheres to
 
 ### Fixed
 
+- The constraint formulation no longer fails when only some of the variables
+  are subdivided: the adapter starting a sub-problem inside its box sets the
+  starting point of the subdivided variables one at a time, instead of handing
+  the design space a current value covering part of its variables, which it
+  rejects. The variables that are not subdivided keep the value they have.
+
 - A constraint whose **name** differs from the discipline output it is built
   from is now refused by `add_constraint`, where it is written, instead of
   raising `KeyError` the first time the master linearizes the sub-problem
