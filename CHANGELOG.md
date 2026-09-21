@@ -30,6 +30,12 @@ and this project adheres to
 
 ### Fixed
 
+- The constraint formulation no longer fails when only some of the variables
+  are subdivided: the adapter starting a sub-problem inside its box sets the
+  starting point of the subdivided variables one at a time, instead of handing
+  the design space a current value covering part of its variables, which it
+  rejects. The variables that are not subdivided keep the value they have.
+
 - An MDA can now be a discipline of a `BoxSubdivisionScenario` once a
   constraint is attached. The disciplines are collapsed into one chain, which
   treats the couplings of an MDA as inputs of the chain, so the adapter asked
