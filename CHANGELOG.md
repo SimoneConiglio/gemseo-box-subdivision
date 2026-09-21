@@ -50,6 +50,22 @@ and this project adheres to
   to the EX-link engine, whose design box is 94 % unanalysable, is what asked
   for it.
 
+- A constraint whose **name** differs from the discipline output it is built
+  from is now refused by `add_constraint`, where it is written, instead of
+  raising `KeyError` the first time the master linearizes the sub-problem
+  adapter — several iterations into a run, which a short one never reaches.
+  Three ordinary ways of writing a constraint rename it: `constraint_name=`,
+  which is how a band is written as two inequalities on one output;
+  `positive=True`, which GEMSEO names `-g`; and a non-zero `value`, which it
+  names `[g-0.5]`. The message names the limitation and the way around it, a
+  `LinearCombination` giving each side its own discipline output.
+
+### Added
+
+- `find_renamed_constraints`, `check_constraint_names` and
+  `guard_renamed_constraints`, which read and enforce that rule, for a
+  composition built by hand rather than through `BoxSubdivisionScenario`.
+
 - `read_margin_report` and `MarginReport`, which say what the convexity margin
   was doing over a finished run: how many boxes were solved, how many of them
   were cut on *feasibility* rather than admitted, the best feasible value, and
