@@ -55,6 +55,10 @@ from gemseo_box_subdivision.diagnostics import log_margin_report
 from gemseo_box_subdivision.diagnostics import read_margin_report
 from gemseo_box_subdivision.disciplines.box_constraint import BoxConstraint
 from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
+from gemseo_box_subdivision.disciplines.couplings import keep_couplings_internal
+from gemseo_box_subdivision.disciplines.couplings import (
+    keep_every_mda_couplings_internal,
+)
 from gemseo_box_subdivision.disciplines.multi_resolution_mapping import (
     MultiResolutionMapping,
 )
@@ -104,6 +108,8 @@ __all__ = [
     "create_normalized_box_design_space",
     "find_renamed_constraints",
     "guard_renamed_constraints",
+    "keep_couplings_internal",
+    "keep_every_mda_couplings_internal",
     "log_margin_report",
     "objective_scale",
     "read_margin_report",

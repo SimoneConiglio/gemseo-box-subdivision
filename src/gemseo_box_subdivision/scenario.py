@@ -42,6 +42,9 @@ from gemseo_box_subdivision.design_spaces import create_normalized_box_design_sp
 from gemseo_box_subdivision.diagnostics import log_margin_report
 from gemseo_box_subdivision.disciplines.box_constraint import BoxConstraint
 from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
+from gemseo_box_subdivision.disciplines.couplings import (
+    keep_every_mda_couplings_internal,
+)
 from gemseo_box_subdivision.disciplines.multi_resolution_mapping import (
     MultiResolutionMapping,
 )
@@ -128,7 +131,11 @@ class BoxSubdivisionScenario(MDOScenario):
             disciplines: The disciplines computing the objective, and the
                 constraints if any. The mapping of the boxes is chained in front
                 of them, so they keep receiving the design variables under their
-                own names.
+                own names. **They are chained**, and a chain evaluates each of
+                them once in order, so a *coupled* problem is posed by building
+                its MDA and handing that over among them; the couplings of such
+                an MDA are then internal to the chain, which
+                :func:`.keep_couplings_internal` is what makes true.
             objective_name: The name of the objective output.
             design_space: The design space of the original problem.
             n_subdivisions: The number of subdivisions of every subdivided
@@ -179,6 +186,10 @@ class BoxSubdivisionScenario(MDOScenario):
                 constraint formulation, which it does not support.
         """  # noqa: D205, D212
         self.box_settings = settings or BoxSubdivisionSettings()
+        # The disciplines are collapsed into one chain, which would otherwise
+        # ask an MDA for the derivatives of its couplings with respect to
+        # themselves; inside a chain those couplings are internal.
+        disciplines = keep_every_mda_couplings_internal(disciplines)
         if formulation not in FORMULATIONS:
             msg = (
                 f"The formulation must be one of {list(FORMULATIONS)}; "
