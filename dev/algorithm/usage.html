@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=f23586f5"></script>
+    <script src="../_static/documentation_options.js?v=e65e3f90"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -1040,6 +1040,43 @@ last box solved rather than the run, and reading it can show a run finding
 nothing feasible when the master’s own record shows it found the optimum. The
 master’s database carries one entry per box, with its value and its
 <code class="docutils literal notranslate"><span class="pre">is_feasible</span></code> flag, and is what <code class="xref py py-func docutils literal notranslate"><span class="pre">read_margin_report()</span></code> reads.</p>
+<p class="rubric" id="coupled-problems-the-disciplines-are-chained">Coupled problems: the disciplines are chained</p>
+<p>The disciplines handed to the scenario are collapsed into a <strong>single chain</strong>,
+with the mapping of the boxes in front of them. A chain evaluates each
+discipline once, in the order given, so handing it a set of coupled disciplines
+gives a feed-forward evaluation rather than a converged one — and no warning.</p>
+<p>The sub-problem’s formulation is <code class="docutils literal notranslate"><span class="pre">DisciplinaryOpt</span></code>, so the sub-problem cannot
+itself be an MDF scenario. A coupled problem is therefore posed by <strong>building
+the MDA explicitly</strong> and handing it over among the disciplines:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_mda</span>
+
+<span class="n">mda</span> <span class="o">=</span> <span class="n">create_mda</span><span class="p">(</span><span class="s2">"MDAGaussSeidel"</span><span class="p">,</span> <span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">],</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+
+<span class="n">scenario</span> <span class="o">=</span> <span class="n">BoxSubdivisionScenario</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">mda</span><span class="p">,</span> <span class="n">objective_discipline</span><span class="p">],</span> <span class="s2">"f"</span><span class="p">,</span> <span class="n">design_space</span><span class="p">,</span> <span class="n">n_subdivisions</span><span class="o">=</span><span class="mi">4</span>
+<span class="p">)</span>
+<span class="n">scenario</span><span class="o">.</span><span class="n">formulation</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="s2">"g"</span><span class="p">,</span> <span class="n">constraint_type</span><span class="o">=</span><span class="s2">"ineq"</span><span class="p">,</span> <span class="n">main_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An MDA both consumes and produces its couplings, and a chain treats every input
+that no earlier discipline produces as an input of the chain, so the couplings
+would become inputs of the chain. The scenario stops that: an MDA it is handed
+is no longer differentiated with respect to its <strong>own</strong> couplings, which inside
+a chain are internal.</p>
+<p>That is the right derivative rather than a way round an error. A coupling enters
+an MDA as an <em>initial guess</em> and leaves it converged, and a converged fixed point
+does not depend on where the iteration started, so the derivative is zero.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">keep_couplings_internal()</span></code> does it, and can be applied by hand to a
+composition built without the scenario.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Without it the failure appears only once there is a <strong>constraint</strong> to
+differentiate, since that is when the adapter computes its auxiliary Jacobians:
+<code class="docutils literal notranslate"><span class="pre">ValueError:</span> <span class="pre">Variable</span> <span class="pre">y2</span> <span class="pre">is</span> <span class="pre">both</span> <span class="pre">a</span> <span class="pre">coupling</span> <span class="pre">and</span> <span class="pre">a</span> <span class="pre">design</span> <span class="pre">variable</span></code>, from the
+Jacobian assembly. The same scenario without a constraint runs, which is what
+made it awkward to find. Under <code class="docutils literal notranslate"><span class="pre">MDF</span></code> the question never arises, the formulation
+knowing the couplings are internal.</p>
+</div>
 </div>
 </section>
 </section>

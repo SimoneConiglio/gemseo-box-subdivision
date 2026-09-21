@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=f23586f5"></script>
+    <script src="../../_static/documentation_options.js?v=e65e3f90"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -450,6 +450,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_margin_report</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.box_constraint</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxConstraint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.box_mapping</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoxMapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.couplings</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">keep_every_mda_couplings_internal</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gemseo_box_subdivision.disciplines.multi_resolution_mapping</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MultiResolutionMapping</span><span class="p">,</span>
 <span class="p">)</span>
@@ -538,7 +541,11 @@
 <span class="sd">            disciplines: The disciplines computing the objective, and the</span>
 <span class="sd">                constraints if any. The mapping of the boxes is chained in front</span>
 <span class="sd">                of them, so they keep receiving the design variables under their</span>
-<span class="sd">                own names.</span>
+<span class="sd">                own names. **They are chained**, and a chain evaluates each of</span>
+<span class="sd">                them once in order, so a *coupled* problem is posed by building</span>
+<span class="sd">                its MDA and handing that over among them; the couplings of such</span>
+<span class="sd">                an MDA are then internal to the chain, which</span>
+<span class="sd">                :func:`.keep_couplings_internal` is what makes true.</span>
 <span class="sd">            objective_name: The name of the objective output.</span>
 <span class="sd">            design_space: The design space of the original problem.</span>
 <span class="sd">            n_subdivisions: The number of subdivisions of every subdivided</span>
@@ -589,6 +596,10 @@
 <span class="sd">                constraint formulation, which it does not support.</span>
 <span class="sd">        """</span>  <span class="c1"># noqa: D205, D212</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_settings</span> <span class="o">=</span> <span class="n">settings</span> <span class="ow">or</span> <span class="n">BoxSubdivisionSettings</span><span class="p">()</span>
+        <span class="c1"># The disciplines are collapsed into one chain, which would otherwise</span>
+        <span class="c1"># ask an MDA for the derivatives of its couplings with respect to</span>
+        <span class="c1"># themselves; inside a chain those couplings are internal.</span>
+        <span class="n">disciplines</span> <span class="o">=</span> <span class="n">keep_every_mda_couplings_internal</span><span class="p">(</span><span class="n">disciplines</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">formulation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FORMULATIONS</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"The formulation must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">FORMULATIONS</span><span class="p">)</span><span class="si">}</span><span class="s2">; "</span>
