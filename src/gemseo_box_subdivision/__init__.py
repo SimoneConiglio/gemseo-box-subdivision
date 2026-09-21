@@ -48,6 +48,10 @@ from gemseo_box_subdivision.design_spaces import create_box_samples
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
 from gemseo_box_subdivision.disciplines.box_constraint import BoxConstraint
 from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
+from gemseo_box_subdivision.disciplines.couplings import keep_couplings_internal
+from gemseo_box_subdivision.disciplines.couplings import (
+    keep_every_mda_couplings_internal,
+)
 from gemseo_box_subdivision.disciplines.multi_resolution_mapping import (
     MultiResolutionMapping,
 )
@@ -92,6 +96,8 @@ __all__ = [
     "create_box_start_adapter_class",
     "create_box_subdivision_scenario",
     "create_normalized_box_design_space",
+    "keep_couplings_internal",
+    "keep_every_mda_couplings_internal",
     "objective_scale",
     "read_solved_boxes",
     "refine_deep",

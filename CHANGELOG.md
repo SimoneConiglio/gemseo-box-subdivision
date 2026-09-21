@@ -26,6 +26,32 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- An MDA can now be a discipline of a `BoxSubdivisionScenario` once a
+  constraint is attached. The disciplines are collapsed into one chain, which
+  treats the couplings of an MDA as inputs of the chain, so the adapter asked
+  the MDA for derivatives with respect to its own couplings as soon as there
+  was a constraint to differentiate, and the Jacobian assembly refused with
+  `Variable y2 is both a coupling and a design variable`. Inside a chain those
+  couplings are internal, and the derivative that is no longer asked for is
+  zero: a coupling enters an MDA as an initial guess and leaves it converged,
+  and a converged fixed point does not depend on where the iteration started.
+
+### Added
+
+- `keep_couplings_internal` and `keep_every_mda_couplings_internal`, which do
+  that to an MDA, for a composition built without the scenario.
+
+### Documentation
+
+- *Coupled problems: the disciplines are chained*, saying that the disciplines
+  are chained and that a coupled problem therefore needs its MDA built
+  explicitly — a reader handing the scenario five coupled disciplines otherwise
+  gets a feed-forward evaluation and no warning.
+
 ## 0.2.0 (2026-09-19)
 
 The settings, in two entry points: the general construction, which names the

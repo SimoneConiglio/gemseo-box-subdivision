@@ -415,6 +415,49 @@ feasibility cut instead of stalling the master:
 scenario.formulation.add_constraint("g", main_level=True)
 ```
 
+## Coupled problems: the disciplines are chained
+
+The disciplines handed to the scenario are collapsed into a **single chain**,
+with the mapping of the boxes in front of them. A chain evaluates each
+discipline once, in the order given, so handing it a set of coupled disciplines
+gives a feed-forward evaluation rather than a converged one — and no warning.
+
+The sub-problem's formulation is `DisciplinaryOpt`, so the sub-problem cannot
+itself be an MDF scenario. A coupled problem is therefore posed by **building
+the MDA explicitly** and handing it over among the disciplines:
+
+```python
+from gemseo import create_mda
+
+mda = create_mda("MDAGaussSeidel", [first, second], tolerance=1e-10)
+
+scenario = BoxSubdivisionScenario(
+    [mda, objective_discipline], "f", design_space, n_subdivisions=4
+)
+scenario.formulation.add_constraint("g", constraint_type="ineq", main_level=True)
+```
+
+An MDA both consumes and produces its couplings, and a chain treats every input
+that no earlier discipline produces as an input of the chain, so the couplings
+would become inputs of the chain. The scenario stops that: an MDA it is handed
+is no longer differentiated with respect to its **own** couplings, which inside
+a chain are internal.
+
+That is the right derivative rather than a way round an error. A coupling enters
+an MDA as an *initial guess* and leaves it converged, and a converged fixed point
+does not depend on where the iteration started, so the derivative is zero.
+{func}`.keep_couplings_internal` does it, and can be applied by hand to a
+composition built without the scenario.
+
+:::{note}
+Without it the failure appears only once there is a **constraint** to
+differentiate, since that is when the adapter computes its auxiliary Jacobians:
+`ValueError: Variable y2 is both a coupling and a design variable`, from the
+Jacobian assembly. The same scenario without a constraint runs, which is what
+made it awkward to find. Under `MDF` the question never arises, the formulation
+knowing the couplings are internal.
+:::
+
 ## Enumerating the boxes instead
 
 The same scenario, driven exhaustively, which is the reference to compare
