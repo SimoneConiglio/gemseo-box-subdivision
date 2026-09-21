@@ -28,6 +28,14 @@ and this project adheres to
 
 ## Unreleased
 
+### Fixed
+
+- The constraint formulation no longer fails when only some of the variables
+  are subdivided: the adapter starting a sub-problem inside its box sets the
+  starting point of the subdivided variables one at a time, instead of handing
+  the design space a current value covering part of its variables, which it
+  rejects. The variables that are not subdivided keep the value they have.
+
 ### Added
 
 - `BoxSubdivisionScenario.scenario_adapter_cls`, the adapter running the
