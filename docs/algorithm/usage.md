@@ -415,6 +415,56 @@ feasibility cut instead of stalling the master:
 scenario.formulation.add_constraint("g", main_level=True)
 ```
 
+### A constraint must be named after its output
+
+A constraint reaches the master through the post-optimal analysis of the
+sub-problem, which needs its Jacobian. The adapter builds that Jacobian by
+asking the **discipline producing the output** for it, and it asks under the
+*name of the constraint*, so the two have to be the same name. A constraint
+named anything else is the output of no discipline.
+
+Three ordinary ways of writing a constraint rename it, and each is refused where
+it is written:
+
+| written as | named | why one writes it |
+|------------|-------|-------------------|
+| `constraint_name="g_upper"` | `g_upper` | a band $|r| \le h$, as two inequalities on one output |
+| `positive=True` | `-g` | a constraint of the other sense |
+| `value=0.5` | `[g-0.5]` | a bound that is not zero |
+
+Give each side its own **discipline output** instead, and constrain that output
+under its own name. A `LinearCombination` per side has an exact constant
+Jacobian, and costs one discipline:
+
+```python
+from gemseo.disciplines.linear_combination import LinearCombination
+
+scenario = BoxSubdivisionScenario(
+    [
+        discipline,
+        LinearCombination(["r"], "r_upper", input_coefficients={"r": 1.0}, offset=-h),
+        LinearCombination(["r"], "r_lower", input_coefficients={"r": -1.0}, offset=-h),
+    ],
+    "f",
+    design_space,
+    n_subdivisions=10,
+)
+for name in ("r_upper", "r_lower"):
+    scenario.formulation.add_constraint(name, main_level=True)
+```
+
+A `positive=True` constraint becomes a negated one, `<= 0` like the others.
+
+:::{note}
+The limitation is upstream, in the pairing of
+`MDOScenarioAdapterBenders._compute_jacobian` with
+`MDOScenarioAdapter._compute_auxiliary_jacobians`, and it is reached only
+through `Benders`. Left alone it surfaces as a `KeyError` the first time the
+master linearizes the adapter — several iterations into a run, which a one- or
+two-iteration smoke test never reaches, and from a module the caller never
+named. What this package does is refuse it at `add_constraint`, with the way
+around it in the message.
+
 ## Coupled problems: the disciplines are chained
 
 The disciplines handed to the scenario are collapsed into a **single chain**,
