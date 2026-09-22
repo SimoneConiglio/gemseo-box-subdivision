@@ -203,3 +203,119 @@ cost equal to its budget, the number is an upper bound and the ranking is only
 "within this budget" until it is re-run, as Ackley was here.
 
 What the results make of all this is [the page these tables support](benchmark.md#the-extensions-and-what-they-are-worth).
+
+## Estimating the density instead of supplying it
+
+The density of the subdivision is the one setting with no default, and
+[the conclusion](conclusion.md#where-this-can-go) names estimating it as the next
+step worth taking. `benchmarks/basin_spacing.py` estimates it, from the landscape
+rather than from the dimension.
+
+The estimand is not a wavelength. A general objective has no single wavelength
+per direction, the restriction of $f$ to a line along $e_j$ having a spectrum
+that depends on where the line is. What is well defined for any $C^1$ objective
+is the expected number of minima along such a line,
+
+$$
+N_j = \mathbb{E}_{x_\perp}\big[\#\{t : \partial_j f(x_\perp + t e_j) = 0,\
+\partial_{jj} f > 0\}\big],
+$$
+
+which is exactly what the subdivision has to separate, so $m_j = N_j$ directly.
+That expectation is a Monte Carlo integral over **axial line scans**: draw an
+anchor at random, sweep one component across its bounds, count the minima deep
+enough to matter. A space-filling design does not serve here — averaging it over
+the other components estimates the ANOVA main effect $\mathbb{E}[f \mid x_j]$,
+and the multimodality of Griewank, a product over every component, and of Ackley,
+inside a norm, does not survive that average.
+
+Five variables, five anchors per component, the ladder of scan rates stopping
+when the count stops growing:
+
+| problem | proposed $m$ | binaries | scan cost | resolved |
+|---------|--------------|----------|-----------|----------|
+| Rastrigin | 10 10 10 10 10 | 50 | 12 525 | yes |
+| Ackley | 63 63 62 63 63 | 314 | 25 350 | **no** |
+| Styblinski-Tang | 2 2 2 2 2 | 10 | 1250 | yes |
+| Griewank | 19 13 11 7 9 | 59 | 12 525 | yes |
+| `partly_multimodal` | 10 10 1 1 1 | 23 | 6100 | yes |
+
+Every converged row recovers a count that can be checked by hand: Rastrigin's
+minima are a unit apart over a range of ten, Styblinski-Tang is a quartic double
+well, Griewank's $j$-th component has period $2\pi\sqrt{j}$ and the estimate
+falls with $j$ as it should. `partly_multimodal` is the one to notice: the
+amplitude gate proposes a **single** subdivision for the three paraboloid
+components, which is the partial refinement of the section above reached from the
+landscape instead of declared.
+
+### What the proposal is worth
+
+Each problem is given four times the budget its own estimate implies, so that
+every run ends on its own criterion rather than at a wall. Three starting points:
+
+| problem | density | binaries | predicted | gap | cost | reached |
+|---------|---------|----------|-----------|-----|------|---------|
+| Rastrigin | **proposed**, 10 ×5 | 50 | 2000 | **$0.00$** | 2103 | **3/3** |
+| Rastrigin | 2 ×5 | 10 | 400 | $4.97$ | 823 | 0/3 |
+| Ackley | **proposed**, 63 ×5 | 314 | 12 560 | $12.75$ | 5372 | 0/3 |
+| Ackley | 2 ×5 | 10 | 400 | $14.43$ | 892 | 0/3 |
+| Ackley | 10 ×5 | 50 | 2000 | **$6.30$** | 3385 | **1/3** |
+| Styblinski-Tang | **proposed**, 2 ×5 | 10 | 400 | **$0.00$** | 458 | **2/3** |
+| Styblinski-Tang | 10 ×5 | 50 | 2000 | $14.14$ | 598 | 1/3 |
+| Griewank | **proposed**, 19 13 11 7 9 | 59 | 2360 | $0.064$ | 3463 | **1/3** |
+| Griewank | 2 ×5 | 10 | 400 | $0.061$ | 1016 | 0/3 |
+| Griewank | 10 ×5 | 50 | 2000 | **$0.027$** | 3166 | 0/3 |
+| `partly_multimodal` | **proposed**, 10 10 1 1 1 | 23 | 920 | **$0.00$** | **858** | **3/3** |
+| `partly_multimodal` | 2 ×5 | 10 | 400 | $1.99$ | 540 | 0/3 |
+| `partly_multimodal` | 10 ×5 | 50 | 2000 | **$0.00$** | 1554 | **3/3** |
+
+**On every problem the ladder resolved, the proposal picks the better of the two
+fixed densities**, and on one it beats both: `partly_multimodal` reaches the
+optimum from every starting point for $858$ evaluations against $1554$ for a flat
+ten, by leaving its three unimodal components out. The two reversals the
+benchmark is built around both come out right without being told — ten for
+Rastrigin, two for Styblinski-Tang — and no single fixed density gets both.
+
+**The budget the estimate implies is about right too.** Predicted against
+measured: $2000$ against $2103$ on Rastrigin, $400$ against $458$ on
+Styblinski-Tang, $920$ against $858$ on `partly_multimodal`, $2360$ against
+$3463$ on Griewank. The rule $\sum_j m_j$ sub-problems lands within a third on
+all four, which is what the coefficients-to-cuts ratio of
+[the methodology](methodology.md#what-grows-with-the-dimension) predicts.
+
+**And the one row it gets wrong is the one it flags.** Ackley's ladder does not
+converge, and its proposal of sixty-three is worse than a flat ten, $12.75$
+against $6.30$. Its ripples are a unit apart over a range of sixty-four, so
+per-basin boxing is the wrong target entirely: a density that separates them is
+correct as a count and useless as a subdivision, because what has to be resolved
+on Ackley is the funnel and not the texture on it, which is the case
+[the hierarchies](#the-hierarchies) exist for. The estimate says so in advance —
+`converged` is false — and that flag is the part worth keeping: it separates the
+three problems whose proposal to trust from the one whose proposal to discard.
+
+Ackley also confirms that the budget is not what binds it. Granted $50\,240$
+evaluations it stops at $5372$, on its own trust region or stall counter, exactly
+as [the budget re-runs](#does-more-budget-change-the-answer) found.
+
+### Why the scan is irregular
+
+The error of the estimator is one sided — a scan reveals the basins it resolves
+and never more — so the only stopping rule available is to refine until the count
+stops growing. That rule is **invalid on an evenly spaced scan**, because a
+uniform grid whose spacing resonates with the landscape aliases, and aliasing is
+silent. The ladder of Ackley, by rung:
+
+| scan | rung 1 | 2 | 3 | 4 | 5 | 6 | stopped on |
+|------|--------|---|---|---|---|---|------------|
+| uniform | 1 | 1 | — | — | — | — | **1** |
+| jittered | 4 | 9 | 20 | 36 | 55 | 62 | did not |
+
+The uniform scan agrees with itself twice and terminates on a count wrong by a
+factor of sixty, having given no sign of it. Drawing the abscissae at random
+removes the resonance, and the ladder then climbs without settling, which is the
+correct report. The jitter is therefore not a refinement of the estimator; it is
+what makes its stopping rule mean anything.
+
+```shell
+python -m benchmarks.basin_spacing
+```

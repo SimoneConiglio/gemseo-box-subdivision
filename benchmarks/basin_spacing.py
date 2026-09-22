@@ -636,10 +636,11 @@ def _report_densities(estimates: dict[str, BasinEstimate]) -> None:
         estimate = estimates[name]
         budget = estimate.budget * HEADROOM
         optimum = problem.optimum(DIMENSION)
-        densities = [
+        # A fixed density the estimate happens to propose is the same run twice.
+        densities = dict.fromkeys([
             tuple(estimate.n_subdivisions),
             *((fixed,) * DIMENSION for fixed in FIXED_DENSITIES),
-        ]
+        ])
         for density in densities:
             outcomes = [
                 run_at_density(problem, DIMENSION, density, seed, budget)
