@@ -163,6 +163,13 @@ solve over five variables costs more, and this is the order of it. It converts
 :math:`\\sum_j m_j` sub-problems into evaluations and nothing else depends on it.
 """
 
+DEFAULT_STALL: Final[int] = 10
+"""The stalling iterations the catalogue allows before giving up.
+
+This is ``upper_bound_stall`` as the master defaults it, and the floor of
+:func:`.stall_counter`.
+"""
+
 HEADROOM: Final[int] = 4
 """How many times the predicted budget a run is actually granted.
 
@@ -460,12 +467,40 @@ class GroupedObjective(Discipline):
             self.jac["f"][name] = atleast_2d(gradient[list(components)])
 
 
+def stall_counter(n_subdivisions: Sequence[int]) -> int:
+    r"""Return the stalling iterations to allow at a density.
+
+    The master gives up after ``upper_bound_stall`` iterations that fail to
+    improve the upper bound, and the catalogue default is ten. Ten is a count of
+    *mistakes tolerated*, and a finer subdivision has to make more of them: the
+    boxes it can propose grow with the density while the ones holding the
+    optimum do not, so the same search spends more iterations on boxes that
+    improve nothing. Inciting the exploration and keeping the patience fixed
+    stops the run for doing what it was asked to do.
+
+    The same reasoning that sizes the budget sizes this. A cut model of
+    :math:`\sum_j m_j` coefficients needs of the order of :math:`\sum_j m_j`
+    cuts before its ranking is informed everywhere, so a run that gives up after
+    ten non-improving iterations at three hundred binaries gives up before its
+    model means anything. The patience follows the binaries, never below the
+    default.
+
+    Args:
+        n_subdivisions: The number of subdivisions of each component.
+
+    Returns:
+        The number of stalling iterations to allow.
+    """
+    return max(DEFAULT_STALL, sum(n_subdivisions))
+
+
 def run_at_density(
     problem: Problem,
     dimension: int,
     n_subdivisions: Sequence[int],
     seed: int,
     budget: int,
+    stall: int = 0,
 ) -> tuple[float, int, bool]:
     """Run the method with one number of subdivisions per component.
 
@@ -475,6 +510,8 @@ def run_at_density(
         n_subdivisions: The number of subdivisions of each component.
         seed: The seed of the starting point.
         budget: The budget in equivalent objective evaluations.
+        stall: The stalling iterations to allow before giving up.
+            If zero, use the catalogue default of :data:`.DEFAULT_STALL`.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
@@ -519,6 +556,7 @@ def run_at_density(
     )
     settings = dict(CONFIGURATIONS[DEFAULT_CONFIGURATION])
     settings["max_step"] = TRUST_REGION_RADIUS
+    settings["upper_bound_stall"] = stall or DEFAULT_STALL
 
     # A budget spent inside a linearization leaves the discipline without its
     # output, which GEMSEO then reports as a missing key.

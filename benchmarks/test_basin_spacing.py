@@ -32,11 +32,13 @@ from numpy import linspace
 from numpy import pi
 from numpy import sum as np_sum
 
+from benchmarks.basin_spacing import DEFAULT_STALL
 from benchmarks.basin_spacing import DIMENSION
 from benchmarks.basin_spacing import count_minima
 from benchmarks.basin_spacing import estimate_basins
 from benchmarks.basin_spacing import group_by_density
 from benchmarks.basin_spacing import run_at_density
+from benchmarks.basin_spacing import stall_counter
 from benchmarks.problems import PROBLEMS
 
 
@@ -149,6 +151,20 @@ def test_group_by_density():
         "x_m11": (2,),
         "x_m8": (4,),
     }
+
+
+def test_stall_counter_follows_the_binaries():
+    """Patience follows the density, and never drops below the catalogue default.
+
+    The master gives up after so many iterations that improve nothing, and ten
+    of them is a count of mistakes tolerated rather than a property of the
+    problem. A subdivision proposing more boxes has to make more mistakes to
+    cover them, so a density that incites exploration and leaves the patience
+    where it was stops the run for doing what it was asked to do.
+    """
+    assert stall_counter((2, 2, 2, 2, 2)) == DEFAULT_STALL
+    assert stall_counter((10, 10, 10, 10, 10)) == 50
+    assert stall_counter((63, 63, 62, 63, 63)) == 314
 
 
 def test_run_at_density_refines_per_variable():
