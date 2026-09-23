@@ -614,6 +614,7 @@ def run_at_density_swept(
     n_subdivisions: Sequence[int],
     seed: int,
     budget: int,
+    n_parallel_points: int = 0,
 ) -> tuple[float, int, bool]:
     """Run the estimated density with the convexity swept rather than supplied.
 
@@ -642,6 +643,11 @@ def run_at_density_swept(
         n_subdivisions: The number of subdivisions of each component.
         seed: The seed of the starting point.
         budget: The budget in equivalent objective evaluations.
+        n_parallel_points: The probes the master runs per iteration, which in a
+            swept run are also the **rungs of the convexity ladder**: the sweep
+            spreads its ladder over the probes, so raising this refines the
+            convexity it searches as well as the radii it tries. If zero, take
+            the number the calibrated configuration uses.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
@@ -676,9 +682,8 @@ def run_at_density_swept(
         n_subdivisions=subdivided,
         settings=SweptBoxSubdivisionSettings(
             trust_region_radius=TRUST_REGION_RADIUS,
-            n_parallel_points=CONFIGURATIONS[DEFAULT_CONFIGURATION][
-                "number_of_parallel_points"
-            ],
+            n_parallel_points=n_parallel_points
+            or CONFIGURATIONS[DEFAULT_CONFIGURATION]["number_of_parallel_points"],
             max_iter=10000,
             tolerance=1e-4,
         ),
