@@ -551,16 +551,24 @@ def run_at_density(
         min_dfk: The convexity margin, absolute in the units of the objective.
             If zero, keep the calibrated value of the configuration.
         n_processes: The processes the master solves its candidate boxes over.
-            **Leave this at one.** The master forks rather than threads, see
-            ``CallableParallelExecution`` built with ``use_threading`` at its
-            default in `outer_approximation_optimizer.py`, and nothing the
-            children compute comes back: a run at two processes returns a gap of
+            **Leave this at one.** A run at four processes returns a gap of
             $33.41$ for 35 evaluations where the same run serial returns $0.00$
-            for 2115, finishing in a fifth of a second. The counter of this
-            benchmark lives in the parent, so the cost it reports is wrong, and
-            the gap is wrong too, which says the state the master needs does not
-            survive the fork either. The setting is exposed so that the trap is
-            recorded and reproducible, not because it can be used.
+            for 2115, and the gap moving at all says the answer is wrong rather
+            than merely mis-counted. Four things are in the way and none is in
+            this repository. The worker of `_execute_doe` returns ``None``, so
+            what the children compute stays in their copy of the database; no
+            ``exec_callback`` is passed, which is the channel that would bring
+            it back; the database is not the whole state, a prototype returning
+            the outputs and storing them making the evaluations genuinely run,
+            14.5s against 0.1s, without changing the answer and then failing in
+            the slope history of the cut model, which needs the post-optimal
+            sensitivities and not the values alone; and threading instead of
+            forking is no escape, GEMSEO's driver library not being re-entrant
+            under concurrent sub-scenario drives. A fifth is local: the counter
+            of this benchmark lives in the parent, so even a correct fix
+            upstream leaves the cost wrong until it is read off the database.
+            The setting is exposed so the trap is recorded and reproducible, not
+            because it can be used.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
