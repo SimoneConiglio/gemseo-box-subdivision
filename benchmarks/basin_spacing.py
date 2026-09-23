@@ -164,10 +164,40 @@ solve over five variables costs more, and this is the order of it. It converts
 """
 
 DEFAULT_STALL: Final[int] = 10
-"""The stalling iterations the catalogue allows before giving up.
+"""The stalling iterations the master allows before giving up.
 
-This is ``upper_bound_stall`` as the master defaults it, and the floor of
-:func:`.stall_counter`.
+This is ``upper_bound_stall`` as the catalogue defaults it, and it is the floor
+of :func:`.stall_counter`. On its own it decides nothing: raised to the binaries
+while the trust region still collapses, it leaves an Ackley run at ten
+subdivisions bit for bit where it was, the same gap for the same evaluations.
+It matters only once the region is held open, see :data:`.MIN_STEP`.
+"""
+
+MIN_STEP: Final[int] = TRUST_REGION_RADIUS
+"""The radius the trust region of the master may not shrink below.
+
+The master shrinks its step by $0.7$ every ``step_decreasing_activation``
+stalling iterations, down to ``min_step``, and widens it again only on an
+improvement. The catalogue floor is one, so six stalling iterations pin the
+region at a radius of one for good, and the run then changes a single component
+at a time for as long as it is allowed to.
+
+That also silences the parallel probes. The master gives one radius per point
+over ``geomspace(max(step / 2, min_step), step)``, so four points at a step of
+two probe $1$, $1.26$, $1.59$ and $2$; once the step reaches one they all probe
+$1$, and the four parallel points solve the same problem four times.
+
+Holding the floor at the tuned radius keeps that from happening: Ackley at ten
+subdivisions goes from $6.30$ to $4.95$ and Styblinski-Tang from two starting
+points out of three to three, both for a few percent more evaluations.
+
+It cannot be done alone. A region that stays wide stalls more often than one
+that narrows onto whatever it can still improve, so holding it open and leaving
+the patience at ten stops the run earlier in the search rather than later:
+Rastrigin, solved from every starting point at $2103$ evaluations, falls to
+$0.99$ and one starting point out of three. With :func:`.stall_counter` sizing
+the patience as well it is solved again, from every starting point. The two
+settings are one change.
 """
 
 HEADROOM: Final[int] = 4
@@ -472,18 +502,17 @@ def stall_counter(n_subdivisions: Sequence[int]) -> int:
 
     The master gives up after ``upper_bound_stall`` iterations that fail to
     improve the upper bound, and the catalogue default is ten. Ten is a count of
-    *mistakes tolerated*, and a finer subdivision has to make more of them: the
-    boxes it can propose grow with the density while the ones holding the
-    optimum do not, so the same search spends more iterations on boxes that
-    improve nothing. Inciting the exploration and keeping the patience fixed
-    stops the run for doing what it was asked to do.
+    mistakes tolerated rather than a property of a problem, and two things make
+    a run need more of them: a finer subdivision proposes more boxes while the
+    ones holding the optimum stay as few, and a trust region held open at
+    :data:`.MIN_STEP` keeps proposing from a neighbourhood it has not exhausted
+    instead of narrowing onto whatever it can still improve.
 
-    The same reasoning that sizes the budget sizes this. A cut model of
-    :math:`\sum_j m_j` coefficients needs of the order of :math:`\sum_j m_j`
-    cuts before its ranking is informed everywhere, so a run that gives up after
-    ten non-improving iterations at three hundred binaries gives up before its
-    model means anything. The patience follows the binaries, never below the
-    default.
+    The size follows the coefficients of the cut model, as the budget does. A
+    model of :math:`\sum_j m_j` coefficients needs of the order of
+    :math:`\sum_j m_j` cuts before its ranking is informed everywhere, so
+    giving up after ten non-improving iterations at fifty binaries gives up
+    before the model means anything. The catalogue default stays the floor.
 
     Args:
         n_subdivisions: The number of subdivisions of each component.
@@ -501,6 +530,7 @@ def run_at_density(
     seed: int,
     budget: int,
     stall: int = 0,
+    min_step: int = MIN_STEP,
 ) -> tuple[float, int, bool]:
     """Run the method with one number of subdivisions per component.
 
@@ -512,6 +542,7 @@ def run_at_density(
         budget: The budget in equivalent objective evaluations.
         stall: The stalling iterations to allow before giving up.
             If zero, use the catalogue default of :data:`.DEFAULT_STALL`.
+        min_step: The radius the trust region may not shrink below.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
@@ -557,6 +588,7 @@ def run_at_density(
     settings = dict(CONFIGURATIONS[DEFAULT_CONFIGURATION])
     settings["max_step"] = TRUST_REGION_RADIUS
     settings["upper_bound_stall"] = stall or DEFAULT_STALL
+    settings["min_step"] = min_step
 
     # A budget spent inside a linearization leaves the discipline without its
     # output, which GEMSEO then reports as a missing key.

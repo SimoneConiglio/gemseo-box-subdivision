@@ -156,15 +156,16 @@ def test_group_by_density():
 def test_stall_counter_follows_the_binaries():
     """Patience follows the density, and never drops below the catalogue default.
 
-    The master gives up after so many iterations that improve nothing, and ten
-    of them is a count of mistakes tolerated rather than a property of the
-    problem. A subdivision proposing more boxes has to make more mistakes to
-    cover them, so a density that incites exploration and leaves the patience
-    where it was stops the run for doing what it was asked to do.
+    Ten stalling iterations is a count of mistakes tolerated rather than a
+    property of a problem. A finer subdivision proposes more boxes, and a trust
+    region held open at ``MIN_STEP`` keeps proposing from a neighbourhood it has
+    not exhausted, so both make a run stall more often for the same progress.
+    Holding the region open while leaving the patience at ten costs Rastrigin
+    its result, and sizing the two together keeps it.
     """
     assert stall_counter((2, 2, 2, 2, 2)) == DEFAULT_STALL
     assert stall_counter((10, 10, 10, 10, 10)) == 50
-    assert stall_counter((63, 63, 62, 63, 63)) == 314
+    assert stall_counter((10, 10, 1, 1, 1)) == 23
 
 
 def test_run_at_density_refines_per_variable():
