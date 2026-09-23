@@ -90,7 +90,6 @@ from gemseo.settings.opt import SLSQP_Settings
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BiLevelMasterOuterApproximation_Settings,
 )
-from numpy import argmax
 from numpy import array
 from numpy import atleast_2d
 from numpy import diff
@@ -255,21 +254,22 @@ class BasinEstimate:
 def count_minima(values: ndarray, depth_ratio: float = DEPTH_RATIO) -> int:
     """Count the local minima of a scan that are deep enough to be basins.
 
-    A minimum is kept when the rise bounding it exceeds ``depth_ratio`` of the
-    range of the scan. That prominence is what separates a basin from the
-    numerical texture of a slope, and it is what gates a component the objective
-    is flat in.
+    A minimum is kept when its **topographic prominence** exceeds
+    ``depth_ratio`` of the range of the scan. The prominence is measured against
+    the **key saddle**: walking outwards until the scan drops below this minimum
+    again, the highest point crossed on the way is what closes the basin, and
+    the smaller of the two sides is what the basin is worth. Measuring instead
+    against the highest point anywhere to each side, as this counted until it
+    was checked, makes every dip inside a bowl look as deep as the bowl: ripples
+    a hundredth of the range deep on a parabola were kept at a gate of one half.
 
-    The rise is the smaller of the two bounding it, except where one of them
-    lies **outside the bounds**. The objective descends into the design space
-    from an edge whenever the ridge that would close the outermost basin is
-    beyond it, and charging that basin for a ridge the design space does not
-    contain drops it: on Rastrigin the minimum nearest the lower bound sits a
-    tenth of a unit inside it, and its prominence measured against both sides
-    straddles the gate from one anchor to the next. A basin the bounds clip is
-    still a basin the subdivision has to separate, so it is measured against the
-    side that exists, which is what keeps the count at the ten that aligns the
-    boxes with the lattice.
+    A side that reaches the bound without ever dropping below the minimum is
+    **open**: the ridge that would close the basin lies outside the design
+    space. The basin is then worth what the closed side says, a basin the bounds
+    clip being a basin the subdivision still has to separate, which is what
+    keeps the minimum nearest Rastrigin's lower bound, a tenth of a unit inside
+    it, in the count. A minimum open on both sides is the lowest of the scan and
+    is worth its whole range.
 
     Args:
         values: The objective values along the scan.
@@ -284,22 +284,20 @@ def count_minima(values: ndarray, depth_ratio: float = DEPTH_RATIO) -> int:
         return 1
 
     slopes = diff(values)
-    last = values.size - 1
     kept = 0
     for index in where((slopes[:-1] < 0.0) & (slopes[1:] > 0.0))[0] + 1:
-        left = values[: index + 1]
-        right = values[index:]
-        rises = []
-        # A rise peaking on an endpoint of the scan is the objective still
-        # climbing when the design space stops, not a ridge closing the basin.
-        if int(argmax(left)) != 0:
-            rises.append(float(left.max()))
-        if int(argmax(right)) + index != last:
-            rises.append(float(right.max()))
+        depth = float(values[index])
+        saddles = []
+        for side in (values[index::-1], values[index:]):
+            # Walk out to the first point below this minimum; the highest point
+            # crossed on the way is the saddle that closes the basin. Reaching
+            # the bound without one leaves the side open.
+            lower = where(side < depth)[0]
+            if lower.size:
+                saddles.append(float(side[: lower[0]].max()))
 
-        # Both sides clipped: the whole scan descends into one basin.
-        prominence = min(rises) if rises else max(float(left[0]), float(right[-1]))
-        if (prominence - float(values[index])) / span > depth_ratio:
+        prominence = min(saddles) if saddles else span + depth
+        if (prominence - depth) / span > depth_ratio:
             kept += 1
 
     return max(kept, 1)

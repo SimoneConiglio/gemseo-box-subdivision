@@ -27,7 +27,7 @@ multimodal in every variable, leaving three of the five out takes a run from two
 starting points out of three to none.
 
 | subdivision of `partly_multimodal` | boxes | binaries | gap | cost | reached |
-|------------------------------------|-------|----------|-----|------|---------|
+| ------------------------------------ | ------- | ---------- | ----- | ------ | --------- |
 | all 5 variables, $m=2$ | 32 | 10 | $1.99$ | 540 | 0/3 |
 | **3 variables, $m=4$** | 64 | **12** | **$0.00$** | **773** | **3/3** |
 | 2 variables, $m=10$ | 100 | 20 | **$0.00$** | 858 | **3/3** |
@@ -49,7 +49,7 @@ costs. Five variables, three starting
 points, the same budget of $2500$, median distance to the optimum:
 
 | encoding | binaries | resolution | Rastrigin | Ackley | Styblinski-Tang |
-|----------|----------|------------|-----------|--------|-----------------|
+| ---------- | ---------- | ------------ | ----------- | -------- | ----------------- |
 | flat, $m=10$ | 50 | 10 | **$0.00$ · 3/3** | $6.30$† | $14.14$ · 1/3 |
 | flat, $m=16$ | 80 | 16 | $1.99$ | $12.63$† | **$0.00$ · 2/3** |
 | levels $m=2$, $L=4$ | 40 | 16 | $2.99$† | $7.08$† | $14.44$ |
@@ -113,7 +113,7 @@ Ackley from four starting points out of six, which nothing else here does; none
 of them beats the flat subdivision elsewhere.
 
 | method | Rastrigin | Ackley | Styblinski-Tang |
-|--------|-----------|--------|-----------------|
+| -------- | ----------- | -------- | ----------------- |
 | flat $m=2$ | $4.98$ | $14.43$ | $0.00$, 5/6, 486 |
 | flat $m=10$ | **$0.00$, 6/6, 1920** | $6.30$, 2500† | $0.00$, 1/6, 532 |
 | two levels, by value | $4.98$ | $6.30$ | $0.00$, 5/6, 872 |
@@ -173,7 +173,7 @@ $2500$. On the one comparison where it matters most, Ackley at five variables,
 the answer is measured rather than argued. Six starting points:
 
 | budget | flat $m=10$ | deep, 4 levels of 2 |
-|--------|-------------|---------------------|
+| -------- | ------------- | --------------------- |
 | $2500$ | $6.30$ · 2500 · 0/6 · **4 of 6 at the wall** | $0.00$ · 2387 · 4/6 · none at the wall |
 | $5000$ | $5.62$ · 3306 · **2/6** · none at the wall | $0.00$ · 3093 · 4/6 · none at the wall |
 | $10\,000$ | $5.62$ · 3306 · 2/6 · none at the wall | $0.00$ · 3093 · 4/6 · none at the wall |
@@ -233,12 +233,19 @@ Five variables, five anchors per component, the ladder of scan rates stopping
 when the count stops growing:
 
 | problem | proposed $m$ | binaries | scan cost | resolved |
-|---------|--------------|----------|-----------|----------|
+| --------- | -------------- | ---------- | ----------- | ---------- |
 | Rastrigin | 10 10 10 10 10 | 50 | 12 525 | yes |
-| Ackley | 63 63 62 63 63 | 314 | 25 350 | **no** |
+| Ackley | 62 62 62 63 63 | 312 | 25 350 | **no** |
 | Styblinski-Tang | 2 2 2 2 2 | 10 | 1250 | yes |
-| Griewank | 19 13 11 7 9 | 59 | 12 525 | yes |
+| Griewank | 19 13 11 5 8 | 56 | 12 525 | yes |
 | `partly_multimodal` | 10 10 1 1 1 | 23 | 6100 | yes |
+
+:::{note}
+The comparisons further down were measured before the prominence of a minimum
+was corrected, so their Griewank rows carry the density 19 13 11 7 9 that the
+estimator proposed then, and their Ackley rows 63 rather than 62. Nothing else
+moved.
+:::
 
 Every converged row recovers a count that can be checked by hand: Rastrigin's
 minima are a unit apart over a range of ten, Styblinski-Tang is a quartic double
@@ -254,7 +261,7 @@ Each problem is given four times the budget its own estimate implies, so that
 every run ends on its own criterion rather than at a wall. Three starting points:
 
 | problem | density | binaries | predicted | gap | cost | reached |
-|---------|---------|----------|-----------|-----|------|---------|
+| --------- | --------- | ---------- | ----------- | ----- | ------ | --------- |
 | Rastrigin | **proposed**, 10 ×5 | 50 | 2000 | **$0.00$** | 2103 | **3/3** |
 | Rastrigin | 2 ×5 | 10 | 400 | $4.97$ | 823 | 0/3 |
 | Ackley | **proposed**, 63 ×5 | 314 | 12 560 | $12.75$ | 5372 | 0/3 |
@@ -349,7 +356,7 @@ evaluations, falls to $0.99$ and one out of three. Sized together, at
 starting points, each problem at its proposed density and Ackley at ten:
 
 | problem | settings | gap | cost | reached |
-|---------|----------|-----|------|---------|
+| --------- | ---------- | ----- | ------ | --------- |
 | Rastrigin | catalogue | $0.0000$ | **2103** | 3/3 |
 | Rastrigin | both | $0.0000$ | 5673 | 3/3 |
 | Ackley, $m=10$ | catalogue | $6.3021$ | 3385 | 1/3 |
@@ -388,7 +395,7 @@ $100$. That value is **absolute, in the units of the objective**, and the five
 problems here do not span comparable ranges:
 
 | problem | range | $100$ is | reaches the optimum |
-|---------|-------|----------|---------------------|
+| --------- | ------- | ---------- | --------------------- |
 | Styblinski-Tang | $549.7$ | 18% | yes |
 | Rastrigin | $186.7$ | 54% | yes |
 | `partly_multimodal` | $164.1$ | 61% | yes |
@@ -408,7 +415,7 @@ Sweeping the margin at $m = 10$ on Ackley, three starting points, nothing else
 touched, shows a window rather than a trend:
 
 | `min_dfk` | % of range | gap | cost | reached |
-|-----------|------------|-----|------|---------|
+| ----------- | ------------ | ----- | ------ | --------- |
 | $100$ | 690% | $6.3021$ | 3385 | 1/3 |
 | $30$ | 207% | $4.9449$ | 2721 | 1/3 |
 | **$10$** | **69%** | **$0.0000$** | **2450** | **2/3** |
@@ -423,7 +430,7 @@ neither a margin nor a density, against the same densities at the calibrated
 margin:
 
 | problem | density | swept | calibrated |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Styblinski-Tang | 2⁵ | $0.0000$ · 601 · **3/3** | $0.0000$ · 458 · 2/3 |
 | `partly_multimodal` | 10 10 1 1 1 | $0.0000$ · **729** · 3/3 | $0.0000$ · 858 · 3/3 |
 | **Ackley** | 10⁵ | **$0.0000$** · 2622 · **2/3** | $6.3021$ · 3385 · 1/3 |
@@ -463,3 +470,45 @@ stand; the explanation that the runs "end on a trust region that has closed"
 holds only under a margin that has already killed the cuts. Whether holding the
 region open is worth anything **under the sweep** is not measured here.
 :::
+
+### The amplitude gate, corrected, and what it still cannot do
+
+`count_minima` used to measure a dip against the highest point anywhere to each
+side of it. Inside a bowl that is the far wall, so every ripple looked as deep
+as the bowl carrying it and the gate never fired: ripples a hundredth of the
+range deep on a parabola were kept at a threshold of one half. It now measures
+**topographic prominence**, walking out to the first point below the minimum and
+taking the highest point crossed, which is the saddle that actually closes the
+basin. A side reaching the bound without ever dropping lower is open, and the
+basin is worth what the closed side says, which is what keeps the minimum a
+tenth of a unit inside Rastrigin's lower bound in the count.
+
+The correction barely moves the estimates — Ackley $63 \to 62$, Griewank
+$19\,13\,11\,7\,9 \to 19\,13\,11\,5\,8$, the rest unchanged — and that is
+the finding. Ackley's ripples are not shallow in prominence: each is worth its
+adjacent ridge, $\exp(S/5)\cdot 0.403$ for $S$ the sum of the four
+perpendicular cosines, which is 1% to 5% of the range the scan spans. Sweeping
+the gate shows no threshold separating them from basins that matter:
+
+| `depth_ratio` | Rastrigin | Ackley | Styblinski-Tang | Griewank |
+| --- | --- | --- | --- | --- |
+| 0.02 | 10 ×5 | 62 62 62 63 63 | 2 ×5 | 19 13 11 5 8 |
+| 0.10 | 10 ×5 | 60 62 62 62 62 | 2 ×5 | 5 2 9 4 1 |
+| 0.20 | 10 ×5 | 44 61 60 60 60 | **1 1 1 1 2** | **1 1 2 1 1** |
+| 0.30 | 10 ×5 | 1 56 56 53 55 | **1 ×5** | **1 2 1 1 1** |
+
+By the time a gate touches Ackley it has destroyed Styblinski-Tang and Griewank,
+and Ackley is still at fifty-odd. **No amplitude threshold turns 62 into the 10
+that works**, and the reason is not a defect of the gate: sixty-two is the
+honest basin count of an Ackley axis, its ripples being a unit apart over a
+range of sixty-four. Ten is not a count of anything in that landscape. It is the
+box width at which the sub-problem descends the funnel by itself and still
+returns a value that tells its box apart from the next, which is a property of
+the solver inside the box rather than of the objective.
+
+That is the boundary of this estimator, stated as sharply as the measurements
+allow: **basins per axis is the right target only where a basin is what the
+subdivision must separate.** On a landscape whose fine structure the local solve
+handles unaided, and whose coarse structure carries the optimum, the count is
+correct and useless at the same time, and the `converged` flag catches the case
+for the wrong reason.

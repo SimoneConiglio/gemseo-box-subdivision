@@ -44,14 +44,27 @@ from benchmarks.problems import PROBLEMS
 
 
 def test_count_minima_prominence():
-    """A dip shallower than the gate is texture, a deeper one is a basin."""
+    """A dip is worth its key saddle, not the highest ground anywhere beside it.
+
+    Ripples a hundredth of the range deep, riding a bowl a hundred times their
+    depth, are not basins the subdivision has to separate. Measuring a dip
+    against the highest point anywhere on each side makes every one of them look
+    as deep as the bowl, which is what this counted until it was checked.
+    """
     abscissae = linspace(0.0, 1.0, 401)
     deep = cos(2.0 * pi * 3.0 * abscissae)
     assert count_minima(deep) == 3
 
-    # The same three dips, now a thousandth of the range of a dominating slope.
-    shallow = 1000.0 * abscissae + deep
-    assert count_minima(shallow, depth_ratio=0.02) == 1
+    # The same three dips under a slope that dwarfs them.
+    assert count_minima(1000.0 * abscissae + deep, depth_ratio=0.02) == 1
+
+    # Twenty ripples 1% of the range deep, in phase with the bowl they ride.
+    bowl = linspace(-10.0, 10.0, 4001)
+    assert count_minima(bowl**2 - 0.5 * cos(2.0 * pi * bowl), 0.02) == 1
+
+    # Out of phase, the bowl's own minimum is genuinely split in two by a ridge
+    # standing above both, and two is then the honest answer.
+    assert count_minima(bowl**2 + 0.5 * cos(2.0 * pi * bowl), 0.02) == 2
 
 
 def test_count_minima_constant():
