@@ -531,6 +531,7 @@ def run_at_density(
     budget: int,
     stall: int = 0,
     min_step: int = 1,
+    min_dfk: float = 0.0,
 ) -> tuple[float, int, bool]:
     """Run the method with one number of subdivisions per component.
 
@@ -546,6 +547,8 @@ def run_at_density(
             The catalogue value of one is the default here, so that this
             comparison varies the density and nothing else; see
             :data:`.MIN_STEP` for what holding it open is worth.
+        min_dfk: The convexity margin, absolute in the units of the objective.
+            If zero, keep the calibrated value of the configuration.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
@@ -592,6 +595,8 @@ def run_at_density(
     settings["max_step"] = TRUST_REGION_RADIUS
     settings["upper_bound_stall"] = stall or DEFAULT_STALL
     settings["min_step"] = min_step
+    if min_dfk:
+        settings["min_dfk"] = min_dfk
 
     # A budget spent inside a linearization leaves the discipline without its
     # output, which GEMSEO then reports as a missing key.
