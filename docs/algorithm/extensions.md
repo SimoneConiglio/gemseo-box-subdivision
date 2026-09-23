@@ -512,3 +512,52 @@ subdivision must separate.** On a landscape whose fine structure the local solve
 handles unaided, and whose coarse structure carries the optimum, the count is
 correct and useless at the same time, and the `converged` flag catches the case
 for the wrong reason.
+
+### The probes decide, and six of them is a hole
+
+A swept run spreads its ladder over the parallel probes of the master, so their
+number is the number of rungs. It is not a smooth knob, and reading it as one
+cost this annex a conclusion.
+
+Ackley through the deep hierarchy, the convexity swept, five variables, three
+starting points, a budget of $8000$:
+
+| depth | probes | gap | cost | reached |
+| --- | --- | --- | --- | --- |
+| 4 | 2 | $9.7137$ | 489 | 0/3 |
+| 4 | 3 | $9.7137$ | 1089 | 0/3 |
+| 4 | **4** | **$0.0001$** | 2263 | **2/3** |
+| 4 | 6 | $9.7137$ | 1196 | 1/3 |
+| 4 | **10** | **$0.0001$** | 2802 | **3/3** |
+| 6 | **4** | **$0.0000$** | 3243 | **2/3** |
+| 6 | 6 | $9.7137$ | 1348 | 1/3 |
+| 6 | **10** | **$0.0000$** | 3244 | **3/3** |
+
+Four rungs solve it, six do not, ten solve it from every starting point. The
+response is **not monotone**, and six sits in a hole between two counts that
+work. The same count cost Rastrigin its result on the flat encoding, $0.9950$
+at six rungs against $0.0000$ at ten, so the hole is not particular to a
+hierarchy.
+
+**With ten rungs the swept hierarchy beats the calibrated one**, three starting
+points out of three against two, and needs no convexity value. The calibrated
+margin is not what the hierarchy depends on.
+
+:::{warning}
+An earlier reading of these runs, kept in the history of this branch, reported
+that the convexity policy **inverts** between the encodings: that a flat
+subdivision needs the sweep while a hierarchy needs the absolute margin, the
+sweep starving a level because its scale is read off the boxes solved inside a
+shrinking box. That is wrong, and it is wrong because every swept hierarchy
+behind it ran at six probes while every calibrated one ran at four, which is
+what `ADAPTIVE` sets. The probe count was never held fixed.
+
+Two experiments chased that reading and neither moved a digit, which was the
+evidence against it. **Freezing** the ladder's bound at the scale the first
+level observed left every gap unchanged, at a frozen bound of $96$ that already
+bracketed the calibrated hundred. **Raising the ladder's floor**, from two
+decades below its top to a quarter of one, so that every rung lay between $54$
+and $96$, left every gap unchanged again. A convexity that is varied over two
+orders of magnitude without moving the result is not the variable that decides
+it.
+:::
