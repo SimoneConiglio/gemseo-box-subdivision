@@ -712,8 +712,19 @@ def _report_densities(estimates: dict[str, BasinEstimate]) -> None:
             *((fixed,) * DIMENSION for fixed in FIXED_DENSITIES),
         ])
         for density in densities:
+            # The patience and the floor of the trust region are one setting:
+            # holding the region open makes a run stall more often, so a floor
+            # taken without the matching patience stops it earlier instead of
+            # later. Every row is run with both or with neither.
             outcomes = [
-                run_at_density(problem, DIMENSION, density, seed, budget)
+                run_at_density(
+                    problem,
+                    DIMENSION,
+                    density,
+                    seed,
+                    budget,
+                    stall=stall_counter(density),
+                )
                 for seed in SEEDS
             ]
             gaps = [best - optimum for best, _, _ in outcomes]
