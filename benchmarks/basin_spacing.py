@@ -532,6 +532,7 @@ def run_at_density(
     stall: int = 0,
     min_step: int = 1,
     min_dfk: float = 0.0,
+    n_processes: int = 1,
 ) -> tuple[float, int, bool]:
     """Run the method with one number of subdivisions per component.
 
@@ -549,6 +550,17 @@ def run_at_density(
             :data:`.MIN_STEP` for what holding it open is worth.
         min_dfk: The convexity margin, absolute in the units of the objective.
             If zero, keep the calibrated value of the configuration.
+        n_processes: The processes the master solves its candidate boxes over.
+            **Leave this at one.** The master forks rather than threads, see
+            ``CallableParallelExecution`` built with ``use_threading`` at its
+            default in `outer_approximation_optimizer.py`, and nothing the
+            children compute comes back: a run at two processes returns a gap of
+            $33.41$ for 35 evaluations where the same run serial returns $0.00$
+            for 2115, finishing in a fifth of a second. The counter of this
+            benchmark lives in the parent, so the cost it reports is wrong, and
+            the gap is wrong too, which says the state the master needs does not
+            survive the fork either. The setting is exposed so that the trap is
+            recorded and reproducible, not because it can be used.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
@@ -597,6 +609,7 @@ def run_at_density(
     settings["min_step"] = min_step
     if min_dfk:
         settings["min_dfk"] = min_dfk
+    settings["number_of_processes"] = n_processes
 
     # A budget spent inside a linearization leaves the discipline without its
     # output, which GEMSEO then reports as a missing key.
