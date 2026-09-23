@@ -319,3 +319,64 @@ what makes its stopping rule mean anything.
 ```shell
 python -m benchmarks.basin_spacing
 ```
+
+### The trust region that closes, and the patience it needs
+
+The tables above are measured at the catalogue settings, so that what they vary
+is the density. One setting underneath them turns out to matter as much, and it
+is not the one it looks like.
+
+The master shrinks its step by $0.7$ every `step_decreasing_activation` stalling
+iterations down to `min_step`, and widens it again only on an improvement. The
+catalogue floor is one, so six stalling iterations pin the region at a radius of
+one for good. That also silences the parallel probes, whose radii are
+`geomspace(max(step / 2, min_step), step)`: four points at a step of two probe
+$1$, $1.26$, $1.59$ and $2$, and once the step reaches one all four solve the
+same problem four times over. The exploration does not narrow, it stops.
+
+**The stalling counter, which looks like the culprit, is not.** Raised from ten
+to the binaries while the region still collapses, it leaves Ackley at ten
+subdivisions bit for bit where it was, $6.3021$ for $3385$ evaluations at either
+value. At sixty-three subdivisions it moves the gap from $14.31$ to $14.01$ for
+eighteen times the wall clock.
+
+**Holding the floor at the tuned radius is what pays, and it needs the patience
+with it.** A region that stays wide stalls more often than one narrowing onto
+whatever it can still improve, so the floor taken alone stops a run earlier
+rather than later: Rastrigin, solved from every starting point at $2103$
+evaluations, falls to $0.99$ and one out of three. Sized together, at
+`min_step` $= 2$ and `upper_bound_stall` $= \sum_j m_j$, five variables, three
+starting points, each problem at its proposed density and Ackley at ten:
+
+| problem | settings | gap | cost | reached |
+|---------|----------|-----|------|---------|
+| Rastrigin | catalogue | $0.0000$ | **2103** | 3/3 |
+| Rastrigin | both | $0.0000$ | 5673 | 3/3 |
+| Ackley, $m=10$ | catalogue | $6.3021$ | 3385 | 1/3 |
+| Ackley, $m=10$ | **both** | **$4.9449$** | 4570 | 1/3 |
+| Styblinski-Tang | catalogue | $0.0000$ | 458 | 2/3 |
+| Styblinski-Tang | **both** | $0.0000$ | 473 | **3/3** |
+| Griewank | catalogue | $0.0644$ | 3463 | 1/3 |
+| Griewank | **both** | **$0.0348$** | 9440 *(at the wall)* | 1/3 |
+| `partly_multimodal` | catalogue | $0.0000$ | 858 | 3/3 |
+| `partly_multimodal` | **both** | $0.0000$ | **730** | 3/3 |
+
+$4.95$ on Ackley is the best a flat subdivision reaches anywhere in this
+benchmark, against the $6.30$ of
+[the density sweep](benchmark.md#the-density-of-the-subdivision-decides), and it
+comes from a setting rather than from a mechanism. **Quality never gets worse
+and improves on three of the five.** What it costs is evaluations, and not
+evenly: `partly_multimodal` gets cheaper, Styblinski-Tang is flat, Ackley is
+$1.35$ times dearer and Rastrigin $2.7$ times. Griewank's row spent its whole
+budget, so its $0.0348$ is an upper bound on a run that had not finished.
+
+That is a trade rather than a default, which is why the tables above keep the
+catalogue values and this one stands beside them. What it establishes is
+narrower and firmer than a new setting: **the runs of this benchmark end on a
+trust region that has closed, not on the patience of the master**, and the two
+have to move together because holding the region open is what makes a run stall.
+
+```python
+run_at_density(problem, 5, density, seed, budget,
+               stall=stall_counter(density), min_step=MIN_STEP)
+```

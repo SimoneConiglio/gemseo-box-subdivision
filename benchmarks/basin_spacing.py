@@ -530,7 +530,7 @@ def run_at_density(
     seed: int,
     budget: int,
     stall: int = 0,
-    min_step: int = MIN_STEP,
+    min_step: int = 1,
 ) -> tuple[float, int, bool]:
     """Run the method with one number of subdivisions per component.
 
@@ -543,6 +543,9 @@ def run_at_density(
         stall: The stalling iterations to allow before giving up.
             If zero, use the catalogue default of :data:`.DEFAULT_STALL`.
         min_step: The radius the trust region may not shrink below.
+            The catalogue value of one is the default here, so that this
+            comparison varies the density and nothing else; see
+            :data:`.MIN_STEP` for what holding it open is worth.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
@@ -712,19 +715,11 @@ def _report_densities(estimates: dict[str, BasinEstimate]) -> None:
             *((fixed,) * DIMENSION for fixed in FIXED_DENSITIES),
         ])
         for density in densities:
-            # The patience and the floor of the trust region are one setting:
-            # holding the region open makes a run stall more often, so a floor
-            # taken without the matching patience stops it earlier instead of
-            # later. Every row is run with both or with neither.
+            # At the catalogue settings, so that what this table varies is the
+            # density. Holding the trust region open changes every row of it
+            # and is measured on its own, in annex D.
             outcomes = [
-                run_at_density(
-                    problem,
-                    DIMENSION,
-                    density,
-                    seed,
-                    budget,
-                    stall=stall_counter(density),
-                )
+                run_at_density(problem, DIMENSION, density, seed, budget)
                 for seed in SEEDS
             ]
             gaps = [best - optimum for best, _, _ in outcomes]
