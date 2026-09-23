@@ -380,3 +380,86 @@ have to move together because holding the region open is what makes a run stall.
 run_at_density(problem, 5, density, seed, budget,
                stall=stall_counter(density), min_step=MIN_STEP)
 ```
+
+### What was actually losing Ackley: the margin, not the density
+
+Every table above carries `min_dfk` at the value `configurations.py` calibrated,
+$100$. That value is **absolute, in the units of the objective**, and the five
+problems here do not span comparable ranges:
+
+| problem | range | $100$ is | reaches the optimum |
+|---------|-------|----------|---------------------|
+| Styblinski-Tang | $549.7$ | 18% | yes |
+| Rastrigin | $186.7$ | 54% | yes |
+| `partly_multimodal` | $164.1$ | 61% | yes |
+| **Ackley** | $14.5$ | **690%** | **no** |
+| **Griewank** | $4.9$ | **2045%** | **no** |
+
+The two problems the margin dwarfs are exactly the two that never reached the
+optimum, and the mechanism is visible in the repair. It builds
+`rhs = l_df_k - df_k + min_dfk`, the amount a cut over-predicts plus the margin,
+and clips it below at zero. Once the margin is several times the range,
+`l_df_k - df_k` cannot move it: the clip never fires, the least squares is
+driven by a constant instead of by the measurements, and every slope is shifted
+along one fixed direction. The cut model ranks the boxes by the margin rather
+than by the landscape.
+
+Sweeping the margin at $m = 10$ on Ackley, three starting points, nothing else
+touched, shows a window rather than a trend:
+
+| `min_dfk` | % of range | gap | cost | reached |
+|-----------|------------|-----|------|---------|
+| $100$ | 690% | $6.3021$ | 3385 | 1/3 |
+| $30$ | 207% | $4.9449$ | 2721 | 1/3 |
+| **$10$** | **69%** | **$0.0000$** | **2450** | **2/3** |
+| $3$ | 21% | $12.8332$ | 1287 | 0/3 |
+| $1$ | 7% | $8.9861$ | 927 | 0/3 |
+
+### The estimated density with the convexity swept
+
+Which is what [the sweep](benchmark.md#sweeping-the-convexity-rather-than-supplying-it)
+exists to remove. Run at the estimated densities with **nothing supplied at all**,
+neither a margin nor a density, against the same densities at the calibrated
+margin:
+
+| problem | density | swept | calibrated |
+|---|---|---|---|
+| Styblinski-Tang | 2⁵ | $0.0000$ · 601 · **3/3** | $0.0000$ · 458 · 2/3 |
+| `partly_multimodal` | 10 10 1 1 1 | $0.0000$ · **729** · 3/3 | $0.0000$ · 858 · 3/3 |
+| **Ackley** | 10⁵ | **$0.0000$** · 2622 · **2/3** | $6.3021$ · 3385 · 1/3 |
+| **Griewank** | 19 13 11 7 9 | **$0.0074$** · 3083 · **2/3** | $0.064$ · 3463 · 1/3 |
+| Ackley | 63⁵ *(estimated)* | $7.6161$ · 3459 · 0/3 | $14.31$ · 2094 · 0/3 |
+| **Rastrigin** | 10⁵ | **$0.9950$** · 1547 · **0/3** | $0.0000$ · 2103 · 3/3 |
+
+**The sweep solves both problems the calibrated margin loses.** Ackley at ten
+subdivisions reaches the optimum from two starting points out of three, which
+nothing else on this page does with a flat subdivision, and Griewank from two
+where the margin reached it from one. Neither needed a convexity value, and
+neither needed a density: the scans proposed those.
+
+**It also loses Rastrigin**, which the calibrated margin solves from every
+starting point. That is worth stating against the claim that the swept
+configuration matches the calibrated one on every row, which was measured at the
+density `baselines.py` defaults to rather than at ten in five variables. The
+calibrated margin is 54% of Rastrigin's range, inside the window above, and it
+was calibrated on Rastrigin: it works there and on the two problems whose ranges
+happen to resemble it. The swept run stops at $1547$ evaluations with a gap of
+$0.9950$, one basin short, so what ends it is worth a look the way the margin
+was.
+
+**And it does not rescue the estimated density.** Ackley at sixty-three improves
+from $14.31$ to $7.62$ and still reaches the optimum from nowhere, so the flag
+`estimate_basins` raises on that row was right for a reason that has nothing to
+do with the convexity: sixty-three separates the ripples, and what has to be
+resolved on Ackley is the funnel under them.
+
+:::{warning}
+This supersedes the reading of
+[the section above](#the-trust-region-that-closes-and-the-patience-it-needs), not
+its measurements. Those runs all carried the margin at 690% of Ackley's range,
+so they describe a method whose cut model ranks nothing, and opening the trust
+region helped because the region was then the only thing steering. The numbers
+stand; the explanation that the runs "end on a trust region that has closed"
+holds only under a margin that has already killed the cuts. Whether holding the
+region open is worth anything **under the sweep** is not measured here.
+:::

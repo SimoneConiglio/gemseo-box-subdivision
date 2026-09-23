@@ -38,6 +38,7 @@ from benchmarks.basin_spacing import count_minima
 from benchmarks.basin_spacing import estimate_basins
 from benchmarks.basin_spacing import group_by_density
 from benchmarks.basin_spacing import run_at_density
+from benchmarks.basin_spacing import run_at_density_swept
 from benchmarks.basin_spacing import stall_counter
 from benchmarks.problems import PROBLEMS
 
@@ -178,6 +179,29 @@ def test_run_at_density_refines_per_variable():
     assert not truncated
     assert best - problem.optimum(DIMENSION) == pytest.approx(0.0, abs=1e-3)
     assert cost < 2500
+
+
+def test_swept_solves_what_the_calibrated_margin_loses():
+    """With no convexity supplied, Ackley is solved where the margin loses it.
+
+    ``min_dfk`` is absolute, in the units of the objective, and the calibrated
+    hundred is 690% of the range Ackley spans, so the repair is driven by the
+    margin rather than by the measurements and the cuts rank nothing: the same
+    density returns a gap of $6.30$ and reaches the optimum from one starting
+    point out of three. Sweeping supplies no margin and reaches it from two,
+    which is what is asserted here rather than a seed that happens to work.
+    """
+    logging.disable(logging.CRITICAL)
+    problem = PROBLEMS["ackley"]
+    optimum = problem.optimum(DIMENSION)
+    gaps = [
+        run_at_density_swept(
+            problem, DIMENSION, (10,) * DIMENSION, seed=seed, budget=8000
+        )[0]
+        - optimum
+        for seed in (11, 101, 202)
+    ]
+    assert sum(gap < 1e-2 for gap in gaps) >= 2, gaps
 
 
 def test_objective_is_the_problem():

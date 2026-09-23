@@ -116,6 +116,8 @@ if TYPE_CHECKING:
 
     from benchmarks.problems import Problem
 
+from gemseo_box_subdivision import BoxSubdivisionScenario
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 from gemseo_box_subdivision.design_spaces import create_normalized_box_design_space
 from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
@@ -601,6 +603,90 @@ def run_at_density(
                 max_iter=10000, ub_tol=1e-4, **settings
             )
         )
+
+    cost = counter.cost(dimension, adjoint=True)
+    return counter.best, cost, cost >= budget
+
+
+def run_at_density_swept(
+    problem: Problem,
+    dimension: int,
+    n_subdivisions: Sequence[int],
+    seed: int,
+    budget: int,
+) -> tuple[float, int, bool]:
+    """Run the estimated density with the convexity swept rather than supplied.
+
+    Every other table of this module carries ``min_dfk`` at the value
+    `configurations.py` calibrated, and that value is **absolute, in the units
+    of the objective**. Measured against the range each problem actually spans
+    it is 18% on Styblinski-Tang, 54% on Rastrigin and 61% on
+    ``partly_multimodal``, all of which work, against 690% on Ackley and 2045%
+    on Griewank, which are the two that never reach the optimum.
+
+    The mechanism is visible in the repair. It builds
+    ``rhs = l_df_k - df_k + min_dfk``, the amount by which a cut over-predicts
+    plus the margin, and clips it below at zero. Once the margin is several
+    times the range, ``l_df_k - df_k`` cannot move it: the clip never fires, the
+    least squares is driven by a constant rather than by the measurements, and
+    every slope is shifted along one fixed direction. The cut model then ranks
+    the boxes by the margin instead of by the landscape.
+
+    Sweeping is the entry point that supplies no margin at all, so it is the one
+    to run a density nobody tuned. It solves both problems the calibrated margin
+    loses and it costs Rastrigin its own; see annex D.
+
+    Args:
+        problem: The problem.
+        dimension: The number of design variables.
+        n_subdivisions: The number of subdivisions of each component.
+        seed: The seed of the starting point.
+        budget: The budget in equivalent objective evaluations.
+
+    Returns:
+        The best objective value, the cost under the adjoint convention, and
+        whether the budget stopped the run rather than the run stopping itself.
+    """
+    counter = BudgetedCounter(problem, dimension, budget, adjoint=True)
+    start = default_rng(seed).uniform(
+        problem.lower_bound, problem.upper_bound, dimension
+    )
+    groups = group_by_density(n_subdivisions)
+    design_space = DesignSpace()
+    for name, components in groups.items():
+        design_space.add_variable(
+            name,
+            lower_bound=problem.lower_bound,
+            upper_bound=problem.upper_bound,
+            size=len(components),
+            value=start[list(components)],
+        )
+
+    # A mapping names the variables it subdivides, so the components estimated
+    # at a single basin stay ordinary variables of the sub-problem.
+    subdivided = {
+        name: max(n_subdivisions[component] for component in components)
+        for name, components in groups.items()
+        if name != FREE_GROUP
+    }
+    scenario = BoxSubdivisionScenario(
+        [GroupedObjective(counter, groups, dimension)],
+        "f",
+        design_space,
+        n_subdivisions=subdivided,
+        settings=SweptBoxSubdivisionSettings(
+            trust_region_radius=TRUST_REGION_RADIUS,
+            n_parallel_points=CONFIGURATIONS[DEFAULT_CONFIGURATION][
+                "number_of_parallel_points"
+            ],
+            max_iter=10000,
+            tolerance=1e-4,
+        ),
+    )
+
+    # Executed without arguments, so the run is the one the settings describe.
+    with suppress(BudgetExceededError, KeyError):
+        scenario.execute()
 
     cost = counter.cost(dimension, adjoint=True)
     return counter.best, cost, cost >= budget
