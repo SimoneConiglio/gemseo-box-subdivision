@@ -11,22 +11,30 @@ Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 This directory holds what belongs to
 [`gemseo-bilevel-outer-approximation`][upstream]
-rather than to this package: the master's `number_of_processes` setting returns a
-wrong optimum without raising, and nothing in this repository can fix it.
+rather than to this package: the master's `number_of_processes` setting returned
+a wrong optimum without raising. Reported, and fixed.
 
 | file | what it is |
-| ------ | ------------ |
-| `ISSUE.md` | the report, with the reproduction, the mechanism, and what was ruled out |
-| `MERGE_REQUEST.md` | the description of the merge request adding the test |
-| `test_number_of_processes.py` | the reproduction, to drop into `tests/algos/opt/core/` |
+| --- | --- |
+| `ISSUE.md` | the report: reproduction, mechanism, measurements |
+| `MERGE_REQUEST.md` | the merge request description |
+| `0001-fix-number-of-processes.patch` | the fix and its test, as a commit |
+| `test_number_of_processes.py` | the test alone, for reference |
 
 ## Why it matters here
 
-`benchmarks/basin_spacing.py` exposes `n_processes` and its docstring says to
-leave it at one. This is the evidence behind that instruction. The machine this
-benchmark runs on has cores to spare and the setting looks like free speed; it is
-not, and the way it fails — a plausible answer, arrived at sooner — is the kind
-that quietly corrupts a benchmark rather than stopping it.
+`benchmarks/basin_spacing.py` exposes `n_processes`, and this is why its
+docstring tells the reader what it does. The way the upstream fault failed — a
+plausible answer, arrived at sooner — is the kind that corrupts a benchmark
+quietly rather than stopping it.
+
+A second reason to leave it at one here is local and is **not** an upstream bug:
+`BudgetedCounter` counts, and tracks the best value, in the parent process. A
+forked child's evaluations never reach it, so this benchmark cannot measure the
+cost of a multi-process run even against a fixed master. With the fix applied the
+scenario's own `optimization_result.f_opt` is 0.0000 at one process and at four,
+while the counter reports 0.0000 and 33.4089: the optimisation agrees, the
+counter does not.
 
 ## Reproducing
 
@@ -35,21 +43,28 @@ git clone https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation.git
 cd gemseo-bilevel-outer-approximation
 pip install -e .
 cp <this directory>/test_number_of_processes.py tests/algos/opt/core/
-pytest tests/algos/opt/core/test_number_of_processes.py
+pytest tests/algos/opt/core/test_number_of_processes.py   # fails
+git am <this directory>/0001-fix-number-of-processes.patch
+pytest tests/algos/opt/core/test_number_of_processes.py   # passes
 ```
 
 Reproduced at `1279c110` on `develop` and on the released `0.1.1`, with
-`gemseo` 6.3.3 on Linux and CPython 3.11: **8 failed, 16 skipped**, no case that
-reaches the parallel branch passing.
+`gemseo` 6.3.3 on Linux and CPython 3.11: **16 failed, 20 passed** without the
+fix, **36 passed** with it. The whole upstream suite stays green.
+
+Reaching the fault needs **both** `number_of_parallel_points > 1` and
+`number_of_processes > 1`: `_execute_doe` short circuits on a single candidate,
+so the fan-out is unreachable at the default of one probe.
 
 ## Status
 
-Reported, not fixed. Two repairs were implemented and measured not to work, and
-both are written up in `ISSUE.md` so they are not tried again: marshalling the
-results back through an `exec_callback`, which restores the database exactly and
-changes nothing; and threading rather than forking, which fails on a driver
-library that is not re-entrant. What remains is most likely the warm start of the
-sub-problems, which a fork cannot carry, and that is a question about intended
-semantics rather than a defect to patch.
+**Fixed.** The branch `fix/number-of-processes-loses-worker-results` carries the
+change and the test; `0001-fix-number-of-processes.patch` is that commit, ready
+to apply to a clone or a fork:
 
-[upstream]: https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation
+```shell
+git am 0001-fix-number-of-processes.patch
+```
+
+The fix needs pushing to a fork and opening as a merge request, which is not
+something this session could do: it had no GitLab credentials.

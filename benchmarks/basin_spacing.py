@@ -551,24 +551,24 @@ def run_at_density(
         min_dfk: The convexity margin, absolute in the units of the objective.
             If zero, keep the calibrated value of the configuration.
         n_processes: The processes the master solves its candidate boxes over.
-            **Leave this at one.** A run at four processes returns a gap of
-            $33.41$ for 35 evaluations where the same run serial returns $0.00$
-            for 2115, and the gap moving at all says the answer is wrong rather
-            than merely mis-counted. Four things are in the way and none is in
-            this repository. The worker of `_execute_doe` returns ``None``, so
-            what the children compute stays in their copy of the database; no
-            ``exec_callback`` is passed, which is the channel that would bring
-            it back; the database is not the whole state, a prototype returning
-            the outputs and storing them making the evaluations genuinely run,
-            14.5s against 0.1s, without changing the answer and then failing in
-            the slope history of the cut model, which needs the post-optimal
-            sensitivities and not the values alone; and threading instead of
-            forking is no escape, GEMSEO's driver library not being re-entrant
-            under concurrent sub-scenario drives. A fifth is local: the counter
-            of this benchmark lives in the parent, so even a correct fix
-            upstream leaves the cost wrong until it is read off the database.
-            The setting is exposed so the trap is recorded and reproducible, not
-            because it can be used.
+            **Leave this at one here**, for a reason of this benchmark
+            rather than of the master: :class:`.BudgetedCounter` counts, and
+            keeps the best value, in the parent process, and a forked child's
+            evaluations never reach it. With the master fixed, Rastrigin at ten
+            subdivisions returns an `optimization_result.f_opt` of $0.0000$ at
+            one process and at four alike, while this counter reports $0.0000$
+            and $33.4089$: the optimisation agrees and the measurement does not.
+            Counting would have to move to the database of the problem before a
+            parallel run could be timed honestly.
+
+            The master itself had a fault of its own, reported and fixed in
+            `contrib/upstream-bilevel-oa/`: its workers were forked with a
+            callable returning nothing and no callback, so what a child computed
+            never reached the caller, and the caller's read of the missing
+            gradient returned ``None`` where ``atleast_2d`` makes a scalar of
+            shape ``(1, 1)`` rather than raising. Reaching it needs more than one
+            parallel point as well as more than one process, ``_execute_doe``
+            short circuiting on a single candidate.
 
     Returns:
         The best objective value, the cost under the adjoint convention, and
