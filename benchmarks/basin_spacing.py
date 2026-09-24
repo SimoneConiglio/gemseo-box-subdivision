@@ -80,6 +80,7 @@ from dataclasses import dataclass
 from statistics import median
 from typing import TYPE_CHECKING
 from typing import Final
+from typing import NamedTuple
 
 from gemseo import create_scenario
 from gemseo.algos.design_space import DesignSpace
@@ -94,6 +95,8 @@ from numpy import array
 from numpy import atleast_2d
 from numpy import diff
 from numpy import empty
+from numpy import inf
+from numpy import ravel
 from numpy import sort
 from numpy import tile
 from numpy import where
@@ -111,6 +114,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Sequence
 
+    from gemseo.algos.optimization_problem import OptimizationProblem
     from numpy import ndarray
 
     from benchmarks.problems import Problem
@@ -523,6 +527,97 @@ def stall_counter(n_subdivisions: Sequence[int]) -> int:
     return max(DEFAULT_STALL, sum(n_subdivisions))
 
 
+class RunOutcome(NamedTuple):
+    """What one run of the master is worth, and how much of it survives a fork.
+
+    Three of these five fields are read from the **database of the master
+    problem** rather than from the counter of the benchmark, because the master
+    solves its candidate boxes over ``number_of_processes`` workers that are
+    forked. A child writes to its own copy of everything the parent holds, so a
+    counter living in the parent stops counting the moment the fan-out begins,
+    and reports whatever the parent happened to evaluate itself.
+
+    The master's database does not have that problem. Each box it solves is one
+    entry, and the entry travels back from the worker: the Benders formulation
+    registers ``iterations`` as an observable of the master problem, and the
+    adapter of the sub-scenario writes into it the length of the sub-problem's
+    own database. Measured on Rastrigin, Ackley, Styblinski-Tang and Griewank at
+    one process and at four, :attr:`.best`, :attr:`.evaluations` and
+    :attr:`.boxes` come back **identical to the digit**, while the counter's
+    best value goes from $0.0000$ to $33.4089$ on Rastrigin alone.
+    """
+
+    best: float
+    """The best objective value, the lowest the master recorded over its boxes.
+
+    Read from the database, where it is exact at one process and unchanged at
+    four. On the four problems measured it equals the counter's own best value
+    to every digit printed when the run is serial, so nothing is given up by
+    reading it here instead.
+    """
+
+    cost: int
+    """The cost in equivalent objective evaluations, from the counter.
+
+    This is the unit every other table of the benchmark suite reports, an
+    objective call plus a gradient call under the adjoint convention, and it is
+    kept for that reason: a cost that cannot be set beside `baselines.py` is not
+    worth the comparison. It is **valid at one process only**. The gradient half
+    of it is what the database cannot return, the adapter exporting a count of
+    points and not a count of calls, so above one process read
+    :attr:`.evaluations` instead and accept its unit.
+    """
+
+    evaluations: int
+    """The sub-problem design points evaluated, summed over the boxes.
+
+    The parallel-safe measure of the work, and a different unit from
+    :attr:`.cost`: it counts the distinct points a sub-problem visited, so
+    repeated points count once and a gradient costs nothing. Against the
+    counter it ran at $0.63$ to $0.69$ over the four problems, and against the
+    objective calls alone at $0.98$ to $1.00$ — it is very nearly a count of
+    the objective calls, with the duplicates removed. The ratio to the cost is
+    not constant, which is why the one is not converted into the other.
+    """
+
+    boxes: int
+    """The boxes the master solved, one per entry of its database."""
+
+    truncated: bool
+    """Whether the budget stopped the run rather than the run stopping itself.
+
+    Decided by the counter, which is what raises, so this is **valid at one
+    process only**: the guard lives in the parent, a forked child inherits a
+    copy of the tally as it stood when it was forked, and no child's spending
+    reaches any other. A parallel run is not budgeted, and this reads ``False``
+    however long it goes on.
+    """
+
+
+def read_master(problem: OptimizationProblem) -> tuple[float, int, int]:
+    """Read what a finished run is worth from the database of the master.
+
+    Args:
+        problem: The optimization problem of the master.
+
+    Returns:
+        The best objective value, the sub-problem evaluations summed over the
+        boxes, and the number of boxes solved.
+    """
+    best = inf
+    evaluations = 0
+    boxes = 0
+    for entry in problem.database.values():
+        value = entry.get("f")
+        if value is not None:
+            best = min(best, float(ravel(value)[0]))
+        iterations = entry.get("iterations")
+        if iterations is not None:
+            evaluations += int(ravel(iterations)[0])
+            boxes += 1
+    return best, evaluations, boxes
+
+
 def run_at_density(
     problem: Problem,
     dimension: int,
@@ -533,7 +628,7 @@ def run_at_density(
     min_step: int = 1,
     min_dfk: float = 0.0,
     n_processes: int = 1,
-) -> tuple[float, int, bool]:
+) -> RunOutcome:
     """Run the method with one number of subdivisions per component.
 
     Args:
@@ -551,15 +646,17 @@ def run_at_density(
         min_dfk: The convexity margin, absolute in the units of the objective.
             If zero, keep the calibrated value of the configuration.
         n_processes: The processes the master solves its candidate boxes over.
-            **Leave this at one here**, for a reason of this benchmark
-            rather than of the master: :class:`.BudgetedCounter` counts, and
-            keeps the best value, in the parent process, and a forked child's
-            evaluations never reach it. With the master fixed, Rastrigin at ten
-            subdivisions returns an `optimization_result.f_opt` of $0.0000$ at
-            one process and at four alike, while this counter reports $0.0000$
-            and $33.4089$: the optimisation agrees and the measurement does not.
-            Counting would have to move to the database of the problem before a
-            parallel run could be timed honestly.
+            Above one, read :attr:`.RunOutcome.evaluations` and not
+            :attr:`.RunOutcome.cost`, and expect no budget to be enforced.
+            The workers are forked, so a counter kept in the parent stops
+            counting where the fan-out begins: on Rastrigin at ten subdivisions
+            it reports a best value of $0.0000$ at one process and $33.4089$ at
+            four, for a run that reached the optimum both times. What is read
+            from the master's database instead — the best value, the
+            evaluations and the boxes — comes back identical to the digit at
+            one process and at four. The cost in the counter's own unit does
+            not, the gradient half of it being a count of calls where the
+            database holds a count of points.
 
             The master itself had a fault of its own, reported and fixed in
             `contrib/upstream-bilevel-oa/`: its workers were forked with a
@@ -571,8 +668,8 @@ def run_at_density(
             short circuiting on a single candidate.
 
     Returns:
-        The best objective value, the cost under the adjoint convention, and
-        whether the budget stopped the run rather than the run stopping itself.
+        What the run was worth, most of it read from the master's database so
+        that it survives a fan-out over processes.
     """
     counter = BudgetedCounter(problem, dimension, budget, adjoint=True)
     start = default_rng(seed).uniform(
@@ -629,7 +726,14 @@ def run_at_density(
         )
 
     cost = counter.cost(dimension, adjoint=True)
-    return counter.best, cost, cost >= budget
+    best, evaluations, boxes = read_master(scenario.formulation.optimization_problem)
+    # A budget spent before the first box was solved leaves the database with
+    # nothing to read, and the counter's best value is then the only one there
+    # is. It is the parent's, so this is a serial answer, but a parallel run
+    # that got this far has no other either.
+    if not boxes:
+        best = counter.best
+    return RunOutcome(best, cost, evaluations, boxes, cost >= budget)
 
 
 def run_at_density_swept(
@@ -639,7 +743,7 @@ def run_at_density_swept(
     seed: int,
     budget: int,
     n_parallel_points: int = 0,
-) -> tuple[float, int, bool]:
+) -> RunOutcome:
     """Run the estimated density with the convexity swept rather than supplied.
 
     Every other table of this module carries ``min_dfk`` at the value
@@ -674,8 +778,8 @@ def run_at_density_swept(
             the number the calibrated configuration uses.
 
     Returns:
-        The best objective value, the cost under the adjoint convention, and
-        whether the budget stopped the run rather than the run stopping itself.
+        What the run was worth, most of it read from the master's database so
+        that it survives a fan-out over processes.
     """
     counter = BudgetedCounter(problem, dimension, budget, adjoint=True)
     start = default_rng(seed).uniform(
@@ -718,7 +822,14 @@ def run_at_density_swept(
         scenario.execute()
 
     cost = counter.cost(dimension, adjoint=True)
-    return counter.best, cost, cost >= budget
+    best, evaluations, boxes = read_master(scenario.formulation.optimization_problem)
+    # A budget spent before the first box was solved leaves the database with
+    # nothing to read, and the counter's best value is then the only one there
+    # is. It is the parent's, so this is a serial answer, but a parallel run
+    # that got this far has no other either.
+    if not boxes:
+        best = counter.best
+    return RunOutcome(best, cost, evaluations, boxes, cost >= budget)
 
 
 def _estimate_problem(problem: Problem, jitter: bool = True) -> BasinEstimate:
@@ -818,7 +929,7 @@ def _report_densities(estimates: dict[str, BasinEstimate]) -> None:
     )
     print(
         f"{'problem':>18} {'density':>18} {'binaries':>9} {'predicted':>10}"
-        f" {'gap':>10} {'cost':>7} {'reached':>8}"
+        f" {'gap':>10} {'cost':>7} {'evals':>7} {'boxes':>6} {'reached':>8}"
     )
     for name, problem in PROBLEMS.items():
         estimate = estimates[name]
@@ -837,12 +948,14 @@ def _report_densities(estimates: dict[str, BasinEstimate]) -> None:
                 run_at_density(problem, DIMENSION, density, seed, budget)
                 for seed in SEEDS
             ]
-            gaps = [best - optimum for best, _, _ in outcomes]
+            gaps = [outcome.best - optimum for outcome in outcomes]
             predicted = sum(density) * COST_PER_SUB_PROBLEM
             print(
                 f"{name:>18} {' '.join(f'{v:3d}' for v in density):>18}"
                 f" {sum(density):9d} {predicted:10d} {median(gaps):10.4f}"
-                f" {median([cost for _, cost, _ in outcomes]):7.0f}"
+                f" {median([outcome.cost for outcome in outcomes]):7.0f}"
+                f" {median([outcome.evaluations for outcome in outcomes]):7.0f}"
+                f" {median([outcome.boxes for outcome in outcomes]):6.0f}"
                 f" {sum(gap < 1e-2 for gap in gaps):5d}/{len(SEEDS)}"
             )
 

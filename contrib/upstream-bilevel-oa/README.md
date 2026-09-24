@@ -28,13 +28,18 @@ docstring tells the reader what it does. The way the upstream fault failed — a
 plausible answer, arrived at sooner — is the kind that corrupts a benchmark
 quietly rather than stopping it.
 
-A second reason to leave it at one here is local and is **not** an upstream bug:
-`BudgetedCounter` counts, and tracks the best value, in the parent process. A
-forked child's evaluations never reach it, so this benchmark cannot measure the
-cost of a multi-process run even against a fixed master. With the fix applied the
-scenario's own `optimization_result.f_opt` is 0.0000 at one process and at four,
-while the counter reports 0.0000 and 33.4089: the optimisation agrees, the
-counter does not.
+A second fault was local and is **not** an upstream bug: `BudgetedCounter`
+counted, and kept the best value, in the parent process, and a forked child's
+evaluations never reached it. With the upstream fix applied the master reached
+the same optimum at one process and at four while the counter reported 0.0000
+and 33.4089 on Rastrigin: the optimisation agreed and the measurement did not.
+
+That one is fixed here rather than upstream, by reading the run from the master's
+database instead — the best value, the sub-problem evaluations and the boxes are
+now identical to the digit at one process and at four. What could not move is the
+cost in the counter's unit, the adapter exporting a count of points where the
+cost counts an objective call plus a gradient call, and the budget guard, which
+a child inherits as a copy. See `RunOutcome` and annex D.
 
 ## Reproducing
 

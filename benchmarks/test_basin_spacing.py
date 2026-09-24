@@ -186,12 +186,43 @@ def test_run_at_density_refines_per_variable():
     """A density per variable solves the problem a partial refinement is for."""
     logging.disable(logging.CRITICAL)
     problem = PROBLEMS["partly_multimodal"]
-    best, cost, truncated = run_at_density(
+    outcome = run_at_density(
         problem, DIMENSION, (10, 10, 1, 1, 1), seed=11, budget=2500
     )
-    assert not truncated
-    assert best - problem.optimum(DIMENSION) == pytest.approx(0.0, abs=1e-3)
-    assert cost < 2500
+    assert not outcome.truncated
+    assert outcome.best - problem.optimum(DIMENSION) == pytest.approx(0.0, abs=1e-3)
+    assert outcome.cost < 2500
+    # The database counted the same run, in its own unit and over its boxes.
+    assert 0 < outcome.evaluations < outcome.cost
+    assert outcome.boxes > 0
+
+
+def test_the_database_counts_what_a_fork_takes_away():
+    """The measures read from the master's database survive the fan-out.
+
+    The master solves its candidate boxes over forked workers, so a counter kept
+    in the parent stops counting where the fan-out begins: here it reports a
+    best value of $0.0000$ at one process and $33.4089$ at four, for a run that
+    reached the optimum both times. That is what moved the counting to the
+    database, and what is asserted is the property the move was made for --
+    identical numbers at one process and at four, not merely plausible ones.
+
+    The cost is deliberately left out of the comparison. It is the counter's,
+    in the unit `baselines.py` reports, and the database cannot return it: the
+    adapter of the sub-scenario exports the length of the sub-problem's
+    database, a count of points, where the cost counts an objective call plus a
+    gradient call.
+    """
+    logging.disable(logging.CRITICAL)
+    problem = PROBLEMS["partly_multimodal"]
+    density = (10, 10, 1, 1, 1)
+    serial = run_at_density(problem, DIMENSION, density, seed=11, budget=2500)
+    parallel = run_at_density(
+        problem, DIMENSION, density, seed=11, budget=2500, n_processes=4
+    )
+    assert parallel.best == serial.best
+    assert parallel.evaluations == serial.evaluations
+    assert parallel.boxes == serial.boxes
 
 
 def test_swept_solves_what_the_calibrated_margin_loses():
@@ -210,7 +241,7 @@ def test_swept_solves_what_the_calibrated_margin_loses():
     gaps = [
         run_at_density_swept(
             problem, DIMENSION, (10,) * DIMENSION, seed=seed, budget=8000
-        )[0]
+        ).best
         - optimum
         for seed in (11, 101, 202)
     ]

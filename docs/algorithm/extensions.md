@@ -561,3 +561,82 @@ and $96$, left every gap unchanged again. A convexity that is varied over two
 orders of magnitude without moving the result is not the variable that decides
 it.
 :::
+
+### Counting a run that has been forked
+
+Everything above was measured at one process, and the reason was a limitation of
+the benchmark rather than of the master. `BudgetedCounter` wraps the objective
+and tallies the calls **in the process that built it**. The master solves the
+candidate boxes of an iteration over `number_of_processes` workers, and
+`CallableParallelExecution` leaves `use_threading` at its default, so those
+workers are forked: a child gets a copy of the counter, spends against the copy,
+and the copy dies with it. The parent's tally is then a record of whatever the
+parent happened to evaluate itself, which is a small and arbitrary fraction of
+the run.
+
+That is not a slow degradation but a wrong number, and it is wrong in the
+direction that flatters:
+
+| problem | counter's best, 1 proc | counter's best, 4 procs | database's best, 1 and 4 |
+| --------- | ------------------------ | ------------------------- | -------------------------- |
+| Rastrigin | $0.0000$ | $33.4089$ | $0.0000$ |
+| Ackley | $7.0756$ | $19.4200$ | $7.0756$ |
+| Styblinski-Tang | $-181.6941$ | $-181.6941$ | $-181.6941$ |
+| Griewank | $0.0271$ | $1.6134$ | $0.0271$ |
+
+Every one of those runs reached the same optimum. Only the measurement moved.
+Note the third row: Styblinski-Tang is the cheapest problem here, at two
+subdivisions, and its counter survived four processes intact. A spot check that
+happened to pick it would have found nothing wrong.
+
+#### What the database can return
+
+The master's own database does not have this problem, because its entries are
+written by the parent from what the workers send back. The Benders formulation
+registers `iterations` as an observable of the master problem, and the adapter
+of the sub-scenario fills it with the length of the sub-problem's database — the
+distinct design points that box was solved over. One entry per box, and the
+entry crosses the process boundary by construction.
+
+So the best value, the work, and the boxes are read from there instead, and they
+come back **identical to the digit** at one process and at four, on all four
+problems: $1337$, $2552$, $163$ and $1661$ evaluations over $64$, $84$, $8$ and
+$64$ boxes, the same numbers twice. `RunOutcome` carries them.
+
+#### What it cannot return, and why the cost stays where it is
+
+The cost column of every table in this suite is an *equivalent objective
+evaluation* under the adjoint convention — an objective call plus a gradient
+call — because that is the unit `baselines.py` reports and a cost that cannot be
+set beside the baselines is not worth printing. The database cannot produce that
+unit. `iterations` is a count of **points**; the cost is a count of **calls**.
+A point visited twice counts once, and a gradient taken at a point counts not at
+all:
+
+| problem | counter's cost | objective calls | database's evaluations | of the cost | of the calls |
+| --------- | ---------------- | ----------------- | ------------------------ | ------------- | -------------- |
+| Rastrigin | 2115 | 1361 | 1337 | $0.63$ | $0.98$ |
+| Ackley | 3685 | 2563 | 2552 | $0.69$ | $1.00$ |
+| Styblinski-Tang | 247 | 163 | 163 | $0.66$ | $1.00$ |
+| Griewank | 2595 | 1667 | 1661 | $0.64$ | $1.00$ |
+
+The right-hand column is the useful reading: **the database's count is very
+nearly the objective calls with the duplicates removed**, within 2% on the
+worst row and exact on two of the four. What it is missing is the gradients, and
+those are not a fixed fraction — the ratio to the cost runs from $0.63$ to
+$0.69$ across four problems on one seed each. There is no conversion to apply,
+so none is applied. The two are reported side by side, in their own units, and
+`RunOutcome.cost` is documented as valid at one process only.
+
+The budget stays parent-side for the same reason, and cannot be fixed the same
+way. It is the counter that raises `BudgetExceededError`, a forked child
+inherits the tally as it stood at the fork and spends against its own copy, so
+no child's spending reaches the guard. **A parallel run is not budgeted**, and
+`RunOutcome.truncated` reads `False` however long it goes on.
+
+None of this is the upstream fault reported in `contrib/upstream-bilevel-oa/`,
+which was the master losing its workers' results outright and returning a
+converged optimum that was wrong. That one is fixed; these measurements were
+taken with the fix installed, which is why the optima agree across process
+counts at all. What remains is a property of counting in a process that is about
+to be forked away from.
