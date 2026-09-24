@@ -100,33 +100,41 @@ that the convergence test reads. Over one five-variable box-subdivision run,
 **28 of the 76 MILP builds — 37% — made `eta` an integer**, so more than a
 third of the master's solves had their lower bound rounded to a whole number.
 
-Deriving the flags from the declared types changes what the search does:
+## What it is not: two fixes that both make things worse
 
-| problem | best, as-is | evaluations | best, declared | evaluations |
-| --------- | ------------- | ------------- | ---------------- | ------------- |
-| Rastrigin | `0.000000` | 1337 | `0.000000` | **1394** |
-| Ackley | `7.075571` | 2552 | `7.075571` | 2552 |
-| Griewank | `0.027101` | 1661 | `0.027101` | 1661 |
-| Styblinski-Tang | `-181.694109` | 163 | `-181.694109` | 163 |
-| `partly_multimodal` | `0.000000` | 516 | `0.000000` | 516 |
+Both obvious repairs were implemented and measured, and **neither should be
+taken**. They are recorded because each one rules out a whole approach.
 
-One problem's path moves — 64 boxes to 68 — and none of the optima do, so this
-is a latent fault rather than a demonstrated wrong answer on these problems. It
-is still a guess standing in for information the design space already holds,
-and it is wrong about the one variable the master's own stopping rule reads.
+**Reading the declared types instead.** This breaks the library: `191 failed,
+204 passed`. `CatalogueDesignSpace.add_categorical_variable` declares its
+one-hot components with `type_=self.DesignVariableType.FLOAT`, deliberately —
+the sub-problems and the convexification relax them — and their *values* being
+whole is what makes them binaries of the master. **The inference is
+load-bearing, not merely sloppy.** Declaring the one-hot components
+`INTEGER` instead does not rescue it: that is the `191 failed` above.
 
-Fixing it changes results, so it is proposed rather than bundled into the
-performance change:
+**Requiring finite bounds as well.** This keeps the one-hot components integral
+(bounds `[0, 1]`, values whole) and stops `eta` (bounds infinite) from ever
+becoming one, which is precisely the defect. The full suite comes back to `1
+failed`, and the one failure is `test_kocis_grossman`:
 
-```python
-integrality = concatenate([
-    full(
-        design_space.get_size(name),
-        design_space.get_type(name) == DesignSpace.DesignVariableType.INTEGER,
-    )
-    for name in design_space.variable_names
-])
-```
+| | `x_opt` | `f_opt` |
+| --- | --------- | --------- |
+| as-is | `[1, 0, 0, 1, 0, 1]`, i.e. $(y_1,y_2,y_3) = (0,1,1)$ | **7.66752** |
+| finite bounds | `[1, 0, 1, 0, 1, 0]`, i.e. $(0,0,0)$ | **8.47643** |
+
+$7.66752$ is the published optimum and checks out by hand — $x_1 = 1.118$,
+$x_2 = 1.310$ from the two equalities, all three inequalities slack. The fix
+loses it. On five box-subdivision problems the same change is neutral, the
+optima identical and only Rastrigin's path moving (1337 evaluations to 1394),
+so it is not that the guard is wrong in general — it is that **something in the
+outer approximation is currently relying on the epigraph variable being
+rounded**, and rounding a lower bound up prunes.
+
+That is the part a maintainer has to decide, and it is why this is reported
+rather than patched. The master should be *told* which of its variables are
+binaries rather than inferring it, but changing that also removes an accidental
+tightening that at least one benchmark depends on.
 
 ### Why this matters beyond the master
 

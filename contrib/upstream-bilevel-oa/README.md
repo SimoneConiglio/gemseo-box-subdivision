@@ -102,11 +102,16 @@ value** rather than at the design space that declares them, so a continuous
 variable whose value lands on a whole number, or on an infinity, becomes an
 `IntVar` for that solve. The master's epigraph variable `eta` is continuous and
 carries the lower bound the convergence test reads: **28 of 76 MILP builds,
-37%, made it an integer** over one Rastrigin run. Deriving the flags from the
-declared types moves one problem's path (1337 evaluations to 1394, 64 boxes to
-68) and none of the five optima, so it is latent here rather than demonstrably
-wrong — but it is a guess standing in for information already to hand. Proposed
-in the issue rather than bundled in, because it changes results.
+37%, made it an integer** over one Rastrigin run.
+
+Reported rather than fixed, because both repairs were tried and both are worse.
+Reading the declared types breaks the library outright (`191 failed`) — the
+one-hot components are declared continuous on purpose and their whole values
+are what make them binaries. Requiring finite bounds as well is clean, neutral
+on the five box-subdivision problems, and loses the published optimum of
+`test_kocis_grossman` (8.47643 against 7.66752). Something in the outer
+approximation is relying on that epigraph variable being rounded, and
+establishing what is a maintainer's call.
 
 Related, and the reason it surfaced: `pywraplp`'s CP-SAT backend does not
 reject a continuous variable either, it rounds it and reports `OPTIMAL`. It is

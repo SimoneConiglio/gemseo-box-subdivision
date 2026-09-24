@@ -939,3 +939,87 @@ One problem's path moves, 64 boxes to 68, and none of the optima do. So it is a
 latent fault rather than a demonstrated wrong answer here — but it is a guess
 standing in for information the design space already holds, and what it guesses
 wrong is the variable the convergence test reads. Reported upstream.
+
+### Two things tried and not shipped
+
+Both were worth trying and neither survived measurement. They are recorded at
+the same length as the successes, because a route ruled out is worth as much as
+one taken and costs more to re-discover.
+
+#### The integrality guess cannot simply be corrected
+
+The fault is as described above: `_run` decides integrality from a variable's
+current value, and the master's epigraph variable $\eta$ is caught by it in 37%
+of builds. Two repairs, both implemented and both rejected.
+
+**Reading the declared types** breaks the library — `191 failed, 204 passed`.
+`CatalogueDesignSpace.add_categorical_variable` declares its one-hot components
+`FLOAT` **on purpose**, because the sub-problems and the convexification relax
+them, and it is their *values* being whole that makes them binaries of the
+master. So the guess is not sloppiness standing in for a declaration; it is the
+mechanism by which continuous-declared variables become discrete in the master
+alone. Declaring them `INTEGER` instead is what produces the 191 failures.
+
+**Requiring the bounds to be finite too** is the narrower repair and it is a
+good one: one-hot components keep their integrality, bounds $[0,1]$ and values
+whole, while $\eta$, whose bounds are infinite, loses it. On the five problems
+of this benchmark it is neutral — every optimum identical, only Rastrigin's
+path moving, 1337 evaluations to 1394 and 64 boxes to 68. On the upstream suite
+it leaves exactly one failure, and that one is decisive:
+
+| `test_kocis_grossman` | $(y_1,y_2,y_3)$ | $f$ |
+| ----------------------- | ----------------- | ----- |
+| as-is | $(0,1,1)$ | **$7.66752$** |
+| with finite bounds required | $(0,0,0)$ | $8.47643$ |
+
+$7.66752$ is that problem's published optimum, and it checks out by hand: the
+two equalities give $x_1 = 1.118$ and $x_2 = 1.310$, and all three inequalities
+are slack. **The repair loses it.**
+
+So something in the outer approximation is relying on the epigraph variable
+being rounded — plausibly that rounding a lower bound up prunes more boxes than
+it should, and that this happens to help. Whatever it is, correcting the guess
+removes it, and no fix went upstream: a change that makes a published optimum
+unreachable is not a fix, whatever it repairs on the way.
+
+#### One MILP for all the probes: correct, and 11 to 45 times slower
+
+The reading that the probes could go into a single MILP is right, and the
+formulation is straightforward: $k$ copies of the design variables, the cut set
+repeated for each, each copy carrying **its own** trust-region row, a
+distinctness constraint between every pair, and $\sum_j \eta^{(j)}$ minimised.
+Distinctness is linear over one-hot groups — with $t_i \ge \alpha_i^{(j)} +
+\alpha_i^{(j')} - 1$ the sum $\sum_i t_i$ counts the groups two copies agree on,
+so $\sum_i t_i \le G - 1$ forbids them coinciding.
+
+It was built and it is correct: on two of three captured chains it returns the
+**same set of designs** as the sequential no-good chain. It is also unusable:
+
+| chain | $k$ | rows | sequential | one big MILP | without distinctness | distinct probes |
+| ------- | ----- | ------ | ------------ | -------------- | ---------------------- | ----------------- |
+| a | 4 | 33 | $832$ms | $36847$ms | $20644$ms | 2/4 |
+| b | 4 | 49 | $943$ms | $35150$ms | $10136$ms | 3/4 |
+| c | 7 | 74 | $345$ms | $60996$ms* | $60978$ms* | 1/7 |
+
+\* stopped at a sixty-second limit without proving optimality.
+
+The third column is the one that settles it. **Dropping the distinctness
+constraints entirely still leaves it 11 to 25 times slower**, so the cost is not
+the encoding of distinctness and no better encoding will rescue it: $k$ copies
+of a fifty-binary model is simply a far harder problem than $k$ successive
+solves of one copy. Branch and bound scales badly in the number of binaries, and
+$k$ times the binaries is much worse than $k$ times the solves. The copies are
+also near-symmetric, differing only in one row, which is the worst case for the
+search tree.
+
+And without distinctness it does not even do the job: 2 of 4, 3 of 4, 1 of 7
+copies came back distinct, where the whole purpose is $k$ different probes.
+
+One result in the table is worth keeping, though it argues for nothing
+practical. On chain c the one-shot's total was $10.0$ against the chain's
+$30.0$ — a **better** set of seven. That is not a solver artefact: the probes
+carry different trust-region radii, so choosing them one at a time is greedy,
+and choosing them together is not. The sequential chain does not find the best
+set of $k$ probes, only a good one. Whether the best set would be worth having
+is a question about the method; at these timings it cannot be asked
+experimentally.
