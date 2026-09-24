@@ -1,3 +1,7 @@
+# Reports prepared for another project, kept verbatim so that what is filed
+# upstream is what was measured here, under that project's conventions.
+extend-exclude = ["contrib/"]
+
 fix = true
 unsafe-fixes = true
 preview = true
