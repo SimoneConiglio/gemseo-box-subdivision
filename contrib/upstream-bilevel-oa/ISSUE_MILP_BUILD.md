@@ -80,7 +80,64 @@ remove the rest, but the existing rows are not obviously append-only — the
 convexification repair rewrites coefficients — so it needs a maintainer's
 judgement about when a cached model may be reused. Left alone here.
 
-## Two unrelated faults, found while testing
+## A correctness fault in the same function: the integrality is guessed
+
+Not a performance matter, and the most serious thing here. `_run` decides which
+variables are integers from their **current value** rather than from the design
+space that declares them:
+
+```python
+values = problem.design_space.get_current_value()
+integrality = array([isinf(x) or x is None or not mod(x, 1) for x in values])
+```
+
+A continuous variable whose value happens to land on a whole number — or on an
+infinity — is handed to `Solver.IntVar` for that solve.
+
+The master's own design space is 50 binaries (`alpha`) and **one continuous**
+epigraph variable (`eta`), and `eta` carries the lower bound on the objective
+that the convergence test reads. Over one five-variable box-subdivision run,
+**28 of the 76 MILP builds — 37% — made `eta` an integer**, so more than a
+third of the master's solves had their lower bound rounded to a whole number.
+
+Deriving the flags from the declared types changes what the search does:
+
+| problem | best, as-is | evaluations | best, declared | evaluations |
+| --------- | ------------- | ------------- | ---------------- | ------------- |
+| Rastrigin | `0.000000` | 1337 | `0.000000` | **1394** |
+| Ackley | `7.075571` | 2552 | `7.075571` | 2552 |
+| Griewank | `0.027101` | 1661 | `0.027101` | 1661 |
+| Styblinski-Tang | `-181.694109` | 163 | `-181.694109` | 163 |
+| `partly_multimodal` | `0.000000` | 516 | `0.000000` | 516 |
+
+One problem's path moves — 64 boxes to 68 — and none of the optima do, so this
+is a latent fault rather than a demonstrated wrong answer on these problems. It
+is still a guess standing in for information the design space already holds,
+and it is wrong about the one variable the master's own stopping rule reads.
+
+Fixing it changes results, so it is proposed rather than bundled into the
+performance change:
+
+```python
+integrality = concatenate([
+    full(
+        design_space.get_size(name),
+        design_space.get_type(name) == DesignSpace.DesignVariableType.INTEGER,
+    )
+    for name in design_space.variable_names
+])
+```
+
+### Why this matters beyond the master
+
+`pywraplp`'s `SAT_INTEGER_PROGRAMMING` backend does not reject a continuous
+variable either — it rounds it and reports `OPTIMAL`. On one of the captured
+master models CBC returns $\eta = -32.98478$ and CP-SAT returns $-32.0$, and
+CP-SAT's answer satisfies every row. Anyone reaching for CP-SAT here for its
+speed (four to ten times faster on these models) would get a different
+problem's answer, silently. Worth a guard wherever a backend is chosen.
+
+## Two more unrelated faults, found while testing
 
 Neither is touched by the merge request; both are reachable on `develop`.
 

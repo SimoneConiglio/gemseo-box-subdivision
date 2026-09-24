@@ -805,3 +805,137 @@ rebuild is work it already did. The rows are not obviously append-only, though �
 the convexification repair rewrites coefficients rather than only adding them —
 so when a cached model may be reused is a question for the people who own that
 code, and it is put to them in the issue rather than answered here.
+
+### Caching the master's model: right in principle, worth nothing in practice
+
+The reading that the model could be cached for the non-adaptive paths is
+correct, and the structure is exactly as expected. Comparing every consecutive
+rebuild of the master's inequality block over a whole run:
+
+| configuration | problem | rebuilds | rows | appended unchanged | rewritten | rows rewritten |
+| --------------- | --------- | ---------- | ------ | -------------------- | ----------- | ---------------- |
+| `adaptive` | Rastrigin | 76 | 5→80 | 0 | 75 | **677** |
+| `adaptive` | `partly_multimodal` | 41 | 5→44 | 0 | 39 | 165 |
+| `pure_convexification` | Rastrigin | 35 | 2→36 | 0 | 34 | **34** |
+| `pure_convexification` | `partly_multimodal` | 14 | 2→15 | 0 | 13 | **13** |
+
+Exactly one row per rebuild under `pure_convexification`, against nine under
+`adaptive`. And that one row is identifiable: every one of the 34 changes sits
+at the **last** position, which is the constraint named `-trust region`. Every
+`objective outer approximation k` cut is strictly append-only. Under `adaptive`
+the changes scatter across history — positions 0, 1, 2, 6, 7 and beyond — which
+is the repair rewriting cuts it has already issued, and there `eliminated
+solution k` rows appear as well.
+
+So the structure a cache wants is there in one configuration and absent in the
+other, exactly as expected, and the concern that sweeping the step and the
+convexity margin complicates it further is well founded.
+
+**It does not matter, because the cache buys nothing.** Three real chains were
+captured out of a Rastrigin run and replayed twice: once rebuilding the model
+per solve, once keeping the solver and patching only what changed — rewriting
+the one row, appending the new ones.
+
+| chain | solves | rows | rebuilt | solver kept | |
+| ------- | -------- | ------ | --------- | ------------- | --- |
+| a | 4 | 33→36 | $740$ms | $795$ms | $0.93\times$ |
+| b | 4 | 49→52 | $962$ms | $1080$ms | $0.89\times$ |
+| c | 7 | 74→80 | $315$ms | $278$ms | $1.13\times$ |
+
+Noise around one, with identical objective values throughout. Two reasons, and
+either alone would be enough. **CBC does not warm start a MIP**: adding a row to
+a live solver still runs branch and bound from nothing, so the tree is thrown
+away whether or not the model was. And the model build is no longer worth
+saving — it was 12–19% of a run before the change above and is 3–8% after, so
+the ceiling on caching is now that 3–8%, and it does not even reach it.
+
+### What the master is really doing: asking for the next-best solution, k times
+
+Timing the MILPs against the evaluation batches shows the master does not solve
+one MILP per iteration. It solves a **chain**:
+
+```text
+iteration 7:   rows= 33    92.3 ms   added: -
+               rows= 34   241.2 ms   added: eliminated solution  0
+               rows= 35    94.1 ms   added: eliminated solution  1
+               rows= 36   282.6 ms   added: eliminated solution  2
+```
+
+Solve, forbid the design just found with a no-good cut, solve again — until
+`number_of_parallel_points` distinct candidates have been collected. So the
+probes are not free-standing MILPs that could be fanned out; they are a
+sequential chain, each solve differing from the last by one added row.
+
+And that chain is where the time is:
+
+| | mean | count |
+| --- | ------ | ------- |
+| first solve of an iteration | $70.2$ms | 16 |
+| later solves in the chain | $129.8$ms | 60 |
+
+**87% of all MILP time is spent re-deriving the next-best solution**, each time
+from a cold branch-and-bound tree, and the later solves are the dearer ones.
+Since the MILP is about three quarters of a run, that is around 65% of the whole
+thing.
+
+That is the thing worth attacking, and "one big MILP" names it correctly: this
+is the **k-best-solutions** problem, and asking a solver for k distinct
+solutions in one search is a solved idea — a solution pool. What blocks it here
+is the toolkit rather than the formulation:
+
+| backend | chain a, 36 rows | chain b, 52 rows | chain c, 80 rows | |
+| --------- | ------------------ | ------------------ | ------------------ | --- |
+| CBC, as used | $239$ms | $427$ms | $51$ms | — |
+| SCIP | $485$ms | $5974$ms | $44$ms | worse |
+| CP-SAT | $27$ms | $95$ms | $28$ms | **wrong** |
+
+CP-SAT is the one with native solution enumeration and it is four to ten times
+faster, but it is an **integer** solver and the master's design space is 50
+binaries *and one continuous* epigraph variable. `pywraplp` does not refuse the
+continuous variable, it quietly rounds it: where CBC returns $\eta = -32.98478$
+CP-SAT returns $-32.0$, reports `OPTIMAL`, and its answer satisfies every row.
+A speed-up that returns a different problem's answer is the same shape of trap
+as the parallel fault, and is recorded here so it is not walked into.
+
+That leaves a solution pool needing a solver that has one and admits continuous
+variables — SCIP exposes one through `PySCIPOpt` though not through `pywraplp`,
+and the commercial solvers do — or restating the master so its epigraph variable
+is discrete, which is a change to the method and not to its implementation.
+Neither is a small change, which is why this annex stops at naming it.
+
+### A correctness fault found on the way: the integrality is guessed
+
+Chain c has no continuous variable at all, which is what gave this away.
+`_run` decides which variables are integers like this:
+
+```python
+values = problem.design_space.get_current_value()
+integrality = array([isinf(x) or x is None or not mod(x, 1) for x in values])
+```
+
+That reads a variable's **current value**, not its declared type. A continuous
+variable whose value happens to land on a whole number — or on an infinity —
+becomes an `IntVar` for that solve.
+
+The master's epigraph variable $\eta$ is continuous and carries the lower bound
+on the objective, and it lands on whole numbers often: over one Rastrigin run,
+**28 of the 76 MILP builds, 37%, made it an integer**, so more than a third of
+the master's solves were of a problem with the lower bound rounded to a whole
+number.
+
+Deriving the flags from the declared types instead changes what the search does
+without, on these five problems, changing where it ends up:
+
+| problem | as-is | | declared types | |
+| --------- | ------- | --- | ---------------- | --- |
+| | best | evaluations | best | evaluations |
+| Rastrigin | $0.000000$ | 1337 | $0.000000$ | **1394** |
+| Ackley | $7.075571$ | 2552 | $7.075571$ | 2552 |
+| Griewank | $0.027101$ | 1661 | $0.027101$ | 1661 |
+| Styblinski-Tang | $-181.694109$ | 163 | $-181.694109$ | 163 |
+| `partly_multimodal` | $0.000000$ | 516 | $0.000000$ | 516 |
+
+One problem's path moves, 64 boxes to 68, and none of the optima do. So it is a
+latent fault rather than a demonstrated wrong answer here — but it is a guess
+standing in for information the design space already holds, and what it guesses
+wrong is the variable the convergence test reads. Reported upstream.

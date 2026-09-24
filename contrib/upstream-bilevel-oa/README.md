@@ -95,7 +95,25 @@ iterations. The master mostly appends a cut, but the existing rows are not
 obviously append-only, the convexification repair rewriting coefficients, so
 when a cached model may be reused is a maintainer's call.
 
-### Two pre-existing faults, reported but not fixed
+### A correctness fault in the same function, reported not fixed
+
+`_run` decides which variables are integers by looking at their **current
+value** rather than at the design space that declares them, so a continuous
+variable whose value lands on a whole number, or on an infinity, becomes an
+`IntVar` for that solve. The master's epigraph variable `eta` is continuous and
+carries the lower bound the convergence test reads: **28 of 76 MILP builds,
+37%, made it an integer** over one Rastrigin run. Deriving the flags from the
+declared types moves one problem's path (1337 evaluations to 1394, 64 boxes to
+68) and none of the five optima, so it is latent here rather than demonstrably
+wrong — but it is a guess standing in for information already to hand. Proposed
+in the issue rather than bundled in, because it changes results.
+
+Related, and the reason it surfaced: `pywraplp`'s CP-SAT backend does not
+reject a continuous variable either, it rounds it and reports `OPTIMAL`. It is
+four to ten times faster than CBC on the master's models and returns a
+different problem's answer.
+
+### Two more pre-existing faults, reported but not fixed
 
 Found while writing the tests, untouched by either patch, both reachable on
 `develop`:
