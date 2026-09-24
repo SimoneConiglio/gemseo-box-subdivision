@@ -745,3 +745,63 @@ sub-problems is worth parallelising while the master dominates, and the two
 changes that would pay are both in the master and neither is this package's
 code: not rebuilding the MILP from scratch each iteration, and the branch and
 bound itself.
+
+### The MILP rebuild, fixed upstream
+
+Of the two candidates the profile left, one turned out to be a small change with
+a large effect, and it is now made: `contrib/upstream-bilevel-oa/`, branch
+`perf/milp-model-construction`.
+
+`OrtoolsMILP._run` built each constraint row by accumulating a Python
+expression, `sum(c * x for c, x in zip(cc, variables))`. That allocates a
+temporary product and a temporary sum per coefficient, and the coefficients
+arrive as NumPy scalars, so every multiplication dispatches through NumPy before
+it reaches the solver. The master rebuilds the model at every iteration and its
+cut set grows as it goes, so the work grows with the run: the inequality block
+goes from $5 \times 51$ to $80 \times 51$ over Rastrigin's 76 rebuilds, and the
+generator on that line is entered $167\,960$ times.
+
+Worth naming what is *not* the cause. The rows are **82% to 94% dense**, so this
+is not a sparsity problem and skipping zeros is not where the gain is. Building
+an $80 \times 51$ block twenty times over:
+
+| how the rows are built | per build | |
+| ------------------------ | ----------- | --- |
+| `sum(c * x ...)` over NumPy scalars, as it was | $27.7$ms | — |
+| the same, over `tolist()` | $8.7$ms | $3.2\times$ |
+| `solver.Sum` over `tolist()` | $7.9$ms | $3.5\times$ |
+| `RowConstraint` + `SetCoefficient` | **$2.5$ms** | **$11\times$** |
+
+Two costs, then, and roughly two thirds of it is NumPy's scalar dispatch, which
+`tolist()` alone removes. The rest is the expression tree.
+
+Setting the coefficients on the solver directly, in situ:
+
+| problem | build before | build after | | share of wall |
+| --------- | -------------- | ------------- | --- | --------------- |
+| Rastrigin | $1.65$ | $0.33$ | $4.9\times$ | 12.7% → 3.1% |
+| Ackley | $2.41$ | $0.52$ | $4.6\times$ | 14.3% → 3.6% |
+| Griewank | $1.59$ | $0.35$ | $4.5\times$ | 12.3% → 3.0% |
+| Styblinski-Tang | $0.06$ | $0.02$ | $\approx 3\times$ | 12.9% → 6.3% |
+| `partly_multimodal` | $0.29$ | $0.09$ | $\approx 3\times$ | 19.3% → 7.6% |
+
+The in-situ factor is smaller than the microbenchmark's eleven because the
+measurement also covers `build_constraints_matrices`, the variables and the
+solver setup, which the change does not touch. Neither does it touch branch and
+bound, which remains the bulk of a run, so what comes off the wall clock is the
+build itself — about a tenth of these runs. Wall times move by more than that
+between repetitions, CBC's own time varying by some 13% here, which is why the
+build column is the measurement and the wall column is not quoted.
+
+What makes it safe to call equivalent is not the argument but the count. Over
+the five problems the optimum, the evaluations, the boxes **and the number of
+MILP solves** — 76, 95, 75, 15, 41 — are identical before and after. The same
+solve count means the master took the same path iteration for iteration, not
+merely arrived at the same place.
+
+The larger prize is still there and is deliberately left: **not rebuilding the
+model at all**. The master mostly appends a cut to what it had, so most of each
+rebuild is work it already did. The rows are not obviously append-only, though —
+the convexification repair rewrites coefficients rather than only adding them —
+so when a cached model may be reused is a question for the people who own that
+code, and it is put to them in the issue rather than answered here.
