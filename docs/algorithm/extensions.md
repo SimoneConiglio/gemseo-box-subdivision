@@ -640,3 +640,108 @@ converged optimum that was wrong. That one is fixed; these measurements were
 taken with the fix installed, which is why the optima agree across process
 counts at all. What remains is a property of counting in a process that is about
 to be forked away from.
+
+### Re-timed over processes, now that the work can be counted
+
+With the outcome read from the database, the same run can be compared across
+process counts honestly: the work is known to be identical, so the wall clock is
+the only thing left that could move. Five problems, the seed and budget of the
+tables above, the better of two passes on an otherwise idle four-core machine:
+
+| problem | evaluations | boxes | $t(1)$ | $t(2)$ | $t(4)$ | at 2 | at 4 |
+| --------- | ------------- | ------- | -------- | -------- | -------- | ------ | ------ |
+| Rastrigin | 1337 | 64 | $12.75$ | $13.47$ | $13.34$ | $0.95$ | $0.96$ |
+| Ackley | 2552 | 84 | $16.91$ | $16.96$ | $17.30$ | $1.00$ | $0.98$ |
+| Griewank | 1661 | 64 | $13.01$ | $14.02$ | $13.51$ | $0.93$ | $0.96$ |
+| Styblinski-Tang | 163 | 8 | $0.35$ | $0.48$ | $0.45$ | $0.74$ | $0.79$ |
+| `partly_multimodal` | 516 | 24 | $1.46$ | $1.59$ | $1.63$ | $0.91$ | $0.89$ |
+
+Every evaluation count, box count and best value there is identical across the
+three process counts, so these really are the same run measured three times.
+**And not one of them got faster**: the speed-up runs from $0.74$ to $1.00$.
+
+#### The fan-out is aimed at a tenth of the run
+
+`number_of_processes` fans out `_execute_doe`, which evaluates the candidate
+designs of one master iteration — its trust-region probes. Timing that call
+against the whole run says how much of the run is even eligible:
+
+| problem | wall | in `_execute_doe`, 1 proc | at 4 procs | batches | batch |
+| --------- | ------ | --------------------------- | ------------ | --------- | ------- |
+| Rastrigin | $13.2$ | $1.19$ (9.0%) | $1.69$ (12.1%) | 16 | 4 |
+| Ackley | $17.2$ | $2.04$ (11.8%) | $2.28$ (13.2%) | 21 | 4 |
+| Styblinski-Tang | $0.44$ | $0.14$ (32.2%) | $0.21$ (41.2%) | 2 | 4 |
+
+Two things at once. The eligible region is **about a tenth of the run**, which
+caps the speed-up at $1.12$ under Amdahl's law even with perfect scaling over
+four workers. And the region does not scale — it gets *slower*.
+
+The batch size is why. It is always exactly four, being
+`number_of_parallel_points`, so a fan-out carries about $74\,$ms of work
+($1.19/16$) and costs about $106\,$ms ($1.69/16$). Four-way division should have
+left $19\,$ms, so the fork and the marshalling are around $87\,$ms a batch.
+**The batches are smaller than the cost of forking for them**, and
+`CallableParallelExecution` starts fresh workers on every call rather than
+holding a pool, so that cost is paid sixteen times and never amortised.
+
+#### Bigger batches do fix the fan-out, and it still does not matter
+
+Raising `number_of_parallel_points` is the obvious repair, and it works — on the
+region:
+
+| problem | probes | $t(1)$ | $t(4)$ | `_execute_doe` $(1)$ | $(4)$ | ms/batch $(1)$ | $(4)$ |
+| --------- | -------- | -------- | -------- | ---------------------- | ------- | ---------------- | ------- |
+| Rastrigin | 4 | $13.30$ | $14.01$ | $1.14$ | $1.75$ | $71.5$ | $109.5$ |
+| Rastrigin | 10 | $21.98$ | $21.18$ | $1.64$ | **$1.21$** | $205.3$ | **$151.1$** |
+| Ackley | 4 | $16.21$ | $18.07$ | $1.92$ | $2.47$ | $91.5$ | $117.5$ |
+| Ackley | 10 | $28.92$ | $27.89$ | $2.23$ | **$1.45$** | $247.3$ | **$160.7$** |
+
+At ten probes the fork is finally amortised and the region does go faster,
+$1.64$ to $1.21$ seconds and $2.23$ to $1.45$. **The run does not**: $21.98$
+against $21.18$, and $28.92$ against $27.89$. Four tenths of a second, on a run
+that got eight seconds longer for the extra probes. At twenty probes Rastrigin
+makes the point flatly — the region falls from $4.07$ to $2.67$ seconds and the
+run takes $366.64$ seconds against $367.00$.
+
+:::{warning}
+The twenty-probe rows are **not** a like-for-like comparison, and the reason is
+the budget asymmetry documented above rather than anything about timing. Ackley
+at twenty probes, budget $8000$:
+
+| | cost | truncated | evaluations | boxes | best |
+| --- | ------ | ----------- | ------------- | ------- | ------ |
+| 1 process | 8000 | **yes** | 5520 | 184 | $4.944911$ |
+| 4 processes | 54 | no | 7356 | 260 | $0.000007$ |
+
+The serial run was stopped by its budget; the parallel run was not budgeted at
+all, took 76 more boxes, and reached the optimum. That looks like parallelism
+solving a problem serial execution could not, and it is nothing of the kind —
+it is one run being allowed to continue and the other not. A parallel run is
+not budgeted, so any comparison that lets the budget bind is meaningless.
+:::
+
+#### Where the time actually goes
+
+The nine-tenths that is not eligible is almost all the master's own MILP:
+
+| problem | wall | MILP | of which CBC | of which built in Python | solves |
+| --------- | ------ | ------ | -------------- | -------------------------- | -------- |
+| Rastrigin | $12.97$ | 78.5% | 65.8% | 12.7% | 76 |
+| Ackley | $17.57$ | 72.6% | 58.2% | 14.4% | 95 |
+| Styblinski-Tang | $0.61$ | 32.2% | 22.5% | 9.7% | 15 |
+
+Roughly **six tenths of a run is branch and bound**, and a further eighth goes
+on building the model to hand to it. That second figure is not the solver's:
+`ortools_milp.py` constructs a fresh `pywraplp.Solver` every master iteration
+and accumulates each constraint row term by term,
+`sum(c * x for c, x in zip(...))`, which the profiler counts $167\,960$ times
+over Rastrigin's 76 solves. The cut set grows as the run proceeds and the
+rebuild grows with it.
+
+So `number_of_processes` is not broken here — since the upstream fix it returns
+the right answer, and the database now shows it doing exactly the work the
+serial run does. It is simply **aimed at the wrong tenth**. Nothing about the
+sub-problems is worth parallelising while the master dominates, and the two
+changes that would pay are both in the master and neither is this package's
+code: not rebuilding the MILP from scratch each iteration, and the branch and
+bound itself.

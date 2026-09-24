@@ -658,6 +658,16 @@ def run_at_density(
             not, the gradient half of it being a count of calls where the
             database holds a count of points.
 
+            Having measured it, **there is nothing here to win**: over five
+            problems at one, two and four processes the work is identical and
+            the wall clock moves by $0.74$ to $1.00$, every case being a little
+            slower. The fan-out covers ``_execute_doe``, which is about a tenth
+            of a run, and its batches hold ``number_of_parallel_points`` designs
+            — four by default, some $74$ms of work against the $87$ms it costs
+            to fork for them. Raising the probes to ten does amortise the fork
+            and the region does go faster, and the run still does not, the other
+            nine tenths being the master's MILP. See annex D.
+
             The master itself had a fault of its own, reported and fixed in
             `contrib/upstream-bilevel-oa/`: its workers were forked with a
             callable returning nothing and no callback, so what a child computed
