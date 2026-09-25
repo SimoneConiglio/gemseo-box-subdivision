@@ -1023,3 +1023,105 @@ and choosing them together is not. The sequential chain does not find the best
 set of $k$ probes, only a good one. Whether the best set would be worth having
 is a question about the method; at these timings it cannot be asked
 experimentally.
+
+### Diversity by construction, and speculation: two more parallelisms that do not pay
+
+First a correction to the premise, because it changes the question. The probes
+**are** already guaranteed distinct. The loop reads
+
+```python
+alpha_opt, eta_opt_, is_feasible = self._solve_milp(
+    ..., i_k + eliminated_alpha, current_step=current_step,
+)
+```
+
+and `i_k` is the list of probes already chosen *this* iteration, passed as
+no-good cuts. So probe $j$ is solved over a space from which probes
+$0 \dots j-1$ have been removed, and two probes cannot coincide. The
+`eliminated solution k` rows seen growing by one per probe are exactly that
+exclusion. The inner `while self._is_previously_computed(...)` loop is a
+different thing: it rejects a design **evaluated in an earlier iteration**, and
+only that loop can run more than once.
+
+What remains, then, is not how to make the probes differ but whether the $k$
+distinct probes can be had faster than one after another.
+
+#### Speculate and repair: exact, and a wash
+
+Solve all $k$ probes at once without the no-goods, then validate in order. The
+scheme is **exact**, not approximate, and the reason is worth stating: if probe
+$j$'s unconstrained answer already differs from every earlier design, then the
+no-good cuts it lacked were inactive at that point, and since its feasible set
+contains the constrained one, its optimum is the constrained optimum too. So a
+prefix of the speculative answers is exactly the chain's; the first collision
+and everything after it must be redone with what the prefix has established.
+
+| chain | $k$ | sequential | rounds | solves | critical path | | objectives |
+| ------- | ----- | ------------ | -------- | -------- | --------------- | --- | ------------ |
+| a | 4 | $890$ms | 3 | 9 | $851$ms | $1.05\times$ | tie |
+| b | 4 | $1044$ms | 4 | 10 | $1790$ms | $0.58\times$ | tie |
+| c | 7 | $1421$ms | 6 | 24 | $1390$ms | $1.02\times$ | tie |
+
+The objectives tie everywhere, which confirms the argument — chain c's answers
+differ from the chain's as *designs*, but at equal objective value, so that is
+tie-breaking and not error. And the wall clock does not move: 3, 4 and 6 rounds
+for $k$ of 4, 4 and 7. **Collisions are the rule, not the exception**, so
+almost every speculative solve is wasted and the rounds nearly equal the
+probes. It costs two to three times the CPU for nothing.
+
+That is the same fact the earlier one-shot table showed from the other side:
+solved independently, the per-radius MILPs returned 2, 3 and 1 distinct designs
+out of 4, 4 and 7. **The trust-region radius rarely changes the argmin.** It is
+the no-good cut, not the radius, that makes the probes different.
+
+#### Making them differ by construction
+
+If the radius will not separate the probes, the space can be partitioned
+instead: probe 0 keeps the whole space, so the incumbent is never given away,
+and probes $1 \dots k-1$ each take their own slice of the first one-hot group.
+Distinct by construction, no coupling between them, and each MILP is *smaller*
+than the one it replaces. On the captured chains that is dramatic:
+
+| chain | $k$ | sequential | partitioned, critical path | CPU | distinct |
+| ------- | ----- | ------------ | ---------------------------- | ----- | ---------- |
+| a | 4 | $890$ms | $240$ms ($3.7\times$) | $279$ms | 4/4 |
+| b | 4 | $1044$ms | $69$ms ($15.2\times$) | $105$ms | 4/4 |
+| c | 7 | $1421$ms | $28$ms ($51.2\times$) | $51$ms | 7/7 |
+
+Faster on the critical path *and* in total CPU, which no other scheme here
+managed. The catch is already visible in the probes themselves: by the cut
+model's own objective they are much worse, $-22.2$ against $-83.5$ on chain b
+and $71.0$ against $8.0$ on chain c. A probe forced into a bad slice is a bad
+probe.
+
+Run end to end, five problems, three starting points, medians:
+
+| problem | variant | wall | gap | evaluations | boxes | reached |
+| --------- | --------- | ------ | ----- | ------------- | ------- | --------- |
+| Rastrigin | chained | $12.01$ | $0.000000$ | 1330 | 64 | **3/3** |
+| Rastrigin | partitioned | $9.84$ | $0.000000$ | 1283 | 64 | 2/3 |
+| Ackley | chained | $14.79$ | $6.302113$ | 2361 | 76 | **1/3** |
+| Ackley | partitioned | $8.94$ | $7.075571$ | 1834 | 56 | 0/3 |
+| Griewank | chained | $18.40$ | **$0.027101$** | 2030 | 72 | 0/3 |
+| Griewank | partitioned | $18.55$ | $0.073862$ | 2120 | 80 | 0/3 |
+| Styblinski-Tang | chained | $0.67$ | $0.000000$ | 297 | 16 | 2/3 |
+| Styblinski-Tang | partitioned | $0.65$ | $0.000000$ | 301 | 16 | 2/3 |
+| `partly_multimodal` | chained | $1.50$ | $0.000000$ | 521 | 24 | 3/3 |
+| `partly_multimodal` | partitioned | $1.57$ | $0.000000$ | 611 | 28 | 3/3 |
+
+**The reached column never improves and falls twice**, 3/3 to 2/3 and 1/3 to
+0/3. Ackley's forty percent off the wall clock is the tell: it comes with 22%
+fewer evaluations, 26% fewer boxes and a worse gap. That is not the same search
+run faster, it is a shorter search that stopped somewhere worse.
+
+So all three parallelisms are spent. The one big MILP is correct and 11 to 45
+times slower; speculation is exact and a wash; partitioning is genuinely
+faster per iteration and costs reliability. Behind all three is the same fact:
+**the sequential chain is not overhead, it is the mechanism**. Each no-good cut
+is what makes the next probe both different and still the best of what is left,
+and every scheme here buys its parallelism by giving up one of those two.
+
+The partition rule tried was arbitrary — contiguous slices of whichever group
+comes first — and a better one may exist. What the table argues is narrower:
+that a diversity rule has to be judged on the reached column and not on the
+clock, because the clock will flatter it.
