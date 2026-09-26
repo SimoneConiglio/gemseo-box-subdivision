@@ -167,6 +167,7 @@ fact drives the whole implementation, and the two formulations below are the two
 ways of living with it.
 
 (formulations)=
+
 ## The trust region of the master
 
 The master does not choose among all the boxes at every iteration: it restricts
@@ -293,6 +294,7 @@ in quality: under the same master settings the normalized formulation reaches th
 optimum from every starting point and the constraint one from all but one.
 
 (convexification)=
+
 ## Convexification
 
 Outer-approximation cuts are supporting hyperplanes **only if $u$ is convex**. On

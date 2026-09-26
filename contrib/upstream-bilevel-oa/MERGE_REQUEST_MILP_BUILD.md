@@ -21,19 +21,19 @@ equality still becomes the same two rows it did before.
 
 ## Results
 
-Building an $80 \times 51$ block of rows, twenty repetitions: **$27.7$ms
-before, $2.5$ms after, $11\times$.**
+Building an 80×51 block of rows, twenty repetitions: **27.7ms
+before, 2.5ms after, 11x.**
 
 In situ, where the measurement also covers `build_constraints_matrices`, the
 variables and the solver setup:
 
 | problem | build before | build after | | share of wall |
 | --------- | -------------- | ------------- | --- | --------------- |
-| Rastrigin | $1.65$s | $0.33$s | $4.9\times$ | 12.7% → 3.1% |
-| Ackley | $2.41$s | $0.52$s | $4.6\times$ | 14.3% → 3.6% |
-| Griewank | $1.59$s | $0.35$s | $4.5\times$ | 12.3% → 3.0% |
-| Styblinski-Tang | $0.06$s | $0.02$s | $\approx 3\times$ | 12.9% → 6.3% |
-| `partly_multimodal` | $0.29$s | $0.09$s | $\approx 3\times$ | 19.3% → 7.6% |
+| Rastrigin | 1.65s | 0.33s | 4.9x | 12.7% → 3.1% |
+| Ackley | 2.41s | 0.52s | 4.6x | 14.3% → 3.6% |
+| Griewank | 1.59s | 0.35s | 4.5x | 12.3% → 3.0% |
+| Styblinski-Tang | 0.06s | 0.02s | about 3x | 12.9% → 6.3% |
+| `partly_multimodal` | 0.29s | 0.09s | about 3x | 19.3% → 7.6% |
 
 Branch and bound is untouched and remains the bulk of a run, so the saving on
 the wall clock is the build itself — about a tenth of these runs. Wall times
@@ -49,11 +49,11 @@ are identical before and after:
 
 | problem | best | evaluations | boxes | MILP solves |
 | --------- | ------ | ------------- | ------- | ------------- |
-| Rastrigin | $0.000000$ | 1337 | 64 | 76 |
-| Ackley | $7.075571$ | 2552 | 84 | 95 |
-| Griewank | $0.027101$ | 1661 | 64 | 75 |
-| Styblinski-Tang | $-181.694109$ | 163 | 8 | 15 |
-| `partly_multimodal` | $0.000000$ | 516 | 24 | 41 |
+| Rastrigin | 0.000000 | 1337 | 64 | 76 |
+| Ackley | 7.075571 | 2552 | 84 | 95 |
+| Griewank | 0.027101 | 1661 | 64 | 75 |
+| Styblinski-Tang | -181.694109 | 163 | 8 | 15 |
+| `partly_multimodal` | 0.000000 | 516 | 24 | 41 |
 
 Identical solve counts matter more than identical optima: the master took the
 same path, iteration for iteration, not merely the same destination.

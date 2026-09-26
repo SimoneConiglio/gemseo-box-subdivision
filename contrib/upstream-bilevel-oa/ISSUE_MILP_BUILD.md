@@ -26,9 +26,9 @@ On a five-variable box-subdivision master, 51 variables:
 
 | rebuild | inequality block | density | Python terms |
 | --------- | ------------------ | --------- | -------------- |
-| first | $5 \times 51$ | 82% | 510 |
-| 38th | $43 \times 51$ | 94% | 2448 |
-| last (76th) | $80 \times 51$ | 82% | 4335 |
+| first | 5×51 | 82% | 510 |
+| 38th | 43×51 | 94% | 2448 |
+| last (76th) | 80×51 | 82% | 4335 |
 
 **184,110 terms over one run of 76 rebuilds.** The profiler counts the
 generator on line 134 alone 167,960 times.
@@ -40,24 +40,24 @@ variable creation and the solver setup as well as the rows:
 
 | problem | wall | MILP | of which CBC | of which the Python build |
 | --------- | ------ | ------ | -------------- | --------------------------- |
-| Rastrigin | $12.94$ | 78.5% | 65.8% | **12.7%** |
-| Ackley | $16.85$ | 72.6% | 58.2% | **14.3%** |
-| Griewank | $12.97$ | 78.3% | 66.1% | **12.3%** |
-| `partly_multimodal` | $1.48$ | 45.3% | 25.7% | **19.3%** |
+| Rastrigin | 12.94 | 78.5% | 65.8% | **12.7%** |
+| Ackley | 16.85 | 72.6% | 58.2% | **14.3%** |
+| Griewank | 12.97 | 78.3% | 66.1% | **12.3%** |
+| `partly_multimodal` | 1.48 | 45.3% | 25.7% | **19.3%** |
 
 So roughly an eighth of a run, and a fifth of a short one, is spent building the
 model rather than solving it.
 
 ## The measurement that isolates it
 
-Building an $80 \times 51$ block of rows, twenty repetitions:
+Building an 80×51 block of rows, twenty repetitions:
 
 | how | per build | |
 | ----- | ----------- | --- |
-| `sum(c * x ...)` over NumPy scalars, as now | $27.7$ms | — |
-| the same over `tolist()` | $8.7$ms | $3.2\times$ |
-| `solver.Sum` over `tolist()` | $7.9$ms | $3.5\times$ |
-| `RowConstraint` + `SetCoefficient` | **$2.5$ms** | **$11\times$** |
+| `sum(c * x ...)` over NumPy scalars, as now | 27.7ms | — |
+| the same over `tolist()` | 8.7ms | 3.2x |
+| `solver.Sum` over `tolist()` | 7.9ms | 3.5x |
+| `RowConstraint` + `SetCoefficient` | **2.5ms** | **11x** |
 
 Two separate costs, then. About two thirds of it is NumPy scalar dispatch,
 which `tolist()` alone removes; the rest is the expression tree, which only
@@ -120,11 +120,11 @@ failed`, and the one failure is `test_kocis_grossman`:
 
 | | `x_opt` | `f_opt` |
 | --- | --------- | --------- |
-| as-is | `[1, 0, 0, 1, 0, 1]`, i.e. $(y_1,y_2,y_3) = (0,1,1)$ | **7.66752** |
-| finite bounds | `[1, 0, 1, 0, 1, 0]`, i.e. $(0,0,0)$ | **8.47643** |
+| as-is | `[1, 0, 0, 1, 0, 1]`, i.e. (y1,y2,y3) = (0,1,1) | **7.66752** |
+| finite bounds | `[1, 0, 1, 0, 1, 0]`, i.e. (0,0,0) | **8.47643** |
 
-$7.66752$ is the published optimum and checks out by hand — $x_1 = 1.118$,
-$x_2 = 1.310$ from the two equalities, all three inequalities slack. The fix
+7.66752 is the published optimum and checks out by hand — x1 = 1.118,
+x2 = 1.310 from the two equalities, all three inequalities slack. The fix
 loses it. On five box-subdivision problems the same change is neutral, the
 optima identical and only Rastrigin's path moving (1337 evaluations to 1394),
 so it is not that the guard is wrong in general — it is that **something in the
@@ -140,7 +140,7 @@ tightening that at least one benchmark depends on.
 
 `pywraplp`'s `SAT_INTEGER_PROGRAMMING` backend does not reject a continuous
 variable either — it rounds it and reports `OPTIMAL`. On one of the captured
-master models CBC returns $\eta = -32.98478$ and CP-SAT returns $-32.0$, and
+master models CBC returns eta = -32.98478 and CP-SAT returns -32.0, and
 CP-SAT's answer satisfies every row. Anyone reaching for CP-SAT here for its
 speed (four to ten times faster on these models) would get a different
 problem's answer, silently. Worth a guard wherever a backend is chosen.

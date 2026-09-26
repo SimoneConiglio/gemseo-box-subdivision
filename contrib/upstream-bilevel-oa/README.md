@@ -17,15 +17,15 @@ the other.
 
 | | what it is |
 | --- | --- |
-| **1. A wrong optimum, silently** | `number_of_processes` lost its workers' results |
+| **1. A wrong optimum, silently** | `number_of_processes` lost its results |
 | `ISSUE.md` | the report: reproduction, mechanism, measurements |
 | `MERGE_REQUEST.md` | the merge request description |
 | `0001-fix-number-of-processes.patch` | the fix and its test, as a commit |
 | `test_number_of_processes.py` | the test alone, for reference |
-| **2. A MILP rebuilt in Python** | the master's model construction, $11\times$ |
+| **2. A MILP rebuilt in Python** | the master's model construction, 11x |
 | `ISSUE_MILP_BUILD.md` | the report: measurements and what is not the cause |
 | `MERGE_REQUEST_MILP_BUILD.md` | the merge request description |
-| `0002-perf-milp-model-construction.patch` | the change and its tests, as a commit |
+| `0002-perf-milp-model-construction.patch` | the change and its tests |
 | `test_milp_model_construction.py` | the tests alone, for reference |
 
 The numbering is only for ordering this directory. The two patches touch
@@ -73,9 +73,9 @@ the whole run went on *building* the model rather than solving it:
 over NumPy scalars, rebuilt from scratch at every master iteration against a cut
 set that grows — 184,110 Python terms over one 76-iteration run.
 
-Setting the coefficients directly on the solver builds an $80 \times 51$ block
-in $2.5$ms against $27.7$ms, $11\times$; in situ the model build falls $4.5$ to
-$4.7\times$ and from 12–19% of a run to 3–8%. Over five problems the optimum,
+Setting the coefficients directly on the solver builds an 80×51 block
+in 2.5ms against 27.7ms, 11x; in situ the model build falls 4.5 to
+4.7x and from 12–19% of a run to 3–8%. Over five problems the optimum,
 the evaluation count, the box count **and the number of MILP solves** are
 identical before and after, so the master takes the same path and not merely the
 same destination.

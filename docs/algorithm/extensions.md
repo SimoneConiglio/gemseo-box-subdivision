@@ -1024,7 +1024,7 @@ set of $k$ probes, only a good one. Whether the best set would be worth having
 is a question about the method; at these timings it cannot be asked
 experimentally.
 
-### Diversity by construction, and speculation: two more parallelisms that do not pay
+### Diversity by construction, and speculation: two more that do not pay
 
 First a correction to the premise, because it changes the question. The probes
 **are** already guaranteed distinct. The loop reads
