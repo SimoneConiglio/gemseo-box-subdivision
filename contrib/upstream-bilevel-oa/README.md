@@ -154,7 +154,40 @@ second, 462 skipped and 1 xfailed in both cases.
 patch files are those commits, ready for `git am` against a clone or a fork.
 
 Pushing them to a fork and opening the merge requests is not something this
-session could do: it had no GitLab credentials.
+session could do: it had no GitLab credentials, no `glab`, and anonymous read
+access only. The patches are the whole deliverable, and they are faithful:
+applied to a pristine `1279c110` they reproduce the tree these measurements were
+taken on, byte for byte.
+
+### To submit them
+
+Two independent merge requests, from your own fork:
+
+```shell
+git clone https://gitlab.com/<you>/gemseo-bilevel-outer-approximation.git
+cd gemseo-bilevel-outer-approximation
+git remote add upstream https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation.git
+git fetch upstream
+
+git checkout -b fix/number-of-processes-loses-worker-results 1279c110
+git am <this directory>/0001-fix-number-of-processes.patch
+git push -u origin fix/number-of-processes-loses-worker-results
+
+git checkout -b perf/milp-model-construction 1279c110
+git am <this directory>/0002-perf-milp-model-construction.patch
+git push -u origin perf/milp-model-construction
+```
+
+Each branch starts from `1279c110` rather than from the other, because the two
+changes are independent and should be reviewed that way. `ISSUE.md` and
+`ISSUE_MILP_BUILD.md` are the issue bodies; `MERGE_REQUEST.md` and
+`MERGE_REQUEST_MILP_BUILD.md` are the merge request descriptions. Rebase onto a
+newer `develop` if `1279c110` has moved on — neither patch touches a file that
+is likely to have been rewritten, but say so in the MR if you do.
+
+The third finding, the integrality guess, has **no branch**: both repairs for it
+were measured and both are worse, so it is an issue body only. See the section
+above.
 
 To run this package against both at once, apply both patches to one branch —
 they touch different files and do not conflict:
