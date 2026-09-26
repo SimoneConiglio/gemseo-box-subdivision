@@ -1,0 +1,188 @@
+From 4a48e046a7e5e9f84c28c92d807e51d04df9aed2 Mon Sep 17 00:00:00 2001
+From: Simone Coniglio <simone.coniglio91@gmail.com>
+Date: Thu, 24 Sep 2026 03:08:35 +0000
+Subject: [PATCH] fix: bring the workers' results back from a parallel
+ evaluation
+
+`_execute_doe` fans the evaluation of an iteration's candidate designs over
+`number_of_processes` workers. It handed `CallableParallelExecution` a callable
+returning `None` and passed no `exec_callback`, and the workers are forked, so
+everything a child wrote went to the child's copy of the database and nothing
+reached the caller.
+
+The caller reads those entries immediately afterwards, and the read does not
+raise: `Database.get_function_value` returns `None` for a missing key, and
+`atleast_2d(None)` is an array of shape `(1, 1)` rather than an error. An absent
+gradient therefore entered the cut model as a scalar, and the run reported a
+converged optimum that was wrong, with no exception and no failed status.
+
+The worker now returns the database entry it wrote and a callback replays it in
+the caller, which is what `BaseDOELibrary.__run_in_parallel_one_at_a_time` does
+for a DOE. Returning the entry rather than the evaluation avoids rebuilding a
+key here, and it carries the gradients along with the values.
+
+The fan-out is reached only when an iteration has more than one candidate, since
+`_execute_doe` short circuits on `i_k.shape[0] == 1`, and the candidates are the
+trust-region probes. A run therefore needs `number_of_parallel_points` above one
+for `number_of_processes` to do anything, which is why the existing
+parametrisation over `number_of_parallel_points` alone never caught this.
+
+On the `analytical_use_case` fixture with four parallel points, every catalogue
+and every starting guess, the optimum was 1.0, 2.0 or 3.0 in eight of the
+twenty-four configurations and 6.2e-11 in the rest; it is now 6.2e-11 in all of
+them, equal to what one process returns.
+
+`tests/algos/opt/core/test_number_of_processes.py` covers it: 36 passed with
+this change, 16 failed without it.
+---
+ .../opt/core/outer_approximation_optimizer.py | 42 +++++++++-
+ .../opt/core/test_number_of_processes.py      | 77 +++++++++++++++++++
+ 2 files changed, 115 insertions(+), 4 deletions(-)
+ create mode 100644 tests/algos/opt/core/test_number_of_processes.py
+
+diff --git a/src/gemseo_bilevel_outer_approximation/algos/opt/core/outer_approximation_optimizer.py b/src/gemseo_bilevel_outer_approximation/algos/opt/core/outer_approximation_optimizer.py
+index 532503f..853c04c 100644
+--- a/src/gemseo_bilevel_outer_approximation/algos/opt/core/outer_approximation_optimizer.py
++++ b/src/gemseo_bilevel_outer_approximation/algos/opt/core/outer_approximation_optimizer.py
+@@ -26,6 +26,7 @@ from __future__ import annotations
+ 
+ import logging
+ from typing import TYPE_CHECKING
++from multiprocessing import parent_process
+ from typing import Any
+ from typing import ClassVar
+ 
+@@ -2185,10 +2186,43 @@ class OuterApproximationOptimizer:
+         if i_k.shape[0] == 1 or self.n_processes == 1:
+             for alpha in i_k:
+                 self.__evaluate_functions(alpha)
+-        else:
+-            CallableParallelExecution(
+-                [self.__evaluate_functions], self.n_processes
+-            ).execute(i_k)
++            return
++
++        # The workers are forked, so what they store reaches their own copy of
++        # the database and never this one. Each returns the entry it wrote and
++        # the callback, which runs here, replays it.
++        samples = [alpha.copy() for alpha in i_k]
++        database = self.problem.database
++
++        def store(index: int, entry: dict[str, Any]) -> None:
++            """Replay here what a worker stored in its own database.
++
++            Args:
++                index: The index of the design in ``i_k``.
++                entry: The entry the worker wrote for it.
++            """
++            if entry:
++                database.store(samples[index], entry)
++
++        CallableParallelExecution(
++            [self.__evaluate_functions_in_worker], self.n_processes
++        ).execute(i_k, exec_callback=store)
++
++    def __evaluate_functions_in_worker(self, alpha: RealArray) -> dict[str, Any]:
++        """Evaluate in a worker, and return the entry written for ``alpha``.
++
++        Args:
++            alpha: The one-hot-encoded design.
++
++        Returns:
++            The database entry, values and gradients alike.
++        """
++        database = self.problem.database
++        if parent_process() is not None:
++            database.clear_listeners()
++
++        self.__evaluate_functions(alpha)
++        return dict(database.get(alpha) or {})
+ 
+     def __evaluate_functions(self, alpha: RealArray) -> None:
+         """Evaluate the functions of the problem at a one-hot-encoded design.
+diff --git a/tests/algos/opt/core/test_number_of_processes.py b/tests/algos/opt/core/test_number_of_processes.py
+new file mode 100644
+index 0000000..a6d875c
+--- /dev/null
++++ b/tests/algos/opt/core/test_number_of_processes.py
+@@ -0,0 +1,77 @@
++# Copyright 2021 IRT Saint Exupéry, https://www.irt-saintexupery.com
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU Lesser General Public
++# License version 3 as published by the Free Software Foundation.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++# Lesser General Public License for more details.
++#
++# You should have received a copy of the GNU Lesser General Public License
++# along with this program; if not, write to the Free Software Foundation,
++# Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
++"""``number_of_processes`` must change the wall clock and not the answer.
++
++The setting fans the evaluation of an iteration's candidate designs over several
++processes. It is reached only when an iteration has more than one candidate to
++evaluate, because ``_execute_doe`` short circuits on ``i_k.shape[0] == 1``, and
++the candidates of an iteration are its trust-region probes. **A run therefore has
++to set ``number_of_parallel_points`` above one for ``number_of_processes`` to do
++anything at all**, which is why the parametrisation of
++``test_bileveloa_optimizer_analytical`` over ``number_of_parallel_points`` alone
++never exercised the fan-out.
++
++Before the fix the workers were forked with a callable returning ``None`` and no
++``exec_callback``, so what a child computed stayed in the child's copy of the
++database. The caller then read entries that were never stored, and the read did
++not raise: ``Database.get_function_value`` returns ``None`` for a missing key and
++``atleast_2d(None)`` has shape ``(1, 1)``, so an absent gradient entered the cut
++model as a scalar and the run reported a converged optimum that was wrong.
++"""
++
++from __future__ import annotations
++
++import sys
++
++import pytest
++from numpy.testing import assert_allclose
++
++X_OPT = [0.0, 1.0, 0.0]
++"""The design every configuration of this fixture reaches serially."""
++
++F_OPT = 0.0
++"""The objective every configuration of this fixture reaches serially."""
++
++N_PARALLEL_POINTS = 4
++"""Candidates per iteration, so that the fan-out is reached at all."""
++
++
++@pytest.mark.parametrize("number_of_processes", [1, 2, 4])
++def test_number_of_processes_does_not_change_the_optimum(
++    analytical_use_case, number_of_processes
++):
++    """The optimum is the one the serial run reaches, over any process count.
++
++    One process is the control: it takes the serial branch and must agree with
++    the others.
++    """
++    if sys.platform.startswith("win"):
++        pytest.skip("Parallel use of the cache is not supported on windows.")
++
++    scenario = analytical_use_case[0]
++    scenario.execute(
++        algo_name="BILEVEL_MASTER_OUTER_APPROXIMATION",
++        max_iter=1000,
++        normalize_design_space=True,
++        posa=1.0,
++        adapt=False,
++        min_dfk=0.0,
++        number_of_parallel_points=N_PARALLEL_POINTS,
++        number_of_processes=number_of_processes,
++    )
++
++    result = scenario.optimization_result
++    assert_allclose(result.x_opt, X_OPT, atol=0.0)
++    assert result.f_opt == pytest.approx(F_OPT, abs=1e-9)
+-- 
+2.43.0
+

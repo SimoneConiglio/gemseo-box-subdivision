@@ -1,0 +1,382 @@
+From 5e5602871b780758bd672b7daa0ebe0c1447ad24 Mon Sep 17 00:00:00 2001
+From: Simone Coniglio <simone.coniglio91@gmail.com>
+Date: Thu, 24 Sep 2026 05:01:33 +0000
+Subject: [PATCH] perf: build the MILP rows on the solver instead of in Python
+
+`_run` rebuilds the master's model on every iteration of the outer
+approximation, and built each row by accumulating a Python expression,
+`sum(c * x for c, x in zip(cc, variables))`. That allocates a temporary
+product and a temporary sum per coefficient, and the coefficients arrive as
+NumPy scalars, whose operators dispatch through NumPy before reaching the
+solver's. The rows are dense and the cut set grows as the run proceeds, so the
+cost is paid again and again over a matrix that keeps getting bigger: on a
+five-variable box-subdivision master with 51 variables, the inequality block
+grows from 5x51 to 80x51 over 76 rebuilds, some 184,000 Python terms.
+
+The coefficients are now set on the solver's own objective and on a
+`RowConstraint` per row, which is a change of how the model is built and not
+of what it is. One row is still added per finite bound, in the same order, so
+an equality still becomes the same two rows it did before.
+
+Building an 80x51 block: 27.7ms before, 2.5ms after, 11x. In situ, where the
+measurement also covers `build_constraints_matrices`, the variables and the
+solver, the model build falls 4.5x to 4.7x and from 12-19% of a run to 3-8%:
+
+    problem            build before   build after
+    Rastrigin                 1.65s         0.33s
+    Ackley                    2.41s         0.52s
+    Griewank                  1.59s         0.35s
+    Styblinski-Tang           0.06s         0.02s
+
+Branch and bound is untouched and remains the bulk of a run.
+
+Equivalence was checked end to end rather than assumed: over five
+box-subdivision problems the optimum, the evaluation count, the box count and
+the number of MILP solves are identical to the digit before and after.
+
+Adds tests/algos/opt/test_milp_model_construction.py, which pins that a
+coefficient reaches the variable it belongs to, that a zero means absence, and
+that an equality still binds on both sides, cross-checked against Scipy_MILP.
+They pass before and after the change, being an equivalence guard rather than
+a reproduction; 8 of the 14 fail if the row builder is made to misplace a
+coefficient.
+
+Two pre-existing faults were found while writing those tests and are left
+alone here, being unrelated to this change:
+
+- A design space of integer variables only cannot be solved at all:
+  `get_value_and_bounds` then returns integer-typed bounds and
+  `Solver.IntVar` rejects them as its `double` arguments.
+- A problem carrying only one kind of constraint raises a `TypeError` before
+  any row is built: `build_constraints_matrices` returns `None` for the
+  absent kind and `_run` reads `eq_rhs - eq_tolerance` unguarded.
+
+Full suite: 387 passed, 462 skipped, 1 xfailed.
+---
+ .../algos/opt/ortools_milp/ortools_milp.py    |  57 ++++-
+ .../algos/opt/test_milp_model_construction.py | 216 ++++++++++++++++++
+ 2 files changed, 265 insertions(+), 8 deletions(-)
+ create mode 100644 tests/algos/opt/test_milp_model_construction.py
+
+diff --git a/src/gemseo_bilevel_outer_approximation/algos/opt/ortools_milp/ortools_milp.py b/src/gemseo_bilevel_outer_approximation/algos/opt/ortools_milp/ortools_milp.py
+index 2ee476d..bf6eb72 100644
+--- a/src/gemseo_bilevel_outer_approximation/algos/opt/ortools_milp/ortools_milp.py
++++ b/src/gemseo_bilevel_outer_approximation/algos/opt/ortools_milp/ortools_milp.py
+@@ -44,6 +44,8 @@ from gemseo_bilevel_outer_approximation.algos.opt.ortools_milp.ortools_milp_sett
+ )
+ 
+ if TYPE_CHECKING:
++    from collections.abc import Sequence
++
+     from gemseo.algos.optimization_problem import OptimizationProblem
+ 
+ 
+@@ -82,6 +84,39 @@ class OrtoolsMILP(BaseOptimizationLibrary[OrtoolsMilp_Settings]):
+     def __init__(self, algo_name: str = "ORTOOLS_MILP") -> None:  # noqa:D107
+         super().__init__(algo_name)
+ 
++    @staticmethod
++    def __add_row(
++        solver: pywraplp.Solver,
++        variables: Sequence[pywraplp.Variable],
++        coefficients: Sequence[float],
++        lower_bound: float,
++        upper_bound: float,
++    ) -> None:
++        """Add one linear constraint row to the solver.
++
++        The coefficients are handed to the solver one at a time rather than
++        accumulated into a Python expression. ``sum(c * x for c, x in ...)``
++        allocates a temporary product and a temporary sum per coefficient, and
++        it is handed NumPy scalars, whose operators dispatch through NumPy
++        before reaching the solver's. The master rebuilds this model at every
++        iteration and its cut set grows as it goes, so the cost is paid again
++        and again, over a matrix that grows with the run.
++
++        Args:
++            solver: The solver to add the row to.
++            variables: The variables of the problem, in the order of the
++                coefficients.
++            coefficients: The coefficient of each variable.
++            lower_bound: The lower bound of the row.
++            upper_bound: The upper bound of the row.
++        """
++        row = solver.RowConstraint(lower_bound, upper_bound)
++        for coefficient, variable in zip(coefficients, variables, strict=False):
++            # A coefficient of zero is the absence of the variable from the row,
++            # so the solver is not told about it.
++            if coefficient:
++                row.SetCoefficient(variable, coefficient)
++
+     def _run(self, problem: OptimizationProblem) -> tuple[Any, Any]:
+         # Get the starting point and bounds
+         _x_0, l_b, u_b = get_value_and_bounds(
+@@ -125,17 +160,23 @@ class OrtoolsMILP(BaseOptimizationLibrary[OrtoolsMilp_Settings]):
+                     solver.NumVar(xl, xu, self.VAR_PREFIX + str(count + 1))
+                 )
+         # define the objective function
+-        objective = sum(c * x for c, x in zip(obj_coeff, variables, strict=False))
+-        solver.Minimize(objective)
++        # N.B. the coefficients are set on the solver's own objective rather
++        # than accumulated into a Python expression: ``sum(c * x for ...)``
++        # builds one temporary term and one temporary sum per coefficient, and
++        # the master rebuilds this model at every one of its iterations.
++        objective = solver.Objective()
++        for coefficient, variable in zip(obj_coeff.tolist(), variables, strict=False):
++            objective.SetCoefficient(variable, coefficient)
++        objective.SetMinimization()
+         # add inequality constraints
+         for cc, lb, ub in zip(
+             ineq_lhs, -inf * ones_like(ineq_rhs), ineq_rhs, strict=False
+         ):
+-            constraint = sum(c * x for c, x in zip(cc, variables, strict=False))
++            coefficients = cc.tolist()
+             if not isinf(lb):
+-                solver.Add(constraint >= lb)
++                self.__add_row(solver, variables, coefficients, lb, solver.infinity())
+             if not isinf(ub):
+-                solver.Add(constraint <= ub)
++                self.__add_row(solver, variables, coefficients, -solver.infinity(), ub)
+         # add equality constraints with eq. tolerance
+         for cc, lb, ub in zip(
+             eq_lhs,
+@@ -143,11 +184,11 @@ class OrtoolsMILP(BaseOptimizationLibrary[OrtoolsMilp_Settings]):
+             eq_rhs + self._settings.eq_tolerance,
+             strict=False,
+         ):
+-            constraint = sum(c * x for c, x in zip(cc, variables, strict=False))
++            coefficients = cc.tolist()
+             if not isinf(lb):
+-                solver.Add(constraint >= lb)
++                self.__add_row(solver, variables, coefficients, lb, solver.infinity())
+             if not isinf(ub):
+-                solver.Add(constraint <= ub)
++                self.__add_row(solver, variables, coefficients, -solver.infinity(), ub)
+         # |g| is in charge of ensuring max iterations, since it may
+         # have a different definition of iterations, such as for SLSQP
+         # for instance which counts duplicate calls to x as a new iteration
+diff --git a/tests/algos/opt/test_milp_model_construction.py b/tests/algos/opt/test_milp_model_construction.py
+new file mode 100644
+index 0000000..2b69242
+--- /dev/null
++++ b/tests/algos/opt/test_milp_model_construction.py
+@@ -0,0 +1,216 @@
++# Copyright 2021 IRT Saint Exupéry, https://www.irt-saintexupery.com
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU Lesser General Public
++# License version 3 as published by the Free Software Foundation.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++# Lesser General Public License for more details.
++#
++# You should have received a copy of the GNU Lesser General Public License
++# along with this program; if not, write to the Free Software Foundation,
++# Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
++"""The model `OrtoolsMILP` hands to the solver, row by row.
++
++The rows are built by setting each coefficient on the solver's own constraint
++rather than by accumulating a Python expression, which is a change of how the
++model is built and not of what it is. What these tests pin is the "not of what
++it is" half: that a coefficient still reaches the variable it belongs to, that a
++zero still means the variable is absent from the row, and that the equality
++tolerance still widens the row on both sides.
++
++A coefficient landing one variable off is the failure mode a faster row builder
++invites, and it is invisible in a problem whose rows are all alike, so the
++problems here are asymmetric on purpose: every coefficient is distinct and the
++optimum moves if any of them is misplaced.
++
++Every problem carries an inequality *and* an equality, the pinning of ``t``
++being there for no other reason. That is not a property of the change either:
++`_run` reads ``eq_rhs - eq_tolerance`` and ``ineq_rhs`` without guarding
++either, and `build_constraints_matrices` returns ``None`` for a kind of
++constraint the problem does not have, so a problem carrying only one kind
++raises a `TypeError` before any row is built. Older than this change, and
++untouched by it.
++"""
++
++from __future__ import annotations
++
++import pytest
++from gemseo.algos.design_space import DesignSpace
++from gemseo.algos.opt.factory import OptimizationLibraryFactory
++from gemseo.algos.optimization_problem import OptimizationProblem
++from gemseo.core.mdo_functions.mdo_function import MDOFunction
++from gemseo.core.mdo_functions.mdo_linear_function import MDOLinearFunction
++from numpy import array
++from numpy import zeros
++from numpy.random import default_rng
++from numpy.testing import assert_allclose
++
++ALGORITHMS = ["ORTOOLS_MILP", "Scipy_MILP"]
++
++
++def _binary_space(size: int) -> DesignSpace:
++    """Return a design space of binary variables, plus a continuous one.
++
++    The continuous ``t`` is not decoration. The master's own design space mixes
++    the one-hot binaries with a continuous epigraph variable, so this matches
++    it; and an all-integer design space does not reach the solver at all today,
++    ``get_value_and_bounds`` returning integer-typed bounds that
++    ``Solver.IntVar`` rejects as its ``double`` arguments. That is a fault of
++    its own, older than this change and untouched by it.
++
++    ``t`` carries a coefficient of zero in every row and a positive one in every
++    objective, so it is driven to zero and moves no optimum here.
++
++    Args:
++        size: The number of binary variables.
++
++    Returns:
++        The design space.
++    """
++    design_space = DesignSpace()
++    for index in range(size):
++        design_space.add_variable(
++            f"x{index}",
++            lower_bound=0.0,
++            upper_bound=1.0,
++            value=0,
++            type_=design_space.DesignVariableType.INTEGER,
++        )
++    design_space.add_variable("t", lower_bound=0.0, upper_bound=1.0, value=0.0)
++    return design_space
++
++
++@pytest.mark.parametrize("algo_name", ALGORITHMS)
++def test_a_zero_coefficient_leaves_its_variable_out_of_the_row(algo_name):
++    """A zero coefficient frees its variable without displacing the others.
++
++    Minimising $-3x_0 - 2x_1 - x_2$ over binaries under
++    $x_0 + 0x_1 + x_2 \\le 1$ leaves $x_1$ unconstrained and makes the row pick
++    the better of $x_0$ and $x_2$, so the optimum is $[1, 1, 0]$ at $-5$.
++
++    Were the zero dropped rather than skipped, the row would read
++    $x_0 + x_2 \\le 1$ against the *first two* variables, giving $[1, 0, 1]$ at
++    $-4$: the same number of coefficients, shifted by one variable.
++    """
++    names = ["x0", "x1", "x2", "t"]
++    problem = OptimizationProblem(_binary_space(3), is_linear=True)
++    problem.objective = MDOLinearFunction(
++        array([-3.0, -2.0, -1.0, 1.0]), "f", MDOFunction.FunctionType.OBJ, names
++    )
++    problem.add_constraint(
++        MDOLinearFunction(array([1.0, 0.0, 1.0, 0.0]), "g", input_names=names),
++        1.0,
++        MDOFunction.ConstraintType.INEQ,
++    )
++    problem.add_constraint(
++        MDOLinearFunction(array([0.0, 0.0, 0.0, 1.0]), "pin", input_names=names),
++        0.0,
++        MDOFunction.ConstraintType.EQ,
++    )
++    result = OptimizationLibraryFactory().execute(problem, algo_name=algo_name)
++    assert_allclose(result.x_opt, array([1.0, 1.0, 0.0, 0.0]))
++    assert result.f_opt == pytest.approx(-5.0)
++
++
++@pytest.mark.parametrize("algo_name", ALGORITHMS)
++def test_an_all_zero_row_constrains_nothing(algo_name):
++    """A row of zeros is a row the solver may be told nothing about.
++
++    Skipping every coefficient of a row leaves an empty constraint, and an empty
++    constraint with a finite bound must still be satisfiable rather than render
++    the problem infeasible.
++    """
++    names = ["x0", "x1", "x2", "t"]
++    problem = OptimizationProblem(_binary_space(3), is_linear=True)
++    problem.objective = MDOLinearFunction(
++        array([-1.0, -1.0, -1.0, 1.0]), "f", MDOFunction.FunctionType.OBJ, names
++    )
++    problem.add_constraint(
++        MDOLinearFunction(zeros(4), "g", input_names=names),
++        1.0,
++        MDOFunction.ConstraintType.INEQ,
++    )
++    problem.add_constraint(
++        MDOLinearFunction(array([0.0, 0.0, 0.0, 1.0]), "pin", input_names=names),
++        0.0,
++        MDOFunction.ConstraintType.EQ,
++    )
++    result = OptimizationLibraryFactory().execute(problem, algo_name=algo_name)
++    assert result.f_opt == pytest.approx(-3.0)
++
++
++@pytest.mark.parametrize("algo_name", ALGORITHMS)
++def test_the_equality_row_binds_on_both_sides(algo_name):
++    """An equality is two bounds, and dropping either one loses the constraint.
++
++    $x_0 + x_1 + x_2 = 2$ over binaries, minimising $-3x_0 - 2x_1 - x_2$, gives
++    $[1, 1, 0]$ at $-5$. Keeping only the lower bound would let all three rise
++    to $-6$; keeping only the upper would let all three fall to $0$.
++    """
++    names = ["x0", "x1", "x2", "t"]
++    problem = OptimizationProblem(_binary_space(3), is_linear=True)
++    problem.objective = MDOLinearFunction(
++        array([-3.0, -2.0, -1.0, 1.0]), "f", MDOFunction.FunctionType.OBJ, names
++    )
++    problem.add_constraint(
++        MDOLinearFunction(array([1.0, 1.0, 1.0, 0.0]), "h", input_names=names),
++        2.0,
++        MDOFunction.ConstraintType.EQ,
++    )
++    problem.add_constraint(
++        MDOLinearFunction(array([1.0, 1.0, 1.0, 0.0]), "slack", input_names=names),
++        3.0,
++        MDOFunction.ConstraintType.INEQ,
++    )
++    result = OptimizationLibraryFactory().execute(problem, algo_name=algo_name)
++    assert_allclose(result.x_opt, array([1.0, 1.0, 0.0, 0.0]))
++    assert result.f_opt == pytest.approx(-5.0)
++
++
++@pytest.mark.parametrize("seed", range(8))
++def test_ortools_agrees_with_scipy_on_a_dense_model(seed):
++    """The two libraries return the same optimum on a model with no structure.
++
++    The master's own rows are dense and its coefficients are all different, so
++    the check that matters is a dense model with distinct coefficients rather
++    than a tidy one. Only the objective value is compared: a tie between two
++    designs is the solvers' to break as they please.
++    """
++    rng = default_rng(seed)
++    size, n_rows = 6, 5
++    names = [f"x{index}" for index in range(size)]
++    names.append("t")
++    matrix = zeros((n_rows, size + 1))
++    matrix[:, :size] = rng.normal(size=(n_rows, size))
++    # A row that is entirely absent from the model, and one that is half absent.
++    matrix[0] = 0.0
++    matrix[1, :size:2] = 0.0
++    coefficients = zeros(size + 1)
++    coefficients[:size] = rng.normal(size=size)
++    coefficients[size] = 1.0
++    optima = []
++    for algo_name in ALGORITHMS:
++        problem = OptimizationProblem(_binary_space(size), is_linear=True)
++        problem.objective = MDOLinearFunction(
++            coefficients, "f", MDOFunction.FunctionType.OBJ, names
++        )
++        for row in range(n_rows):
++            problem.add_constraint(
++                MDOLinearFunction(matrix[row], f"g{row}", input_names=names),
++                1.0,
++                MDOFunction.ConstraintType.INEQ,
++            )
++        pinned = zeros(size + 1)
++        pinned[size] = 1.0
++        problem.add_constraint(
++            MDOLinearFunction(pinned, "pin", input_names=names),
++            0.0,
++            MDOFunction.ConstraintType.EQ,
++        )
++        optima.append(
++            OptimizationLibraryFactory().execute(problem, algo_name=algo_name).f_opt
++        )
++    assert optima[0] == pytest.approx(optima[1])
+-- 
+2.43.0
+

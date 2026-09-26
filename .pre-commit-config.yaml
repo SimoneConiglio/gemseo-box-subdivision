@@ -1,3 +1,11 @@
+# `contrib/` holds artifacts of another project, verbatim: patches that must
+# apply with `git am`, and issue and merge-request bodies that are pasted into
+# its tracker. Stamping this project's licence headers onto them would put the
+# wrong copyright upstream and show up in the tickets, and trimming whitespace
+# or fixing the end of a `.patch` corrupts the patch itself. They are formatted
+# by, and checked against, the project they are going to.
+exclude: ^contrib/
+
 repos:
 
 - repo: https://github.com/pre-commit/pre-commit-hooks

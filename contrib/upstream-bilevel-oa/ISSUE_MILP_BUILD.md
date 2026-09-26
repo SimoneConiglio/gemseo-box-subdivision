@@ -1,0 +1,163 @@
+# The master rebuilds its MILP in Python, at every iteration
+
+**Project** `gemseo/dev/gemseo-bilevel-outer-approximation`
+**Measured on** `develop` at `1279c11076e136a1991057c7fb1970e9d7d74d41`, with
+`gemseo` 6.3.3, `ortools` via `pywraplp`, Linux, CPython 3.11.
+**Severity** performance only. No result changes.
+**Fix** proposed, see the merge request. Suite: 387 passed, 462 skipped, 1 xfailed.
+
+## Summary
+
+`OrtoolsMILP._run` builds the master's model from scratch on every iteration of
+the outer approximation, and builds each constraint row by accumulating a Python
+expression:
+
+```python
+constraint = sum(c * x for c, x in zip(cc, variables, strict=False))
+```
+
+That allocates a temporary product and a temporary sum per coefficient. The
+coefficients arrive as **NumPy scalars**, so each `c * x` dispatches through
+NumPy's operator machinery before reaching `pywraplp`'s. The rows are dense and
+the cut set grows as the run proceeds, so the cost is paid again and again over
+a matrix that keeps getting bigger.
+
+On a five-variable box-subdivision master, 51 variables:
+
+| rebuild | inequality block | density | Python terms |
+| --------- | ------------------ | --------- | -------------- |
+| first | 5×51 | 82% | 510 |
+| 38th | 43×51 | 94% | 2448 |
+| last (76th) | 80×51 | 82% | 4335 |
+
+**184,110 terms over one run of 76 rebuilds.** The profiler counts the
+generator on line 134 alone 167,960 times.
+
+## What it costs
+
+Timed in situ, where the measurement covers `build_constraints_matrices`, the
+variable creation and the solver setup as well as the rows:
+
+| problem | wall | MILP | of which CBC | of which the Python build |
+| --------- | ------ | ------ | -------------- | --------------------------- |
+| Rastrigin | 12.94 | 78.5% | 65.8% | **12.7%** |
+| Ackley | 16.85 | 72.6% | 58.2% | **14.3%** |
+| Griewank | 12.97 | 78.3% | 66.1% | **12.3%** |
+| `partly_multimodal` | 1.48 | 45.3% | 25.7% | **19.3%** |
+
+So roughly an eighth of a run, and a fifth of a short one, is spent building the
+model rather than solving it.
+
+## The measurement that isolates it
+
+Building an 80×51 block of rows, twenty repetitions:
+
+| how | per build | |
+| ----- | ----------- | --- |
+| `sum(c * x ...)` over NumPy scalars, as now | 27.7ms | — |
+| the same over `tolist()` | 8.7ms | 3.2x |
+| `solver.Sum` over `tolist()` | 7.9ms | 3.5x |
+| `RowConstraint` + `SetCoefficient` | **2.5ms** | **11x** |
+
+Two separate costs, then. About two thirds of it is NumPy scalar dispatch,
+which `tolist()` alone removes; the rest is the expression tree, which only
+setting the coefficients directly removes.
+
+Note what is *not* the problem: the rows are 82–94% dense, so this is not a
+sparsity question and skipping zeros is not where the gain is.
+
+## Fix
+
+Set the coefficients on the solver's own objective and on a `RowConstraint` per
+row. One row is still added per finite bound, in the same order, so an equality
+still becomes the same two rows it did before. See the merge request.
+
+## Not included: rebuilding at all
+
+The deeper cost is that the model is rebuilt from scratch every iteration when
+the master mostly *appends* a cut. Caching the solver across iterations would
+remove the rest, but the existing rows are not obviously append-only — the
+convexification repair rewrites coefficients — so it needs a maintainer's
+judgement about when a cached model may be reused. Left alone here.
+
+## A correctness fault in the same function: the integrality is guessed
+
+Not a performance matter, and the most serious thing here. `_run` decides which
+variables are integers from their **current value** rather than from the design
+space that declares them:
+
+```python
+values = problem.design_space.get_current_value()
+integrality = array([isinf(x) or x is None or not mod(x, 1) for x in values])
+```
+
+A continuous variable whose value happens to land on a whole number — or on an
+infinity — is handed to `Solver.IntVar` for that solve.
+
+The master's own design space is 50 binaries (`alpha`) and **one continuous**
+epigraph variable (`eta`), and `eta` carries the lower bound on the objective
+that the convergence test reads. Over one five-variable box-subdivision run,
+**28 of the 76 MILP builds — 37% — made `eta` an integer**, so more than a
+third of the master's solves had their lower bound rounded to a whole number.
+
+## What it is not: two fixes that both make things worse
+
+Both obvious repairs were implemented and measured, and **neither should be
+taken**. They are recorded because each one rules out a whole approach.
+
+**Reading the declared types instead.** This breaks the library: `191 failed,
+204 passed`. `CatalogueDesignSpace.add_categorical_variable` declares its
+one-hot components with `type_=self.DesignVariableType.FLOAT`, deliberately —
+the sub-problems and the convexification relax them — and their *values* being
+whole is what makes them binaries of the master. **The inference is
+load-bearing, not merely sloppy.** Declaring the one-hot components
+`INTEGER` instead does not rescue it: that is the `191 failed` above.
+
+**Requiring finite bounds as well.** This keeps the one-hot components integral
+(bounds `[0, 1]`, values whole) and stops `eta` (bounds infinite) from ever
+becoming one, which is precisely the defect. The full suite comes back to `1
+failed`, and the one failure is `test_kocis_grossman`:
+
+| | `x_opt` | `f_opt` |
+| --- | --------- | --------- |
+| as-is | `[1, 0, 0, 1, 0, 1]`, i.e. (y1,y2,y3) = (0,1,1) | **7.66752** |
+| finite bounds | `[1, 0, 1, 0, 1, 0]`, i.e. (0,0,0) | **8.47643** |
+
+7.66752 is the published optimum and checks out by hand — x1 = 1.118,
+x2 = 1.310 from the two equalities, all three inequalities slack. The fix
+loses it. On five box-subdivision problems the same change is neutral, the
+optima identical and only Rastrigin's path moving (1337 evaluations to 1394),
+so it is not that the guard is wrong in general — it is that **something in the
+outer approximation is currently relying on the epigraph variable being
+rounded**, and rounding a lower bound up prunes.
+
+That is the part a maintainer has to decide, and it is why this is reported
+rather than patched. The master should be *told* which of its variables are
+binaries rather than inferring it, but changing that also removes an accidental
+tightening that at least one benchmark depends on.
+
+### Why this matters beyond the master
+
+`pywraplp`'s `SAT_INTEGER_PROGRAMMING` backend does not reject a continuous
+variable either — it rounds it and reports `OPTIMAL`. On one of the captured
+master models CBC returns eta = -32.98478 and CP-SAT returns -32.0, and
+CP-SAT's answer satisfies every row. Anyone reaching for CP-SAT here for its
+speed (four to ten times faster on these models) would get a different
+problem's answer, silently. Worth a guard wherever a backend is chosen.
+
+## Two more unrelated faults, found while testing
+
+Neither is touched by the merge request; both are reachable on `develop`.
+
+1. **An all-integer design space cannot be solved.** `get_value_and_bounds`
+   returns integer-typed bounds, and `Solver.IntVar(xl, xu, name)` rejects a
+   NumPy integer for its `double` arguments:
+   `TypeError: in method 'Solver_IntVar', argument 2 of type 'double'`.
+   A `float()` at the call site would close it. The master never hits this, its
+   design space carrying a continuous epigraph variable.
+2. **A problem with only one kind of constraint raises before any row is
+   built.** `build_constraints_matrices` returns `None` for the absent kind,
+   and `_run` then evaluates `eq_rhs - self._settings.eq_tolerance`:
+   `TypeError: unsupported operand type(s) for -: 'NoneType' and 'float'`.
+   The existing `test_milp.py` fixture carries both kinds, so the suite does
+   not reach it.
