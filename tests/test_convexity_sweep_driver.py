@@ -33,6 +33,7 @@ from numpy import geomspace
 from numpy import zeros
 
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
+from gemseo_box_subdivision import settings as settings_module
 from gemseo_box_subdivision._convexity_sweep_driver import _DELEGATE
 from gemseo_box_subdivision._convexity_sweep_driver import _probe
 from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
@@ -97,13 +98,20 @@ def test_the_master_is_restored_after_an_error() -> None:
     assert core.OuterApproximationOptimizer._solve_milp is original
 
 
-def test_the_settings_drive_the_master_that_cannot_sweep() -> None:
+def test_the_settings_drive_the_master_that_cannot_sweep(monkeypatch) -> None:
     """Check that a swept run patches the master where the master has no sweep.
 
     This is what makes the unbounded form work at all: the bound is the spread of
     the objective, which only something watching the run can compute, and the
     master's own default convexity is zero.
+
+    This drives the master from outside, so it forces
+    :data:`.MASTER_SWEEPS_CONVEXITY` off: against a master that ships the sweep
+    :meth:`.SweptBoxSubdivisionSettings.drive_the_master` rightly does nothing,
+    and there would be no driving to check. What is under test is the fallback,
+    which is reached by the master installed rather than by the settings.
     """
+    monkeypatch.setattr(settings_module, "MASTER_SWEEPS_CONVEXITY", False)
     original = core.OuterApproximationOptimizer._solve_milp
     with SweptBoxSubdivisionSettings().drive_the_master():
         assert core.OuterApproximationOptimizer._solve_milp is not original
@@ -223,14 +231,23 @@ def test_the_boxes_found_infeasible_carry_a_scale_too() -> None:
     assert all(guard > 0.0 for guard in guards), guards
 
 
-def test_the_master_is_driven_whichever_way_the_scenario_is_executed() -> None:
+def test_the_master_is_driven_whichever_way_the_scenario_is_executed(
+    monkeypatch,
+) -> None:
     """Check that settings given to ``execute`` do not bypass the driving.
 
     A caller overriding a setting of the master still needs the sweep: what the
     run supplies its master is not one of the settings the caller is overriding,
     and a swept run reaching the master without it solves at a convexity of zero.
     The benchmark harness takes exactly this path, passing a settings model.
+
+    This drives the master from outside, so it forces
+    :data:`.MASTER_SWEEPS_CONVEXITY` off: against a master that ships the sweep
+    :meth:`.SweptBoxSubdivisionSettings.drive_the_master` rightly does nothing,
+    and there would be no driving to check. What is under test is the fallback,
+    which is reached by the master installed rather than by the settings.
     """
+    monkeypatch.setattr(settings_module, "MASTER_SWEEPS_CONVEXITY", False)
     from gemseo import create_design_space
     from gemseo import create_discipline
     from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
