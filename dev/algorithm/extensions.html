@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=94ec66f4"></script>
+    <script src="../_static/documentation_options.js?v=4b0e4f5c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -782,10 +782,8 @@ set falls into six intervals along each axis, the estimator returns <span class=
 component and reports the ladder <strong>converged</strong>, because the objective really
 does have one basin. The one-sided guarantee still holds; it holds about the
 wrong function. Stress-constrained sizing and topology problems are the case
-that matters here, and <code class="docutils literal notranslate"><span class="pre">estimate_basins</span></code> should not be pointed at one. What a
-constraint-aware estimand would look like — the minima of <span class="math notranslate nohighlight">\(f\)</span> restricted to each
-maximal feasible interval, which counts a disconnected feasible set and an
-active-set corner alike — is being taken up separately.</p>
+that matters here, and <code class="docutils literal notranslate"><span class="pre">estimate_basins</span></code> should not be pointed at one. The
+constraint-aware estimand is below.</p>
 <p>That expectation is a Monte Carlo integral over <strong>axial line scans</strong>: draw an
 anchor at random, sweep one component across its bounds, count the minima deep
 enough to matter. A space-filling design does not serve here — averaging it over
@@ -998,6 +996,79 @@ three problems whose proposal to trust from the one whose proposal to discard.</
 <p>Ackley also confirms that the budget is not what binds it. Granted <span class="math notranslate nohighlight">\(50\,240\)</span>
 evaluations it stops at <span class="math notranslate nohighlight">\(5372\)</span>, on its own trust region or stall counter, exactly
 as <a class="reference internal" href="#does-more-budget-change-the-answer">the budget re-runs</a> found.</p>
+</section>
+<section id="where-the-basins-are-the-constraint-s">
+<h3>Where the basins are the constraint’s<a class="headerlink" href="#where-the-basins-are-the-constraint-s" title="Link to this heading">#</a></h3>
+<p>Pass a constraint and what is counted stops being the basins of the objective
+and becomes the basins of the problem: the minima of <span class="math notranslate nohighlight">\(f\)</span> <strong>restricted to the
+feasible set</strong>. Along a line that set is a union of intervals, so the count
+decomposes, and <code class="docutils literal notranslate"><span class="pre">count_minima_over_feasible</span></code> is that decomposition — within each
+maximal feasible interval the minima the prominence gate keeps, and for an
+interval holding none the interval itself, whose minimum sits on a boundary.</p>
+<p>That boundary case is the point rather than a tidy-up. A minimum pinned where an
+interval ends is a minimum pinned where the <strong>active set changes</strong>, and it is a
+basin the subdivision must separate exactly as an interior one is. One rule
+therefore covers both of the ways a constraint makes a problem multimodal: a
+feasible set in pieces, and an optimum held against a constraint active on one
+side of it only.</p>
+<p>On the landscape that defeated the objective-only scan — a mass, monotone along
+every line, under a limit feasible where <span class="math notranslate nohighlight">\(\cos(\pi x_j) \le 1/2\)</span>, which over a
+range of ten is six intervals per axis:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>proposed <span class="math notranslate nohighlight">\(m\)</span></p></th>
+<th class="head"><p>ladder</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>objective only</p></td>
+<td><p><span class="math notranslate nohighlight">\((1, 1, 1)\)</span></p></td>
+<td><p>converged</p></td>
+</tr>
+<tr class="row-odd"><td><p>with the constraint</p></td>
+<td><p><span class="math notranslate nohighlight">\((6, 6, 6)\)</span></p></td>
+<td><p>converged</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Two details decide whether this is honest rather than merely different.</p>
+<p><strong>The gate is read against the line, not against the piece.</strong> A narrow feasible
+sliver at the bottom of a bowl holds ripples that are enormous relative to the
+sliver and negligible relative to the problem; measured against the sliver they
+are ten basins, and against the range of the whole scan, one. So the range is
+passed down to <code class="docutils literal notranslate"><span class="pre">count_minima</span></code> rather than recomputed per interval.</p>
+<p><strong>An infeasible line is not one basin.</strong> An anchor drawn at random can put a
+whole line outside the feasible set, and such a line carries no information
+rather than the information that there is a single basin. Those are redrawn, up
+to <code class="docutils literal notranslate"><span class="pre">FEASIBLE_ANCHOR_ATTEMPTS</span></code> per line, and a component that never meets the
+constraint raises <code class="docutils literal notranslate"><span class="pre">NoFeasibleScanError</span></code> instead of returning a count — because
+the count it would return is exactly the confident wrong answer this section
+exists to remove. This is not hypothetical: the first run of the experiment above
+reported zero feasible segments, the off-axis anchor having sat outside the
+constraint.</p>
+<section id="what-this-still-does-not-reach">
+<h4>What this still does not reach<a class="headerlink" href="#what-this-still-does-not-reach" title="Link to this heading">#</a></h4>
+<p>Stress-constrained sizing and topology are the motivating case, and three limits
+are worth stating plainly rather than discovering later.</p>
+<p><strong>The parameterisation.</strong> Subdividing a field of <span class="math notranslate nohighlight">\(10^4\)</span> to <span class="math notranslate nohighlight">\(10^6\)</span> element
+densities is not a thing this method does, and the scan cost is
+<span class="math notranslate nohighlight">\(n_\text{lines} \times n_\text{points} \times n\)</span> evaluations, each a solve. This
+transfers to a <strong>reduced</strong> space — component positions, sizing, material or
+layout choices — not to a raw density field.</p>
+<p><strong>Boundaries that are not axis aligned.</strong> A stress-feasible region is rarely a
+slab normal to a design variable. An axial scan across a diagonal boundary sees
+many short intervals and overcounts, or threads a gap and undercounts. The
+weakness is materially worse here than for an objective, where averaging over
+anchors is a defensible main effect; feasibility along a line depends on the
+anchor far more strongly than a value does.</p>
+<p><strong>Singular optima.</strong> In stress-constrained topology optimisation the true
+optimum can lie in a degenerate subdomain of the feasible set, reachable only
+under <span class="math notranslate nohighlight">\(\varepsilon\)</span>- or <span class="math notranslate nohighlight">\(qp\)</span>-relaxation (Cheng and Guo, 1997; Duysinx and
+Bendsøe, 1998). Those branches carry no volume, so no sampling of feasibility
+will ever land on them. That one is not a matter of spending more points.</p>
+</section>
 </section>
 <section id="why-the-scan-is-irregular">
 <h3>Why the scan is irregular<a class="headerlink" href="#why-the-scan-is-irregular" title="Link to this heading">#</a></h3>
@@ -1891,6 +1962,10 @@ when done by partitioning the design space.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#does-more-budget-change-the-answer">Does more budget change the answer?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estimating-the-density-instead-of-supplying-it">Estimating the density instead of supplying it</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-proposal-is-worth">What the proposal is worth</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-basins-are-the-constraint-s">Where the basins are the constraint’s</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-this-still-does-not-reach">What this still does not reach</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-scan-is-irregular">Why the scan is irregular</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-trust-region-that-closes-and-the-patience-it-needs">The trust region that closes, and the patience it needs</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-was-actually-losing-ackley-the-margin-not-the-density">What was actually losing Ackley: the margin, not the density</a></li>
