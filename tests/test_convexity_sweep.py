@@ -441,6 +441,13 @@ def test_a_swept_scenario_will_not_run_a_master_it_cannot_sweep(monkeypatch) -> 
     The wiring is what the guarantee rests on: a swept run executed with settings
     of the caller's own must still reach its master with the sweep, and where
     those settings have no room for it, must say so rather than run unswept.
+
+    The settings passed are a master **predating the sweep**, built from the
+    released ones without the two fields the sweep is carried in. Naming the
+    released class outright is what this used to do, and it stopped testing
+    anything the day the master shipped the sweep and began declaring them:
+    there was then nothing left to refuse. Deriving the stand-in keeps the
+    refusal under test against either master.
     """
     from gemseo import create_design_space
     from gemseo import create_discipline
@@ -469,6 +476,18 @@ def test_a_swept_scenario_will_not_run_a_master_it_cannot_sweep(monkeypatch) -> 
         settings=SweptBoxSubdivisionSettings(),
     )
 
+    predating_the_sweep = create_model(
+        "PreSweepMaster_Settings",
+        **{
+            name: (field.annotation, field.default)
+            for name, field in (
+                BiLevelMasterOuterApproximation_Settings.model_fields.items()
+            )
+            if not name.startswith("convexity_sweep")
+        },
+    )
+    assert "convexity_sweep_points" not in predating_the_sweep.model_fields
+
     _install_a_sweeping_master(monkeypatch)
     with pytest.raises(ValueError, match=r"which this run needs of it"):
-        scenario.execute(BiLevelMasterOuterApproximation_Settings(max_iter=2))
+        scenario.execute(predating_the_sweep(max_iter=2))

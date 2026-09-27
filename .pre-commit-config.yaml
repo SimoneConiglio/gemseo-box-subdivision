@@ -59,11 +59,10 @@ repos:
   rev: v0.45.0
   hooks:
   - id: markdownlint
-    args: [
-      --fix,
-      --disable,
-      MD024,
-      ]
+    # No `--disable` here: it takes a list, so it swallowed the file names
+    # pre-commit appends and markdownlint linted nothing at all, printing its
+    # usage and exiting 0. Rules are turned off in `.markdownlint.yml`.
+    args: [--fix]
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks
   rev: v1.5.5

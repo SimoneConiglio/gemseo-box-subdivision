@@ -80,8 +80,9 @@ refining past them degrades the result rather than merely costing more.
 Where the subdivision does not resolve the basins, other methods do better. At a
 small budget, the regime this method targets, **Bayesian optimization explores
 the hard multimodal cases better than it does**, at a hundred times its cost in
-its own time. The
-[results](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/benchmark.html) report both sides.
+its own time. The [results] report both sides.
+
+[results]: https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/benchmark.html
 
 ## Two settings decide a run
 
