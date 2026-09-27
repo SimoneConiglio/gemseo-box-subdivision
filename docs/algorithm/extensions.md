@@ -233,10 +233,8 @@ set falls into six intervals along each axis, the estimator returns $m = 1$ per
 component and reports the ladder **converged**, because the objective really
 does have one basin. The one-sided guarantee still holds; it holds about the
 wrong function. Stress-constrained sizing and topology problems are the case
-that matters here, and `estimate_basins` should not be pointed at one. What a
-constraint-aware estimand would look like — the minima of $f$ restricted to each
-maximal feasible interval, which counts a disconnected feasible set and an
-active-set corner alike — is being taken up separately.
+that matters here, and `estimate_basins` should not be pointed at one. The
+constraint-aware estimand is below.
 
 That expectation is a Monte Carlo integral over **axial line scans**: draw an
 anchor at random, sweep one component across its bounds, count the minima deep
@@ -319,6 +317,73 @@ three problems whose proposal to trust from the one whose proposal to discard.
 Ackley also confirms that the budget is not what binds it. Granted $50\,240$
 evaluations it stops at $5372$, on its own trust region or stall counter, exactly
 as [the budget re-runs](#does-more-budget-change-the-answer) found.
+
+### Where the basins are the constraint's
+
+Pass a constraint and what is counted stops being the basins of the objective
+and becomes the basins of the problem: the minima of $f$ **restricted to the
+feasible set**. Along a line that set is a union of intervals, so the count
+decomposes, and `count_minima_over_feasible` is that decomposition — within each
+maximal feasible interval the minima the prominence gate keeps, and for an
+interval holding none the interval itself, whose minimum sits on a boundary.
+
+That boundary case is the point rather than a tidy-up. A minimum pinned where an
+interval ends is a minimum pinned where the **active set changes**, and it is a
+basin the subdivision must separate exactly as an interior one is. One rule
+therefore covers both of the ways a constraint makes a problem multimodal: a
+feasible set in pieces, and an optimum held against a constraint active on one
+side of it only.
+
+On the landscape that defeated the objective-only scan — a mass, monotone along
+every line, under a limit feasible where $\cos(\pi x_j) \le 1/2$, which over a
+range of ten is six intervals per axis:
+
+| | proposed $m$ | ladder |
+| --- | -------------- | -------- |
+| objective only | $(1, 1, 1)$ | converged |
+| with the constraint | $(6, 6, 6)$ | converged |
+
+Two details decide whether this is honest rather than merely different.
+
+**The gate is read against the line, not against the piece.** A narrow feasible
+sliver at the bottom of a bowl holds ripples that are enormous relative to the
+sliver and negligible relative to the problem; measured against the sliver they
+are ten basins, and against the range of the whole scan, one. So the range is
+passed down to `count_minima` rather than recomputed per interval.
+
+**An infeasible line is not one basin.** An anchor drawn at random can put a
+whole line outside the feasible set, and such a line carries no information
+rather than the information that there is a single basin. Those are redrawn, up
+to `FEASIBLE_ANCHOR_ATTEMPTS` per line, and a component that never meets the
+constraint raises `NoFeasibleScanError` instead of returning a count — because
+the count it would return is exactly the confident wrong answer this section
+exists to remove. This is not hypothetical: the first run of the experiment above
+reported zero feasible segments, the off-axis anchor having sat outside the
+constraint.
+
+#### What this still does not reach
+
+Stress-constrained sizing and topology are the motivating case, and three limits
+are worth stating plainly rather than discovering later.
+
+**The parameterisation.** Subdividing a field of $10^4$ to $10^6$ element
+densities is not a thing this method does, and the scan cost is
+$n_\text{lines} \times n_\text{points} \times n$ evaluations, each a solve. This
+transfers to a **reduced** space — component positions, sizing, material or
+layout choices — not to a raw density field.
+
+**Boundaries that are not axis aligned.** A stress-feasible region is rarely a
+slab normal to a design variable. An axial scan across a diagonal boundary sees
+many short intervals and overcounts, or threads a gap and undercounts. The
+weakness is materially worse here than for an objective, where averaging over
+anchors is a defensible main effect; feasibility along a line depends on the
+anchor far more strongly than a value does.
+
+**Singular optima.** In stress-constrained topology optimisation the true
+optimum can lie in a degenerate subdomain of the feasible set, reachable only
+under $\varepsilon$- or $qp$-relaxation (Cheng and Guo, 1997; Duysinx and
+Bendsøe, 1998). Those branches carry no volume, so no sampling of feasibility
+will ever land on them. That one is not a matter of spending more points.
 
 ### Why the scan is irregular
 

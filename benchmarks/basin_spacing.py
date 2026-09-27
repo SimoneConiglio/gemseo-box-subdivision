@@ -136,6 +136,16 @@ handful of anchors is enough because what varies between lines is which basins
 are visible, not how many there are.
 """
 
+FEASIBLE_ANCHOR_ATTEMPTS: Final[int] = 20
+"""The anchors to try per line before giving a component up as infeasible.
+
+Only used when a constraint is supplied. An anchor drawn at random can put a
+whole line outside the feasible set, and such a line carries no information
+rather than the information that there is one basin, so it is redrawn. Twenty
+attempts per line is enough for a feasible set of a few percent of the box and
+cheap enough to be worth spending before raising.
+"""
+
 DEPTH_RATIO: Final[float] = 0.02
 """The depth below which a minimum is not counted, as a fraction of the range.
 
@@ -255,7 +265,11 @@ class BasinEstimate:
         return self.n_binaries * COST_PER_SUB_PROBLEM
 
 
-def count_minima(values: ndarray, depth_ratio: float = DEPTH_RATIO) -> int:
+def count_minima(
+    values: ndarray,
+    depth_ratio: float = DEPTH_RATIO,
+    span: float | None = None,
+) -> int:
     """Count the local minima of a scan that are deep enough to be basins.
 
     A minimum is kept when its **topographic prominence** exceeds
@@ -279,11 +293,16 @@ def count_minima(values: ndarray, depth_ratio: float = DEPTH_RATIO) -> int:
         values: The objective values along the scan.
         depth_ratio: The prominence below which a minimum is not counted, as a
             fraction of the range of the scan.
+        span: The range to measure the prominence against. If ``None``, the
+            range of ``values``. A feasible piece of a line is measured against
+            the range of the **whole** line, so that a sliver of feasible space
+            does not have its own ripples promoted to basins by being narrow.
 
     Returns:
         The number of basins seen, at least one.
     """
-    span = float(values.max() - values.min())
+    if span is None:
+        span = float(values.max() - values.min())
     if span <= 0.0:
         return 1
 
@@ -307,6 +326,64 @@ def count_minima(values: ndarray, depth_ratio: float = DEPTH_RATIO) -> int:
     return max(kept, 1)
 
 
+class NoFeasibleScanError(RuntimeError):
+    """Raised when no scan of a component met the constraint anywhere.
+
+    Returning a count would be the failure this whole estimator exists to
+    avoid: a confident number standing for a landscape nothing was learnt
+    about. A line drawn through an infeasible anchor carries no information at
+    all, and if every anchor is infeasible the caller needs a feasible point
+    rather than a subdivision.
+    """
+
+
+def count_minima_over_feasible(
+    values: ndarray,
+    feasible: ndarray,
+    depth_ratio: float = DEPTH_RATIO,
+) -> int:
+    """Count the basins of a scan restricted to where a constraint holds.
+
+    The basins of a constrained problem along a line are not the basins of its
+    objective. They are the minima of the objective **restricted to the feasible
+    set**, and along a line that set is a union of intervals, so the count
+    decomposes: within each maximal feasible interval, the minima the prominence
+    gate keeps; and, for an interval holding none, the interval itself, whose
+    minimum sits on a boundary.
+
+    That boundary is the point of it. A minimum pinned where an interval ends is
+    a minimum pinned where the **active set changes**, and it is a basin the
+    subdivision has to separate exactly as an interior one is. So the same rule
+    counts both of the ways a constraint makes a problem multimodal: a feasible
+    set in several pieces, and an optimum held against a constraint that is
+    active on one side of it and not the other.
+
+    The prominence of an interior minimum is measured against the range of the
+    **whole** line rather than of its interval, so that a narrow feasible sliver
+    does not have its ripples promoted by being narrow.
+
+    Args:
+        values: The objective values along the scan.
+        feasible: Whether the constraint holds at each point of the scan.
+        depth_ratio: The prominence gate, as a fraction of the range.
+
+    Returns:
+        The number of basins of the restricted problem, at least one.
+    """
+    span = float(values.max() - values.min())
+    total = 0
+    start = None
+    for index, is_feasible in enumerate(feasible):
+        if is_feasible and start is None:
+            start = index
+        elif not is_feasible and start is not None:
+            total += count_minima(values[start:index], depth_ratio, span)
+            start = None
+    if start is not None:
+        total += count_minima(values[start:], depth_ratio, span)
+    return max(total, 1)
+
+
 def scan_axis(
     objective: Callable[[ndarray], ndarray],
     lower_bound: float,
@@ -318,6 +395,7 @@ def scan_axis(
     n_lines: int = N_LINES,
     depth_ratio: float = DEPTH_RATIO,
     jitter: bool = True,
+    constraint: Callable[[ndarray], ndarray] | None = None,
 ) -> float:
     """Count the basins along one component, from anchors drawn at random.
 
@@ -340,7 +418,12 @@ def scan_axis(
     """
     span = upper_bound - lower_bound
     counts = []
-    for _ in range(n_lines):
+    # An anchor that puts the whole line outside the constraint teaches nothing,
+    # so with a constraint the draws continue until enough lines have met it.
+    attempts = 0
+    budget = n_lines * (FEASIBLE_ANCHOR_ATTEMPTS if constraint is not None else 1)
+    while len(counts) < n_lines and attempts < budget:
+        attempts += 1
         if jitter:
             abscissae = sort(lower_bound + rng.random(n_points) * span)
         else:
@@ -350,7 +433,22 @@ def scan_axis(
 
         points = tile(lower_bound + rng.random(dimension) * span, (n_points, 1))
         points[:, axis] = abscissae
-        counts.append(count_minima(objective(points), depth_ratio))
+        values = objective(points)
+        if constraint is None:
+            counts.append(count_minima(values, depth_ratio))
+            continue
+
+        feasible = constraint(points) <= 0.0
+        if not feasible.any():
+            continue
+        counts.append(count_minima_over_feasible(values, feasible, depth_ratio))
+
+    if not counts:
+        msg = (
+            f"No scan of component {axis} met the constraint, over {attempts} "
+            f"anchors. A feasible point is wanted before a subdivision is."
+        )
+        raise NoFeasibleScanError(msg)
 
     return median(counts)
 
@@ -366,6 +464,7 @@ def estimate_basins(
     ladder: Sequence[int] = LADDER,
     growth_tolerance: float = GROWTH_TOLERANCE,
     jitter: bool = True,
+    constraint: Callable[[ndarray], ndarray] | None = None,
 ) -> BasinEstimate:
     """Propose a number of subdivisions per component, by refining a ladder.
 
@@ -396,6 +495,11 @@ def estimate_basins(
         ladder: The numbers of points per scan to try, coarsest first.
         growth_tolerance: The relative growth below which the ladder stops.
         jitter: Whether to draw the abscissae at random.
+        constraint: The constraint, evaluated over a matrix of points and
+            feasible where it is not positive -- the worst violation, where
+            there are several. If given, the basins counted are those of the
+            objective **restricted to the feasible set**, which is what a
+            problem whose multimodality comes from its constraints has.
 
     Returns:
         The proposed density, and whether the ladder converged on it.
@@ -418,6 +522,7 @@ def estimate_basins(
                     n_lines,
                     depth_ratio,
                     jitter,
+                    constraint,
                 )
             )
             for axis in range(dimension)
