@@ -32,7 +32,6 @@ whatever the cost, the first thing to spend is budget, and the choices compared
 here would have to be re-ranked at that larger budget.
 :::
 
-
 ## Against the enumeration of the boxes
 
 The reference is the **enumeration**: solving the sub-problem of every box. It is

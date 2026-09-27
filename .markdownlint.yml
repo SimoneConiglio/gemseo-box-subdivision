@@ -2,6 +2,9 @@
 MD013:
   # Number of characters for code blocks
   code_block_line_length: 100
+  # A table row cannot be wrapped without breaking the table, and the tables in
+  # docs/algorithm/ carry measurements rather than prose.
+  tables: false
 
 # MD024/no-duplicate-heading/no-duplicate-header - Multiple headings with the same content
 MD024:
