@@ -1,14 +1,19 @@
 # MD013/line-length - Line length
 MD013:
-  # Number of characters for code blocks
-  code_block_line_length: 100
+  # Number of characters for code blocks. A fully qualified module path of
+  # `gemseo-bilevel-outer-approximation` is 107 characters on its own, and an
+  # example that cannot be pasted is worth less than a short line.
+  code_block_line_length: 110
   # A table row cannot be wrapped without breaking the table, and the tables in
   # docs/algorithm/ carry measurements rather than prose.
   tables: false
 
-# MD024/no-duplicate-heading/no-duplicate-header - Multiple headings with the same content
-MD024:
-  allow_different_nesting: true
+# MD024/no-duplicate-heading/no-duplicate-header - Multiple headings with the
+# same content. Off rather than nesting-aware: a changelog repeats `Added`,
+# `Fixed` and `Changed` once per release, which is the shape it should have.
+# Disabled here rather than on the hook's command line, where `--disable` is
+# variadic and swallows the file names pre-commit appends.
+MD024: false
 
 # MD041/first-line-heading/first-line-h1 - First line in a file should be a top-level heading
 MD041: false

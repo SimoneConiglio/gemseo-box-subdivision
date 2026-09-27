@@ -432,7 +432,7 @@ it is written:
 
 | written as | named | why one writes it |
 |------------|-------|-------------------|
-| `constraint_name="g_upper"` | `g_upper` | a band $|r| \le h$, as two inequalities on one output |
+| `constraint_name="g_upper"` | `g_upper` | a band $\vert r \vert \le h$, two inequalities on one output |
 | `positive=True` | `-g` | a constraint of the other sense |
 | `value=0.5` | `[g-0.5]` | a bound that is not zero |
 
