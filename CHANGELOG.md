@@ -26,7 +26,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.3.0 (2026-09-27)
 
 ### Fixed
 
@@ -36,7 +36,45 @@ and this project adheres to
   the design space a current value covering part of its variables, which it
   rejects. The variables that are not subdivided keep the value they have.
 
+- The `markdownlint` pre-commit hook checked nothing at all. Its `--disable`
+  takes a list of rules, so it consumed the file names `pre-commit` appends;
+  `markdownlint` then printed its usage and exited 0, and the hook reported
+  passing. The rule it disables moves into `.markdownlint.yml`, leaving nothing
+  variadic on the command line.
+
+- A table of *Using the method* dropped part of a row when rendered. It writes
+  an absolute value with bars, and Markdown reads those as cell delimiters —
+  five cells against a header of three — so everything after them was missing
+  from the published page. Written `\vert` the row is three cells again.
+
 ### Added
+
+- `benchmarks/basin_spacing.py`, which **proposes the number of subdivisions
+  per variable** instead of requiring it declared. The density was the one
+  setting with no default and no way for a caller to choose it well. The
+  estimand is not a wavelength, which a general objective does not have per
+  direction, but the expected number of minima along an axial line, which is
+  exactly what the subdivision has to separate: jittered scans per component,
+  minima kept by **topographic prominence** so a ripple riding a bowl is not a
+  basin of its own, and a ladder of scan rates whose **failure to converge is
+  information** rather than an error — on these problems it is the signal that
+  routes a landscape to a hierarchy instead of a flat subdivision. The
+  abscissae are drawn at random because an even scan resonates with a regular
+  landscape: a uniform ladder reports a single basin for Ackley, twice running,
+  which any stopping rule reads as convergence.
+
+- A `constraint` for that estimator, because scanning the objective is an
+  assumption about **where the multimodality lives**. Where the basins are cut
+  by non-convex constraints — a feasible set in pieces, or a minimum pinned
+  wherever the active set changes — a scan of the objective sees none of them
+  and does not report that it has not: a mass, monotone along every line, under
+  a limit feasible on six intervals per axis, returned one subdivision per
+  component with the ladder marked converged. Given a constraint, what is
+  counted is the minima of the objective **restricted to the feasible set**,
+  which along a line decomposes into its feasible intervals, so a disconnected
+  feasible set and an active-set corner are counted by the same rule. An
+  infeasible line raises `NoFeasibleScanError` rather than counting as one
+  basin, that being the confident wrong answer the change exists to remove.
 
 - `BoxSubdivisionScenario.scenario_adapter_cls`, the adapter running the
   sub-problem of a box, which is where its **starting point** is decided. The
@@ -60,8 +98,6 @@ and this project adheres to
   names `[g-0.5]`. The message names the limitation and the way around it, a
   `LinearCombination` giving each side its own discipline output.
 
-### Added
-
 - `find_renamed_constraints`, `check_constraint_names` and
   `guard_renamed_constraints`, which read and enforce that rule, for a
   composition built by hand rather than through `BoxSubdivisionScenario`.
@@ -75,7 +111,39 @@ and this project adheres to
   indistinguishable from a run the margin governed well: what rejects a box is
   the `is_feasible` gate, so no value of the margin would have admitted one.
 
+- `keep_couplings_internal` and `keep_every_mda_couplings_internal`, which do
+  that to an MDA, for a composition built without the scenario.
+
 ### Documentation
+
+- *Estimating the density instead of supplying it*, reporting the estimator
+  above and four findings about configuring the method that it turned up: the
+  convexity margin is **absolute, in the units of the objective**, and the
+  calibrated hundred is 690 % of the range Ackley spans and 2045 % of
+  Griewank's, which are exactly the two problems that never reach the optimum,
+  so it was the margin losing Ackley and not the density; the patience of the
+  master has to move with the trust region, holding the region open at its
+  floor while leaving the stall count at ten costing Rastrigin its result; the
+  number of trust-region probes is **not monotone**, four working, six not and
+  ten working everywhere, on both encodings; and `number_of_processes` buys
+  nothing here, the work being identical at one, two and four processes for a
+  speed-up between 0.74 and 1.00, since the fan-out covers about a tenth of a
+  run while roughly three quarters of it is the master's own MILP. One earlier
+  reading is retracted in place rather than dropped.
+
+- What the estimator does **not** reach, stress-constrained sizing and topology
+  being the case that asks: a raw density field is neither something this
+  method subdivides nor affordable to scan; a stress-feasible region is rarely
+  a slab normal to a design variable, and an axial scan across a diagonal
+  boundary overcounts or threads it; and a singular optimum lies in a
+  degenerate part of the feasible set that carries no volume, so no sampling of
+  feasibility will land on it.
+
+- Where each fault found in the master while profiling these runs went, as
+  issues 7 to 11 of `gemseo-bilevel-outer-approximation`. Which master is
+  installed is not cosmetic: the benchmark asserts that a run's outcome is
+  identical at one process and at four, which is false without the first of
+  them.
 
 - *What the margin reaches, and what it does not*, with the repair written out:
   the margin is subtracted from differences of objective value over the whole
@@ -105,13 +173,6 @@ and this project adheres to
   couplings are internal, and the derivative that is no longer asked for is
   zero: a coupling enters an MDA as an initial guess and leaves it converged,
   and a converged fixed point does not depend on where the iteration started.
-
-### Added
-
-- `keep_couplings_internal` and `keep_every_mda_couplings_internal`, which do
-  that to an MDA, for a composition built without the scenario.
-
-### Documentation
 
 - *Coupled problems: the disciplines are chained*, saying that the disciplines
   are chained and that a coupled problem therefore needs its MDA built
