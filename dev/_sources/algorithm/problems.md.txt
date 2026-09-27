@@ -37,17 +37,18 @@ subdividing the space.
 
 ## What each one tests
 
-**Rastrigin** (Rastrigin, 1974; Törn and Žilinskas, 1989) is the hard case for a subdivision: its local
-minima are about **one unit apart** over a range of ten, so there are about
+**Rastrigin** (Rastrigin, 1974; Törn and Žilinskas, 1989) is the hard case for
+a subdivision: its local minima are about **one unit apart** over a range of
+ten, so there are about
 $10^n$ of them, and a box only holds one when the subdivision is fine.
 
 **Ackley** (Ackley, 1987) has a single broad basin over a range of sixty,
 covered with a fine ripple. A coarse box is multimodal and a fine one is almost
 flat, which makes the ranking of the boxes hard for either reason.
 
-**Styblinski-Tang** (Styblinski and Tang, 1990) has **two basins per variable**, so
-$2^n$ of them, deep and well separated. This is the landscape the method is
-built for, and the one it solves at the lowest cost.
+**Styblinski-Tang** (Styblinski and Tang, 1990) has **two basins per
+variable**, so $2^n$ of them, deep and well separated. This is the landscape
+the method is built for, and the one it solves at the lowest cost.
 
 **Griewank** (Griewank, 1981) is a paraboloid of range about two covered with
 a product of cosines: its minima are dense but almost equal, so nothing short of

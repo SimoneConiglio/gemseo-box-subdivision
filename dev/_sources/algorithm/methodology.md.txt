@@ -167,6 +167,7 @@ fact drives the whole implementation, and the two formulations below are the two
 ways of living with it.
 
 (formulations)=
+
 ## The trust region of the master
 
 The master does not choose among all the boxes at every iteration: it restricts
@@ -248,8 +249,9 @@ g_{\text{box}}(x, \alpha) =
 \begin{bmatrix} x - u(\alpha) \\ \ell(\alpha) - x \end{bmatrix} \le 0 .
 $$
 
-The dependency on $\alpha$ now travels through $\lambda_g^\top \partial g/\partial \alpha$,
-and the slope is exact and analytic:
+The dependency on $\alpha$ now travels through
+$\lambda_g^\top \partial g/\partial \alpha$, and the slope is exact and
+analytic:
 
 $$
 \frac{\mathrm{d} u}{\mathrm{d} \alpha_{j,k}}
@@ -293,6 +295,7 @@ in quality: under the same master settings the normalized formulation reaches th
 optimum from every starting point and the constraint one from all but one.
 
 (convexification)=
+
 ## Convexification
 
 Outer-approximation cuts are supporting hyperplanes **only if $u$ is convex**. On
@@ -348,7 +351,8 @@ In practice the term is never evaluated: only the **slope** of each cut is
 corrected, by $\nabla(\kappa C)$,
 
 $$
-s^{(i)} \leftarrow s^{(i)} + \frac{\kappa}{n_{\text{comp}}}\left(2\alpha^{(i)} - 1\right),
+s^{(i)} \leftarrow s^{(i)}
+  + \frac{\kappa}{n_{\text{comp}}}\left(2\alpha^{(i)} - 1\right),
 $$
 
 which at an integer $\alpha^{(i)}$ tilts the hyperplane by $\pm\kappa/n_{\text{comp}}$
@@ -581,9 +585,10 @@ reach within the same budget: a basin **too broad for the densities that budget
 affords**. Ackley's single basin spans a range of sixty, and the deep hierarchy,
 splitting each variable in two four times over, reaches its optimum from four
 starting points out of six against two for the flat subdivision at its best
-density, both having stopped on their own criteria rather than on their budget. Each of its levels carries only $2n$
-coefficients, so a quarter of the budget is enough to determine one, and the
-resolution reached is $2^4$ per variable without any level ever being large.
+density, both having stopped on their own criteria rather than on their
+budget. Each of its levels carries only $2n$ coefficients, so a quarter of the
+budget is enough to determine one, and the resolution reached is $2^4$ per
+variable without any level ever being large.
 
 The measured behaviour of the three shapes, and of the two scores, is in
 [annex D](extensions.md#the-hierarchies).

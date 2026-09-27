@@ -19,7 +19,6 @@ Everything here is measured on the problems of
 [the appendix](problems.md), from eight starting points in two dimensions and
 three in five, so it is evidence about these landscapes rather than a rule.
 
-
 ## The master has two mechanisms, and they must not be combined
 
 Outer-approximation cuts are supporting hyperplanes only if the value function is
@@ -36,7 +35,6 @@ measuring them together measures neither.
 :class: only-dark
 :alt: A cut that over-predicts the value at the next box
 ```
-
 
 `convexification`
 : adds to the objective a convex term vanishing at the integer points. Once its
