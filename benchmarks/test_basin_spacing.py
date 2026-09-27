@@ -27,6 +27,7 @@ import logging
 
 import pytest
 from numpy import array
+from numpy import atleast_2d
 from numpy import cos
 from numpy import linspace
 from numpy import pi
@@ -34,7 +35,9 @@ from numpy import sum as np_sum
 
 from benchmarks.basin_spacing import DEFAULT_STALL
 from benchmarks.basin_spacing import DIMENSION
+from benchmarks.basin_spacing import NoFeasibleScanError
 from benchmarks.basin_spacing import count_minima
+from benchmarks.basin_spacing import count_minima_over_feasible
 from benchmarks.basin_spacing import estimate_basins
 from benchmarks.basin_spacing import group_by_density
 from benchmarks.basin_spacing import run_at_density
@@ -257,3 +260,109 @@ def test_objective_is_the_problem():
         np_sum(10.0 + head**2 - 10.0 * cos(2.0 * pi * head)) + np_sum(tail**2)
     )
     assert problem.objective(point) == pytest.approx(expected)
+
+
+LOWER, UPPER = -5.0, 5.0
+
+
+def _mass(points):
+    """A mass-like objective: linear, so monotone along every line."""
+    return atleast_2d(points).sum(axis=1)
+
+
+def _disconnected(points):
+    r"""A stress-like limit whose feasible set falls into pieces on each axis.
+
+    Feasible where $\\cos(\\pi x) \\le 1/2$ in every component, which over a range
+    of ten is six intervals per axis.
+    """
+    return (cos(pi * atleast_2d(points)) - 0.5).max(axis=1)
+
+
+def test_the_objective_alone_cannot_see_a_constraint_driven_landscape():
+    """The failure this is for, pinned so it is not mistaken for a result.
+
+    A mass is monotone along every line, so its scan finds one basin and is
+    right about the objective. The constrained problem has six per axis. The
+    estimate is not merely wrong, it is **confident**: the ladder converges,
+    because there is nothing in the objective for a finer scan to find.
+    """
+    estimate = estimate_basins(_mass, LOWER, UPPER, dimension=3, seed=0)
+    assert estimate.n_subdivisions == (1, 1, 1)
+    assert estimate.converged
+
+
+def test_the_feasible_pieces_are_counted_when_the_constraint_is_given():
+    """Given the constraint, the same landscape reports the density it needs."""
+    estimate = estimate_basins(
+        _mass, LOWER, UPPER, dimension=3, seed=0, constraint=_disconnected
+    )
+    assert estimate.n_subdivisions == (6, 6, 6)
+
+
+def test_an_empty_feasible_set_raises_rather_than_answering():
+    """No feasible scan is not the same as one basin, and must not read as one.
+
+    A line drawn through an infeasible anchor carries no information. Were such
+    a line counted, it would count as a single basin and the estimate would come
+    back exactly as it does with no constraint at all -- the confident wrong
+    answer this is meant to remove.
+    """
+    with pytest.raises(NoFeasibleScanError, match="feasible point"):
+        estimate_basins(
+            _mass,
+            LOWER,
+            UPPER,
+            dimension=3,
+            seed=0,
+            constraint=lambda points: atleast_2d(points)[:, 0] * 0.0 + 1.0,
+        )
+
+
+def test_a_boundary_minimum_is_a_basin():
+    """An interval whose objective is monotone still holds one basin.
+
+    Its minimum sits where the interval ends, which is where the active set
+    changes, and the subdivision has to separate it exactly as it would an
+    interior one. Three feasible pieces under a monotone objective are three.
+    """
+    values = linspace(0.0, 10.0, 300)
+    feasible = array([False] * 300)
+    feasible[10:50] = True
+    feasible[100:140] = True
+    feasible[200:240] = True
+    assert count_minima_over_feasible(values, feasible) == 3
+
+
+def test_interior_minima_are_counted_within_a_piece():
+    """A single feasible piece holding three dips is worth three, not one.
+
+    401 points rather than a round 900: an even grid can straddle a minimum so
+    that no descent is followed by an ascent, and this same cosine counts two at
+    900 points and three at 401 or 901. That is the aliasing the estimator draws
+    its abscissae at random to avoid, showing up here in miniature.
+    """
+    abscissae = linspace(0.0, 1.0, 401)
+    values = cos(2.0 * pi * 3.0 * abscissae)
+    feasible = array([True] * 401)
+    assert count_minima_over_feasible(values, feasible) == 3
+
+
+def test_a_narrow_feasible_sliver_does_not_promote_its_ripples():
+    """The prominence gate is read against the line, not against the piece.
+
+    Ripples a thousandth of the line's range deep are not basins the
+    subdivision has to separate. Measured against the range of the sliver they
+    live in they would look like the whole landscape, which is why the range of
+    the scan is passed down rather than recomputed per piece.
+    """
+    abscissae = linspace(-10.0, 10.0, 4001)
+    # The tilt is not decoration. Without it the two lowest ripples tie exactly,
+    # and `count_minima` holds a minimum open on every side to be worth the whole
+    # range, so both survive any gate. That is a property of the prominence rule
+    # rather than of the narrowness this test is about.
+    values = abscissae**2 + 0.05 * cos(40.0 * pi * abscissae) + 0.002 * abscissae
+    feasible = abs(abscissae) < 0.25  # a sliver at the bottom of the bowl
+    assert count_minima_over_feasible(values, feasible) == 1
+    # Against the sliver's own range those same ten ripples are all basins.
+    assert count_minima(values[feasible]) == 10
