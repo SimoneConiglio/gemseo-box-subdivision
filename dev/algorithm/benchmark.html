@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=4b0e4f5c"></script>
+    <script src="../_static/documentation_options.js?v=0c52ac17"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -896,7 +896,94 @@ so it belongs to the subdivision and not to the master.</p>
 <p>So the useful density sits between the basins and the binaries, and <strong>no single
 value serves all four problems</strong>: ten is best for three of them and worst for the
 fourth. The default of <code class="docutils literal notranslate"><span class="pre">benchmarks/baselines.py</span></code> bounds the enumeration rather
-than guessing, and the density is the first thing to sweep on a new problem.</p>
+than guessing.</p>
+<section id="proposing-it-rather-than-sweeping-it">
+<h3>Proposing it rather than sweeping it<a class="headerlink" href="#proposing-it-rather-than-sweeping-it" title="Link to this heading">#</a></h3>
+<p>That leaves the density as the one setting a caller has to find by trial, and it
+need not be. Counting the basins along jittered axial scans of each component
+proposes one, by the construction
+<a class="reference internal" href="methodology.html#where-the-density-comes-from"><span class="std std-ref">the methodology</span></a> sets out. Each
+problem below is granted four times the budget its own proposal implies, so every
+run ends on its own criterion; three starting points, median gap and cost:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>problem</p></th>
+<th class="head"><p>proposed <span class="math notranslate nohighlight">\(m\)</span></p></th>
+<th class="head"><p>binaries</p></th>
+<th class="head"><p>gap</p></th>
+<th class="head"><p>cost</p></th>
+<th class="head"><p>reached</p></th>
+<th class="head"><p>better fixed density</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Rastrigin</p></td>
+<td><p>10 ×5</p></td>
+<td><p>50</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
+<td><p>2103</p></td>
+<td><p><strong>3/3</strong></p></td>
+<td><p>ties 10, beats 2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Styblinski-Tang</p></td>
+<td><p>2 ×5</p></td>
+<td><p>10</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
+<td><p>458</p></td>
+<td><p><strong>2/3</strong></p></td>
+<td><p>ties 2, beats 10</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code></p></td>
+<td><p>10 10 1 1 1</p></td>
+<td><p>23</p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
+<td><p><strong>858</strong></p></td>
+<td><p><strong>3/3</strong></p></td>
+<td><p><strong>beats both</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>Griewank</p></td>
+<td><p>19 13 11 7 9</p></td>
+<td><p>59</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.064\)</span></p></td>
+<td><p>3463</p></td>
+<td><p>1/3</p></td>
+<td><p>ties 2, loses to 10</p></td>
+</tr>
+<tr class="row-even"><td><p>Ackley</p></td>
+<td><p>63 ×5, <em>unresolved</em></p></td>
+<td><p>314</p></td>
+<td><p><span class="math notranslate nohighlight">\(12.75\)</span></p></td>
+<td><p>5372</p></td>
+<td><p>0/3</p></td>
+<td><p>loses to 10</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>On every problem whose ladder resolved, the proposal picks the better of the
+two fixed densities</strong>, and on one it beats both: <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code> reaches the
+optimum from every starting point for <span class="math notranslate nohighlight">\(858\)</span> evaluations against <span class="math notranslate nohighlight">\(1554\)</span> at a flat
+ten, by leaving its three unimodal components unsubdivided. The two reversals
+this page is built around — ten for Rastrigin, two for Styblinski-Tang — both
+come out right without being told, and no fixed value gets both.</p>
+<p><strong>The budget the proposal implies is about right.</strong> <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> sub-problems
+predicts <span class="math notranslate nohighlight">\(2000\)</span> against <span class="math notranslate nohighlight">\(2103\)</span> measured on Rastrigin, <span class="math notranslate nohighlight">\(400\)</span> against <span class="math notranslate nohighlight">\(458\)</span> on
+Styblinski-Tang, <span class="math notranslate nohighlight">\(920\)</span> against <span class="math notranslate nohighlight">\(858\)</span> on <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code>: within a third on
+each, which is what the coefficients-to-cuts ratio
+<a class="reference internal" href="#the-density-of-the-subdivision-decides">above</a> implies.</p>
+<p><strong>And the row it gets wrong is the row it flags.</strong> Ackley’s ladder does not
+settle, and its proposal of sixty-three is worse than a flat ten. Its ripples are
+a unit apart over a range of sixty-four, so separating them is correct as a count
+and useless as a subdivision: what has to be resolved there is the funnel, not the
+texture on it. The estimate reports itself unresolved <em>in advance</em>, which is the
+part worth having — it separates the proposals to trust from the one to discard,
+and it is the same signal that routes such a problem to a hierarchy.</p>
+<p>What the estimate reads is the <strong>objective</strong>. A problem whose basins are cut by
+non-convex constraints instead returns a single subdivision per component and
+reports itself settled, the objective there genuinely having one basin;
+<a class="reference internal" href="extensions.html#where-the-constraints-cut-the-basins"><span class="std std-ref">annex D</span></a> gives the
+constraint-aware count and the limits it does not pass.</p>
+</section>
 </section>
 <section id="sweeping-the-convexity-rather-than-supplying-it">
 <h2>Sweeping the convexity rather than supplying it<a class="headerlink" href="#sweeping-the-convexity-rather-than-supplying-it" title="Link to this heading">#</a></h2>
@@ -1046,7 +1133,10 @@ budget buys nothing at all: both configurations stop on their own caps.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-enumeration-of-the-boxes">Against the enumeration of the boxes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-baselines">Against the baselines</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#at-a-budget-every-method-can-afford">At a budget every method can afford</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-density-of-the-subdivision-decides">The density of the subdivision decides</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-density-of-the-subdivision-decides">The density of the subdivision decides</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proposing-it-rather-than-sweeping-it">Proposing it rather than sweeping it</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sweeping-the-convexity-rather-than-supplying-it">Sweeping the convexity rather than supplying it</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-extensions-and-what-they-are-worth">The extensions, and what they are worth</a></li>
 </ul>

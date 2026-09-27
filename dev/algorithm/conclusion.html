@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=4b0e4f5c"></script>
+    <script src="../_static/documentation_options.js?v=0c52ac17"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -511,6 +511,14 @@ reach of every baseline here, is solved over <span class="math notranslate nohig
 <li><p>subdividing only the variables the objective is multimodal in solves a problem
 that subdividing every variable coarsely does not, and loses when the
 multimodality is spread over all of them;</p></li>
+<li><p>the density need not be supplied: counting the basins along jittered axial
+scans proposes one, and on every problem whose ladder settled it picks the
+better of the two fixed densities tried, beating both on the problem with
+unimodal components to leave alone. The two reversals the benchmark is built
+around come out right without being told. Its error is one sided by
+construction, so a ladder that does not settle is a <strong>flag rather than a
+wrong answer</strong>, and on Ackley that flag is what marks the one proposal to
+discard;</p></li>
 <li><p>the trust region has to be <strong>tight</strong> and measured in components changed: a
 radius of two solves Rastrigin at five variables from every starting point,
 where the diameter of the design space reaches it from two out of six and no
@@ -578,12 +586,24 @@ where it is argued.</p></li>
 <h2>Where this can go<a class="headerlink" href="#where-this-can-go" title="Link to this heading">#</a></h2>
 <p>Five directions follow from the measurements above, in the order in which they
 would pay.</p>
-<p><strong>A subdivision that follows the basins.</strong> Everything on this page turns on the
-subdivision resolving the basins of the landscape, and the method has no way of
-knowing their spacing. Estimating it, from the curvature at a first sampling or
-from the failures of the local solves themselves, would replace the one setting
-that is tuned by hand and would say, at the same time, which variables deserve
-subdividing at all.</p>
+<p><strong>A subdivision that follows the basins the constraints cut.</strong> Counting basins
+along axial scans settled the first half of this: the density is proposed rather
+than tuned, and the proposal says which variables deserve subdividing at all.
+What it reads is the <strong>objective</strong>, which is an assumption about where the
+multimodality lives rather than a property of the method, and the assumption
+fails in the worst way available — silently. A mass-like objective under a
+non-convex constraint returns one subdivision per component and reports itself
+settled, because the objective really does have one basin.</p>
+<p>The constraint-aware count exists and is the right estimand — the minima of <span class="math notranslate nohighlight">\(f\)</span>
+restricted to each maximal feasible interval, which counts a disconnected
+feasible set and an active-set corner by one rule — but three things stand
+between it and a stress-constrained problem, and only the first is a matter of
+effort. A raw density field is neither something this method subdivides nor
+affordable to scan, so it wants a reduced parameterisation. A stress-feasible
+region is rarely a slab normal to a design variable, and an axial scan across a
+diagonal boundary overcounts or threads it. And a singular optimum lies in a
+degenerate part of the feasible set that carries no volume, so no sampling of
+feasibility will land on it at all.</p>
 <p><strong>Finishing the convexity nobody has to calibrate.</strong> The margin and the constant
 are absolute quantities in the units of the objective, which was the criticism
 this method had not answered; the sweep answers it, and the answer is measured

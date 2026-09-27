@@ -47,7 +47,8 @@ and how a box is refined.
 :link-type: doc
 
 Against the enumeration of the boxes, against multistart, CMA-ES and DIRECT,
-what the density decides, and what the extensions are worth.
+what the density decides, how it is proposed rather than swept, and what the
+extensions are worth.
 :::
 
 :::{grid-item-card} Conclusion

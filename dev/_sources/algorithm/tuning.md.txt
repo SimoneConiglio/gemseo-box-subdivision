@@ -441,6 +441,14 @@ mechanism at all: it is the **density** of the subdivision, swept in
 [the benchmark](benchmark.md#the-density-of-the-subdivision-decides). The
 mechanism is the second, and the two interact.
 
+That first knob can be read off the landscape rather than turned. Counting the
+basins along jittered axial scans of each component proposes a density, and on
+every problem whose ladder settled it picks the better of the two densities this
+annex compares — see
+[proposing it rather than sweeping it](benchmark.md#proposing-it-rather-than-sweeping-it).
+What follows still matters, because the proposal fixes the density and not the
+mechanism, and the table below is what the mechanism does at each of them.
+
 ### The mechanism, at the two densities that matter
 
 Equal budget of $2500$, three starting points, the trust region at its default

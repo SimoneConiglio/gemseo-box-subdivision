@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=4b0e4f5c"></script>
+    <script src="../_static/documentation_options.js?v=0c52ac17"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -853,6 +853,70 @@ local solve returns the basin it starts in. It therefore solves a problem whose
 multimodality is concentrated in a few variables, and loses on one that is
 multimodal in all of them.</p>
 </section>
+<section id="where-the-density-comes-from">
+<h2>Where the density comes from<a class="headerlink" href="#where-the-density-comes-from" title="Link to this heading">#</a></h2>
+<p>Everything above turns on the subdivision resolving the basins of the landscape,
+and <span class="math notranslate nohighlight">\(m_j\)</span> is the one setting with no default: too coarse and a box holds several
+minima, too fine and it holds none, and
+<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the results</span></a> show no single
+value serving four problems. It can be estimated from the objective rather than
+supplied.</p>
+<p>The quantity to estimate is <strong>not a wavelength</strong>. A general objective has none
+per direction: the restriction of <span class="math notranslate nohighlight">\(f\)</span> to a line along <span class="math notranslate nohighlight">\(e_j\)</span> has a spectrum that
+depends on where the line is, so a period is not a property of the problem. What
+is well defined for any <span class="math notranslate nohighlight">\(C^1\)</span> objective is the expected number of minima along
+such a line,</p>
+<div class="math notranslate nohighlight">
+\[
+N_j = \mathbb{E}_{x_\perp}\big[\#\{t : \partial_j f(x_\perp + t e_j) = 0,\
+\partial_{jj} f &gt; 0\}\big],
+\]</div>
+<p>which is exactly what a subdivision of the <span class="math notranslate nohighlight">\(j\)</span>-th component has to separate, so
+<span class="math notranslate nohighlight">\(m_j = N_j\)</span> without a conversion. That expectation is a Monte Carlo integral over
+<strong>axial line scans</strong>: fix an anchor <span class="math notranslate nohighlight">\(x_\perp\)</span> at random, sweep one component
+across its bounds, count the minima deep enough to matter.</p>
+<p>A space-filling design does not serve in its place. Averaging one over the other
+components estimates the ANOVA main effect <span class="math notranslate nohighlight">\(\mathbb{E}[f \mid x_j]\)</span>, and
+multimodality carried by interaction does not survive that average — neither
+Griewank’s, a product over every component, nor Ackley’s, inside a norm.</p>
+<p>Which minima count is a question about <strong>depth, not curvature</strong>. A dip is kept
+when its topographic prominence exceeds a fraction of the range of the scan,
+prominence measured against the <strong>key saddle</strong>: walking outwards until the scan
+drops below the dip again, the highest point crossed is what closes the basin,
+and the shallower of the two sides is what the basin is worth. Measured instead
+against the highest ground anywhere to each side, every ripple inside a bowl
+looks as deep as the bowl. A component whose objective carries no dip deep enough
+is proposed a single subdivision, which is how
+<a class="reference internal" href="#subdividing-some-variables-only">a partial refinement</a> is reached from the
+landscape rather than declared.</p>
+<p>The abscissae are drawn <strong>at random along the line</strong>. An evenly spaced scan
+resonates with a regular landscape, and the failure is not a wrong count but a
+confident one: on Ackley, whose ripples are about a unit apart, a uniform ladder
+reports a single basin at two consecutive rates, which any stopping rule reads as
+convergence.</p>
+<p>The error of such an estimate is <strong>one sided</strong>. A scan reveals the basins it
+resolves and never more, so no finite sample bounds the roughness of an objective
+from below: a ladder of scan rates can certify that a landscape has at least this
+many basins and never that it has no more. That is a property worth keeping
+rather than hiding, because a ladder that does not settle is the signal that
+per-basin boxing is the wrong target — which is the case
+<a class="reference internal" href="#hierarchies-of-subdivisions">the hierarchies</a> exist for, and on these problems
+the flag routes them correctly.</p>
+<p>Where the basins are cut by <strong>constraints</strong> instead, the same construction
+applies to a different function. The minima to count are those of <span class="math notranslate nohighlight">\(f\)</span> restricted
+to the feasible set, and along a line that set is a union of intervals, so the
+count decomposes: within each maximal feasible interval the minima the gate
+keeps, and for an interval holding none the interval itself, whose minimum lies
+on a boundary — which is to say wherever the <strong>active set changes</strong>. One rule
+therefore covers a feasible set in pieces and an optimum held against a
+constraint alike.</p>
+<p>This does assume the multimodality is somewhere the scan looks. Given only the
+objective, a landscape whose basins are the constraints’ returns a single
+subdivision per component and reports the ladder settled, because the objective
+really does have one basin. <a class="reference internal" href="extensions.html#estimating-the-density-instead-of-supplying-it"><span class="std std-ref">Annex D</span></a>
+reports what the estimate is worth on the benchmark problems, and what it does
+not reach.</p>
+</section>
 <section id="hierarchies-of-subdivisions">
 <h2>Hierarchies of subdivisions<a class="headerlink" href="#hierarchies-of-subdivisions" title="Link to this heading">#</a></h2>
 <p>A subdivision fine enough to resolve the basins spends its budget over the whole
@@ -1133,6 +1197,7 @@ a class of mixed-integer nonlinear programs.</em> Mathematical Programming, 36(3
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subdividing-some-variables-only">Subdividing some variables only</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-density-comes-from">Where the density comes from</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hierarchies-of-subdivisions">Hierarchies of subdivisions</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scoring-a-box">Scoring a box</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#three-shapes">Three shapes</a></li>

@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=4b0e4f5c"></script>
+    <script src="../_static/documentation_options.js?v=0c52ac17"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -1007,6 +1007,13 @@ there does not carry over unchanged. At five variables the first knob is not the
 mechanism at all: it is the <strong>density</strong> of the subdivision, swept in
 <a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a>. The
 mechanism is the second, and the two interact.</p>
+<p>That first knob can be read off the landscape rather than turned. Counting the
+basins along jittered axial scans of each component proposes a density, and on
+every problem whose ladder settled it picks the better of the two densities this
+annex compares — see
+<a class="reference internal" href="benchmark.html#proposing-it-rather-than-sweeping-it"><span class="std std-ref">proposing it rather than sweeping it</span></a>.
+What follows still matters, because the proposal fixes the density and not the
+mechanism, and the table below is what the mechanism does at each of them.</p>
 <section id="the-mechanism-at-the-two-densities-that-matter">
 <h3>The mechanism, at the two densities that matter<a class="headerlink" href="#the-mechanism-at-the-two-densities-that-matter" title="Link to this heading">#</a></h3>
 <p>Equal budget of <span class="math notranslate nohighlight">\(2500\)</span>, three starting points, the trust region at its default
