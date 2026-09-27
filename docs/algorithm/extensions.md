@@ -222,6 +222,22 @@ N_j = \mathbb{E}_{x_\perp}\big[\#\{t : \partial_j f(x_\perp + t e_j) = 0,\
 $$
 
 which is exactly what the subdivision has to separate, so $m_j = N_j$ directly.
+
+**This assumes the multimodality is in the objective**, and that assumption is
+the estimator's boundary rather than a detail of it. Where the basins are cut
+instead by **non-convex constraints** — a disconnected feasible set, or a
+minimum pinned wherever the active set changes — a scan of $f$ alone sees none
+of them. It does not see them and says so with confidence: given an objective
+that is monotone along every line, as a mass is, and a constraint whose feasible
+set falls into six intervals along each axis, the estimator returns $m = 1$ per
+component and reports the ladder **converged**, because the objective really
+does have one basin. The one-sided guarantee still holds; it holds about the
+wrong function. Stress-constrained sizing and topology problems are the case
+that matters here, and `estimate_basins` should not be pointed at one. What a
+constraint-aware estimand would look like — the minima of $f$ restricted to each
+maximal feasible interval, which counts a disconnected feasible set and an
+active-set corner alike — is being taken up separately.
+
 That expectation is a Monte Carlo integral over **axial line scans**: draw an
 anchor at random, sweep one component across its bounds, count the minima deep
 enough to matter. A space-filling design does not serve here — averaging it over

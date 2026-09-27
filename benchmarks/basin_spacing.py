@@ -375,6 +375,16 @@ def estimate_basins(
     certify that a landscape has at least this many basins and never that it has
     no more.
 
+    **The multimodality is assumed to be in the objective.** Where it comes from
+    non-convex constraints instead -- a feasible set in several pieces, or a
+    minimum sitting wherever the active set changes -- a scan of the objective
+    sees none of it, and does not report that it has not: a mass-like objective,
+    monotone along every line, under a constraint whose feasible set falls into
+    six pieces per axis, returns one subdivision per component with the ladder
+    marked converged. The error of the scan is one sided about the function it
+    is given, and that function is the wrong one here. A stress-constrained
+    problem is the case to keep away from this.
+
     Args:
         objective: The objective, evaluated over a matrix of points.
         lower_bound: The lower bound of every component.
