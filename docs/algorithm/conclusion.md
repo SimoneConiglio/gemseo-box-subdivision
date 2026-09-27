@@ -71,6 +71,14 @@ Established:
 - subdividing only the variables the objective is multimodal in solves a problem
   that subdividing every variable coarsely does not, and loses when the
   multimodality is spread over all of them;
+- the density need not be supplied: counting the basins along jittered axial
+  scans proposes one, and on every problem whose ladder settled it picks the
+  better of the two fixed densities tried, beating both on the problem with
+  unimodal components to leave alone. The two reversals the benchmark is built
+  around come out right without being told. Its error is one sided by
+  construction, so a ladder that does not settle is a **flag rather than a
+  wrong answer**, and on Ackley that flag is what marks the one proposal to
+  discard;
 - the trust region has to be **tight** and measured in components changed: a
   radius of two solves Rastrigin at five variables from every starting point,
   where the diameter of the design space reaches it from two out of six and no
@@ -138,12 +146,25 @@ Not established:
 Five directions follow from the measurements above, in the order in which they
 would pay.
 
-**A subdivision that follows the basins.** Everything on this page turns on the
-subdivision resolving the basins of the landscape, and the method has no way of
-knowing their spacing. Estimating it, from the curvature at a first sampling or
-from the failures of the local solves themselves, would replace the one setting
-that is tuned by hand and would say, at the same time, which variables deserve
-subdividing at all.
+**A subdivision that follows the basins the constraints cut.** Counting basins
+along axial scans settled the first half of this: the density is proposed rather
+than tuned, and the proposal says which variables deserve subdividing at all.
+What it reads is the **objective**, which is an assumption about where the
+multimodality lives rather than a property of the method, and the assumption
+fails in the worst way available — silently. A mass-like objective under a
+non-convex constraint returns one subdivision per component and reports itself
+settled, because the objective really does have one basin.
+
+The constraint-aware count exists and is the right estimand — the minima of $f$
+restricted to each maximal feasible interval, which counts a disconnected
+feasible set and an active-set corner by one rule — but three things stand
+between it and a stress-constrained problem, and only the first is a matter of
+effort. A raw density field is neither something this method subdivides nor
+affordable to scan, so it wants a reduced parameterisation. A stress-feasible
+region is rarely a slab normal to a design variable, and an axial scan across a
+diagonal boundary overcounts or threads it. And a singular optimum lies in a
+degenerate part of the feasible set that carries no volume, so no sampling of
+feasibility will land on it at all.
 
 **Finishing the convexity nobody has to calibrate.** The margin and the constant
 are absolute quantities in the units of the objective, which was the criticism
