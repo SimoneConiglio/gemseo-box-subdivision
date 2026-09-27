@@ -139,6 +139,29 @@ and this project adheres to
   degenerate part of the feasible set that carries no volume, so no sampling of
   feasibility will land on it.
 
+- *Where the density comes from*, in the methodology: the estimand is the
+  expected number of minima along an axial line rather than a wavelength, which
+  a general objective does not have per direction; why a space-filling design
+  cannot replace the line scans, its average being the ANOVA main effect, which
+  neither Griewank's multimodality nor Ackley's survives; why the abscissae are
+  drawn at random, an even scan resonating with a regular landscape and
+  reporting a single basin for Ackley twice running; and why the one-sided error
+  is kept rather than hidden, a ladder that does not settle being the signal
+  that per-basin boxing is the wrong target.
+
+- *Proposing it rather than sweeping it*, in the results, where the density had
+  been described as the first thing to sweep on a new problem. On every problem
+  whose ladder settled the proposal picks the better of the two fixed densities
+  compared there, and beats both on the one with unimodal components to leave
+  alone. The annex on tuning now says the first knob can be read off the
+  landscape instead of turned.
+
+- The conclusion no longer lists estimating the density among the directions the
+  work could take, that being done, and lists instead what is left of it: the
+  basins a **constraint** cuts, with the three things standing between the
+  constraint-aware count and a stress-constrained problem, only the first of
+  which is a matter of effort.
+
 - Where each fault found in the master while profiling these runs went, as
   issues 7 to 11 of `gemseo-bilevel-outer-approximation`. Which master is
   installed is not cosmetic: the benchmark asserts that a run's outcome is

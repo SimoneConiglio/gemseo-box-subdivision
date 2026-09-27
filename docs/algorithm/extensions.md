@@ -318,7 +318,7 @@ Ackley also confirms that the budget is not what binds it. Granted $50\,240$
 evaluations it stops at $5372$, on its own trust region or stall counter, exactly
 as [the budget re-runs](#does-more-budget-change-the-answer) found.
 
-### Where the basins are the constraint's
+### Where the constraints cut the basins
 
 Pass a constraint and what is counted stops being the basins of the objective
 and becomes the basins of the problem: the minima of $f$ **restricted to the

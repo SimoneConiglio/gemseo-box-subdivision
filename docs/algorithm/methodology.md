@@ -472,6 +472,78 @@ local solve returns the basin it starts in. It therefore solves a problem whose
 multimodality is concentrated in a few variables, and loses on one that is
 multimodal in all of them.
 
+## Where the density comes from
+
+Everything above turns on the subdivision resolving the basins of the landscape,
+and $m_j$ is the one setting with no default: too coarse and a box holds several
+minima, too fine and it holds none, and
+[the results](benchmark.md#the-density-of-the-subdivision-decides) show no single
+value serving four problems. It can be estimated from the objective rather than
+supplied.
+
+The quantity to estimate is **not a wavelength**. A general objective has none
+per direction: the restriction of $f$ to a line along $e_j$ has a spectrum that
+depends on where the line is, so a period is not a property of the problem. What
+is well defined for any $C^1$ objective is the expected number of minima along
+such a line,
+
+$$
+N_j = \mathbb{E}_{x_\perp}\big[\#\{t : \partial_j f(x_\perp + t e_j) = 0,\
+\partial_{jj} f > 0\}\big],
+$$
+
+which is exactly what a subdivision of the $j$-th component has to separate, so
+$m_j = N_j$ without a conversion. That expectation is a Monte Carlo integral over
+**axial line scans**: fix an anchor $x_\perp$ at random, sweep one component
+across its bounds, count the minima deep enough to matter.
+
+A space-filling design does not serve in its place. Averaging one over the other
+components estimates the ANOVA main effect $\mathbb{E}[f \mid x_j]$, and
+multimodality carried by interaction does not survive that average — neither
+Griewank's, a product over every component, nor Ackley's, inside a norm.
+
+Which minima count is a question about **depth, not curvature**. A dip is kept
+when its topographic prominence exceeds a fraction of the range of the scan,
+prominence measured against the **key saddle**: walking outwards until the scan
+drops below the dip again, the highest point crossed is what closes the basin,
+and the shallower of the two sides is what the basin is worth. Measured instead
+against the highest ground anywhere to each side, every ripple inside a bowl
+looks as deep as the bowl. A component whose objective carries no dip deep enough
+is proposed a single subdivision, which is how
+[a partial refinement](#subdividing-some-variables-only) is reached from the
+landscape rather than declared.
+
+The abscissae are drawn **at random along the line**. An evenly spaced scan
+resonates with a regular landscape, and the failure is not a wrong count but a
+confident one: on Ackley, whose ripples are about a unit apart, a uniform ladder
+reports a single basin at two consecutive rates, which any stopping rule reads as
+convergence.
+
+The error of such an estimate is **one sided**. A scan reveals the basins it
+resolves and never more, so no finite sample bounds the roughness of an objective
+from below: a ladder of scan rates can certify that a landscape has at least this
+many basins and never that it has no more. That is a property worth keeping
+rather than hiding, because a ladder that does not settle is the signal that
+per-basin boxing is the wrong target — which is the case
+[the hierarchies](#hierarchies-of-subdivisions) exist for, and on these problems
+the flag routes them correctly.
+
+Where the basins are cut by **constraints** instead, the same construction
+applies to a different function. The minima to count are those of $f$ restricted
+to the feasible set, and along a line that set is a union of intervals, so the
+count decomposes: within each maximal feasible interval the minima the gate
+keeps, and for an interval holding none the interval itself, whose minimum lies
+on a boundary — which is to say wherever the **active set changes**. One rule
+therefore covers a feasible set in pieces and an optimum held against a
+constraint alike.
+
+This does assume the multimodality is somewhere the scan looks. Given only the
+objective, a landscape whose basins are the constraints' returns a single
+subdivision per component and reports the ladder settled, because the objective
+really does have one basin. [Annex D](extensions.md#estimating-the-density-instead-of-supplying-it)
+reports what the estimate is worth on the benchmark problems, and what it does
+not reach.
+
 ## Hierarchies of subdivisions
 
 A subdivision fine enough to resolve the basins spends its budget over the whole

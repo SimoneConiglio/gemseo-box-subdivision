@@ -289,7 +289,51 @@ so it belongs to the subdivision and not to the master.
 So the useful density sits between the basins and the binaries, and **no single
 value serves all four problems**: ten is best for three of them and worst for the
 fourth. The default of `benchmarks/baselines.py` bounds the enumeration rather
-than guessing, and the density is the first thing to sweep on a new problem.
+than guessing.
+
+### Proposing it rather than sweeping it
+
+That leaves the density as the one setting a caller has to find by trial, and it
+need not be. Counting the basins along jittered axial scans of each component
+proposes one, by the construction
+[the methodology](methodology.md#where-the-density-comes-from) sets out. Each
+problem below is granted four times the budget its own proposal implies, so every
+run ends on its own criterion; three starting points, median gap and cost:
+
+| problem | proposed $m$ | binaries | gap | cost | reached | better fixed density |
+| --------- | -------------- | ---------- | ----- | ------ | --------- | ---------------------- |
+| Rastrigin | 10 ×5 | 50 | **$0.00$** | 2103 | **3/3** | ties 10, beats 2 |
+| Styblinski-Tang | 2 ×5 | 10 | **$0.00$** | 458 | **2/3** | ties 2, beats 10 |
+| `partly_multimodal` | 10 10 1 1 1 | 23 | **$0.00$** | **858** | **3/3** | **beats both** |
+| Griewank | 19 13 11 7 9 | 59 | $0.064$ | 3463 | 1/3 | ties 2, loses to 10 |
+| Ackley | 63 ×5, *unresolved* | 314 | $12.75$ | 5372 | 0/3 | loses to 10 |
+
+**On every problem whose ladder resolved, the proposal picks the better of the
+two fixed densities**, and on one it beats both: `partly_multimodal` reaches the
+optimum from every starting point for $858$ evaluations against $1554$ at a flat
+ten, by leaving its three unimodal components unsubdivided. The two reversals
+this page is built around — ten for Rastrigin, two for Styblinski-Tang — both
+come out right without being told, and no fixed value gets both.
+
+**The budget the proposal implies is about right.** $\sum_j m_j$ sub-problems
+predicts $2000$ against $2103$ measured on Rastrigin, $400$ against $458$ on
+Styblinski-Tang, $920$ against $858$ on `partly_multimodal`: within a third on
+each, which is what the coefficients-to-cuts ratio
+[above](#the-density-of-the-subdivision-decides) implies.
+
+**And the row it gets wrong is the row it flags.** Ackley's ladder does not
+settle, and its proposal of sixty-three is worse than a flat ten. Its ripples are
+a unit apart over a range of sixty-four, so separating them is correct as a count
+and useless as a subdivision: what has to be resolved there is the funnel, not the
+texture on it. The estimate reports itself unresolved *in advance*, which is the
+part worth having — it separates the proposals to trust from the one to discard,
+and it is the same signal that routes such a problem to a hierarchy.
+
+What the estimate reads is the **objective**. A problem whose basins are cut by
+non-convex constraints instead returns a single subdivision per component and
+reports itself settled, the objective there genuinely having one basin;
+[annex D](extensions.md#where-the-constraints-cut-the-basins) gives the
+constraint-aware count and the limits it does not pass.
 
 ## Sweeping the convexity rather than supplying it
 
