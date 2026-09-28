@@ -26,6 +26,24 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- An animation of a run in two dimensions, on the landing page and in the
+  methodology: the master choosing boxes of Rastrigin one after the other, the
+  local solver descending in each, and the best value against the evaluations
+  spent. `python docs/figures.py solve` writes it, and naming figures on that
+  command line now writes only those.
+
+- `benchmarks/data_profiles.py`, the **data profiles** of every method, which
+  finally puts the `gemseo-benchmark` dependency of the `benchmark` group to
+  use: the targets come from its `TargetsGenerator` over the pooled histories,
+  the profiles from its `DataProfile`. The tables report where a method ends;
+  the profiles report how fast it gets there. The benchmark `Counter` records
+  the best value after each call, and a `Result` carries it as `history`, one
+  entry per equivalent evaluation.
+
 ## 0.3.0 (2026-09-27)
 
 ### Fixed

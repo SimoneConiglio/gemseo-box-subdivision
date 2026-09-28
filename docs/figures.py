@@ -21,11 +21,24 @@ committed, so that building the documentation needs no plotting:
 ```shell
 python docs/figures.py
 ```
+
+Naming some of them writes only those, which is how the animation is refreshed
+without rerunning every figure that runs the benchmarks:
+
+```shell
+python docs/figures.py solve
+```
+
+The animation is a GIF on a solid background, the format having no partial
+transparency, and the data profiles are drawn from the file
+``python -m benchmarks.data_profiles`` writes.
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import matplotlib
 from numpy import arange
@@ -42,7 +55,12 @@ from numpy import sqrt
 
 matplotlib.use("Agg")
 
+import operator
+
 import matplotlib.pyplot as plt  # noqa: E402
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 DIRECTORY = Path(__file__).parent / "_static" / "figures"
 """The directory of the figures."""
@@ -1257,6 +1275,328 @@ def draw_density(foreground: str):  # noqa: ARG001
     return figure
 
 
+DATA_PROFILES = Path(__file__).parent / "_static" / "data_profiles.json"
+"""The profiles written by ``python -m benchmarks.data_profiles``."""
+
+PROFILE_LABELS = {
+    "box_subdivision": "box subdivision, margin 100",
+    "box_subdivision_swept": "box subdivision, swept",
+    "multistart": "multistart",
+    "cmaes": "CMA-ES",
+    "direct": "DIRECT",
+    "egobox": "EGO",
+}
+"""The label of each method of the data profiles."""
+
+
+def draw_data_profiles(foreground: str):
+    """Draw the data profiles of the methods, one panel per dimension."""
+    import json
+
+    data = json.loads(DATA_PROFILES.read_text(encoding="utf-8"))
+    hues = series(foreground)
+    # The two configurations of the method share its hue, the swept one solid.
+    styles = {
+        "box_subdivision": (hues[0], "--"),
+        "box_subdivision_swept": (hues[0], "-"),
+        "multistart": (hues[1], "-"),
+        "cmaes": (hues[2], "-"),
+        "direct": (hues[3], "-"),
+        "egobox": (hues[4], "-"),
+    }
+    dimensions = data["dimensions"]
+    figure, axes_row = plt.subplots(1, len(dimensions), figsize=(9.6, 3.6), sharey=True)
+    for axes, (dimension, entry) in zip(axes_row, dimensions.items(), strict=True):
+        for method, profile in entry["profiles"].items():
+            colour, linestyle = styles[method]
+            axes.plot(
+                arange(1, len(profile) + 1),
+                profile,
+                color=colour,
+                linestyle=linestyle,
+                linewidth=1.6,
+                label=PROFILE_LABELS[method],
+            )
+
+        optimal = len(entry["best_target_is_the_optimum"])
+        axes.set_title(
+            f"{dimension} variables\n"
+            f"best target the optimum on {optimal} of {len(entry['problems'])} "
+            "problems",
+            fontsize=9.5,
+        )
+        axes.set_xlabel("equivalent evaluations")
+        axes.set_xlim(1, data["budget"])
+        axes.set_ylim(0.0, 1.02)
+        axes.yaxis.set_major_formatter(
+            matplotlib.ticker.PercentFormatter(xmax=1.0, decimals=0)
+        )
+        axes.grid(alpha=0.25)
+
+    axes_row[0].set_ylabel("targets reached")
+    figure.legend(
+        *axes_row[0].get_legend_handles_labels(),
+        ncols=3,
+        fontsize=8,
+        loc="lower center",
+        bbox_to_anchor=(0.5, -0.13),
+    )
+    return figure
+
+
+SOLVE_SEED = 11
+"""The seed of the starting point of the animated run."""
+
+BACKGROUNDS = {LIGHT: "#ffffff", DARK: "#14181e"}
+"""The background of each theme, a GIF having no partial transparency."""
+
+
+def _trace_solve():
+    """Run the method on Rastrigin in two dimensions, recording every box.
+
+    The run is the one of the README, the scenario with its default settings
+    over ten subdivisions per variable, so what the animation shows is what a
+    user gets.
+
+    Returns:
+        The box, the evaluated points, and the cost and best value once solved,
+        of each box in the order the master chose them.
+    """
+    import logging
+
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+    from benchmarks.baselines import _design_space
+    from benchmarks.baselines import _starting_point
+    from benchmarks.problems import PROBLEMS
+    from benchmarks.problems import Counter
+    from benchmarks.problems import Objective
+    from numpy import argmax
+
+    from gemseo_box_subdivision import BoxSubdivisionScenario
+    from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
+
+    logging.disable(logging.CRITICAL)
+    problem = PROBLEMS["rastrigin"]
+    solves = []
+    current = [None]
+
+    def run(self, input_data):  # noqa: ANN001, ANN202
+        """Record the box the sub-problem is being solved in."""
+        current[0] = tuple(
+            int(i) for i in argmax(input_data["x_box"].reshape(2, -1), 1)
+        )
+        return original(self, input_data)
+
+    class Recorder(Counter):
+        """A counter recording each evaluation in the box it belongs to."""
+
+        def objective(self, x):  # noqa: ANN001, ANN202, D102
+            value = super().objective(x)
+            if not solves or solves[-1]["box"] != current[0]:
+                solves.append({"box": current[0], "points": [], "values": []})
+
+            solves[-1]["points"].append(x.copy())
+            solves[-1]["values"].append(value)
+            solves[-1]["cost"] = self.cost(2, adjoint=True)
+            solves[-1]["best"] = self.best
+            return value
+
+        def gradient(self, x):  # noqa: ANN001, ANN202, D102
+            gradient = super().gradient(x)
+            if solves:
+                solves[-1]["cost"] = self.cost(2, adjoint=True)
+
+            return gradient
+
+    counter = Recorder(problem)
+    original = BoxMapping._run
+    BoxMapping._run = run
+    try:
+        BoxSubdivisionScenario(
+            [Objective(counter, 2)],
+            "f",
+            _design_space(problem, 2, _starting_point(problem, 2, SOLVE_SEED)),
+            n_subdivisions=10,
+        ).execute()
+    finally:
+        BoxMapping._run = original
+        logging.disable(logging.NOTSET)
+
+    for solve in solves:
+        solve["points"] = array(solve["points"])
+
+    return solves
+
+
+def _draw_solve_frame(foreground: str, solves, index: int, landscape):
+    """Draw the run once the first boxes are solved.
+
+    Args:
+        foreground: The foreground colour of the theme.
+        solves: The boxes in the order they were solved.
+        index: The number of boxes solved.
+        landscape: The grid and the values of the objective over it.
+
+    Returns:
+        The figure.
+    """
+    grid_x, grid_y, values, breakpoints = landscape
+    width = breakpoints[1] - breakpoints[0]
+    figure, (left, right) = plt.subplots(
+        1, 2, figsize=(8.4, 3.9), gridspec_kw={"width_ratios": (1.0, 1.15)}
+    )
+    figure.set_facecolor(BACKGROUNDS[foreground])
+    figure.subplots_adjust(wspace=0.32)
+    left.contourf(grid_x, grid_y, values, 30, cmap="Greys_r")
+    for position in breakpoints:
+        left.axvline(position, color=foreground, linewidth=0.4, alpha=0.45)
+        left.axhline(position, color=foreground, linewidth=0.4, alpha=0.45)
+
+    done = solves[:index]
+    best = min(done, key=operator.itemgetter("best")) if done else None
+    for solve in done:
+        i, j = solve["box"]
+        left.add_patch(
+            plt.Rectangle(
+                (breakpoints[i], breakpoints[j]),
+                width,
+                width,
+                facecolor=SECOND,
+                alpha=0.35,
+                linewidth=0,
+            )
+        )
+        local = solve["points"][int(array(solve["values"]).argmin())]
+        left.plot(*local, marker="o", markersize=2.5, color=SECOND, linestyle="none")
+
+    if done:
+        last = done[-1]
+        i, j = last["box"]
+        left.add_patch(
+            plt.Rectangle(
+                (breakpoints[i], breakpoints[j]),
+                width,
+                width,
+                facecolor="none",
+                edgecolor=ACCENT,
+                linewidth=2.2,
+            )
+        )
+        left.plot(
+            last["points"][:, 0],
+            last["points"][:, 1],
+            marker="o",
+            markersize=2.5,
+            linewidth=1.0,
+            color=ACCENT,
+        )
+        incumbent = best["points"][int(array(best["values"]).argmin())]
+        left.plot(
+            *incumbent,
+            marker="o",
+            markersize=9,
+            markerfacecolor="none",
+            markeredgecolor=THIRD,
+            markeredgewidth=2.0,
+            linestyle="none",
+        )
+
+    left.plot(
+        [0.0], [0.0], marker="*", color="#ffd43b", markersize=11, linestyle="none"
+    )
+    left.set_xlim(breakpoints[0], breakpoints[-1])
+    left.set_ylim(breakpoints[0], breakpoints[-1])
+    left.set_aspect("equal")
+    left.set_xticks([])
+    left.set_yticks([])
+    left.set_xlabel("$x_1$")
+    left.set_ylabel("$x_2$")
+    n_boxes = (len(breakpoints) - 1) ** 2
+    left.set_title(
+        f"{index} of {n_boxes} boxes solved"
+        if index
+        else f"Rastrigin cut into {n_boxes} boxes"
+    )
+
+    costs = [0] + [solve["cost"] for solve in solves]
+    bests = [solves[0]["best"]] + [solve["best"] for solve in solves]
+    right.step(costs, bests, where="post", color=foreground, alpha=0.15, linewidth=1.2)
+    if index:
+        right.step(
+            costs[: index + 1],
+            bests[: index + 1],
+            where="post",
+            color=ACCENT,
+            linewidth=1.8,
+        )
+        right.plot(costs[index], bests[index], marker="o", color=ACCENT, markersize=5)
+
+    right.set_yscale("symlog", linthresh=0.1)
+    right.set_xlim(0, costs[-1] * 1.03)
+    right.set_xlabel("equivalent evaluations")
+    right.set_ylabel("best objective so far")
+    right.grid(alpha=0.25)
+    right.set_title(
+        f"{costs[index]} evaluations, best {bests[index]:.3g}"
+        if index
+        else "the master picks a box, a local solver descends in it"
+    )
+    return figure
+
+
+def animate_solve(name: str = "solve") -> None:
+    """Animate a run of the method on Rastrigin in two dimensions, per theme.
+
+    Each frame is one more box solved: the box the master has just chosen in
+    orange with the path of the local solver inside it, the boxes already
+    solved in blue, the incumbent circled in green, and on the right the best
+    value against the evaluations spent.
+
+    Args:
+        name: The name of the animation, without its extension.
+    """
+    from io import BytesIO
+
+    from PIL import Image
+
+    solves = _trace_solve()
+    x = linspace(-4.1, 5.9, 300)
+    grid_x, grid_y = meshgrid(x, x)
+    landscape = (grid_x, grid_y, rastrigin(grid_x, grid_y), linspace(-4.1, 5.9, 11))
+    DIRECTORY.mkdir(parents=True, exist_ok=True)
+    for suffix, foreground in (("", LIGHT), ("-dark", DARK)):
+        frames = []
+        with plt.rc_context({
+            **_style(foreground),
+            "savefig.transparent": False,
+            "savefig.facecolor": BACKGROUNDS[foreground],
+        }):
+            for index in range(len(solves) + 1):
+                figure = _draw_solve_frame(foreground, solves, index, landscape)
+                buffer = BytesIO()
+                figure.savefig(buffer, format="png", dpi=100)
+                plt.close(figure)
+                buffer.seek(0)
+                frames.append(Image.open(buffer).convert("RGB"))
+
+        # One palette for every frame, so that the colours do not flicker.
+        palette = frames[-1].quantize(colors=128, method=Image.Quantize.MEDIANCUT)
+        frames = [
+            frame.quantize(palette=palette, dither=Image.Dither.NONE)
+            for frame in frames
+        ]
+        durations = [1500] + [550] * (len(frames) - 2) + [3500]
+        frames[0].save(
+            DIRECTORY / f"{name}{suffix}.gif",
+            save_all=True,
+            append_images=frames[1:],
+            duration=durations,
+            loop=0,
+            optimize=True,
+        )
+
+
 FIGURES = {
     "subdivision": (draw_subdivision, "png"),
     "bilevel": (draw_bilevel, "svg"),
@@ -1275,16 +1615,30 @@ FIGURES = {
     "density": (draw_density, "svg"),
     "small_budget": (draw_small_budget, "svg"),
     "encodings": (draw_encodings, "svg"),
+    "data_profiles": (draw_data_profiles, "svg"),
 }
 """The figures, by name, with the format each is written in."""
 
+ANIMATIONS = {"solve": animate_solve}
+"""The animations, by name, each written as a GIF."""
 
-def main() -> None:
-    """Write every figure, for both themes."""
+
+def main(names: Sequence[str] = ()) -> None:
+    """Write the figures and the animations, for both themes.
+
+    Args:
+        names: The names of those to write. If empty, write them all.
+    """
     for name, (draw, extension) in FIGURES.items():
-        save(name, draw, extension)
-        print(f"{name}.{extension}")  # noqa: T201
+        if not names or name in names:
+            save(name, draw, extension)
+            print(f"{name}.{extension}")  # noqa: T201
+
+    for name, animate in ANIMATIONS.items():
+        if not names or name in names:
+            animate(name)
+            print(f"{name}.gif")  # noqa: T201
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

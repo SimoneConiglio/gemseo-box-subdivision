@@ -137,6 +137,27 @@ problem.
 :alt: The exchange between the master and the sub-problem
 ```
 
+Run on Rastrigin in two dimensions, the exchange looks like this: each frame is
+one iteration of the loop above seen from the design space, the master choosing
+a box (orange) from the cuts of the boxes already solved (blue), and the local
+solver descending inside it from its center.
+
+```{image} ../_static/figures/solve.gif
+:class: only-light
+:alt: The master choosing boxes of Rastrigin one after the other, a local solver descending in each
+```
+
+```{image} ../_static/figures/solve-dark.gif
+:class: only-dark
+:alt: The master choosing boxes of Rastrigin one after the other, a local solver descending in each
+```
+
+None of the first six boxes improves on the local minimum of $8.95$ the first
+one returns; the seventh returns the global one, after $154$ evaluations. The
+incumbent (green) no longer changes after that, and the thirteen boxes that
+follow are what the master spends before its stopping criterion ends the run.
+The animation is written by `python docs/figures.py solve`.
+
 ## Outer approximation and its sensitivity
 
 The master builds a piecewise-linear underestimator of $u$ from the

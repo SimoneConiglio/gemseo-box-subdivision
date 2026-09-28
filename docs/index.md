@@ -75,6 +75,23 @@ method reaches the global optimum after solving about 20 boxes, roughly five
 times cheaper than solving all of them, with nothing to tune but the
 subdivision.
 
+```{image} _static/figures/solve.gif
+:class: only-light
+:alt: The master choosing boxes of Rastrigin one after the other, a local solver descending in each
+```
+
+```{image} _static/figures/solve-dark.gif
+:class: only-dark
+:alt: The master choosing boxes of Rastrigin one after the other, a local solver descending in each
+```
+
+Each frame is one more box: the one the master has just chosen in orange, with
+the path of the local solver inside it, the boxes already solved in blue, and the
+incumbent circled in green. This run is the one of the README, the scenario with
+its default settings. It finds the global optimum in its seventh box, after $154$
+evaluations, and spends the other thirteen boxes before its stopping criterion
+ends the run, at $438$.
+
 $$
 \min_\alpha\ u(\alpha)
 \quad \text{where} \quad

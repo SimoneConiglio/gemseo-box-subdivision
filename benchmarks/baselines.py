@@ -36,6 +36,7 @@ from __future__ import annotations
 import logging
 from contextlib import suppress
 from dataclasses import dataclass
+from dataclasses import field
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 from typing import Any
@@ -136,6 +137,9 @@ class Result:
     cost_adjoint: int
     cost_finite_differences: int
     budget: int = 0
+    history: tuple[float, ...] = field(default=(), repr=False, compare=False)
+    """The best value after each equivalent evaluation, under the adjoint
+    convention, which is what :mod:`benchmarks.data_profiles` compares."""
 
     @property
     def truncated(self) -> bool:
@@ -556,6 +560,7 @@ def _result(
         cost_adjoint=counter.cost(dimension, adjoint=True),
         cost_finite_differences=counter.cost(dimension, adjoint=False),
         budget=getattr(counter, "budget", 0),
+        history=counter.history(dimension, adjoint=True),
     )
 
 
