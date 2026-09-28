@@ -295,6 +295,8 @@ class Counter:
         self.n_objective = 0
         self.n_gradient = 0
         self.best = float("inf")
+        self.calls: list[tuple[bool, float]] = []
+        """Whether each call was to the gradient, and the best value after it."""
 
     def objective(self, x: ndarray) -> float:
         """Return the objective value and count the call.
@@ -308,6 +310,7 @@ class Counter:
         self.n_objective += 1
         value = self.problem.objective(x)
         self.best = min(self.best, value)
+        self.calls.append((False, self.best))
         return value
 
     def gradient(self, x: ndarray) -> ndarray:
@@ -320,6 +323,7 @@ class Counter:
             The gradient.
         """
         self.n_gradient += 1
+        self.calls.append((True, self.best))
         return self.problem.gradient(x)
 
     def cost(self, dimension: int, adjoint: bool) -> int:
@@ -336,6 +340,28 @@ class Counter:
         """
         weight = 1 if adjoint else dimension
         return self.n_objective + weight * self.n_gradient
+
+    def history(self, dimension: int, adjoint: bool) -> tuple[float, ...]:
+        """Return the best value after each equivalent objective evaluation.
+
+        This is the history a data profile reads, whose value at index ``i`` is
+        taken as obtained with ``i + 1`` evaluations, so a gradient spans as
+        many entries as it costs.
+
+        Args:
+            dimension: The number of design variables.
+            adjoint: Whether the gradient costs one objective evaluation.
+
+        Returns:
+            The best value after each equivalent evaluation, infinite before the
+            first objective evaluation.
+        """
+        weight = 1 if adjoint else dimension
+        history = []
+        for is_gradient, best in self.calls:
+            history.extend([best] * (weight if is_gradient else 1))
+
+        return tuple(history)
 
 
 class Objective(Discipline):
