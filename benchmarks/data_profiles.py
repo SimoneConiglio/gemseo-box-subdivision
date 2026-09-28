@@ -260,7 +260,7 @@ def main() -> None:
             ]
             print(f"{method:>22} " + " ".join(f"{c:>5}" for c in checkpoints))  # noqa: T201
 
-    OUTPUT.write_text(json.dumps(output, indent=1) + "\n", encoding="utf-8")
+    OUTPUT.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     logging.disable(logging.NOTSET)
 
 
