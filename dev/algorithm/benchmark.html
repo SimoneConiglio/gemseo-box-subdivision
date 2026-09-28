@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=0c52ac17"></script>
+    <script src="../_static/documentation_options.js?v=f023b6b0"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -794,6 +794,153 @@ which is the industrial case. The one above asks what each method reaches when
 evaluations are plentiful, which is where the box subdivision’s density can be
 afforded at all.</p>
 </div>
+<section id="how-fast-each-method-gets-there-data-profiles">
+<h3>How fast each method gets there: data profiles<a class="headerlink" href="#how-fast-each-method-gets-there-data-profiles" title="Link to this heading">#</a></h3>
+<p>The table above reports where each method <em>ends</em>. A <strong>data profile</strong> reports how
+it gets there: each problem is given a ladder of twenty target values, from one
+any method reaches early down to the global optimum, and the profile of a method
+is the fraction of all the targets, over the four problems and five starting
+points, it has reached after a given number of evaluations. The targets and the
+profiles are computed by <a class="reference external" href="https://gitlab.com/gemseo/dev/gemseo-benchmark">gemseo-benchmark</a>,
+its <code class="docutils literal notranslate"><span class="pre">TargetsGenerator</span></code> from the pooled histories of every method and its
+<code class="docutils literal notranslate"><span class="pre">DataProfile</span></code> from the history of each run; the runs are those of the table, at
+the same budget of <span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations, a gradient counting as one.</p>
+<img alt="The fraction of the targets each method reaches against the evaluations spent" class="only-light" src="../_images/data_profiles.svg" />
+<img alt="The fraction of the targets each method reaches against the evaluations spent" class="only-dark" src="../_images/data_profiles-dark.svg" />
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><span class="math notranslate nohighlight">\(n\)</span></p></th>
+<th class="head"><p>method</p></th>
+<th class="head"><p>50</p></th>
+<th class="head"><p>100</p></th>
+<th class="head"><p>250</p></th>
+<th class="head"><p>500</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>box subdivision, swept</p></td>
+<td><p>16%</p></td>
+<td><p>21%</p></td>
+<td><p>74%</p></td>
+<td><p>94%</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>box subdivision, margin 100</p></td>
+<td><p>16%</p></td>
+<td><p>22%</p></td>
+<td><p>74%</p></td>
+<td><p>90%</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>multistart</p></td>
+<td><p>24%</p></td>
+<td><p>36%</p></td>
+<td><p>42%</p></td>
+<td><p>52%</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>CMA-ES</p></td>
+<td><p>27%</p></td>
+<td><p>34%</p></td>
+<td><p>56%</p></td>
+<td><p>65%</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>DIRECT</p></td>
+<td><p>42%</p></td>
+<td><p><strong>70%</strong></p></td>
+<td><p><strong>79%</strong></p></td>
+<td><p><strong>99%</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>EGO</p></td>
+<td><p><strong>43%</strong></p></td>
+<td><p>60%</p></td>
+<td><p>72%</p></td>
+<td><p>80%</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>box subdivision, swept</p></td>
+<td><p>16%</p></td>
+<td><p>17%</p></td>
+<td><p>36%</p></td>
+<td><p>54%</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>box subdivision, margin 100</p></td>
+<td><p>16%</p></td>
+<td><p>17%</p></td>
+<td><p>32%</p></td>
+<td><p>52%</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>multistart</p></td>
+<td><p>15%</p></td>
+<td><p>23%</p></td>
+<td><p>33%</p></td>
+<td><p>44%</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>CMA-ES</p></td>
+<td><p>12%</p></td>
+<td><p>20%</p></td>
+<td><p>43%</p></td>
+<td><p>63%</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>DIRECT</p></td>
+<td><p><strong>34%</strong></p></td>
+<td><p><strong>42%</strong></p></td>
+<td><p><strong>74%</strong></p></td>
+<td><p><strong>86%</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>EGO</p></td>
+<td><p>12%</p></td>
+<td><p>38%</p></td>
+<td><p>57%</p></td>
+<td><p>60%</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The box subdivision is a slow starter and a strong finisher in two
+dimensions.</strong> Its first hundred evaluations go to its first few boxes, some
+twenty evaluations each, which mostly return local minima — the flat stretch of
+its curve, and the first six frames of <a class="reference internal" href="methodology.html#the-bi-level-problem"><span class="std std-ref">the
+animation</span></a>; once the cuts have ranked the
+boxes it climbs past EGO, CMA-ES and multistart and ends second, at <span class="math notranslate nohighlight">\(94\%\)</span>
+swept. EGO is the reverse, the fastest method over the first fifty evaluations
+and flat after two hundred, which is the collapse of its expected improvement
+noted above.</p>
+<p><strong>DIRECT leads for most of the budget</strong>, in both dimensions. EGO edges past it
+at times between thirty and eighty evaluations in two dimensions, and the box
+subdivision at times between <span class="math notranslate nohighlight">\(160\)</span> and <span class="math notranslate nohighlight">\(320\)</span>, but from there on DIRECT is ahead
+and ends at <span class="math notranslate nohighlight">\(99\%\)</span>. In five dimensions it leads throughout, EGO tying it for a
+few evaluations around a hundred. On these problems, at this budget, it is the
+reference the others have to be measured against.</p>
+<p><strong>In five dimensions the profile of the box subdivision is the density result
+seen from the other side.</strong> At <span class="math notranslate nohighlight">\(500\)</span> evaluations the subdivision of the
+comparison is two boxes per variable, which separates the basins of
+Styblinski-Tang and Griewank but not those of Rastrigin or Ackley; it ends at
+<span class="math notranslate nohighlight">\(54\%\)</span>, behind DIRECT, CMA-ES and EGO. What it takes to do better is the density
+of the next section, and a budget that pays for it.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Where no run of any method reaches the global optimum, the best target falls
+back on the best value any run found, which is what a data profile does when the
+optimum is unknown. That is the case of Griewank in two dimensions and of every
+problem but Styblinski-Tang in five, whose profiles therefore compare the
+methods with each other rather than with the optimum. The figure says on how many
+problems the best target is the optimum.</p>
+</div>
+<p>The study takes about an hour, EGO accounting for nearly all of it:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>benchmarks.data_profiles<span class="w">   </span><span class="c1"># writes docs/_static/data_profiles.json</span>
+python<span class="w"> </span>docs/figures.py<span class="w"> </span>data_profiles
+</pre></div>
+</div>
+</section>
 </section>
 <section id="the-density-of-the-subdivision-decides">
 <h2>The density of the subdivision decides<a class="headerlink" href="#the-density-of-the-subdivision-decides" title="Link to this heading">#</a></h2>
@@ -1132,7 +1279,10 @@ budget buys nothing at all: both configurations stop on their own caps.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-enumeration-of-the-boxes">Against the enumeration of the boxes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-baselines">Against the baselines</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#at-a-budget-every-method-can-afford">At a budget every method can afford</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#at-a-budget-every-method-can-afford">At a budget every method can afford</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-fast-each-method-gets-there-data-profiles">How fast each method gets there: data profiles</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-density-of-the-subdivision-decides">The density of the subdivision decides</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proposing-it-rather-than-sweeping-it">Proposing it rather than sweeping it</a></li>
 </ul>

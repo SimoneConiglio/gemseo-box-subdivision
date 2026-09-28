@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=0c52ac17"></script>
+    <script src="_static/documentation_options.js?v=f023b6b0"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -465,6 +465,14 @@ CMA-ES and DIRECT, and with the convexity swept rather than supplied.</p>
 method reaches the global optimum after solving about 20 boxes, roughly five
 times cheaper than solving all of them, with nothing to tune but the
 subdivision.</p>
+<img alt="The master choosing boxes of Rastrigin one after the other, a local solver descending in each" class="only-light" src="_images/solve.gif" />
+<img alt="The master choosing boxes of Rastrigin one after the other, a local solver descending in each" class="only-dark" src="_images/solve-dark.gif" />
+<p>Each frame is one more box: the one the master has just chosen in orange, with
+the path of the local solver inside it, the boxes already solved in blue, and the
+incumbent circled in green. This run is the one of the README, the scenario with
+its default settings. It finds the global optimum in its seventh box, after <span class="math notranslate nohighlight">\(154\)</span>
+evaluations, and spends the other thirteen boxes before its stopping criterion
+ends the run, at <span class="math notranslate nohighlight">\(438\)</span>.</p>
 <div class="math notranslate nohighlight">
 \[
 \min_\alpha\ u(\alpha)

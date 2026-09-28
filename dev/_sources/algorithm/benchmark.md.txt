@@ -219,6 +219,83 @@ evaluations are plentiful, which is where the box subdivision's density can be
 afforded at all.
 :::
 
+### How fast each method gets there: data profiles
+
+The table above reports where each method *ends*. A **data profile** reports how
+it gets there: each problem is given a ladder of twenty target values, from one
+any method reaches early down to the global optimum, and the profile of a method
+is the fraction of all the targets, over the four problems and five starting
+points, it has reached after a given number of evaluations. The targets and the
+profiles are computed by [gemseo-benchmark](https://gitlab.com/gemseo/dev/gemseo-benchmark),
+its `TargetsGenerator` from the pooled histories of every method and its
+`DataProfile` from the history of each run; the runs are those of the table, at
+the same budget of $500$ equivalent evaluations, a gradient counting as one.
+
+```{image} ../_static/figures/data_profiles.svg
+:class: only-light
+:alt: The fraction of the targets each method reaches against the evaluations spent
+```
+
+```{image} ../_static/figures/data_profiles-dark.svg
+:class: only-dark
+:alt: The fraction of the targets each method reaches against the evaluations spent
+```
+
+| $n$ | method | 50 | 100 | 250 | 500 |
+|-----|--------|----|-----|-----|-----|
+| 2 | box subdivision, swept | 16% | 21% | 74% | 94% |
+| 2 | box subdivision, margin 100 | 16% | 22% | 74% | 90% |
+| 2 | multistart | 24% | 36% | 42% | 52% |
+| 2 | CMA-ES | 27% | 34% | 56% | 65% |
+| 2 | DIRECT | 42% | **70%** | **79%** | **99%** |
+| 2 | EGO | **43%** | 60% | 72% | 80% |
+| 5 | box subdivision, swept | 16% | 17% | 36% | 54% |
+| 5 | box subdivision, margin 100 | 16% | 17% | 32% | 52% |
+| 5 | multistart | 15% | 23% | 33% | 44% |
+| 5 | CMA-ES | 12% | 20% | 43% | 63% |
+| 5 | DIRECT | **34%** | **42%** | **74%** | **86%** |
+| 5 | EGO | 12% | 38% | 57% | 60% |
+
+**The box subdivision is a slow starter and a strong finisher in two
+dimensions.** Its first hundred evaluations go to its first few boxes, some
+twenty evaluations each, which mostly return local minima — the flat stretch of
+its curve, and the first six frames of [the
+animation](methodology.md#the-bi-level-problem); once the cuts have ranked the
+boxes it climbs past EGO, CMA-ES and multistart and ends second, at $94\%$
+swept. EGO is the reverse, the fastest method over the first fifty evaluations
+and flat after two hundred, which is the collapse of its expected improvement
+noted above.
+
+**DIRECT leads for most of the budget**, in both dimensions. EGO edges past it
+at times between thirty and eighty evaluations in two dimensions, and the box
+subdivision at times between $160$ and $320$, but from there on DIRECT is ahead
+and ends at $99\%$. In five dimensions it leads throughout, EGO tying it for a
+few evaluations around a hundred. On these problems, at this budget, it is the
+reference the others have to be measured against.
+
+**In five dimensions the profile of the box subdivision is the density result
+seen from the other side.** At $500$ evaluations the subdivision of the
+comparison is two boxes per variable, which separates the basins of
+Styblinski-Tang and Griewank but not those of Rastrigin or Ackley; it ends at
+$54\%$, behind DIRECT, CMA-ES and EGO. What it takes to do better is the density
+of the next section, and a budget that pays for it.
+
+:::{note}
+Where no run of any method reaches the global optimum, the best target falls
+back on the best value any run found, which is what a data profile does when the
+optimum is unknown. That is the case of Griewank in two dimensions and of every
+problem but Styblinski-Tang in five, whose profiles therefore compare the
+methods with each other rather than with the optimum. The figure says on how many
+problems the best target is the optimum.
+:::
+
+The study takes about an hour, EGO accounting for nearly all of it:
+
+```shell
+python -m benchmarks.data_profiles   # writes docs/_static/data_profiles.json
+python docs/figures.py data_profiles
+```
+
 ## The density of the subdivision decides
 
 The number of boxes is the Cartesian product of the subdivisions, so it explodes

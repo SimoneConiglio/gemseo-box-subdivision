@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=0c52ac17"></script>
+    <script src="../_static/documentation_options.js?v=f023b6b0"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -567,6 +567,17 @@ with the box-selection variables as the categorical variables of the main
 problem.</p>
 <img alt="The exchange between the master and the sub-problem" class="only-light" src="../_images/bilevel.svg" />
 <img alt="The exchange between the master and the sub-problem" class="only-dark" src="../_images/bilevel-dark.svg" />
+<p>Run on Rastrigin in two dimensions, the exchange looks like this: each frame is
+one iteration of the loop above seen from the design space, the master choosing
+a box (orange) from the cuts of the boxes already solved (blue), and the local
+solver descending inside it from its center.</p>
+<img alt="The master choosing boxes of Rastrigin one after the other, a local solver descending in each" class="only-light" src="../_images/solve.gif" />
+<img alt="The master choosing boxes of Rastrigin one after the other, a local solver descending in each" class="only-dark" src="../_images/solve-dark.gif" />
+<p>None of the first six boxes improves on the local minimum of <span class="math notranslate nohighlight">\(8.95\)</span> the first
+one returns; the seventh returns the global one, after <span class="math notranslate nohighlight">\(154\)</span> evaluations. The
+incumbent (green) no longer changes after that, and the thirteen boxes that
+follow are what the master spends before its stopping criterion ends the run.
+The animation is written by <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/figures.py</span> <span class="pre">solve</span></code>.</p>
 </section>
 <section id="outer-approximation-and-its-sensitivity">
 <h2>Outer approximation and its sensitivity<a class="headerlink" href="#outer-approximation-and-its-sensitivity" title="Link to this heading">#</a></h2>
