@@ -1345,7 +1345,11 @@ def draw_variant_profiles(foreground: str):
     hues = series(foreground)
     dimensions = data["dimensions"]
     figure, axes_grid = plt.subplots(
-        len(dimensions), 2, figsize=(10.4, 3.3 * len(dimensions)), sharey=True
+        len(dimensions),
+        2,
+        figsize=(10.4, 3.3 * len(dimensions)),
+        sharey=True,
+        squeeze=False,
     )
     for row, (dimension, entry) in zip(axes_grid, dimensions.items(), strict=True):
         profiles = entry["profiles"]
@@ -1402,7 +1406,10 @@ def draw_data_profiles(foreground: str):
     data = _read_profiles()
     hues = series(foreground)
     dimensions = data["dimensions"]
-    figure, axes_row = plt.subplots(1, len(dimensions), figsize=(9.6, 3.6), sharey=True)
+    figure, axes_grid = plt.subplots(
+        1, len(dimensions), figsize=(9.6, 3.6), sharey=True, squeeze=False
+    )
+    axes_row = axes_grid[0]
     for axes, (dimension, entry) in zip(axes_row, dimensions.items(), strict=True):
         profiles = entry["profiles"]
         best = entry["ranking"][0]
