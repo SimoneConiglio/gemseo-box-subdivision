@@ -44,6 +44,30 @@ and this project adheres to
   the best value after each call, and a `Result` carries it as `history`, one
   entry per equivalent evaluation.
 
+- `benchmarks/variants.py`, the **variants of the method** behind the interface
+  of the baselines, each changing one thing from the swept configuration: the
+  probes, the top of the convexity ladder, the density fixed or proposed by the
+  basin count, the multi-resolution encoding and the deep hierarchy. The data
+  profiles now run them beside the baselines on one set of targets, at $500$
+  evaluations per variable, and cache every finished run so an interrupted
+  study resumes. `run_swept_box_subdivision` takes the probes, the top of the
+  ladder and the levels of the encoding.
+
+### Changed
+
+- The results page profiles the variants **before** comparing with the
+  baselines, and the comparison keeps only the best variant of each dimension:
+  sixteen probes in two variables, ten subdivisions per variable in five. Its
+  table and figure are rebuilt from the runs of the profiles, five starting
+  points instead of three.
+
+### Fixed
+
+- The table proposing the density no longer passes for its whole cost: the
+  scans deciding the density were never counted, and they cost more than the
+  runs they configure, about $6100$ evaluations on Rastrigin in five variables
+  against $2103$. The page says so, and the profiles charge them.
+
 ## 0.3.0 (2026-09-27)
 
 ### Fixed

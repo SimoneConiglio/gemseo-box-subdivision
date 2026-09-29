@@ -796,47 +796,40 @@ def draw_sampling(foreground: str):
 
 
 def draw_results(foreground: str):
-    """Draw the cost of each method, per problem and dimension."""
-    labels = (
-        "Rastrigin 2",
-        "Rastrigin 5",
-        "Ackley 2",
-        "Ackley 5",
-        "Styblinski 2",
-        "Styblinski 5",
-        "Griewank 2",
-        "Griewank 5",
-    )
-    # The swept column is what a user gets having tuned nothing; the calibrated
-    # one carries a margin chosen on these very problems.
-    costs = {
-        "box subdivision, swept": (457, 899, 613, 361, 334, 601, 556, 1009),
-        "box subdivision, margin 100": (543, 823, 347, 892, 218, 458, 607, 1016),
-        "multistart": (1000, 2500, 1000, 2500, 1000, 2340, 1000, 2500),
-        "CMA-ES": (631, 1945, 745, 2009, 535, 1457, 643, 1769),
-        "DIRECT": (649, 461, 417, 353, 1011, 2505, 1011, 397),
+    """Draw the cost of the best variant and of the baselines, per problem."""
+    data = _read_profiles()
+    names = {"rastrigin": "Rastrigin", "ackley": "Ackley"}
+    names |= {"styblinski_tang": "Styblinski", "griewank": "Griewank"}
+    cells = [
+        (problem, dimension) for problem in data["problems"] for dimension in ("2", "5")
+    ]
+    labels = [f"{names[problem]} {dimension}" for problem, dimension in cells]
+    hues = series(foreground)
+    methods = {"best variant": None} | {
+        name: label for name, label in BASELINE_LABELS.items() if name != "egobox"
     }
-    reached = {
-        "box subdivision, swept": (3, 0, 3, 0, 3, 3, 0, 0),
-        "box subdivision, margin 100": (3, 0, 2, 0, 3, 2, 0, 0),
-        "multistart": (2, 0, 3, 0, 3, 3, 0, 0),
-        "CMA-ES": (0, 0, 3, 3, 2, 2, 0, 0),
-        "DIRECT": (3, 0, 3, 0, 3, 3, 0, 0),
-    }
-    # The budget is 500 equivalent evaluations per design variable, so a bar
-    # reaching it is a run stopped by the budget rather than by itself.
-    budgets = tuple(500 * int(label.split()[-1]) for label in labels)
-    colours = (ACCENT, FOURTH, SECOND, THIRD, "#868e96")
     figure, axes = plt.subplots(figsize=(8.6, 3.6))
     positions = arange(len(labels))
-    width = 0.16
-    for index, (name, values) in enumerate(costs.items()):
-        offset = (index - 2) * width
+    width = 0.2
+    for index, (method, label) in enumerate(methods.items()):
+        values, reached, budgets = [], [], []
+        for problem, dimension in cells:
+            entry = data["dimensions"][dimension]
+            name = entry["ranking"][0] if label is None else method
+            _, cost, count = entry["summary"][name][problem]
+            values.append(cost)
+            reached.append(count)
+            budgets.append(entry["budget"])
+
         bars = axes.bar(
-            positions + offset, values, width, color=colours[index], label=name
+            positions + (index - 1.5) * width,
+            values,
+            width,
+            color=hues[index],
+            label="box subdivision, best variant" if label is None else label,
         )
         for bar, count, cost, budget in zip(
-            bars, reached[name], values, budgets, strict=True
+            bars, reached, values, budgets, strict=True
         ):
             if cost >= budget:
                 bar.set_hatch("///")
@@ -845,11 +838,11 @@ def draw_results(foreground: str):
             if count:
                 axes.text(
                     bar.get_x() + bar.get_width() / 2,
-                    bar.get_height() + 40,
-                    "✓" * count,
+                    bar.get_height() + 30,
+                    str(count),
                     ha="center",
-                    fontsize=6.5,
-                    color=colours[index],
+                    fontsize=7,
+                    color=hues[index],
                 )
 
     axes.text(
@@ -862,15 +855,14 @@ def draw_results(foreground: str):
         fontsize=7.5,
         style="italic",
     )
-
     axes.set_xticks(positions)
     axes.set_xticklabels(labels, rotation=20, ha="right")
-    axes.set_ylabel("equivalent evaluations")
+    axes.set_ylabel("median equivalent evaluations")
     axes.set_title(
-        "Cost at equal budget, a tick per starting point reaching the optimum",
+        "Cost at equal budget, and the starting points of five reaching the optimum",
         pad=26,
     )
-    axes.legend(ncols=5, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, 1.10))
+    axes.legend(ncols=4, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, 1.10))
     return figure
 
 
@@ -1278,69 +1270,182 @@ def draw_density(foreground: str):  # noqa: ARG001
 DATA_PROFILES = Path(__file__).parent / "_static" / "data_profiles.json"
 """The profiles written by ``python -m benchmarks.data_profiles``."""
 
-PROFILE_LABELS = {
-    "box_subdivision": "box subdivision, margin 100",
-    "box_subdivision_swept": "box subdivision, swept",
+BASELINE_LABELS = {
     "multistart": "multistart",
     "cmaes": "CMA-ES",
     "direct": "DIRECT",
     "egobox": "EGO",
 }
-"""The label of each method of the data profiles."""
+"""The label of each baseline of the data profiles."""
+
+
+def _read_profiles() -> dict:
+    """Return what ``python -m benchmarks.data_profiles`` wrote."""
+    import json
+
+    return json.loads(DATA_PROFILES.read_text(encoding="utf-8"))
+
+
+def _plot_profile(axes, points, **settings) -> None:  # noqa: ANN001
+    """Draw a profile from the evaluations where it changes.
+
+    Args:
+        axes: The axes.
+        points: The evaluation and the fraction at each change.
+        **settings: The settings of the line.
+    """
+    evaluations, ratios = zip(*points, strict=True)
+    settings.setdefault("linewidth", 1.5)
+    axes.plot(evaluations, ratios, drawstyle="steps-post", **settings)
+
+
+def _profile_axes(axes, dimension: str, budget: int, title: str) -> None:  # noqa: ANN001
+    """Set the axes of a panel of profiles.
+
+    Args:
+        axes: The axes.
+        dimension: The number of design variables.
+        budget: The budget of the panel.
+        title: The title of the panel.
+    """
+    axes.set_title(f"{dimension} variables: {title}", fontsize=9.5)
+    axes.set_xlim(1, budget)
+    axes.set_ylim(0.0, 1.02)
+    axes.yaxis.set_major_formatter(
+        matplotlib.ticker.PercentFormatter(xmax=1.0, decimals=0)
+    )
+    axes.grid(alpha=0.25)
+
+
+EXPLORING = ("probes_8", "probes_16", "ceiling_30", "ceiling_10", "margin_100")
+"""The variants changing how the master explores, a hue each."""
+
+RESOLVING = (
+    "density_10",
+    "proposed_density",
+    "proposed_density_free",
+    "multi_resolution",
+    "deep_hierarchy",
+)
+"""The variants changing what the subdivision resolves, a hue each."""
+
+AT_DENSITY_10 = {"density_10_ceiling_10": "ceiling_10"}
+"""The exploring variants measured again at ten subdivisions per variable."""
+
+
+def draw_variant_profiles(foreground: str):
+    """Draw the profiles of the variants, one row per dimension."""
+    data = _read_profiles()
+    labels = data["labels"]
+    hues = series(foreground)
+    dimensions = data["dimensions"]
+    figure, axes_grid = plt.subplots(
+        len(dimensions),
+        2,
+        figsize=(10.4, 3.3 * len(dimensions)),
+        sharey=True,
+        squeeze=False,
+    )
+    for row, (dimension, entry) in zip(axes_grid, dimensions.items(), strict=True):
+        profiles = entry["profiles"]
+        budget = entry["budget"]
+        for axes, names, title in (
+            (row[0], EXPLORING, "how the master explores"),
+            (row[1], RESOLVING, "what the subdivision resolves"),
+        ):
+            _plot_profile(
+                axes,
+                profiles["swept"],
+                color=foreground,
+                alpha=0.55,
+                label=labels["swept"],
+            )
+            for hue, name in zip(hues, names, strict=False):
+                if name in profiles:
+                    _plot_profile(
+                        axes,
+                        profiles[name],
+                        color=hue,
+                        linestyle=":" if name == "proposed_density" else "-",
+                        label=labels[name],
+                    )
+
+            _profile_axes(axes, dimension, budget, title)
+
+        # The exploring variants at the density resolving Rastrigin, dashed in
+        # the hue of the same variant at the default density, beside the swept
+        # configuration at that density.
+        if "density_10" in profiles and AT_DENSITY_10.keys() & profiles.keys():
+            _plot_profile(
+                row[0],
+                profiles["density_10"],
+                color=foreground,
+                alpha=0.55,
+                linestyle="--",
+                label=labels["density_10"],
+            )
+
+        for name, twin in AT_DENSITY_10.items():
+            if name in profiles:
+                _plot_profile(
+                    row[0],
+                    profiles[name],
+                    color=hues[EXPLORING.index(twin)],
+                    linestyle="--",
+                    label=labels[name],
+                )
+
+        row[0].set_ylabel("targets reached")
+
+    for axes in axes_grid[-1]:
+        axes.set_xlabel("equivalent evaluations")
+        axes.legend(fontsize=7, loc="lower right", ncols=1)
+
+    axes_grid[0][0].legend(fontsize=7, loc="lower right")
+    axes_grid[0][1].legend(fontsize=7, loc="lower right")
+    figure.tight_layout()
+    return figure
 
 
 def draw_data_profiles(foreground: str):
-    """Draw the data profiles of the methods, one panel per dimension."""
-    import json
-
-    data = json.loads(DATA_PROFILES.read_text(encoding="utf-8"))
+    """Draw the best variant against the baselines, one panel per dimension."""
+    data = _read_profiles()
     hues = series(foreground)
-    # The two configurations of the method share its hue, the swept one solid.
-    styles = {
-        "box_subdivision": (hues[0], "--"),
-        "box_subdivision_swept": (hues[0], "-"),
-        "multistart": (hues[1], "-"),
-        "cmaes": (hues[2], "-"),
-        "direct": (hues[3], "-"),
-        "egobox": (hues[4], "-"),
-    }
     dimensions = data["dimensions"]
-    figure, axes_row = plt.subplots(1, len(dimensions), figsize=(9.6, 3.6), sharey=True)
+    figure, axes_grid = plt.subplots(
+        1, len(dimensions), figsize=(9.6, 3.6), sharey=True, squeeze=False
+    )
+    axes_row = axes_grid[0]
     for axes, (dimension, entry) in zip(axes_row, dimensions.items(), strict=True):
-        for method, profile in entry["profiles"].items():
-            colour, linestyle = styles[method]
-            axes.plot(
-                arange(1, len(profile) + 1),
-                profile,
-                color=colour,
-                linestyle=linestyle,
-                linewidth=1.6,
-                label=PROFILE_LABELS[method],
-            )
+        profiles = entry["profiles"]
+        best = entry["ranking"][0]
+        _plot_profile(
+            axes,
+            profiles[best],
+            color=hues[0],
+            linewidth=2.2,
+            label=f"box subdivision: {data['labels'][best]}",
+        )
+        for hue, (name, label) in zip(hues[1:], BASELINE_LABELS.items(), strict=True):
+            _plot_profile(axes, profiles[name], color=hue, label=label)
+            # EGO's budget is shorter, so its curve is marked where it was
+            # stopped rather than extended as if it had finished.
+            end, ratio = profiles[name][-1]
+            if end < entry["budget"]:
+                axes.plot(end, ratio, marker="o", color=hue, markersize=4)
 
         optimal = len(entry["best_target_is_the_optimum"])
-        axes.set_title(
-            f"{dimension} variables\n"
-            f"best target the optimum on {optimal} of {len(entry['problems'])} "
-            "problems",
-            fontsize=9.5,
+        _profile_axes(
+            axes,
+            dimension,
+            entry["budget"],
+            f"best target the optimum on {optimal} of {len(data['problems'])}",
         )
         axes.set_xlabel("equivalent evaluations")
-        axes.set_xlim(1, data["budget"])
-        axes.set_ylim(0.0, 1.02)
-        axes.yaxis.set_major_formatter(
-            matplotlib.ticker.PercentFormatter(xmax=1.0, decimals=0)
-        )
-        axes.grid(alpha=0.25)
+        axes.legend(fontsize=7, loc="lower right")
 
     axes_row[0].set_ylabel("targets reached")
-    figure.legend(
-        *axes_row[0].get_legend_handles_labels(),
-        ncols=3,
-        fontsize=8,
-        loc="lower center",
-        bbox_to_anchor=(0.5, -0.13),
-    )
+    figure.tight_layout()
     return figure
 
 
@@ -1615,6 +1720,7 @@ FIGURES = {
     "density": (draw_density, "svg"),
     "small_budget": (draw_small_budget, "svg"),
     "encodings": (draw_encodings, "svg"),
+    "variant_profiles": (draw_variant_profiles, "svg"),
     "data_profiles": (draw_data_profiles, "svg"),
 }
 """The figures, by name, with the format each is written in."""
