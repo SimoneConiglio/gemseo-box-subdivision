@@ -274,12 +274,6 @@ VARIANTS: dict[str, tuple[str, Callable[[Problem, int, int, int], Result]]] = {
         "swept, proposed density, scans free",
         partial(run_proposed_density, charge_scans=False),
     ),
-    "density_10_probes_16": (
-        "swept, 10 per variable, 16 probes",
-        partial(
-            run_swept, "density_10_probes_16", n_subdivisions=10, n_parallel_points=16
-        ),
-    ),
     "density_10_ceiling_10": (
         "swept, 10 per variable, ladder up to 10",
         partial(run_swept, "density_10_ceiling_10", n_subdivisions=10, max_value=10.0),

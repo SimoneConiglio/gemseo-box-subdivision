@@ -838,13 +838,11 @@ def draw_results(foreground: str):
             if count:
                 axes.text(
                     bar.get_x() + bar.get_width() / 2,
-                    bar.get_height() + 40,
-                    "✓" * count,
+                    bar.get_height() + 30,
+                    str(count),
                     ha="center",
-                    fontsize=5.5,
+                    fontsize=7,
                     color=hues[index],
-                    rotation=90,
-                    va="bottom",
                 )
 
     axes.text(
@@ -861,7 +859,7 @@ def draw_results(foreground: str):
     axes.set_xticklabels(labels, rotation=20, ha="right")
     axes.set_ylabel("median equivalent evaluations")
     axes.set_title(
-        "Cost at equal budget, a tick per starting point reaching the optimum",
+        "Cost at equal budget, and the starting points of five reaching the optimum",
         pad=26,
     )
     axes.legend(ncols=4, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, 1.10))
@@ -1331,10 +1329,7 @@ RESOLVING = (
 )
 """The variants changing what the subdivision resolves, a hue each."""
 
-AT_DENSITY_10 = {
-    "density_10_probes_16": "probes_16",
-    "density_10_ceiling_10": "ceiling_10",
-}
+AT_DENSITY_10 = {"density_10_ceiling_10": "ceiling_10"}
 """The exploring variants measured again at ten subdivisions per variable."""
 
 
@@ -1378,7 +1373,18 @@ def draw_variant_profiles(foreground: str):
             _profile_axes(axes, dimension, budget, title)
 
         # The exploring variants at the density resolving Rastrigin, dashed in
-        # the hue of the same variant at the default density.
+        # the hue of the same variant at the default density, beside the swept
+        # configuration at that density.
+        if "density_10" in profiles and AT_DENSITY_10.keys() & profiles.keys():
+            _plot_profile(
+                row[0],
+                profiles["density_10"],
+                color=foreground,
+                alpha=0.55,
+                linestyle="--",
+                label=labels["density_10"],
+            )
+
         for name, twin in AT_DENSITY_10.items():
             if name in profiles:
                 _plot_profile(

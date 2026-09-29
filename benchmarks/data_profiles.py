@@ -112,9 +112,12 @@ FLAT_VARIANTS = (
 VARIANTS = {
     2: FLAT_VARIANTS,
     # Two subdivisions per variable, the default in five, resolve the basins of
-    # two problems of four, so the probes and the ladder are measured again at
-    # the density that resolves Rastrigin; in two variables the default is ten.
-    5: (*FLAT_VARIANTS, "density_10", "density_10_probes_16", "density_10_ceiling_10"),
+    # two problems of four, so the ladder is measured again at the density that
+    # resolves Rastrigin; in two variables the default is ten. Sixteen probes
+    # at that density is left out: with fifty binaries a master iteration of
+    # sixteen probes is so slow that half its runs had not spent their budget
+    # after five hours, and the half that had were worse than four probes.
+    5: (*FLAT_VARIANTS, "density_10", "density_10_ceiling_10"),
 }
 """The variants of each dimension."""
 
