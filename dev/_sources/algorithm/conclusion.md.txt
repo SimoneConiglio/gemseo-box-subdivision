@@ -41,16 +41,16 @@ distance at all, and it cost this method its best result until it was found.
 
 **The guard is no longer one of them.** Sweeping a ladder of convexity values
 across the parallel probes the master already runs, with no value supplied,
-reaches the same distance to the optimum as the calibrated configuration on every
-row of the comparison against the baselines, and reaches it from more starting
-points on two of them. A user tunes the density of the subdivision now, not the
-units of their own objective. The trust region remains, and so does the
-subdivision: what the sweep removes is one of the two, not both, and it is
-measured on four problems in two dimensions and five, which is this benchmark
-rather than a held-out set. See
-[the results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it),
-with the tables in
-[annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
+reaches the same median distance to the optimum as the calibrated configuration
+on every problem of [the profiles of the
+variants](benchmark.md#the-variants-of-the-method-profiled), and reaches it from
+more starting points on two of them. A user tunes the density of the subdivision
+now, not the units of their own objective. The trust region remains, and so does
+the subdivision: what the sweep removes is one of the two, not both, and it is
+measured on four problems in two dimensions and five, from five starting points
+each, which is this benchmark rather than a held-out set. See [the
+results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it), with the
+tables in [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
 ## What is established, and what is not
 
@@ -169,9 +169,9 @@ feasibility will land on it at all.
 **Finishing the convexity nobody has to calibrate.** The margin and the constant
 are absolute quantities in the units of the objective, which was the criticism
 this method had not answered; the sweep answers it, and the answer is measured
-rather than proposed. Across the comparison against the baselines, four problems
-in two dimensions and five, the swept configuration matches the calibrated margin
-on every row and reaches the optimum from more starting points on two of them,
+rather than proposed. Across the profiles of the variants, four problems in two
+dimensions and five, the swept configuration matches the calibrated margin on
+every problem and reaches the optimum from more starting points on two of them,
 one of those at five variables, with no value supplied at all.
 
 Three things are missing before that is a result rather than a measurement. The
