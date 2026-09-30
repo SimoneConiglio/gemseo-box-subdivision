@@ -38,9 +38,13 @@ import numpy as np
 
 sys.path.insert(0, str(Path("benchmarks").resolve()))
 import contextlib
+from typing import TYPE_CHECKING
 
 import sc2d_box_subdivision as sc2d  # noqa: E402
 from gemseo.core.chains.chain import MDOChain  # noqa: E402
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 TRIVIAL = {2: 0.5, 3: 0.5, 5: 0.5}
 """The normalized length, thickness and density of the trivial start."""
@@ -311,7 +315,103 @@ def run_gesbo(problem: Problem, seed: int) -> str:
     )
 
 
+def run_smt(problem: Problem, seed: int, n_doe: int = 20) -> str:
+    """Run EGO on SMT's gradient-enhanced surrogate, GEKPLS.
+
+    SMT's own EGO cannot train GEKPLS as a gradient-enhanced model: version
+    2.15 hands it every column of the data, the gradients included, as training
+    outputs, and requires the output count to match. This loop does what it
+    means to: GEKPLS is trained on the value, with the adjoint gradients as its
+    derivatives, SMT's defaults otherwise (two PLS components), and the next
+    point maximizes the expected improvement from several starts, its gradient
+    taken by finite differences on the surrogate in one batch. There is no
+    constraint, so the volume enters as the penalty of DIRECT and CMA-ES, its
+    gradient added where it is violated. The initial design is the trivial start
+    and a Latin hypercube, twenty points in all.
+    """
+    from scipy.optimize import minimize
+    from scipy.stats import norm
+    from smt.design_space import DesignSpace
+    from smt.surrogate_models import GEKPLS
+
+    chain = problem.chain
+    chain.add_differentiated_inputs(["x_vars"])
+    chain.add_differentiated_outputs(["compliance", "volume"])
+
+    def evaluate(x: np.ndarray) -> tuple[float, np.ndarray]:
+        jacobian = chain.linearize({"x_vars": np.clip(x, 0.0, 1.0)}, execute=True)
+        data = chain.io.data
+        volume = float(np.ravel(data["volume"])[0])
+        value = float(np.ravel(data["compliance"])[0])
+        gradient = np.asarray(jacobian["compliance"]["x_vars"]).ravel()
+        if volume > 0.0:
+            value += PENALTY * volume
+            gradient = (
+                gradient + PENALTY * np.asarray(jacobian["volume"]["x_vars"]).ravel()
+            )
+        return value, gradient
+
+    size = problem.x0.size
+    rng = np.random.default_rng(seed)
+    x_data = list(initial_design(problem.x0, seed)[:n_doe])
+    evaluated = [evaluate(x) for x in x_data]
+    y_data = [value for value, _ in evaluated]
+    g_data = [gradient for _, gradient in evaluated]
+    step = 1e-5
+
+    for _ in range(problem.budget):
+        model = GEKPLS(
+            design_space=DesignSpace(np.array([[0.0, 1.0]] * size)),
+            print_global=False,
+        )
+        x_train = np.array(x_data)
+        model.set_training_values(x_train, np.array(y_data)[:, None])
+        gradients = np.array(g_data)
+        for k in range(size):
+            model.set_training_derivatives(x_train, gradients[:, k : k + 1], k)
+        model.train()
+        best = min(y_data)
+
+        def negative_ei(
+            points: np.ndarray, model: GEKPLS = model, best: float = best
+        ) -> np.ndarray:
+            mean = model.predict_values(points).ravel()
+            sigma = np.sqrt(np.maximum(model.predict_variances(points).ravel(), 1e-18))
+            z = (best - mean) / sigma
+            return -((best - mean) * norm.cdf(z) + sigma * norm.pdf(z))
+
+        def objective(
+            x: np.ndarray, negative_ei: Callable = negative_ei
+        ) -> tuple[float, np.ndarray]:
+            # The point and its 108 neighbours, in one prediction.
+            points = np.vstack([x, x + step * np.eye(size)])
+            values = negative_ei(points)
+            return float(values[0]), (values[1:] - values[0]) / step
+
+        starts = [x_data[int(np.argmin(y_data))], problem.x0]
+        starts += list(rng.uniform(0.0, 1.0, (3, size)))
+        candidates = [
+            minimize(
+                objective,
+                start,
+                jac=True,
+                method="L-BFGS-B",
+                bounds=[(0.0, 1.0)] * size,
+                options={"maxiter": 50},
+            )
+            for start in starts
+        ]
+        x_next = min(candidates, key=lambda result: result.fun).x
+        value, gradient = evaluate(x_next)
+        x_data.append(x_next)
+        y_data.append(value)
+        g_data.append(gradient)
+
+    return f"EGO on SMT's GEKPLS, {problem.budget} iterations after {n_doe}"
+
+
 RUNNERS = {
+    "smt": run_smt,
     "gesbo": run_gesbo,
     "direct": run_direct,
     "cmaes": run_cmaes,
