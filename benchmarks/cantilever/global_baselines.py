@@ -253,7 +253,66 @@ def run_multistart(problem: Problem, seed: int, max_iter: int = 1800) -> str:
     return f"multistart MMA, {starts} starts"
 
 
+NO_STALL = "--no-stall" in sys.argv
+"""Whether to switch GE-SBO's stalling test off, so its budget is what ends it."""
+if NO_STALL:
+    sys.argv.remove("--no-stall")
+
+GESBO = Path("/home/user/simoneconiglio/ggp_gesbo")
+"""A checkout of the GGP branch ``claude/gradient-enhanced-sbo-s6yfyr``,
+whose ``scp_uno`` package holds GE-SBO."""
+
+
+def run_gesbo(problem: Problem, seed: int) -> str:
+    """Run GE-SBO from the trivial start, its adjoint gradients as observations.
+
+    Its engine is called directly, the GEMSEO wrapper only adapting a problem to
+    it: the value and the gradient of the compliance and of the volume come from
+    one linearization of the chain. Its settings are its defaults but for the
+    budget, and for the cap on its outer iterations, raised so that the budget
+    or its own stalling test ends the run rather than the cap.
+    """
+    sys.path.insert(0, str(GESBO))
+    from scp_uno.gesbo_core import GESBOConfig
+    from scp_uno.gesbo_core import gesbo_minimize
+
+    chain = problem.chain
+    chain.add_differentiated_inputs(["x_vars"])
+    chain.add_differentiated_outputs(["compliance", "volume"])
+
+    def evaluate(x: np.ndarray):  # noqa: ANN202
+        jacobian = chain.linearize(
+            {"x_vars": np.clip(np.asarray(x, float), 0.0, 1.0)}, execute=True
+        )
+        data = chain.io.data
+        return (
+            float(np.ravel(data["compliance"])[0]),
+            np.asarray(jacobian["compliance"]["x_vars"]).ravel(),
+            np.ravel(data["volume"]).astype(float),
+            np.asarray(jacobian["volume"]["x_vars"]).reshape(1, -1),
+        )
+
+    size = problem.x0.size
+    result = gesbo_minimize(
+        evaluate,
+        problem.x0,
+        np.zeros(size),
+        np.ones(size),
+        GESBOConfig(
+            max_evals=problem.budget,
+            max_outer_iter=problem.budget,
+            seed=seed,
+            **({"stall_limit": problem.budget} if NO_STALL else {}),
+        ),
+    )
+    return (
+        f"GE-SBO, {problem.budget} evaluations: {result.status} after "
+        f"{result.n_evals} evaluations, {result.n_iter} iterations"
+    )
+
+
 RUNNERS = {
+    "gesbo": run_gesbo,
     "direct": run_direct,
     "cmaes": run_cmaes,
     "egobox": run_egobox,
@@ -303,7 +362,8 @@ def main() -> None:
         "volume_history": history.volume,
     }
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / f"{args.method}_trivial.json").write_text(json.dumps(result))
+    tag = args.method + ("_no_stall" if NO_STALL else "")
+    (OUT / f"{tag}_trivial.json").write_text(json.dumps(result))
     print(
         f"{method}: best feasible {compliance:.6f}, {history.unique} designs, "
         f"{len(history)} solves, best at solve {index + 1}, {elapsed:.0f} s"
