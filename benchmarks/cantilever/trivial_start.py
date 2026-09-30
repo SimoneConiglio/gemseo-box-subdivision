@@ -22,6 +22,7 @@ in the normalized variables the GGP disciplines take.
 
 from __future__ import annotations
 
+import dataclasses
 import sys
 from pathlib import Path
 
@@ -50,4 +51,18 @@ def build_disciplines(spec):  # noqa: ANN001, ANN201
 
 
 sc2d.build_disciplines = build_disciplines
+
+# The preset's options are MMA's (asymptotes, move limit), and the script hands
+# them to whichever sub-solver it is given: another one runs on its defaults.
+if "--sub-algo" in sys.argv and sys.argv[sys.argv.index("--sub-algo") + 1] != "MMA":
+    original_load_spec = sc2d.load_spec
+
+    def load_spec(*args, **kwargs):  # noqa: ANN002, ANN003, ANN202
+        """Load the preset, without the options of MMA."""
+        spec = original_load_spec(*args, **kwargs)
+        return dataclasses.replace(
+            spec, solver=dataclasses.replace(spec.solver, options={})
+        )
+
+    sc2d.load_spec = load_spec
 sc2d.main()

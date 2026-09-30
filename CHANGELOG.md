@@ -53,6 +53,13 @@ and this project adheres to
   study resumes. `run_swept_box_subdivision` takes the probes, the top of the
   ladder and the levels of the encoding.
 
+- `benchmarks/cantilever/`, the method on the short cantilever of the GGP
+  package, 108 variables under a volume constraint with adjoint gradients,
+  from a trivial start: the box subdivision with MMA or SLSQP in its boxes
+  against MMA, SLSQP, a multistart of MMA, DIRECT, CMA-ES, EGO, GE-SBO and EGO
+  on SMT's GEKPLS, and an animation of the box run. The results page reports it
+  in compliance, the disciplines returning its logarithm.
+
 ### Changed
 
 - The results page profiles the variants **before** comparing with the

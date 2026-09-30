@@ -410,7 +410,38 @@ def run_smt(problem: Problem, seed: int, n_doe: int = 20) -> str:
     return f"EGO on SMT's GEKPLS, {problem.budget} iterations after {n_doe}"
 
 
+def run_slsqp(problem: Problem, seed: int) -> str:  # noqa: ARG001
+    """Run SLSQP once from the trivial start, to see where and when it stops.
+
+    Its tolerances are GEMSEO's defaults and its budget, in iterations, is
+    high enough that its own convergence ends the run: this is the length a
+    box's sub-problem needs if SLSQP solves it.
+    """
+    from gemseo import create_design_space
+    from gemseo import create_scenario
+
+    design_space = create_design_space()
+    design_space.add_variable(
+        "x_vars",
+        size=problem.x0.size,
+        lower_bound=0.0,
+        upper_bound=1.0,
+        value=problem.x0,
+    )
+    scenario = create_scenario(
+        [problem.geometry, problem.physics],
+        objective_name="compliance",
+        design_space=design_space,
+        formulation_name="MDF",
+    )
+    scenario.add_constraint("volume", constraint_type="ineq", positive=False, value=0.0)
+    scenario.execute(algo_name="SLSQP", max_iter=problem.budget)
+    iterations = len(scenario.formulation.optimization_problem.database)
+    return f"SLSQP, {iterations} iterations of at most {problem.budget}"
+
+
 RUNNERS = {
+    "slsqp": run_slsqp,
     "smt": run_smt,
     "gesbo": run_gesbo,
     "direct": run_direct,
