@@ -584,5 +584,94 @@ evaluations are plentiful, which is where the box subdivision's density can be
 afforded at all.
 :::
 
+## An application: the GGP short cantilever
+
+The analytic problems above are cheap, low-dimensional and unconstrained, which
+is not the case the method is built for. The short cantilever of
+[generalized geometry projection](https://github.com/SimoneConiglio/generalized_geometry_projection)
+is: $18$ bars, each posed by its centre and its angle and sized by its length,
+its thickness and its density, $108$ variables in all, a compliance to minimize
+under a volume constraint, and adjoint gradients. The objective the disciplines
+return is $\log(C + 1)$, as in the reference MATLAB implementation; the table
+reports the compliance $C$ itself, with $\log(C + 1)$ beside it.
+
+Every run starts from a **trivial** design: the bar poses of the preset, and
+the length, the thickness and the density at the middle of their ranges. The
+preset's own starting design is a far better guess, and plain MMA from it is
+the reference, not a competitor. The box subdivision resolves the pose of every
+bar, ten subdivisions each, $54$ variables and $540$ binaries, with the
+convexity swept; the length, the thickness and the density stay free variables
+of each box's sub-problem, restarted at the trivial values. One run per row:
+
+| method | $C$ | $\log(C + 1)$ | designs to its best | designs spent |
+|--------|-----|---------------|---------------------|---------------|
+| MMA from the preset's design (reference) | $74.3$ | $4.321$ | 385 | 385 |
+| multistart of MMA, nine starts | $82.1$ | $4.420$ | 9380 | 12325 |
+| **box subdivision, MMA in each box** | **$82.7$** | **$4.427$** | **4536** | 12325 |
+| box subdivision, boxes drawn at random | $88.9$ | $4.498$ | 14709 | 17725 |
+| SLSQP | $90.9$ | $4.520$ | 241 | 241 |
+| box subdivision, SLSQP in each box | $95.5$ | $4.569$ | 8525 | 9793 |
+| MMA | $105.1$ | $4.664$ | 1715 | 1715 |
+| CMA-ES | $418$ | $6.039$ | 11243 | 12325 |
+| GE-SBO, stopped by its own trust region | $1276$ | $7.152$ | 119 | 129 |
+| EGO on SMT's GEKPLS, 80 iterations | $1293$ | $7.165$ | — | 100 |
+| EGO (egobox, KPLS), stopped for cost | $1359$ | $7.215$ | — | 248 |
+| DIRECT | $1433$ | $7.268$ | 6038 | 12325 |
+
+```{image} ../_static/figures/cantilever.gif
+:class: only-light
+:alt: The box subdivision on the cantilever, box by box, against MMA from the same start
+```
+
+```{image} ../_static/figures/cantilever-dark.gif
+:class: only-dark
+:alt: The box subdivision on the cantilever, box by box, against MMA from the same start
+```
+
+Each frame is a point of one box's local solve, the best feasible design found
+so far beneath it, and the best compliance against the designs analysed, beside
+MMA from the same start and from the preset's.
+
+**Without the gradient, nothing competes.** DIRECT, CMA-ES and both EGOs end
+between four and twenty times above the local solvers, and the two methods that
+condition a surrogate on the adjoint gradients, GE-SBO and EGO on GEKPLS, do no
+better than the one that does not: at $108$ variables the surrogate is the
+bottleneck, not the information it is given. This is the regime where the
+comparison of the analytic problems does not transfer.
+
+**The box subdivision improves on the local solve it is built on.** From the
+same start, MMA converges to $105.1$ and cannot go further; the box subdivision
+passes it within its first box, a start at the centre of each box descending
+faster than the trivial design, and reaches $82.7$ in its fourth. The master's
+choice of boxes is what earns it: the same subdivision with boxes drawn at
+random reaches $88.9$, after three times the designs.
+
+**It ties a multistart of MMA, which was lucky.** Nine starts, the first the
+trivial design and the others random poses, reach $82.1$; but seven of the nine
+converge between $105$ and $109$, one to $90.7$, and only the seventh to
+$82.1$. The box subdivision reached its value in half the designs, and a
+multistart with a different seed would more likely end near $105$ than near
+$82$; one run of each cannot settle it.
+
+**SLSQP is the better local solver and the worse sub-solver.** From the trivial
+start it converges in $241$ iterations, seven times fewer than MMA, and lower,
+$90.9$ against $105.1$. Inside the boxes it does not carry over: forty-five
+boxes of up to three hundred iterations reach $95.5$, above SLSQP's own single
+run, the restarts at the centres of the boxes losing more than the master's
+choice of boxes finds.
+
+**Neither method reaches the preset.** MMA from the preset's design reaches
+$74.3$ in $385$ designs; nothing started from the trivial design comes within
+$10\%$ of it. On this problem a good starting design is worth more than
+$12\,000$ designs of search.
+
+:::{warning}
+Every row is a single run from a single start, and the box subdivision was
+configured by hand — ten subdivisions of the poses, the number of MMA iterations
+per box — on this very problem. The drivers are in `benchmarks/cantilever/`;
+they run from the GGP repository, in its environment with legacy FEniCS, and not
+in the test suite.
+:::
+
 What all of this establishes, and where it can go, is [the
 conclusion](conclusion.md).
