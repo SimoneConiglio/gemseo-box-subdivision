@@ -61,7 +61,9 @@ and this project adheres to
   in compliance, the disciplines returning its logarithm. `--processes` solves
   the master's probes in parallel, which needs merge request 139 of
   gemseo-bilevel-outer-approximation; nine probes reach a compliance of 76.8,
-  within 3.4% of MMA from the preset's design.
+  within 3.4% of MMA from the preset's design. `--record` keeps every solve of
+  every process, and the animation of the box run shows that run, round by
+  round.
 
 ### Changed
 

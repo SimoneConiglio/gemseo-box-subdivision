@@ -23,7 +23,9 @@ in the normalized variables the GGP disciplines take.
 from __future__ import annotations
 
 import dataclasses
+import os
 import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -111,6 +113,33 @@ if "--processes" in sys.argv:
             return float("nan"), np.asarray(self.x[-1]), -1
 
     sc2d._History.best = best
+
+# --record PREFIX appends every FE solve, of this process and of each forked
+# worker, to PREFIX.<pid>.bin: the time, the compliance, the volume and the
+# design, which is what the animation of a parallel run draws.
+if "--record" in sys.argv:
+    index = sys.argv.index("--record")
+    RECORD = sys.argv[index + 1]
+    del sys.argv[index : index + 2]
+    original_init = sc2d._History.__init__
+
+    def __init__(self, geometry, physics):  # noqa: ANN001, D107
+        original_init(self, geometry, physics)
+        recorded = physics._run
+
+        def _run(input_data=None):  # noqa: ANN001, ANN202
+            out = recorded(input_data)
+            row = np.concatenate((
+                [time.time(), self.compliance[-1], self.volume[-1]],
+                np.asarray(self.x[-1], dtype=float),
+            ))
+            with open(f"{RECORD}.{os.getpid()}.bin", "ab") as file:
+                file.write(row.astype(np.float64).tobytes())
+            return out
+
+        physics._run = _run
+
+    sc2d._History.__init__ = __init__
 
 try:
     sc2d.main()

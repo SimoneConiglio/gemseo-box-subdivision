@@ -606,7 +606,7 @@ of each box's sub-problem, restarted at the trivial values. One run per row:
 | method | $C$ | $\log(C + 1)$ | designs to its best | designs spent |
 |--------|-----|---------------|---------------------|---------------|
 | MMA from the preset's design (reference) | $74.3$ | $4.321$ | 385 | 385 |
-| **box subdivision, MMA in each box, nine probes in parallel** | **$76.8$** | **$4.354$** | 12th box, second round | 107630 |
+| **box subdivision, MMA in each box, nine probes in parallel** | **$76.8$** | **$4.354$** | 26413 | 107630 |
 | box subdivision, MMA in each box, four probes in parallel | $81.6$ | $4.414$ | 2nd box, first round | 40385 |
 | multistart of MMA, nine starts | $82.1$ | $4.420$ | 9380 | 12325 |
 | box subdivision, MMA in each box, one probe | $82.7$ | $4.427$ | 4536 | 12325 |
@@ -630,9 +630,12 @@ of each box's sub-problem, restarted at the trivial values. One run per row:
 :alt: The box subdivision on the cantilever, box by box, against MMA from the same start
 ```
 
-Each frame is a point of one box's local solve, the best feasible design found
-so far beneath it, and the best compliance against the designs analysed, beside
-MMA from the same start and from the preset's.
+The run with nine probes, round by round: on the left the boxes of a round as
+their local solves progress, an infeasible design starred and the best in the
+accent; on the right the best feasible design so far, and the best compliance
+against the designs analysed by all the processes, beside the run with one probe
+and MMA from the same start and from the preset's. The first round holds eight
+boxes rather than nine.
 
 **Without the gradient, nothing competes.** DIRECT, CMA-ES and both EGOs end
 between four and twenty times above the local solvers, and the two methods that
@@ -655,13 +658,14 @@ request 139. With four probes the box subdivision solves $28$ boxes in the hour
 and a half the single probe took for $11$, and reaches $81.6$ in the second, the
 $27$ others ending between $84.7$ and $139$. With nine probes, on the same four
 cores, it solves $63$ boxes in four and a half hours and reaches $76.8$ in its
-twelfth, in the master's second round of probes, after about $32\,500$ designs,
-fewer than the four probes spent in all; five boxes, the twelfth, $20$th,
-$24$th, $29$th and $52$nd, end below $77.5$, so the value is a basin the master
-returns to, not one lucky box. Each probe is a box the master would otherwise
-reach only after the cuts of the boxes before it; solved together they spread
-the first rounds over more of the poses, which is where this run found its
-best.
+$13$th box, in the master's second round of probes, after $26\,413$ designs and
+an hour and twelve minutes, fewer designs than the four probes spent in all;
+five boxes, the $13$th, $24$th, $25$th, $29$th and $53$rd, end below $77.5$, so
+the value is a basin the master returns to, not one lucky box. Each probe is a
+box the master would otherwise reach only after the cuts of the boxes before it;
+solved together they spread the first rounds over more of the poses, which is
+where this run found its best. A second run, recording every solve for the
+animation, repeated it box for box.
 
 **It beats a multistart of MMA, which was lucky.** Nine starts, the first the
 trivial design and the others random poses, reach $82.1$; but seven of the nine
