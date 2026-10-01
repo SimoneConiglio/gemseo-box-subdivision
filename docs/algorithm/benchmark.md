@@ -606,7 +606,8 @@ of each box's sub-problem, restarted at the trivial values. One run per row:
 | method | $C$ | $\log(C + 1)$ | designs to its best | designs spent |
 |--------|-----|---------------|---------------------|---------------|
 | MMA from the preset's design (reference) | $74.3$ | $4.321$ | 385 | 385 |
-| **box subdivision, MMA in each box, four probes on four processes** | **$81.6$** | **$4.414$** | second box | 40385 |
+| **box subdivision, MMA in each box, nine probes in parallel** | **$76.8$** | **$4.354$** | 12th box, second round | 107630 |
+| box subdivision, MMA in each box, four probes in parallel | $81.6$ | $4.414$ | 2nd box, first round | 40385 |
 | multistart of MMA, nine starts | $82.1$ | $4.420$ | 9380 | 12325 |
 | box subdivision, MMA in each box, one probe | $82.7$ | $4.427$ | 4536 | 12325 |
 | box subdivision, boxes drawn at random | $88.9$ | $4.498$ | 14709 | 17725 |
@@ -647,21 +648,28 @@ faster than the trivial design, and reaches $82.7$ in its fourth. The master's
 choice of boxes is what earns it: the same subdivision with boxes drawn at
 random reaches $88.9$, after three times the designs.
 
-**More probes buy more boxes in the same time.** With four probes per
-master iteration, solved on four processes, the box subdivision solves $28$
-boxes in the hour and a half the single probe took for $11$, and reaches $81.6$;
-the best box is the second solved, in the master's first round, and the
-$27$ others end between $84.7$ and $139$, most of them between $85$
-and $92$.
-Spreading the probes needs the fix of the master's parallel evaluation in
-gemseo-bilevel-outer-approximation's merge request 139.
+**More probes find better boxes.** The master proposes its probes together and
+the boxes they designate are solved in parallel, which needs the fix of the
+master's parallel evaluation in gemseo-bilevel-outer-approximation's merge
+request 139. With four probes the box subdivision solves $28$ boxes in the hour
+and a half the single probe took for $11$, and reaches $81.6$ in the second, the
+$27$ others ending between $84.7$ and $139$. With nine probes, on the same four
+cores, it solves $63$ boxes in four and a half hours and reaches $76.8$ in its
+twelfth, in the master's second round of probes, after about $32\,500$ designs,
+fewer than the four probes spent in all; five boxes, the twelfth, $20$th,
+$24$th, $29$th and $52$nd, end below $77.5$, so the value is a basin the master
+returns to, not one lucky box. Each probe is a box the master would otherwise
+reach only after the cuts of the boxes before it; solved together they spread
+the first rounds over more of the poses, which is where this run found its
+best.
 
-**It ties a multistart of MMA, which was lucky.** Nine starts, the first the
+**It beats a multistart of MMA, which was lucky.** Nine starts, the first the
 trivial design and the others random poses, reach $82.1$; but seven of the nine
-converge between $105$ and $109$, one to $90.7$, and only the seventh to
-$82.1$. The box subdivision reached its value in half the designs, and a
-multistart with a different seed would more likely end near $105$ than near
-$82$; one run of each cannot settle it.
+converge between $105$ and $109$, one to $90.7$, and only the seventh to $82.1$.
+The single probe ties it in half the designs and nine probes pass it by $7\%$,
+though with nearly nine times its designs, while a multistart with a different
+seed would more likely end near $105$ than near $82$; one run of each cannot
+settle it.
 
 **SLSQP is the better local solver and the worse sub-solver.** From the trivial
 start it converges in $241$ iterations, seven times fewer than MMA, and lower,
@@ -670,10 +678,12 @@ boxes of up to three hundred iterations reach $95.5$, above SLSQP's own single
 run, the restarts at the centres of the boxes losing more than the master's
 choice of boxes finds.
 
-**Neither method reaches the preset.** MMA from the preset's design reaches
-$74.3$ in $385$ designs; nothing started from the trivial design comes within
-$10\%$ of it. On this problem a good starting design is worth more than
-$12\,000$ designs of search.
+**Nine probes come within $3.4\%$ of the preset.** MMA from the preset's
+design reaches $74.3$ in $385$ designs; from the trivial design, the box
+subdivision with nine probes reaches $76.8$, every other method stays above
+$81$, and plain MMA stops at $105.1$. A good starting design remains the
+cheapest way to the optimum; without one, the box subdivision with enough
+probes is the only method here that gets close.
 
 :::{warning}
 Every row is a single run from a single start, and the box subdivision was

@@ -58,7 +58,10 @@ and this project adheres to
   from a trivial start: the box subdivision with MMA or SLSQP in its boxes
   against MMA, SLSQP, a multistart of MMA, DIRECT, CMA-ES, EGO, GE-SBO and EGO
   on SMT's GEKPLS, and an animation of the box run. The results page reports it
-  in compliance, the disciplines returning its logarithm.
+  in compliance, the disciplines returning its logarithm. `--processes` solves
+  the master's probes in parallel, which needs merge request 139 of
+  gemseo-bilevel-outer-approximation; nine probes reach a compliance of 76.8,
+  within 3.4% of MMA from the preset's design.
 
 ### Changed
 
