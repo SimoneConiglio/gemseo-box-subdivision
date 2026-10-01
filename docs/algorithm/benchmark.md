@@ -606,8 +606,9 @@ of each box's sub-problem, restarted at the trivial values. One run per row:
 | method | $C$ | $\log(C + 1)$ | designs to its best | designs spent |
 |--------|-----|---------------|---------------------|---------------|
 | MMA from the preset's design (reference) | $74.3$ | $4.321$ | 385 | 385 |
+| **box subdivision, MMA in each box, four probes on four processes** | **$81.6$** | **$4.414$** | second box | 40385 |
 | multistart of MMA, nine starts | $82.1$ | $4.420$ | 9380 | 12325 |
-| **box subdivision, MMA in each box** | **$82.7$** | **$4.427$** | **4536** | 12325 |
+| box subdivision, MMA in each box, one probe | $82.7$ | $4.427$ | 4536 | 12325 |
 | box subdivision, boxes drawn at random | $88.9$ | $4.498$ | 14709 | 17725 |
 | SLSQP | $90.9$ | $4.520$ | 241 | 241 |
 | box subdivision, SLSQP in each box | $95.5$ | $4.569$ | 8525 | 9793 |
@@ -645,6 +646,15 @@ passes it within its first box, a start at the centre of each box descending
 faster than the trivial design, and reaches $82.7$ in its fourth. The master's
 choice of boxes is what earns it: the same subdivision with boxes drawn at
 random reaches $88.9$, after three times the designs.
+
+**More probes buy more boxes in the same time.** With four probes per
+master iteration, solved on four processes, the box subdivision solves $28$
+boxes in the hour and a half the single probe took for $11$, and reaches $81.6$;
+the best box is the second solved, in the master's first round, and the
+$27$ others end between $84.7$ and $139$, most of them between $85$
+and $92$.
+Spreading the probes needs the fix of the master's parallel evaluation in
+gemseo-bilevel-outer-approximation's merge request 139.
 
 **It ties a multistart of MMA, which was lucky.** Nine starts, the first the
 trivial design and the others random poses, reach $82.1$; but seven of the nine
