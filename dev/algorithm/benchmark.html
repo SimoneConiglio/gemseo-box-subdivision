@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=85a10f8f"></script>
+    <script src="../_static/documentation_options.js?v=fe3ba23e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -1425,16 +1425,28 @@ of each box’s sub-problem, restarted at the trivial values. One run per row:</
 <td><p>385</p></td>
 <td><p>385</p></td>
 </tr>
+<tr class="row-odd"><td><p><strong>box subdivision, MMA in each box, nine probes in parallel</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(76.8\)</span></strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(4.354\)</span></strong></p></td>
+<td><p>26413</p></td>
+<td><p>107630</p></td>
+</tr>
+<tr class="row-even"><td><p>box subdivision, MMA in each box, four probes in parallel</p></td>
+<td><p><span class="math notranslate nohighlight">\(81.6\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.414\)</span></p></td>
+<td><p>2nd box, first round</p></td>
+<td><p>40385</p></td>
+</tr>
 <tr class="row-odd"><td><p>multistart of MMA, nine starts</p></td>
 <td><p><span class="math notranslate nohighlight">\(82.1\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(4.420\)</span></p></td>
 <td><p>9380</p></td>
 <td><p>12325</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>box subdivision, MMA in each box</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(82.7\)</span></strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(4.427\)</span></strong></p></td>
-<td><p><strong>4536</strong></p></td>
+<tr class="row-even"><td><p>box subdivision, MMA in each box, one probe</p></td>
+<td><p><span class="math notranslate nohighlight">\(82.7\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.427\)</span></p></td>
+<td><p>4536</p></td>
 <td><p>12325</p></td>
 </tr>
 <tr class="row-odd"><td><p>box subdivision, boxes drawn at random</p></td>
@@ -1496,9 +1508,12 @@ of each box’s sub-problem, restarted at the trivial values. One run per row:</
 </div>
 <img alt="The box subdivision on the cantilever, box by box, against MMA from the same start" class="only-light" src="../_images/cantilever.gif" />
 <img alt="The box subdivision on the cantilever, box by box, against MMA from the same start" class="only-dark" src="../_images/cantilever-dark.gif" />
-<p>Each frame is a point of one box’s local solve, the best feasible design found
-so far beneath it, and the best compliance against the designs analysed, beside
-MMA from the same start and from the preset’s.</p>
+<p>The run with nine probes, round by round: on the left the boxes of a round as
+their local solves progress, an infeasible design starred and the best in the
+accent; on the right the best feasible design so far, and the best compliance
+against the designs analysed by all the processes, beside the run with one probe
+and MMA from the same start and from the preset’s. The first round holds eight
+boxes rather than nine.</p>
 <p><strong>Without the gradient, nothing competes.</strong> DIRECT, CMA-ES and both EGOs end
 between four and twenty times above the local solvers, and the two methods that
 condition a surrogate on the adjoint gradients, GE-SBO and EGO on GEKPLS, do no
@@ -1511,22 +1526,40 @@ passes it within its first box, a start at the centre of each box descending
 faster than the trivial design, and reaches <span class="math notranslate nohighlight">\(82.7\)</span> in its fourth. The master’s
 choice of boxes is what earns it: the same subdivision with boxes drawn at
 random reaches <span class="math notranslate nohighlight">\(88.9\)</span>, after three times the designs.</p>
-<p><strong>It ties a multistart of MMA, which was lucky.</strong> Nine starts, the first the
+<p><strong>More probes find better boxes.</strong> The master proposes its probes together and
+the boxes they designate are solved in parallel, which needs the fix of the
+master’s parallel evaluation in gemseo-bilevel-outer-approximation’s merge
+request 139. With four probes the box subdivision solves <span class="math notranslate nohighlight">\(28\)</span> boxes in the hour
+and a half the single probe took for <span class="math notranslate nohighlight">\(11\)</span>, and reaches <span class="math notranslate nohighlight">\(81.6\)</span> in the second, the
+<span class="math notranslate nohighlight">\(27\)</span> others ending between <span class="math notranslate nohighlight">\(84.7\)</span> and <span class="math notranslate nohighlight">\(139\)</span>. With nine probes, on the same four
+cores, it solves <span class="math notranslate nohighlight">\(63\)</span> boxes in four and a half hours and reaches <span class="math notranslate nohighlight">\(76.8\)</span> in its
+<span class="math notranslate nohighlight">\(13\)</span>th box, in the master’s second round of probes, after <span class="math notranslate nohighlight">\(26\,413\)</span> designs and
+an hour and twelve minutes, fewer designs than the four probes spent in all;
+five boxes, the <span class="math notranslate nohighlight">\(13\)</span>th, <span class="math notranslate nohighlight">\(24\)</span>th, <span class="math notranslate nohighlight">\(25\)</span>th, <span class="math notranslate nohighlight">\(29\)</span>th and <span class="math notranslate nohighlight">\(53\)</span>rd, end below <span class="math notranslate nohighlight">\(77.5\)</span>, so
+the value is a basin the master returns to, not one lucky box. Each probe is a
+box the master would otherwise reach only after the cuts of the boxes before it;
+solved together they spread the first rounds over more of the poses, which is
+where this run found its best. A second run, recording every solve for the
+animation, repeated it box for box.</p>
+<p><strong>It beats a multistart of MMA, which was lucky.</strong> Nine starts, the first the
 trivial design and the others random poses, reach <span class="math notranslate nohighlight">\(82.1\)</span>; but seven of the nine
-converge between <span class="math notranslate nohighlight">\(105\)</span> and <span class="math notranslate nohighlight">\(109\)</span>, one to <span class="math notranslate nohighlight">\(90.7\)</span>, and only the seventh to
-<span class="math notranslate nohighlight">\(82.1\)</span>. The box subdivision reached its value in half the designs, and a
-multistart with a different seed would more likely end near <span class="math notranslate nohighlight">\(105\)</span> than near
-<span class="math notranslate nohighlight">\(82\)</span>; one run of each cannot settle it.</p>
+converge between <span class="math notranslate nohighlight">\(105\)</span> and <span class="math notranslate nohighlight">\(109\)</span>, one to <span class="math notranslate nohighlight">\(90.7\)</span>, and only the seventh to <span class="math notranslate nohighlight">\(82.1\)</span>.
+The single probe ties it in half the designs and nine probes pass it by <span class="math notranslate nohighlight">\(7\%\)</span>,
+though with nearly nine times its designs, while a multistart with a different
+seed would more likely end near <span class="math notranslate nohighlight">\(105\)</span> than near <span class="math notranslate nohighlight">\(82\)</span>; one run of each cannot
+settle it.</p>
 <p><strong>SLSQP is the better local solver and the worse sub-solver.</strong> From the trivial
 start it converges in <span class="math notranslate nohighlight">\(241\)</span> iterations, seven times fewer than MMA, and lower,
 <span class="math notranslate nohighlight">\(90.9\)</span> against <span class="math notranslate nohighlight">\(105.1\)</span>. Inside the boxes it does not carry over: forty-five
 boxes of up to three hundred iterations reach <span class="math notranslate nohighlight">\(95.5\)</span>, above SLSQP’s own single
 run, the restarts at the centres of the boxes losing more than the master’s
 choice of boxes finds.</p>
-<p><strong>Neither method reaches the preset.</strong> MMA from the preset’s design reaches
-<span class="math notranslate nohighlight">\(74.3\)</span> in <span class="math notranslate nohighlight">\(385\)</span> designs; nothing started from the trivial design comes within
-<span class="math notranslate nohighlight">\(10\%\)</span> of it. On this problem a good starting design is worth more than
-<span class="math notranslate nohighlight">\(12\,000\)</span> designs of search.</p>
+<p><strong>Nine probes come within <span class="math notranslate nohighlight">\(3.4\%\)</span> of the preset.</strong> MMA from the preset’s
+design reaches <span class="math notranslate nohighlight">\(74.3\)</span> in <span class="math notranslate nohighlight">\(385\)</span> designs; from the trivial design, the box
+subdivision with nine probes reaches <span class="math notranslate nohighlight">\(76.8\)</span>, every other method stays above
+<span class="math notranslate nohighlight">\(81\)</span>, and plain MMA stops at <span class="math notranslate nohighlight">\(105.1\)</span>. A good starting design remains the
+cheapest way to the optimum; without one, the box subdivision with enough
+probes is the only method here that gets close.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Every row is a single run from a single start, and the box subdivision was
