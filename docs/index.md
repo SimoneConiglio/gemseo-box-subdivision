@@ -110,7 +110,7 @@ Rastrigin in five dimensions sits inside that window at ten subdivisions per
 variable and is solved from every starting point, which no baseline here achieves
 at any budget tried; Styblinski-Tang at the same density sits outside it, its
 basins cut into five boxes apiece. See
-[the density of the subdivision](algorithm/benchmark.md#the-density-of-the-subdivision-decides).
+[the density of the subdivision](algorithm/benchmark.md#density-of-the-subdivision).
 ```
 
 ```{tip}
@@ -123,7 +123,7 @@ your objective, which is the one thing you do not know before the run.
 values over the probes the master already runs: measured, it matches the
 calibrated configuration on every problem of the benchmark and is more reliable
 on two of them. See [Usage](algorithm/usage.md#not-choosing-the-convexity-at-all)
-and [the results](algorithm/benchmark.md#sweeping-the-convexity-rather-than-supplying-it).
+and [the results](algorithm/benchmark.md#swept-convexity).
 ```
 
 ```{toctree}

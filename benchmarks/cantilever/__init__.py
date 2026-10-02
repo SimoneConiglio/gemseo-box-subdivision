@@ -34,6 +34,8 @@ conda-forge. None of this runs in the test suite.
     the box-subdivision run again, keeping every design, for the animation.
 ``cantilever_gif.py``
     the animation of that run.
+``parallel_multistart.py``
+    a multistart of MMA, its starts distributed over processes.
 ``cantilever_parallel_gif.py``
     the animation of a run whose probes are solved in parallel, recorded by
     ``trivial_start.py --record``, round by round: the one the documentation

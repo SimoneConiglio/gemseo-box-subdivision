@@ -75,7 +75,7 @@ rejects, see
 `n_subdivisions` has to resolve the basins of the landscape and keep the binaries
 below the sub-problems a budget can pay for, and refining past the basins makes
 things worse rather than merely slower, see
-[the benchmark](benchmark.md#the-density-of-the-subdivision-decides).
+[the benchmark](benchmark.md#density-of-the-subdivision).
 
 It counts subdivisions **per component**, not per variable. A variable of size
 $s$ subdivided into $m$ is $s$ independent choices of one subdivision out of $m$:
@@ -740,4 +740,4 @@ And one choice that is not a setting of the algorithm but of the subdivision:
 
 | Choice | Recommended | Why |
 |--------|-------------|-----|
-| `n_subdivisions` | fine enough to resolve the basins, over the variables the objective is multimodal in | a box that still holds several basins defeats the local solve, and the number of boxes costs evaluations rather than master size, the binaries growing linearly. See [the benchmark](benchmark.md#the-density-of-the-subdivision-decides) |
+| `n_subdivisions` | fine enough to resolve the basins, over the variables the objective is multimodal in | a box that still holds several basins defeats the local solve, and the number of boxes costs evaluations rather than master size, the binaries growing linearly. See [the benchmark](benchmark.md#density-of-the-subdivision) |

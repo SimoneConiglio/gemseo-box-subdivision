@@ -53,19 +53,17 @@ and this project adheres to
   study resumes. `run_swept_box_subdivision` takes the probes, the top of the
   ladder and the levels of the encoding.
 
-- `benchmarks/cantilever/`, the method on the short cantilever of the GGP
-  package, 108 variables under a volume constraint with adjoint gradients,
-  from a trivial start: the box subdivision with MMA or SLSQP in its boxes
-  against MMA, SLSQP, a multistart of MMA, DIRECT, CMA-ES, EGO, GE-SBO and EGO
-  on SMT's GEKPLS, and an animation of the box run. The results page reports it
-  in compliance, the disciplines returning its logarithm. `--processes` solves
-  the master's probes in parallel, which needs merge request 139 of
-  gemseo-bilevel-outer-approximation; nine probes reach a compliance of 76.8,
-  within 3.4% of MMA from the preset's design. `--record` keeps every solve of
-  every process. A second study runs in the setting of GGP-Matlab, the Moving
-  Node Approach with p = 3, mmasub.m's settings and GGP_main.m's start: MMA
-  reproduces the symmetric truss of the GGP paper at 84.0, the box subdivision
-  with nine probes reaches 82.1, and the animation shows that run.
+- `benchmarks/cantilever/`: drivers for the short cantilever of the GGP
+  package (108 variables, volume constraint, adjoint gradients) with the
+  preset `short_cantilever_mna`, which reproduces `GGP_main.m` with the Moving
+  Node Approach. `trivial_start.py` runs the box subdivision, with
+  `--processes` to solve the probes in parallel (requires merge request 139 of
+  gemseo-bilevel-outer-approximation) and `--record` to store every finite
+  element solution; `parallel_multistart.py` runs a multistart of MMA over
+  several processes; `cantilever_parallel_gif.py` animates a recorded run;
+  `global_baselines.py` runs DIRECT, CMA-ES, EGO, GE-SBO and EGO on SMT's
+  GEKPLS. The results page reports MMA, the multistart and the box
+  subdivision with nine probes.
 
 ### Changed
 
