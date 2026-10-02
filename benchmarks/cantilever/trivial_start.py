@@ -13,11 +13,14 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-"""Run the SC 2D benchmark from a trivial guess of the monotone variables.
+"""Run the SC 2D benchmark from the starting design of GGP-Matlab.
 
-The pose of every bar (Xc, Yc, theta) is kept from the preset; the length is
-uniform and the thickness and the density are at the middle of their ranges,
-in the normalized variables the GGP disciplines take.
+The start is that of GGP_main.m, the preset's: the crossed bars of a 3x3 grid,
+of uniform length, thickness h = 2 and density Mc = 0.5. ``--mid-range`` starts
+instead from the length, the thickness and the density at the middle of their
+ranges, the poses kept, the start of the first study, whose thickness of 33 is
+not a plausible guess. ``--preset NAME`` picks the preset of the GGP package,
+``short_cantilever_mna`` for the Moving Node Approach.
 """
 
 from __future__ import annotations
@@ -33,23 +36,23 @@ import numpy as np
 sys.path.insert(0, str(Path("benchmarks").resolve()))
 import sc2d_box_subdivision as sc2d
 
-TRIVIAL = {2: 0.5, 3: 0.5, 5: 0.5}
+MID_RANGE = {2: 0.5, 3: 0.5, 5: 0.5}
 """The normalized value of the length, the thickness and the density."""
 
 original = sc2d.build_disciplines
 
-PRESET = "--preset" in sys.argv
-"""Whether to keep the preset's starting design, the reference run."""
-if PRESET:
-    sys.argv.remove("--preset")
+MID = "--mid-range" in sys.argv
+"""Whether to start from the middle of the ranges, the first study's start."""
+if MID:
+    sys.argv.remove("--mid-range")
 
 
 def build_disciplines(spec):  # noqa: ANN001, ANN201
-    """Build the disciplines, starting from the trivial design unless --preset."""
+    """Build the disciplines, starting from the middle of the ranges if asked."""
     geometry, physics, x_init, domain = original(spec)
     x_init = x_init.copy()
-    if not PRESET:
-        for slot, value in TRIVIAL.items():
+    if MID:
+        for slot, value in MID_RANGE.items():
             x_init[slot :: sc2d.VPC] = value
     return geometry, physics, x_init, domain
 
