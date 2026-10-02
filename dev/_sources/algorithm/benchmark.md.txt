@@ -622,20 +622,26 @@ of each box's sub-problem, restarted at the trivial values. One run per row:
 
 ```{image} ../_static/figures/cantilever.gif
 :class: only-light
-:alt: The box subdivision on the cantilever, box by box, against MMA from the same start
+:alt: The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start
 ```
 
 ```{image} ../_static/figures/cantilever-dark.gif
 :class: only-dark
-:alt: The box subdivision on the cantilever, box by box, against MMA from the same start
+:alt: The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start
 ```
 
-The run with nine probes, round by round: on the left the boxes of a round as
+The run with nine probes in the setting of GGP-Matlab, round by round: the
+Moving Node Approach with the penalty $p = 3$, MMA with the settings of
+`mmasub.m`, and the starting design of `GGP_main.m`, the preset
+`short_cantilever_mna` of the GGP package. On the left the boxes of a round as
 their local solves progress, an infeasible design starred and the best in the
 accent; on the right the best feasible design so far, and the best compliance
-against the designs analysed by all the processes, beside the run with one probe
-and MMA from the same start and from the preset's. The first round holds eight
-boxes rather than nine.
+against the designs analysed by all the processes, beside MMA from the same
+start, which converges to the symmetric truss of the GGP paper at $84.0$. The
+box subdivision passes it in its first box and reaches $82.1$ in its $32$nd,
+after $31\,070$ designs; the ten best of its $63$ boxes end between $82.1$ and
+$82.4$. The table above is the earlier study, with the GP projection, $p = 1$
+and a thickness started at mid-range.
 
 **Without the gradient, nothing competes.** DIRECT, CMA-ES and both EGOs end
 between four and twenty times above the local solvers, and the two methods that

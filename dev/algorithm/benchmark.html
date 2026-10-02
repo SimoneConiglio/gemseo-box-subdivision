@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=fe3ba23e"></script>
+    <script src="../_static/documentation_options.js?v=b9674175"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -1506,14 +1506,20 @@ of each box’s sub-problem, restarted at the trivial values. One run per row:</
 </tbody>
 </table>
 </div>
-<img alt="The box subdivision on the cantilever, box by box, against MMA from the same start" class="only-light" src="../_images/cantilever.gif" />
-<img alt="The box subdivision on the cantilever, box by box, against MMA from the same start" class="only-dark" src="../_images/cantilever-dark.gif" />
-<p>The run with nine probes, round by round: on the left the boxes of a round as
+<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-light" src="../_images/cantilever.gif" />
+<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-dark" src="../_images/cantilever-dark.gif" />
+<p>The run with nine probes in the setting of GGP-Matlab, round by round: the
+Moving Node Approach with the penalty <span class="math notranslate nohighlight">\(p = 3\)</span>, MMA with the settings of
+<code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code>, and the starting design of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>, the preset
+<code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code> of the GGP package. On the left the boxes of a round as
 their local solves progress, an infeasible design starred and the best in the
 accent; on the right the best feasible design so far, and the best compliance
-against the designs analysed by all the processes, beside the run with one probe
-and MMA from the same start and from the preset’s. The first round holds eight
-boxes rather than nine.</p>
+against the designs analysed by all the processes, beside MMA from the same
+start, which converges to the symmetric truss of the GGP paper at <span class="math notranslate nohighlight">\(84.0\)</span>. The
+box subdivision passes it in its first box and reaches <span class="math notranslate nohighlight">\(82.1\)</span> in its <span class="math notranslate nohighlight">\(32\)</span>nd,
+after <span class="math notranslate nohighlight">\(31\,070\)</span> designs; the ten best of its <span class="math notranslate nohighlight">\(63\)</span> boxes end between <span class="math notranslate nohighlight">\(82.1\)</span> and
+<span class="math notranslate nohighlight">\(82.4\)</span>. The table above is the earlier study, with the GP projection, <span class="math notranslate nohighlight">\(p = 1\)</span>
+and a thickness started at mid-range.</p>
 <p><strong>Without the gradient, nothing competes.</strong> DIRECT, CMA-ES and both EGOs end
 between four and twenty times above the local solvers, and the two methods that
 condition a surrogate on the adjoint gradients, GE-SBO and EGO on GEKPLS, do no
