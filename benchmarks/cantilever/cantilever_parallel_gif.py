@@ -20,13 +20,12 @@ cuts each process's stream into boxes where the subdivided poses restart at the
 centres of their boxes, and groups the boxes into the master's rounds by when
 they start. Each frame shows the probes of a round as they are being solved,
 the best feasible design so far, and the best compliance against the designs
-analysed in all, beside the run with a single probe and MMA from the same start
-and from the preset's. Run in the GGP environment, from the GGP repository:
+analysed in all, beside MMA from the same start. Run in the GGP environment,
+from the GGP repository, with the preset the run used:
 
     python <this repository>/benchmarks/cantilever/cantilever_parallel_gif.py \
-        <record prefix> \
-        benchmarks/box_subdivision_trivial/box_trivial_1800_recorded_designs.npz \
-        <this repository>/docs/_static/figures
+        <record prefix> benchmarks/box_subdivision_mna/mma_mna.json \
+        <this repository>/docs/_static/figures --preset short_cantilever_mna
 """
 
 from __future__ import annotations
@@ -52,8 +51,6 @@ K = 10
 PROBES = 9
 """The probes of each round of the master, the most a round can hold."""
 
-MMA_PRESET = 74.3
-"""The compliance MMA reaches from the preset's start."""
 
 ROUND_GAP = 60.0
 """The seconds between the starts of boxes beyond which they are two rounds."""
@@ -92,7 +89,7 @@ def box_starts(x: np.ndarray, split: np.ndarray) -> list[int]:
 def density_image(geometry, design: np.ndarray, coords: np.ndarray) -> np.ndarray:
     """Return the density of a design on the 60 by 30 grid of the mesh."""
     geometry.execute({"x_vars": design.astype(float)})
-    rho = np.asarray(geometry.local_data["rho_E"]).ravel()
+    rho = np.asarray(geometry.local_data["rho_V"]).ravel()
     image = np.zeros((30, 60))
     image[np.floor(coords[:, 1]).astype(int), np.floor(coords[:, 0]).astype(int)] = rho
     return image
@@ -105,7 +102,13 @@ def best_feasible(compliance: np.ndarray, volume: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:  # noqa: C901, PLR0915
-    prefix, single, out = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
+    preset = "short_cantilever"
+    if "--preset" in sys.argv:
+        index = sys.argv.index("--preset")
+        preset = sys.argv[index + 1]
+        del sys.argv[index : index + 2]
+    prefix, mma_path, out = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
+    sc2d.select_preset(preset)
     spec = sc2d.load_spec()
     geometry, _, _, _ = sc2d.build_disciplines(spec)
     coords = np.asarray(geometry.eval_coords)
@@ -153,9 +156,7 @@ def main() -> None:  # noqa: C901, PLR0915
         steps = np.linspace(begin, end, FRAMES_PER_ROUND + 1)[1:].astype(int)
         frames.extend((number, members, int(step)) for step in steps)
 
-    reference = np.load(single)
-    single_best = best_feasible(reference["compliance"], reference["volume"])
-    mma = json.loads((single.parent / "mma_trivial.json").read_text())
+    mma = json.loads(mma_path.read_text())
     mma_best = best_feasible(
         np.asarray(mma["history"])[1::2], np.asarray(mma["volume_history"])[1::2]
     )
@@ -246,24 +247,21 @@ def main() -> None:  # noqa: C901, PLR0915
                 shown = finite & (designs <= step + 1)
                 curve.plot(designs[shown], best[shown], color=figures.ACCENT,
                            linewidth=1.8, label="nine probes in parallel")
-                steps = np.arange(1, len(single_best) + 1)
-                finite_single = np.isfinite(single_best)
-                curve.plot(steps[finite_single], single_best[finite_single],
-                           color=figures.FOURTH, linewidth=1.2, alpha=0.8,
-                           label=f"one probe: {single_best[-1]:.1f}")
                 steps = np.arange(1, len(mma_best) + 1)
                 finite_mma = np.isfinite(mma_best)
                 curve.plot(steps[finite_mma], mma_best[finite_mma],
                            color=figures.SECOND, linestyle="--", linewidth=1.2,
                            label=f"MMA, same start: {mma_best[-1]:.1f}")
-                curve.axhline(MMA_PRESET, color=figures.THIRD, linestyle=":",
-                              linewidth=1.4, label=f"MMA, preset start: {MMA_PRESET}")
-                curve.set_xlim(0, len(rows))
-                curve.set_ylim(70, 140)
+                curve.axhline(mma_best[-1], color=figures.SECOND, alpha=0.35,
+                              linestyle=":", linewidth=1.0)
+                # The descent is in the first designs, the search in the rest.
+                curve.set_xscale("log")
+                curve.set_xlim(50, len(rows))
+                curve.set_ylim(np.floor(best[-1]) - 1, np.ceil(mma_best[-1]) + 8)
                 curve.set_xlabel("designs analysed, all processes", fontsize=8)
                 curve.set_ylabel("best feasible C", fontsize=8)
                 curve.tick_params(labelsize=7)
-                curve.legend(fontsize=7, loc="upper right", ncol=2)
+                curve.legend(fontsize=7, loc="upper right")
                 curve.grid(alpha=0.25)
 
                 buffer = BytesIO()
