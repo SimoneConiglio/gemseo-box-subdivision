@@ -41,6 +41,8 @@ sys.path.insert(0, str(Path("benchmarks").resolve()))
 import sc2d_box_subdivision as sc2d  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "docs"))
+import operator
+
 import figures  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 from PIL import Image  # noqa: E402
@@ -102,6 +104,7 @@ def best_feasible(compliance: np.ndarray, volume: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:  # noqa: C901, PLR0915
+    """Draw the animation of the recorded run, in both themes."""
     preset = "short_cantilever"
     if "--preset" in sys.argv:
         index = sys.argv.index("--preset")
@@ -120,13 +123,13 @@ def main() -> None:  # noqa: C901, PLR0915
         starts = box_starts(stream[:, 3:], split)
         for start, end in zip(starts, [*starts[1:], len(stream)], strict=True):
             boxes.append(stream[start:end])
-    boxes.sort(key=lambda rows: rows[0, 0])
+    boxes.sort(key=operator.itemgetter((0, 0)))
     rows = np.vstack([
         np.column_stack((box, np.full(len(box), number)))
         for number, box in enumerate(boxes)
     ])
     rows = rows[np.argsort(rows[:, 0], kind="stable")]
-    when, log_c, volume, x = rows[:, 0], rows[:, 1], rows[:, 2], rows[:, 3:-1]
+    _when, log_c, volume, x = rows[:, 0], rows[:, 1], rows[:, 2], rows[:, 3:-1]
     box_of = rows[:, -1].astype(int)
     compliance = np.expm1(log_c)
     feasible = volume <= TOLERANCE
@@ -147,8 +150,13 @@ def main() -> None:  # noqa: C901, PLR0915
         rounds[-1].append(number)
 
     # The last solve of each box, to frame a round from its first start to it.
-    last = {number: int(np.flatnonzero(box_of == number)[-1]) for number in range(len(boxes))}
-    first = {number: int(np.flatnonzero(box_of == number)[0]) for number in range(len(boxes))}
+    last = {
+        number: int(np.flatnonzero(box_of == number)[-1])
+        for number in range(len(boxes))
+    }
+    first = {
+        number: int(np.flatnonzero(box_of == number)[0]) for number in range(len(boxes))
+    }
     frames = []
     for number, members in enumerate(rounds):
         begin = min(first[m] for m in members)
@@ -182,8 +190,15 @@ def main() -> None:  # noqa: C901, PLR0915
                 figure = plt.figure(figsize=(11.0, 4.6))
                 figure.set_facecolor(figures.BACKGROUNDS[foreground])
                 grid = figure.add_gridspec(
-                    3, 5, width_ratios=(1.0, 1.0, 1.0, 0.25, 2.9), wspace=0.08,
-                    hspace=0.35, left=0.01, right=0.99, top=0.88, bottom=0.11,
+                    3,
+                    5,
+                    width_ratios=(1.0, 1.0, 1.0, 0.25, 2.9),
+                    wspace=0.08,
+                    hspace=0.35,
+                    left=0.01,
+                    right=0.99,
+                    top=0.88,
+                    bottom=0.11,
                 )
                 for slot in range(PROBES):
                     axes = figure.add_subplot(grid[slot // 3, slot % 3])
@@ -195,8 +210,11 @@ def main() -> None:  # noqa: C901, PLR0915
                         if solved.size:
                             index = int(solved[-1])
                             axes.imshow(
-                                image_of(index), origin="lower", cmap=cmap,
-                                vmin=0.0, vmax=max(image_of(index).max(), 1e-9),
+                                image_of(index),
+                                origin="lower",
+                                cmap=cmap,
+                                vmin=0.0,
+                                vmax=max(image_of(index).max(), 1e-9),
                                 extent=(0, 60, 0, 30),
                             )
                             done = index == last[box]
@@ -229,8 +247,12 @@ def main() -> None:  # noqa: C901, PLR0915
                 best_axes = figure.add_subplot(right[0])
                 if best_index[step] >= 0:
                     best_axes.imshow(
-                        image_of(int(best_index[step])), origin="lower", cmap=cmap,
-                        vmin=0.0, vmax=1.0, extent=(0, 60, 0, 30),
+                        image_of(int(best_index[step])),
+                        origin="lower",
+                        cmap=cmap,
+                        vmin=0.0,
+                        vmax=1.0,
+                        extent=(0, 60, 0, 30),
                     )
                     best_axes.set_title(
                         f"best feasible so far: C = {best[step]:.1f}, "
@@ -242,18 +264,38 @@ def main() -> None:  # noqa: C901, PLR0915
 
                 curve = figure.add_subplot(right[1])
                 finite = np.isfinite(best)
-                curve.plot(designs[finite], best[finite], color=foreground,
-                           alpha=0.15, linewidth=1.2)
+                curve.plot(
+                    designs[finite],
+                    best[finite],
+                    color=foreground,
+                    alpha=0.15,
+                    linewidth=1.2,
+                )
                 shown = finite & (designs <= step + 1)
-                curve.plot(designs[shown], best[shown], color=figures.ACCENT,
-                           linewidth=1.8, label="nine probes in parallel")
+                curve.plot(
+                    designs[shown],
+                    best[shown],
+                    color=figures.ACCENT,
+                    linewidth=1.8,
+                    label="nine probes in parallel",
+                )
                 steps = np.arange(1, len(mma_best) + 1)
                 finite_mma = np.isfinite(mma_best)
-                curve.plot(steps[finite_mma], mma_best[finite_mma],
-                           color=figures.SECOND, linestyle="--", linewidth=1.2,
-                           label=f"MMA, same start: {mma_best[-1]:.1f}")
-                curve.axhline(mma_best[-1], color=figures.SECOND, alpha=0.35,
-                              linestyle=":", linewidth=1.0)
+                curve.plot(
+                    steps[finite_mma],
+                    mma_best[finite_mma],
+                    color=figures.SECOND,
+                    linestyle="--",
+                    linewidth=1.2,
+                    label=f"MMA, same start: {mma_best[-1]:.1f}",
+                )
+                curve.axhline(
+                    mma_best[-1],
+                    color=figures.SECOND,
+                    alpha=0.35,
+                    linestyle=":",
+                    linewidth=1.0,
+                )
                 # The descent is in the first designs, the search in the rest.
                 curve.set_xscale("log")
                 curve.set_xlim(50, len(rows))

@@ -126,7 +126,8 @@ if "--record" in sys.argv:
     del sys.argv[index : index + 2]
     original_init = sc2d._History.__init__
 
-    def __init__(self, geometry, physics):  # noqa: ANN001, D107
+    def recording_init(self, geometry, physics):  # noqa: ANN001
+        """Keep the history, and append each of its solves to a file."""
         original_init(self, geometry, physics)
         recorded = physics._run
 
@@ -136,13 +137,13 @@ if "--record" in sys.argv:
                 [time.time(), self.compliance[-1], self.volume[-1]],
                 np.asarray(self.x[-1], dtype=float),
             ))
-            with open(f"{RECORD}.{os.getpid()}.bin", "ab") as file:
+            with Path(f"{RECORD}.{os.getpid()}.bin").open("ab") as file:
                 file.write(row.astype(np.float64).tobytes())
             return out
 
         physics._run = _run
 
-    sc2d._History.__init__ = __init__
+    sc2d._History.__init__ = recording_init
 
 try:
     sc2d.main()
