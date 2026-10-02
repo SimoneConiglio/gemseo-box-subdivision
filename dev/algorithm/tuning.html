@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=2ae74f06"></script>
+    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -651,7 +651,7 @@ The Upper bound stopped changing for 10 iterations.
 that do not improve the incumbent, whatever its lower bound says. With one box
 solved per iteration, that alone caps a run at a few dozen boxes out of a
 hundred, which is what the
-<a class="reference internal" href="benchmark.html#against-the-enumeration-of-the-boxes"><span class="std std-ref">comparison against the enumeration</span></a>
+<a class="reference internal" href="benchmark.html#comparison-with-the-enumeration-of-the-boxes"><span class="std std-ref">comparison against the enumeration</span></a>
 measures: twenty to thirty-six boxes solved, and no configuration goes far
 past that whatever its constant.</p>
 <p>That is the whole answer to why raising the constant stops buying exploration:
@@ -1005,13 +1005,13 @@ the radius alone recovers the guarantee.</p>
 <p>The two-dimensional benchmark is where the mechanisms were tuned, and what works
 there does not carry over unchanged. At five variables the first knob is not the
 mechanism at all: it is the <strong>density</strong> of the subdivision, swept in
-<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a>. The
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the benchmark</span></a>. The
 mechanism is the second, and the two interact.</p>
 <p>That first knob can be read off the landscape rather than turned. Counting the
 basins along jittered axial scans of each component proposes a density, and on
 every problem whose ladder settled it picks the better of the two densities this
 annex compares — see
-<a class="reference internal" href="benchmark.html#proposing-it-rather-than-sweeping-it"><span class="std std-ref">proposing it rather than sweeping it</span></a>.
+<a class="reference internal" href="benchmark.html#proposed-density"><span class="std std-ref">proposing it rather than sweeping it</span></a>.
 What follows still matters, because the proposal fixes the density and not the
 mechanism, and the table below is what the mechanism does at each of them.</p>
 <section id="the-mechanism-at-the-two-densities-that-matter">

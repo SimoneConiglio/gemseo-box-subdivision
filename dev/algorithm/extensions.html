@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=2ae74f06"></script>
+    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -454,7 +454,7 @@
 <section class="tex2jax_ignore mathjax_ignore" id="annex-d-the-extensions-measured">
 <h1>Annex D: the extensions, measured<a class="headerlink" href="#annex-d-the-extensions-measured" title="Link to this heading">#</a></h1>
 <p>The four extensions of the method, table by table, and the budget re-runs behind
-the rankings. <a class="reference internal" href="benchmark.html#the-extensions-and-what-they-are-worth"><span class="std std-ref">The results</span></a>
+the rankings. <a class="reference internal" href="benchmark.html#extensions"><span class="std std-ref">The results</span></a>
 carry the verdicts; this annex carries what they were read off.</p>
 <p>Five variables, <span class="math notranslate nohighlight">\(2500\)</span> equivalent evaluations, three starting points unless a
 table says otherwise. The constructions are derived in
@@ -754,7 +754,7 @@ column: flat <span class="math notranslate nohighlight">\(m=10\)</span> solves i
 at a budget of <span class="math notranslate nohighlight">\(2500\)</span>, of <span class="math notranslate nohighlight">\(5000\)</span> and of <span class="math notranslate nohighlight">\(10\,000\)</span> alike. Where a cell reports a
 cost equal to its budget, the number is an upper bound and the ranking is only
 “within this budget” until it is re-run, as Ackley was here.</p>
-<p>What the results make of all this is <a class="reference internal" href="benchmark.html#the-extensions-and-what-they-are-worth"><span class="std std-ref">the page these tables support</span></a>.</p>
+<p>What the results make of all this is <a class="reference internal" href="benchmark.html#extensions"><span class="std std-ref">the page these tables support</span></a>.</p>
 </section>
 <section id="estimating-the-density-instead-of-supplying-it">
 <h2>Estimating the density instead of supplying it<a class="headerlink" href="#estimating-the-density-instead-of-supplying-it" title="Link to this heading">#</a></h2>
@@ -1219,7 +1219,7 @@ starting points, each problem at its proposed density and Ackley at ten:</p>
 </div>
 <p><span class="math notranslate nohighlight">\(4.95\)</span> on Ackley is the best a flat subdivision reaches anywhere in this
 benchmark, against the <span class="math notranslate nohighlight">\(6.30\)</span> of
-<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the density sweep</span></a>, and it
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the density sweep</span></a>, and it
 comes from a setting rather than from a mechanism. <strong>Quality never gets worse
 and improves on three of the five.</strong> What it costs is evaluations, and not
 evenly: <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code> gets cheaper, Styblinski-Tang is flat, Ackley is
@@ -1333,7 +1333,7 @@ touched, shows a window rather than a trend:</p>
 </section>
 <section id="the-estimated-density-with-the-convexity-swept">
 <h3>The estimated density with the convexity swept<a class="headerlink" href="#the-estimated-density-with-the-convexity-swept" title="Link to this heading">#</a></h3>
-<p>Which is what <a class="reference internal" href="benchmark.html#sweeping-the-convexity-rather-than-supplying-it"><span class="std std-ref">the sweep</span></a>
+<p>Which is what <a class="reference internal" href="benchmark.html#swept-convexity"><span class="std std-ref">the sweep</span></a>
 exists to remove. Run at the estimated densities with <strong>nothing supplied at all</strong>,
 neither a margin nor a density, against the same densities at the calibrated
 margin:</p>

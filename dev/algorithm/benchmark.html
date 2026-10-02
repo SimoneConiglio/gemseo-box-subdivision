@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=2ae74f06"></script>
+    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -453,36 +453,34 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="results">
 <h1>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h1>
-<p>What the method achieves: against the exhaustive enumeration of the boxes,
-across its own variants, and, in the best of them, against the baselines of the
-problem class. The problems are described in <a class="reference internal" href="problems.html"><span class="std std-doc">one appendix</span></a> and the
-baselines in <a class="reference internal" href="baselines.html"><span class="std std-doc">the other</span></a>; how the settings were arrived at is
-<a class="reference internal" href="tuning.html"><span class="std std-doc">annex C</span></a>.</p>
-<p>Reproduce with <code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">benchmark</span></code>.</p>
+<p>This chapter reports the numerical experiments: the method against the
+exhaustive enumeration of the boxes, the variants of the method, the effect of
+the subdivision density and of the convexity settings, a comparison with
+baselines at two budgets, and an application to a topology optimization
+problem. The test problems are described in <a class="reference internal" href="problems.html"><span class="std std-doc">annex A</span></a>, the
+baselines in <a class="reference internal" href="baselines.html"><span class="std std-doc">annex B</span></a>, and the tuning of the settings in
+<a class="reference internal" href="tuning.html"><span class="std std-doc">annex C</span></a>. The analytic experiments are reproduced with
+<code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">benchmark</span></code>.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p><strong>Every selection on this page holds within its budget, and not beyond it.</strong>
-The runs are given a fixed number of equivalent evaluations, and a cell whose
-cost equals that budget was <strong>stopped by the budget rather than by its own
-criterion</strong>: its distance to the optimum is an upper bound on what the same
-configuration would reach with more evaluations, not a result. Ranking two such
-cells says which got further within the budget, which is a weaker statement than
-which solves the problem. Cells reporting a cost below the budget did end on
-their own, and those comparisons are between finished runs.</p>
-<p>Where a conclusion here rests on a truncated run it is marked. The honest
-summary is that if the goal were to solve a problem from every starting point
-whatever the cost, the first thing to spend is budget, and the choices compared
-here would have to be re-ranked at that larger budget.</p>
+<p>All runs are given a fixed budget of equivalent evaluations. A run whose cost
+equals the budget was stopped by the budget and not by its own convergence
+criterion; its distance to the optimum is then an upper bound on what the same
+configuration reaches with more evaluations. Comparisons between such runs
+rank the progress made within the budget only. Cells whose cost is below the
+budget correspond to runs that terminated on their own criterion. Results that
+rest on truncated runs are marked as such.</p>
 </div>
-<section id="against-the-enumeration-of-the-boxes">
-<h2>Against the enumeration of the boxes<a class="headerlink" href="#against-the-enumeration-of-the-boxes" title="Link to this heading">#</a></h2>
-<p>The reference is the <strong>enumeration</strong>: solving the sub-problem of every box. It
-is exhaustive, embarrassingly parallel and needs no cuts, so the outer
-approximation is only worth its complexity if it reaches the same optimum after
-substantially fewer sub-problems. Both drive the same main problem through the
-same <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation, so the comparison isolates the exploration strategy.</p>
-<p>Rastrigin in two dimensions, <span class="math notranslate nohighlight">\(10 \times 10 = 100\)</span> boxes, eight starting points,
-counted in <strong>executions of the objective discipline</strong>:</p>
+<section id="comparison-with-the-enumeration-of-the-boxes">
+<h2>Comparison with the enumeration of the boxes<a class="headerlink" href="#comparison-with-the-enumeration-of-the-boxes" title="Link to this heading">#</a></h2>
+<p>The reference is the enumeration, which solves the sub-problem of every box.
+It is exhaustive and parallel and requires no cuts; the outer approximation is
+of interest only if it reaches the same optimum with fewer sub-problems. Both
+methods solve the same main problem with the same <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation, so
+that the comparison isolates the exploration strategy.</p>
+<p>Table 1 reports the results on the Rastrigin function in two dimensions with
+<span class="math notranslate nohighlight">\(10 \times 10 = 100\)</span> boxes and eight starting points. The cost is counted in
+executions of the objective discipline.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>formulation</p></th>
@@ -520,50 +518,49 @@ counted in <strong>executions of the objective discipline</strong>:</p>
 </tbody>
 </table>
 </div>
-<p>About <strong>three times cheaper for the same optimum</strong>, solving a quarter to a third
-of the boxes. Both formulations reach the optimum from seven starting points out
-of eight, so reliability no longer separates them; what does is cost. The
-normalized formulation enumerates for about 11% less, its sub-problems being
-bounded by their box instead of having to restore the feasibility of a box
-constraint, and its cheapest outer-approximation runs are cheaper still, <span class="math notranslate nohighlight">\(255\)</span>
-executions against <span class="math notranslate nohighlight">\(341\)</span>. It is therefore the one to prefer, by a small margin.</p>
+<p><em>Table 1. Enumeration and outer approximation on Rastrigin, <span class="math notranslate nohighlight">\(n = 2\)</span>.</em></p>
+<p>The outer approximation reaches the same optimum after solving 20 to 36% of the
+boxes, at about one third of the cost of the enumeration. Both formulations
+reach the optimum from seven of the eight starting points. The normalized
+formulation is about 11% cheaper in enumeration, since its sub-problems are
+bounded by the box instead of restoring feasibility with respect to a box
+constraint, and its least expensive outer-approximation runs cost <span class="math notranslate nohighlight">\(255\)</span>
+executions against <span class="math notranslate nohighlight">\(341\)</span>. It is retained in the following.</p>
 </section>
-<section id="the-variants-of-the-method-profiled">
-<h2>The variants of the method, profiled<a class="headerlink" href="#the-variants-of-the-method-profiled" title="Link to this heading">#</a></h2>
-<p>The method explores through two mechanisms of its master, and resolves the
-landscape through one more of its subdivision:</p>
+<section id="variants-of-the-method">
+<h2>Variants of the method<a class="headerlink" href="#variants-of-the-method" title="Link to this heading">#</a></h2>
+<p>The master explores the design space through two mechanisms, and the
+subdivision adds a third setting:</p>
 <ul class="simple">
-<li><p>the <strong>probes</strong>, the boxes the master proposes per iteration, which in a swept
-run are also the rungs of the convexity ladder, so that more of them try more
-boxes <em>and</em> more convexity values at once;</p></li>
-<li><p>the <strong>top of the ladder</strong>, a low one keeping the master near the boxes its cuts
-favour and a high one sending it across the design space;</p></li>
-<li><p>the <strong>density</strong>, fixed, proposed by counting basins, or reached through the
-multi-resolution encoding or the deep hierarchy, which buy a resolution the
-flat subdivision cannot afford in binaries.</p></li>
+<li><p>the number of probes, i.e. of boxes proposed per master iteration, which in
+a swept run are also the rungs of the convexity ladder;</p></li>
+<li><p>the upper bound of the convexity ladder, a low value keeping the master near
+the boxes favoured by its cuts and a high value moving it across the design
+space;</p></li>
+<li><p>the subdivision density, either fixed, proposed by counting basins, or
+obtained through the multi-resolution encoding or the deep hierarchy.</p></li>
 </ul>
-<p>Each variant below changes <strong>one</strong> of those from the swept configuration, the
-one a user gets having tuned nothing: <code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings()</span></code>, four
-probes, a ladder bounded by the spread of the objective, and the default
-density, ten subdivisions per variable in two dimensions and two in five. The
-calibrated configuration, the convexity margin set to <span class="math notranslate nohighlight">\(100\)</span>, is there as the
-reference the sweep replaced.</p>
-<p>They are compared by <strong>data profiles</strong>. Each problem is given a ladder of twenty
-target values, from one any method reaches early down to the global optimum, and
-the profile of a configuration is the fraction of all the targets, over the four
-problems and five starting points, it has reached after a given number of
-evaluations. The targets and the profiles are computed by
-<a class="reference external" href="https://gitlab.com/gemseo/dev/gemseo-benchmark">gemseo-benchmark</a>: its
-<code class="docutils literal notranslate"><span class="pre">TargetsGenerator</span></code> from the pooled histories of every run of a dimension, the
-variants and the baselines alike, so that a curve here and a curve in
-<a class="reference internal" href="#against-the-baselines">the comparison against the baselines</a> mean the same
-thing, and its <code class="docutils literal notranslate"><span class="pre">DataProfile</span></code> from the history of each run. The budget is <span class="math notranslate nohighlight">\(500\)</span>
-equivalent evaluations per variable, a gradient counting as one. The <strong>area</strong> is
-the mean fraction of the targets reached over the whole budget, which rewards
-reaching them early as well as reaching many; it is what the variants are ranked
-by.</p>
-<img alt="The fraction of the targets each variant of the method reaches against the evaluations spent" class="only-light" src="../_images/variant_profiles.svg" />
-<img alt="The fraction of the targets each variant of the method reaches against the evaluations spent" class="only-dark" src="../_images/variant_profiles-dark.svg" />
+<p>Each variant changes one of these settings with respect to the swept
+configuration <code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings()</span></code>: four probes, a ladder bounded by
+the spread of the objective, and ten subdivisions per variable in two
+dimensions and two in five. The calibrated configuration, with a convexity
+margin of <span class="math notranslate nohighlight">\(100\)</span>, is included as the reference that the sweep replaces.</p>
+<p>The variants are compared through data profiles. For each problem a sequence of
+twenty target values is defined, from a value reached early by every method down
+to the global optimum. The profile of a configuration is the fraction of the
+targets, over the four problems and five starting points, reached after a given
+number of evaluations. The targets and profiles are computed with
+<a class="reference external" href="https://gitlab.com/gemseo/dev/gemseo-benchmark">gemseo-benchmark</a>: the
+<code class="docutils literal notranslate"><span class="pre">TargetsGenerator</span></code> uses the pooled histories of all runs of a given dimension,
+variants and baselines together, so that the profiles of this section and of
+the <a class="reference internal" href="#comparison-with-the-baselines">comparison with the baselines</a> share the
+same targets; the <code class="docutils literal notranslate"><span class="pre">DataProfile</span></code> uses the history of each run. The budget is
+<span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations per variable, a gradient counting as one
+evaluation. The area under the profile, i.e. the mean fraction of targets
+reached over the budget, is used to rank the variants.</p>
+<img alt="Fraction of the targets reached by each variant of the method against the evaluations spent" class="only-light" src="../_images/variant_profiles.svg" />
+<img alt="Fraction of the targets reached by each variant of the method against the evaluations spent" class="only-dark" src="../_images/variant_profiles-dark.svg" />
+<p><em>Figure 1. Data profiles of the variants of the method.</em></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>variant</p></th>
@@ -579,7 +576,7 @@ by.</p>
 <tr class="row-even"><td><p>swept, 4 probes</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.87\)</span></p></td>
 <td><p>90%</p></td>
-<td><p><strong>99%</strong></p></td>
+<td><p>99%</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.51\)</span></p></td>
 <td><p>56%</p></td>
 <td><p>56%</p></td>
@@ -595,15 +592,15 @@ by.</p>
 <tr class="row-even"><td><p>swept, 8 probes</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.88\)</span></p></td>
 <td><p>85%</p></td>
-<td><p><strong>99%</strong></p></td>
+<td><p>99%</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.52\)</span></p></td>
 <td><p>55%</p></td>
 <td><p>57%</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>swept, 16 probes</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.92\)</span></strong></p></td>
-<td><p><strong>99%</strong></p></td>
-<td><p><strong>99%</strong></p></td>
+<tr class="row-odd"><td><p>swept, 16 probes</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.92\)</span></p></td>
+<td><p>99%</p></td>
+<td><p>99%</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.49\)</span></p></td>
 <td><p>38%</p></td>
 <td><p>56%</p></td>
@@ -624,13 +621,13 @@ by.</p>
 <td><p>49%</p></td>
 <td><p>50%</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>swept, 10 per variable</strong></p></td>
+<tr class="row-even"><td><p>swept, 10 per variable</p></td>
 <td><p>—</p></td>
 <td><p>—</p></td>
 <td><p>—</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.64\)</span></strong></p></td>
-<td><p><strong>62%</strong></p></td>
-<td><p><strong>84%</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.64\)</span></p></td>
+<td><p>62%</p></td>
+<td><p>84%</p></td>
 </tr>
 <tr class="row-odd"><td><p>swept, 10 per variable, ladder up to 10</p></td>
 <td><p>—</p></td>
@@ -675,72 +672,73 @@ by.</p>
 </tbody>
 </table>
 </div>
-<p>In two variables ten per variable is the default, so the rows at that density
-would repeat the ones above them.</p>
-<p><strong>More probes explore better, where the subdivision resolves the basins.</strong> In
-two variables sixteen probes reach <span class="math notranslate nohighlight">\(99\%\)</span> of the targets by <span class="math notranslate nohighlight">\(250\)</span> evaluations,
-against <span class="math notranslate nohighlight">\(90\%\)</span> for four, and solve Rastrigin, Ackley and Styblinski-Tang from
-every starting point: the best configuration of the method on this page, and
-ahead of every baseline. Eight sit between the two. In five variables at two
-subdivisions per variable more probes buy nothing, <span class="math notranslate nohighlight">\(0.49\)</span> to <span class="math notranslate nohighlight">\(0.52\)</span> whatever the
-count: a probe chooses among boxes, and with two per variable no box separates
-the basins of Rastrigin or Ackley. The counts measured here, four, eight and
-sixteen, avoid the hole <a class="reference internal" href="extensions.html#the-probes-decide-and-six-of-them-is-a-hole"><span class="std std-ref">annex
-D</span></a> found at six.</p>
-<p><strong>More probes also cost master time, which the budget does not count.</strong> Sixteen
-probes at ten subdivisions per variable in five dimensions, fifty binaries, is
-left out of the table: half its runs had not spent their <span class="math notranslate nohighlight">\(2500\)</span> evaluations
-after five hours of wall time, every probe being a mixed-integer solve, and the
-half that had were worse than four probes, reaching Rastrigin and Ackley from
-one starting point of five each against two and three. On an objective costing
-minutes an evaluation dwarfs a master solve; on these it does not.</p>
-<p><strong>A lower ceiling converges faster and stops sooner.</strong> A ladder topped at <span class="math notranslate nohighlight">\(10\)</span>
-is the fastest start in two variables, <span class="math notranslate nohighlight">\(63\%\)</span> of the targets at <span class="math notranslate nohighlight">\(100\)</span>
-evaluations against <span class="math notranslate nohighlight">\(43\%\)</span>, and ends at <span class="math notranslate nohighlight">\(78\%\)</span>, having missed Ackley from every
-starting point. At ten per variable in five it does the same, <span class="math notranslate nohighlight">\(37\%\)</span> against
-<span class="math notranslate nohighlight">\(30\%\)</span> at <span class="math notranslate nohighlight">\(250\)</span> evaluations, ending at <span class="math notranslate nohighlight">\(74\%\)</span> against <span class="math notranslate nohighlight">\(84\%\)</span>. Topped at <span class="math notranslate nohighlight">\(30\)</span> it
-costs less: a faster start in two variables, <span class="math notranslate nohighlight">\(92\%\)</span> at <span class="math notranslate nohighlight">\(250\)</span> against <span class="math notranslate nohighlight">\(90\%\)</span>, and
-<span class="math notranslate nohighlight">\(96\%\)</span> at the end against <span class="math notranslate nohighlight">\(99\%\)</span>. The low rungs propose the box next door, so a
-ladder short of them converges on the region it started in, which is a trade of
-reliability for speed rather than a free acceleration.</p>
-<p><strong>Calibrating the convexity buys nothing.</strong> The margin of <span class="math notranslate nohighlight">\(100\)</span> is below the
-sweep in both dimensions, <span class="math notranslate nohighlight">\(0.83\)</span> against <span class="math notranslate nohighlight">\(0.87\)</span> and <span class="math notranslate nohighlight">\(0.50\)</span> against <span class="math notranslate nohighlight">\(0.51\)</span>, and
-reaches Ackley in two variables from three starting points of five against five.</p>
-<p><strong>In five variables the density decides, as
-<a class="reference internal" href="#the-density-of-the-subdivision-decides">below</a>.</strong> Ten subdivisions per
-variable is the best variant there, <span class="math notranslate nohighlight">\(0.64\)</span>, and its final <span class="math notranslate nohighlight">\(84\%\)</span> is the highest
-of any configuration at this budget, the baselines included. It reaches
-Styblinski-Tang from five starting points of five, Ackley from three and
-Rastrigin from two; the calibrated density sweep below reached Rastrigin from
-all three of its own starting points, a difference that three and five starting
-points cannot settle. The deep hierarchy comes
-next at <span class="math notranslate nohighlight">\(0.60\)</span>, and solves Ackley from four starting points of five, the one
-problem it was built for.</p>
-<p><strong>The proposed density does not pay for its scans.</strong> Counting the basins costs
-from <span class="math notranslate nohighlight">\(500\)</span> evaluations on Styblinski-Tang to over ten thousand on Ackley in two
-variables, and from <span class="math notranslate nohighlight">\(1250\)</span> to about twenty-five thousand in five, more than the
-budget on most problems, so a run paying for its scans is the last row in both
-dimensions. Given the scans for free, it still ranks below the fixed densities,
-<span class="math notranslate nohighlight">\(0.75\)</span> against <span class="math notranslate nohighlight">\(0.87\)</span> in two variables and <span class="math notranslate nohighlight">\(0.58\)</span> against <span class="math notranslate nohighlight">\(0.64\)</span> in five,
-Ackley’s unresolved ladder proposing over sixty subdivisions per variable. See
-<a class="reference internal" href="#proposing-it-rather-than-sweeping-it">what the proposal costs</a>.</p>
-<p><strong>The multi-resolution encoding starts fastest and stops soonest.</strong> Two levels
-of four are the fastest variant over the first evaluations in both dimensions,
-<span class="math notranslate nohighlight">\(69\%\)</span> of the targets at <span class="math notranslate nohighlight">\(100\)</span> in two variables and <span class="math notranslate nohighlight">\(42\%\)</span> at <span class="math notranslate nohighlight">\(250\)</span> in five, and
-the flattest afterwards, ending at <span class="math notranslate nohighlight">\(85\%\)</span> and <span class="math notranslate nohighlight">\(44\%\)</span>. Swept, it misses
-Styblinski-Tang in five variables from every starting point, where the
+<p><em>Table 2. Area under the data profile and fraction of targets reached at a
+quarter and at the whole budget. In two variables ten subdivisions per variable
+is the default, so the corresponding rows are omitted.</em></p>
+<p><strong>Probes.</strong> In two variables, sixteen probes reach <span class="math notranslate nohighlight">\(99\%\)</span> of the targets after
+<span class="math notranslate nohighlight">\(250\)</span> evaluations, against <span class="math notranslate nohighlight">\(90\%\)</span> for four probes, and reach the optimum of
+Rastrigin, Ackley and Styblinski-Tang from all starting points; this is the
+highest area of Table 2. Eight probes lie in between. In five variables with two
+subdivisions per variable, the area is between <span class="math notranslate nohighlight">\(0.49\)</span> and <span class="math notranslate nohighlight">\(0.52\)</span> whatever the
+number of probes: with two subdivisions per variable no box separates the basins
+of Rastrigin or Ackley, so that the choice among boxes does not matter. The
+values four, eight and sixteen avoid the degradation observed with six probes in
+<a class="reference internal" href="extensions.html#the-probes-decide-and-six-of-them-is-a-hole"><span class="std std-ref">annex D</span></a>.</p>
+<p>The cost of the master is not counted in the budget. Sixteen probes with ten
+subdivisions per variable in five dimensions (fifty binaries) were excluded from
+Table 2: half of the runs had not spent their <span class="math notranslate nohighlight">\(2500\)</span> evaluations after five
+hours of wall time, each probe requiring a mixed-integer solve, and the other
+half reached the optimum of Rastrigin and Ackley from one starting point of
+five, against two and three for four probes. This overhead is negligible only
+when an evaluation of the objective is expensive.</p>
+<p><strong>Upper bound of the ladder.</strong> A ladder bounded by <span class="math notranslate nohighlight">\(10\)</span> gives the fastest start
+in two variables, <span class="math notranslate nohighlight">\(63\%\)</span> of the targets after <span class="math notranslate nohighlight">\(100\)</span> evaluations against <span class="math notranslate nohighlight">\(43\%\)</span>,
+but ends at <span class="math notranslate nohighlight">\(78\%\)</span>, the optimum of Ackley being missed from all starting
+points. With ten subdivisions per variable in five dimensions the same bound
+gives <span class="math notranslate nohighlight">\(37\%\)</span> against <span class="math notranslate nohighlight">\(30\%\)</span> after <span class="math notranslate nohighlight">\(250\)</span> evaluations and ends at <span class="math notranslate nohighlight">\(74\%\)</span> against
+<span class="math notranslate nohighlight">\(84\%\)</span>. A bound of <span class="math notranslate nohighlight">\(30\)</span> gives <span class="math notranslate nohighlight">\(92\%\)</span> against <span class="math notranslate nohighlight">\(90\%\)</span> after <span class="math notranslate nohighlight">\(250\)</span> evaluations in
+two variables and ends at <span class="math notranslate nohighlight">\(96\%\)</span> against <span class="math notranslate nohighlight">\(99\%\)</span>. The low rungs propose the
+neighbouring boxes, so that a ladder restricted to them converges within the
+region of the starting point: speed is obtained at the expense of reliability.</p>
+<p><strong>Calibrated margin.</strong> The margin of <span class="math notranslate nohighlight">\(100\)</span> gives a lower area than the sweep in
+both dimensions, <span class="math notranslate nohighlight">\(0.83\)</span> against <span class="math notranslate nohighlight">\(0.87\)</span> and <span class="math notranslate nohighlight">\(0.50\)</span> against <span class="math notranslate nohighlight">\(0.51\)</span>, and reaches
+the optimum of Ackley in two variables from three starting points of five
+against five.</p>
+<p><strong>Density.</strong> In five variables, ten subdivisions per variable is the best
+variant, with an area of <span class="math notranslate nohighlight">\(0.64\)</span> and a final fraction of <span class="math notranslate nohighlight">\(84\%\)</span>, the highest of
+all configurations at this budget, baselines included. It reaches the optimum
+of Styblinski-Tang from five starting points of five, of Ackley from three and
+of Rastrigin from two; the density study of the
+<a class="reference internal" href="#density-of-the-subdivision">next section</a> reached Rastrigin from all three of
+its starting points, a difference that three and five starting points cannot
+resolve. The deep hierarchy follows with <span class="math notranslate nohighlight">\(0.60\)</span> and reaches the optimum of
+Ackley from four starting points of five.</p>
+<p><strong>Proposed density.</strong> Counting the basins costs between <span class="math notranslate nohighlight">\(500\)</span> evaluations
+(Styblinski-Tang) and more than ten thousand (Ackley) in two variables, and
+between <span class="math notranslate nohighlight">\(1250\)</span> and about twenty-five thousand in five, which exceeds the budget
+on most problems; a run charged with its scans is therefore last in both
+dimensions. With the scans free of charge, the proposed density still ranks
+below the fixed densities, <span class="math notranslate nohighlight">\(0.75\)</span> against <span class="math notranslate nohighlight">\(0.87\)</span> in two variables and <span class="math notranslate nohighlight">\(0.58\)</span>
+against <span class="math notranslate nohighlight">\(0.64\)</span> in five, the unresolved ladder of Ackley proposing more than
+sixty subdivisions per variable (see <a class="reference internal" href="#proposed-density">Proposed density</a>).</p>
+<p><strong>Multi-resolution encoding.</strong> Two levels of four subdivisions give the fastest
+start in both dimensions, <span class="math notranslate nohighlight">\(69\%\)</span> of the targets after <span class="math notranslate nohighlight">\(100\)</span> evaluations in two
+variables and <span class="math notranslate nohighlight">\(42\%\)</span> after <span class="math notranslate nohighlight">\(250\)</span> in five, and the flattest profile afterwards,
+ending at <span class="math notranslate nohighlight">\(85\%\)</span> and <span class="math notranslate nohighlight">\(44\%\)</span>. With the convexity swept it misses the optimum of
+Styblinski-Tang in five variables from all starting points, whereas the
 calibrated encoding of <a class="reference internal" href="extensions.html#the-multi-resolution-encoding"><span class="std std-ref">annex D</span></a>
 reached it from one of three.</p>
 </section>
-<section id="the-density-of-the-subdivision-decides">
-<h2>The density of the subdivision decides<a class="headerlink" href="#the-density-of-the-subdivision-decides" title="Link to this heading">#</a></h2>
-<p>The number of boxes is the Cartesian product of the subdivisions, so it explodes
-with the dimension, but the master does not see it: it sees the <strong>one-hot
-binaries</strong>, <span class="math notranslate nohighlight">\(\sum_j m_j\)</span>, which grow linearly. Five variables with ten
-subdivisions each is <span class="math notranslate nohighlight">\(100\,000\)</span> boxes and only <span class="math notranslate nohighlight">\(50\)</span> binaries.</p>
-<p>Five variables, the <code class="docutils literal notranslate"><span class="pre">adaptive</span></code> configuration, a budget of <span class="math notranslate nohighlight">\(2500\)</span>, three starting
-points. The median distance to the optimum, the median cost, and the number of
-starting points reaching it:</p>
+<section id="density-of-the-subdivision">
+<h2>Density of the subdivision<a class="headerlink" href="#density-of-the-subdivision" title="Link to this heading">#</a></h2>
+<p>The number of boxes is the product of the subdivisions and grows exponentially
+with the dimension, whereas the master works with the one-hot binaries, whose
+number <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> grows linearly. Five variables with ten subdivisions each
+give <span class="math notranslate nohighlight">\(100\,000\)</span> boxes and <span class="math notranslate nohighlight">\(50\)</span> binaries.</p>
+<p>Table 3 reports the results in five variables with the <code class="docutils literal notranslate"><span class="pre">adaptive</span></code>
+configuration, a budget of <span class="math notranslate nohighlight">\(2500\)</span> and three starting points: the median distance
+to the optimum, the median cost, and the number of starting points from which
+the optimum is reached.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><span class="math notranslate nohighlight">\(m\)</span></p></th>
@@ -766,16 +764,16 @@ starting points reaching it:</p>
 <td><p><span class="math notranslate nohighlight">\(10^3\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(6.70\)</span> · 714</p></td>
 <td><p><span class="math notranslate nohighlight">\(12.63\)</span> · 1277</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 846 · 3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 846 · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.22\)</span> · 1547</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>10</strong></p></td>
-<td><p><strong>50</strong></p></td>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>50</p></td>
 <td><p><span class="math notranslate nohighlight">\(10^5\)</span></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span> · 2103 · 3/3</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(6.30\)</span></strong> · 2500†</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2103 · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(6.30\)</span> · 2500†</p></td>
 <td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 598 · 1/3</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.03\)</span></strong> · 2500†</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.03\)</span> · 2500†</p></td>
 </tr>
 <tr class="row-odd"><td><p>16</p></td>
 <td><p>80</p></td>
@@ -796,88 +794,87 @@ starting points reaching it:</p>
 </tbody>
 </table>
 </div>
-<p>† stopped by the budget, so the gap is an upper bound rather than a result.</p>
-<img alt="What the density of the subdivision does at five variables" class="only-light" src="../_images/density.svg" />
-<img alt="What the density of the subdivision does at five variables" class="only-dark" src="../_images/density-dark.svg" />
-<p><strong>Rastrigin in five dimensions is solved</strong>, from every starting point, for about
-<span class="math notranslate nohighlight">\(2100\)</span> evaluations, which no baseline achieves at any budget tried here. That is
-the headline of the whole benchmark, and it needs ten subdivisions per variable:
-at two or four the problem is not solved at all.</p>
-<p><strong>The Rastrigin and Styblinski-Tang columns are between finished runs</strong>, every
-cell ending below the budget, so what follows about them is a comparison of
-results. <strong>The Ackley and Griewank columns are not</strong>: from ten subdivisions
-upwards every run is stopped by the budget, so those two columns rank how far
-each density got in <span class="math notranslate nohighlight">\(2500\)</span> evaluations and say nothing about which density would
-win with more. Ackley’s apparent improvement with refinement is that kind of
-statement and no stronger.</p>
-<p><strong>There is a ceiling, and it is the binaries.</strong> Past ten subdivisions the
-quality falls away on Rastrigin, <span class="math notranslate nohighlight">\(1.99\)</span> at sixteen and <span class="math notranslate nohighlight">\(3.59\)</span> at twenty-four,
-while the cost falls too, which is the signature of a run ending early rather
-than searching harder. The cut model carries <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> coefficients and a
-budget buys a few dozen cuts to identify them, so a subdivision is usable while
-its <strong>binaries stay below the sub-problems a budget can pay for</strong>. Fifty against
-about fifty is the edge; eighty is past it. This is the rule the number of boxes
-never gave: <span class="math notranslate nohighlight">\(10^5\)</span> boxes are fine and <span class="math notranslate nohighlight">\(10^6\)</span> are not, for a reason that has
-nothing to do with either figure.</p>
-<p><strong>There is also a floor, and it is the basins.</strong> The subdivision has to separate
-the minima, which is why Rastrigin needs ten: its basins are about one unit
-apart over a range of ten.</p>
-<p><strong>And refining past the basins is not free.</strong> Styblinski-Tang has two basins per
-variable and is solved at two and four subdivisions; at ten it is not, <span class="math notranslate nohighlight">\(14.14\)</span>
-and one starting point out of three. Ten subdivisions cut each of its basins
-into five boxes, and a box holding no minimum of its own returns a value and a
-sensitivity that say nothing about where the minimum is, so the ranking
-degrades. The same reversal appears under the pure convexification and under
-three of the four trust-region radii, in <a class="reference internal" href="tuning.html#the-density-and-the-mechanism-are-not-independent"><span class="std std-ref">annex
-C</span></a>, so it belongs
-to the subdivision and not to the master.</p>
-<p>So the useful density sits between the basins and the binaries, and <strong>no single
-value serves all four problems</strong>: ten is best for three of them and worst for
-the fourth. The default of <code class="docutils literal notranslate"><span class="pre">benchmarks/baselines.py</span></code> bounds the enumeration
-rather than guessing.</p>
-<section id="proposing-it-rather-than-sweeping-it">
-<h3>Proposing it rather than sweeping it<a class="headerlink" href="#proposing-it-rather-than-sweeping-it" title="Link to this heading">#</a></h3>
-<p>That leaves the density as the one setting a caller has to find by trial, and it
-need not be. Counting the basins along jittered axial scans of each component
-proposes one, by the construction <a class="reference internal" href="methodology.html#where-the-density-comes-from"><span class="std std-ref">the
-methodology</span></a> sets out. Each problem
-below is granted four times the budget its own proposal implies, so every run
-ends on its own criterion; three starting points, median gap and cost:</p>
+<p><em>Table 3. Effect of the number <span class="math notranslate nohighlight">\(m\)</span> of subdivisions per variable, <span class="math notranslate nohighlight">\(n = 5\)</span>.
+† stopped by the budget; the distance is an upper bound.</em></p>
+<img alt="Effect of the subdivision density at five variables" class="only-light" src="../_images/density.svg" />
+<img alt="Effect of the subdivision density at five variables" class="only-dark" src="../_images/density-dark.svg" />
+<p><em>Figure 2. Effect of the subdivision density, <span class="math notranslate nohighlight">\(n = 5\)</span>.</em></p>
+<p>With ten subdivisions per variable, the optimum of Rastrigin in five dimensions
+is reached from all starting points for about <span class="math notranslate nohighlight">\(2100\)</span> evaluations; none of the
+baselines reached it at the budgets tested. With two or four subdivisions it is
+not reached.</p>
+<p>The Rastrigin and Styblinski-Tang columns compare terminated runs. In the Ackley
+and Griewank columns, all runs from ten subdivisions upwards were stopped by the
+budget; these columns therefore rank the progress made within <span class="math notranslate nohighlight">\(2500\)</span>
+evaluations and do not show which density would perform best with a larger
+budget.</p>
+<p>Beyond ten subdivisions the distance on Rastrigin increases, <span class="math notranslate nohighlight">\(1.99\)</span> at sixteen
+and <span class="math notranslate nohighlight">\(3.59\)</span> at twenty-four, while the cost decreases, which indicates that the
+runs terminate early. The cut model has <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> coefficients, and a budget
+allows a few dozen cuts to identify them. A density is therefore usable as long
+as the number of binaries remains below the number of sub-problems the budget
+can pay for: fifty binaries are at this limit for a budget of about fifty
+sub-problems, eighty are beyond it. The number of boxes does not provide this
+criterion.</p>
+<p>The density must also be sufficient to separate the minima: the basins of
+Rastrigin are about one unit apart over a range of ten, which requires ten
+subdivisions.</p>
+<p>Conversely, refining beyond the basins degrades the results. Styblinski-Tang has
+two basins per variable and its optimum is reached with two and four
+subdivisions; with ten, the distance is <span class="math notranslate nohighlight">\(14.14\)</span> and the optimum is reached from
+one starting point of three. Ten subdivisions divide each basin into five boxes,
+and the value and sensitivity returned by a box that contains no minimum carry
+no information on the location of the minimum. The same behaviour is observed
+with the pure convexification and with three of the four trust-region radii of
+<a class="reference internal" href="tuning.html#the-density-and-the-mechanism-are-not-independent"><span class="std std-ref">annex C</span></a>, which
+attributes it to the subdivision rather than to the master.</p>
+<p>The useful density thus lies between the one separating the basins and the one
+limited by the binaries, and no single value suits the four problems: ten is the
+best density for three of them and the worst for the fourth. The default of
+<code class="docutils literal notranslate"><span class="pre">benchmarks/baselines.py</span></code> bounds the enumeration accordingly.</p>
+<section id="proposed-density">
+<h3>Proposed density<a class="headerlink" href="#proposed-density" title="Link to this heading">#</a></h3>
+<p>The density can be proposed by counting the basins along jittered axial scans
+of each component, as described in
+<a class="reference internal" href="methodology.html#where-the-density-comes-from"><span class="std std-ref">the methodology</span></a>. Each problem of
+Table 4 is given four times the budget implied by its proposed density, so that
+every run terminates on its own criterion; three starting points, median
+distance and median cost.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>problem</p></th>
 <th class="head"><p>proposed <span class="math notranslate nohighlight">\(m\)</span></p></th>
 <th class="head"><p>binaries</p></th>
-<th class="head"><p>gap</p></th>
+<th class="head"><p>distance</p></th>
 <th class="head"><p>cost</p></th>
 <th class="head"><p>reached</p></th>
-<th class="head"><p>better fixed density</p></th>
+<th class="head"><p>compared with a fixed density</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Rastrigin</p></td>
 <td><p>10 ×5</p></td>
 <td><p>50</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span></p></td>
 <td><p>2103</p></td>
-<td><p><strong>3/3</strong></p></td>
-<td><p>ties 10, beats 2</p></td>
+<td><p>3/3</p></td>
+<td><p>equal to 10, better than 2</p></td>
 </tr>
 <tr class="row-odd"><td><p>Styblinski-Tang</p></td>
 <td><p>2 ×5</p></td>
 <td><p>10</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span></p></td>
 <td><p>458</p></td>
-<td><p><strong>2/3</strong></p></td>
-<td><p>ties 2, beats 10</p></td>
+<td><p>2/3</p></td>
+<td><p>equal to 2, better than 10</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code></p></td>
 <td><p>10 10 1 1 1</p></td>
 <td><p>23</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong></p></td>
-<td><p><strong>858</strong></p></td>
-<td><p><strong>3/3</strong></p></td>
-<td><p><strong>beats both</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span></p></td>
+<td><p>858</p></td>
+<td><p>3/3</p></td>
+<td><p>better than both</p></td>
 </tr>
 <tr class="row-odd"><td><p>Griewank</p></td>
 <td><p>19 13 11 7 9</p></td>
@@ -885,7 +882,7 @@ ends on its own criterion; three starting points, median gap and cost:</p>
 <td><p><span class="math notranslate nohighlight">\(0.064\)</span></p></td>
 <td><p>3463</p></td>
 <td><p>1/3</p></td>
-<td><p>ties 2, loses to 10</p></td>
+<td><p>equal to 2, worse than 10</p></td>
 </tr>
 <tr class="row-even"><td><p>Ackley</p></td>
 <td><p>63 ×5, <em>unresolved</em></p></td>
@@ -893,65 +890,61 @@ ends on its own criterion; three starting points, median gap and cost:</p>
 <td><p><span class="math notranslate nohighlight">\(12.75\)</span></p></td>
 <td><p>5372</p></td>
 <td><p>0/3</p></td>
-<td><p>loses to 10</p></td>
+<td><p>worse than 10</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p><em>Table 4. Proposed density, <span class="math notranslate nohighlight">\(n = 5\)</span>.</em></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>The costs of this table are those of the runs alone.</strong> The scans deciding the
-density evaluate the objective too, and they are not counted here: about <span class="math notranslate nohighlight">\(6100\)</span>
-evaluations on Rastrigin in five variables, against the <span class="math notranslate nohighlight">\(2103\)</span> of the run they
-configure, and about twenty-five thousand on Ackley and Griewank. Charged to the
-budget of <a class="reference internal" href="#the-variants-of-the-method-profiled">the profiles</a>, they leave the
-proposal the last of the variants in both dimensions. What this table measures is
-what the proposed density is worth, not what proposing it costs.</p>
+<p>The costs of Table 4 exclude the scans that determine the density, which also
+evaluate the objective: about <span class="math notranslate nohighlight">\(6100\)</span> evaluations on Rastrigin in five variables,
+against <span class="math notranslate nohighlight">\(2103\)</span> for the run itself, and about twenty-five thousand on Ackley and
+Griewank. Charged to the budget of the <a class="reference internal" href="#variants-of-the-method">variants</a>, the
+proposed density ranks last in both dimensions. Table 4 measures the value of
+the proposed density, not the cost of proposing it.</p>
 </div>
-<p><strong>On every problem whose ladder resolved, the proposal picks the better of the
-two fixed densities</strong>, and on one it beats both: <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code> reaches the
-optimum from every starting point for <span class="math notranslate nohighlight">\(858\)</span> evaluations against <span class="math notranslate nohighlight">\(1554\)</span> at a flat
-ten, by leaving its three unimodal components unsubdivided. The two reversals
-this page is built around — ten for Rastrigin, two for Styblinski-Tang — both
-come out right without being told, and no fixed value gets both.</p>
-<p><strong>The budget the proposal implies is about right.</strong> <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> sub-problems
-predicts <span class="math notranslate nohighlight">\(2000\)</span> against <span class="math notranslate nohighlight">\(2103\)</span> measured on Rastrigin, <span class="math notranslate nohighlight">\(400\)</span> against <span class="math notranslate nohighlight">\(458\)</span> on
-Styblinski-Tang, <span class="math notranslate nohighlight">\(920\)</span> against <span class="math notranslate nohighlight">\(858\)</span> on <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code>: within a third on
-each, which is what the coefficients-to-cuts ratio
-<a class="reference internal" href="#the-density-of-the-subdivision-decides">above</a> implies.</p>
-<p><strong>And the row it gets wrong is the row it flags.</strong> Ackley’s ladder does not
-settle, and its proposal of sixty-three is worse than a flat ten. Its ripples
-are a unit apart over a range of sixty-four, so separating them is correct as a
-count and useless as a subdivision: what has to be resolved there is the funnel,
-not the texture on it. The estimate reports itself unresolved <em>in advance</em>,
-which is the part worth having — it separates the proposals to trust from the
-one to discard, and it is the same signal that routes such a problem to a
-hierarchy.</p>
-<p>What the estimate reads is the <strong>objective</strong>. A problem whose basins are cut by
-non-convex constraints instead returns a single subdivision per component and
-reports itself settled, the objective there genuinely having one basin;
-<a class="reference internal" href="extensions.html#where-the-constraints-cut-the-basins"><span class="std std-ref">annex D</span></a> gives the
-constraint-aware count and the limits it does not pass.</p>
+<p>On the problems whose basin count converged, the proposed density coincides with
+the better of the two fixed densities, and on <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code> it improves on
+both: the optimum is reached from all starting points for <span class="math notranslate nohighlight">\(858\)</span> evaluations
+against <span class="math notranslate nohighlight">\(1554\)</span> with ten subdivisions everywhere, the three unimodal components
+being left undivided. The proposal selects ten subdivisions for Rastrigin and
+two for Styblinski-Tang, which no single fixed value achieves.</p>
+<p>The budget implied by the proposal, <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> sub-problems, agrees with the
+measured cost within a third: <span class="math notranslate nohighlight">\(2000\)</span> against <span class="math notranslate nohighlight">\(2103\)</span> on Rastrigin, <span class="math notranslate nohighlight">\(400\)</span> against
+<span class="math notranslate nohighlight">\(458\)</span> on Styblinski-Tang and <span class="math notranslate nohighlight">\(920\)</span> against <span class="math notranslate nohighlight">\(858\)</span> on <code class="docutils literal notranslate"><span class="pre">partly_multimodal</span></code>.</p>
+<p>On Ackley the basin count does not converge, and the proposed density of
+sixty-three performs worse than ten. Its ripples are one unit apart over a range
+of sixty-four, so that the count is correct but the corresponding subdivision is
+not useful: the global funnel, not the ripples, has to be resolved. The estimate
+reports itself as unresolved before the run, which identifies the proposals to
+be discarded; the same indicator directs such a problem to a hierarchy.</p>
+<p>The estimate is based on the objective only. For a problem whose basins are
+separated by non-convex constraints it returns one subdivision per component and
+reports itself as converged, the objective having a single basin;
+<a class="reference internal" href="extensions.html#where-the-constraints-cut-the-basins"><span class="std std-ref">annex D</span></a> describes the
+constraint-aware count and its limitations.</p>
 </section>
 </section>
-<section id="sweeping-the-convexity-rather-than-supplying-it">
-<h2>Sweeping the convexity rather than supplying it<a class="headerlink" href="#sweeping-the-convexity-rather-than-supplying-it" title="Link to this heading">#</a></h2>
-<p>Every number of the density sweep above was obtained with a convexity margin
-chosen for the problem it was run on, in the units of that problem’s objective.
-That is the method’s standing criticism, and the answer is to <a class="reference internal" href="methodology.html#sweeping-it-instead-of-calibrating-it"><span class="std std-ref">sweep the value
-rather than supply it</span></a>:
-the master’s parallel probes carry a ladder of convexity values, a probe
-proposing a box already solved climbs a rung, and the bound of the ladder is
-read off the spread of the objective over the boxes already solved.</p>
-<p>Rastrigin and Ackley in two dimensions, whose objectives differ by a factor of
-four in scale, ten subdivisions, a budget of <span class="math notranslate nohighlight">\(1000\)</span>, six starting points. The
-median gap, the median cost and the starting points from which the optimum is
-reached:</p>
+<section id="swept-convexity">
+<h2>Swept convexity<a class="headerlink" href="#swept-convexity" title="Link to this heading">#</a></h2>
+<p>The results of the density study were obtained with a convexity margin chosen
+for each problem, in the units of its objective. The alternative is to
+<a class="reference internal" href="methodology.html#sweeping-it-instead-of-calibrating-it"><span class="std std-ref">sweep the value</span></a>: the
+parallel probes of the master carry a ladder of convexity values, a probe
+proposing a box already solved moves to the next rung, and the upper bound of
+the ladder is derived from the spread of the objective over the boxes already
+solved.</p>
+<p>Table 5 compares fixed and swept convexity on Rastrigin and Ackley in two
+dimensions, whose objectives differ in scale by a factor of four, with ten
+subdivisions, a budget of <span class="math notranslate nohighlight">\(1000\)</span> and six starting points: median distance,
+median cost and number of starting points from which the optimum is reached.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>convexity</p></th>
-<th class="head"><p>Rastrigin, spans <span class="math notranslate nohighlight">\(\approx 80\)</span></p></th>
-<th class="head"><p>Ackley, spans <span class="math notranslate nohighlight">\(\approx 22\)</span></p></th>
+<th class="head"><p>Rastrigin, range <span class="math notranslate nohighlight">\(\approx 80\)</span></p></th>
+<th class="head"><p>Ackley, range <span class="math notranslate nohighlight">\(\approx 22\)</span></p></th>
 </tr>
 </thead>
 <tbody>
@@ -967,78 +960,76 @@ reached:</p>
 <td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 491 · 6/6</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 517 · 6/6</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>sweep, no bound at all</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 489 · 6/6</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.000\)</span> · 601 · 6/6</strong></p></td>
+<tr class="row-odd"><td><p>sweep, unbounded</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 489 · 6/6</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.000\)</span> · 601 · 6/6</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><strong>No fixed margin is good on both problems, and the sweep is.</strong> The margin the
-tuning settled on, <span class="math notranslate nohighlight">\(100\)</span>, is the best fixed row and still reaches Ackley from
-four starting points out of six; the sweep reaches both problems from all six,
-and the last row is given no convexity value whatever.</p>
-<p><strong>Its bound is forgiving where a margin is brittle.</strong> A bound ten times too
-large costs <span class="math notranslate nohighlight">\(532\)</span> evaluations against <span class="math notranslate nohighlight">\(491\)</span> on Rastrigin and changes nothing
-that is reached there, because the low rungs stay on the ladder either way; a
-margin ten times too small reaches one starting point out of six. The bound is
-not free — the same over-estimate does cost two starting points on Ackley — it
-is merely forgiving.</p>
-<p><strong>It is not free, and it is not measured widely.</strong> Escalation costs
-mixed-integer solves rather than evaluations, which is why the swept rows cost
-what the calibrated one costs. The table above is two problems in two
-dimensions, which establish no factor: the decade of headroom the unbounded form
-needs was chosen on them. What reaches further is <a class="reference internal" href="#the-variants-of-the-method-profiled">the profiles of the
-variants</a>, where the swept configuration
-is measured against the calibrated one on four problems in two dimensions and
-five, from five starting points each — and even there, one mechanism only, the
-adaptive repair, the pure convexification having never been swept. The full
-table, the reading of the bound off the objective, and what the headroom is for
-are in <a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
+<p><em>Table 5. Fixed and swept convexity, <span class="math notranslate nohighlight">\(n = 2\)</span>.</em></p>
+<p>No fixed margin reaches the optimum of both problems from all starting points:
+the margin of <span class="math notranslate nohighlight">\(100\)</span> retained by the tuning reaches Ackley from four of six. Both
+swept configurations reach both problems from all six, including the unbounded
+one, which is given no convexity value.</p>
+<p>The sweep is less sensitive to its bound than the fixed method is to its margin.
+A bound ten times too large costs <span class="math notranslate nohighlight">\(532\)</span> evaluations against <span class="math notranslate nohighlight">\(491\)</span> on Rastrigin
+without changing the starting points from which the optimum is reached, since
+the low rungs remain in the ladder; it does, however, lose two starting points
+on Ackley. A margin ten times too small reaches the optimum from one starting
+point of six.</p>
+<p>The additional rungs cost mixed-integer solves rather than evaluations, so the
+swept configurations cost about as much as the calibrated one. Table 5 covers
+two problems in two dimensions, on which the headroom of the unbounded form was
+chosen; it does not establish a general factor. A broader comparison is given by
+the <a class="reference internal" href="#variants-of-the-method">variants</a>, on four problems in two and five
+dimensions from five starting points, for the adaptive repair only. The full
+table and the derivation of the bound are in
+<a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
 </section>
-<section id="the-extensions-and-what-they-are-worth">
-<h2>The extensions, and what they are worth<a class="headerlink" href="#the-extensions-and-what-they-are-worth" title="Link to this heading">#</a></h2>
-<p>Four extensions were built on the method and measured at equal budget, five
-variables, <span class="math notranslate nohighlight">\(2500\)</span> equivalent evaluations: subdividing some variables only, the
+<section id="extensions">
+<h2>Extensions<a class="headerlink" href="#extensions" title="Link to this heading">#</a></h2>
+<p>Four extensions were evaluated at equal budget in five variables with <span class="math notranslate nohighlight">\(2500\)</span>
+equivalent evaluations: the subdivision of a subset of the variables, the
 multi-resolution encoding, the hierarchies of subdivisions, and the scores that
-rank a box. <strong>None of them becomes a default</strong>, and each says where the method’s
-difficulty lies. The tables are in
-<a class="reference internal" href="extensions.html"><span class="std std-doc">annex D</span></a>; the verdicts are:</p>
+rank a box. None of them was adopted as a default. The tables are given in
+<a class="reference internal" href="extensions.html"><span class="std std-doc">annex D</span></a>; the findings are the following.</p>
 <ul class="simple">
-<li><p><strong>subdividing some variables only</strong> wins where the multimodality is
-concentrated and loses where it is not, which is the requirement of the method
-restated. The cheapest configuration that works is not the one matching the
-multimodality exactly: the binaries govern here as everywhere else;</p></li>
-<li><p><strong>the multi-resolution encoding</strong> is the one construction that changes what a
-resolution costs in binaries — sixteen subdivisions per variable for forty
-binaries instead of eighty — and it earns its place on the one problem the
-density sweep breaks on, Styblinski-Tang. Fewer, wider levels beat more,
-narrower ones;</p></li>
-<li><p><strong>the hierarchies</strong> answer one specific shape of problem, a basin too broad for
-any affordable density: the deep shape solves Ackley at five variables, which
-nothing else here does. The frontier, the only shape able to undo a choice, is
-the worst of the family, because every node restarts a master and throws its
-cuts away;</p></li>
-<li><p><strong>the positional weighting of a subdivision stays the wrong choice</strong>, which is
-the trust-region metric conclusion reappearing in a second setting.</p></li>
+<li><p>Subdividing a subset of the variables improves the results when the
+multimodality is concentrated in that subset and degrades them otherwise. The
+least expensive configuration that reaches the optimum does not subdivide
+exactly the multimodal variables, because the number of binaries governs the
+cost.</p></li>
+<li><p>The multi-resolution encoding reduces the number of binaries for a given
+resolution, sixteen subdivisions per variable for forty binaries instead of
+eighty, and improves the results on Styblinski-Tang, where the density study
+fails. Fewer and coarser levels perform better than more and finer ones.</p></li>
+<li><p>The hierarchies address basins too broad for any affordable density: the deep
+hierarchy reaches the optimum of Ackley in five variables, which no other
+configuration does. The frontier hierarchy, the only one able to revise a
+choice, performs worst, because each node restarts a master and discards its
+cuts.</p></li>
+<li><p>The positional weighting of the subdivisions performs worse than the
+unweighted metric, as for the trust region.</p></li>
 </ul>
-<p>Several of those comparisons are between runs the budget stopped, so <a class="reference internal" href="extensions.html#does-more-budget-change-the-answer"><span class="std std-ref">annex
-D</span></a> re-runs the one where it
-matters at twice and four times the budget. It corrects one margin — the flat
-subdivision reaches Ackley from two starting points out of six rather than none,
-so the hierarchy’s margin is four against two — and shows that past that, more
-budget buys nothing at all: both configurations stop on their own caps.</p>
+<p>Several of these comparisons involve runs stopped by the budget, so
+<a class="reference internal" href="extensions.html#does-more-budget-change-the-answer"><span class="std std-ref">annex D</span></a> repeats the most
+sensitive one at two and four times the budget. The flat subdivision then
+reaches Ackley from two starting points of six instead of none, which reduces
+the advantage of the hierarchy to four against two; beyond that, a larger budget
+does not change the results, both configurations terminating on their own
+criteria.</p>
 </section>
-<section id="against-the-baselines">
-<h2>Against the baselines<a class="headerlink" href="#against-the-baselines" title="Link to this heading">#</a></h2>
-<p>The method is compared here in its best variant of <a class="reference internal" href="#the-variants-of-the-method-profiled">the profiles
-above</a>, which is not the same in both
-dimensions: <strong>sixteen probes</strong> in two variables, <strong>ten subdivisions per
-variable</strong> in five, both swept, so neither carries a convexity value chosen for
-these problems. The runs are those of the profiles: four problems, five starting
-points, <span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations per variable under the adjoint convention.
-Each cell is the <strong>median distance to the optimum</strong>, the <strong>median cost</strong>, and
-the number of starting points from which the optimum was <strong>reached</strong>:</p>
+<section id="comparison-with-the-baselines">
+<h2>Comparison with the baselines<a class="headerlink" href="#comparison-with-the-baselines" title="Link to this heading">#</a></h2>
+<p>The method is used in its best variant of Table 2, which differs between the
+two dimensions: sixteen probes in two variables and ten subdivisions per
+variable in five, both with swept convexity, so that neither uses a convexity
+value chosen for these problems. The runs are those of the data profiles: four
+problems, five starting points, and <span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations per variable
+with adjoint gradients. Each cell of Table 6 gives the median distance to the
+optimum, the median cost, and the number of starting points from which the
+optimum is reached.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>problem</p></th>
@@ -1052,71 +1043,75 @@ the number of starting points from which the optimum was <strong>reached</strong
 <tbody>
 <tr class="row-even"><td><p>Rastrigin</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 908 · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 908 · 5/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(1.00\)</span> · 1000 · 2/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(2.06\)</span> · 619 · 0/5</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>649</strong> · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 649 · 5/5</p></td>
 </tr>
 <tr class="row-odd"><td><p>Ackley</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 5/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 4/5</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 757 · <strong>5/5</strong></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>417</strong> · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 757 · 5/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 417 · 5/5</p></td>
 </tr>
 <tr class="row-even"><td><p>Styblinski-Tang</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 553 · <strong>5/5</strong></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · <strong>5/5</strong></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>529</strong> · 3/5</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1011 · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 553 · 5/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1000 · 5/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 529 · 3/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1011 · 5/5</p></td>
 </tr>
 <tr class="row-odd"><td><p>Griewank</p></td>
 <td><p>2</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.007\)</span></strong> · 1000 · 0/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.007\)</span> · 1000 · 0/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.010\)</span> · 1000 · 0/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.030\)</span> · 775 · 0/5</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.007\)</span></strong> · 1011 · 0/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.007\)</span> · 1011 · 0/5</p></td>
 </tr>
 <tr class="row-even"><td><p>Rastrigin</p></td>
 <td><p>5</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(1.00\)</span></strong> · 1650 · <strong>2/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.00\)</span> · 1650 · 2/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(5.97\)</span> · 2500 · 0/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(8.95\)</span> · 1497 · 0/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(4.98\)</span> · 461 · 0/5</p></td>
 </tr>
 <tr class="row-odd"><td><p>Ackley</p></td>
 <td><p>5</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong> · 2500 · 3/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2500 · 3/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(8.01\)</span> · 2500 · 0/5</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.00\)</span></strong> · 2001 · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2001 · 5/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.11\)</span> · 353 · 0/5</p></td>
 </tr>
 <tr class="row-even"><td><p>Styblinski-Tang</p></td>
 <td><p>5</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>789</strong> · <strong>5/5</strong></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2340 · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 789 · 5/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2340 · 5/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 1401 · 3/5</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2505 · <strong>5/5</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2505 · 5/5</p></td>
 </tr>
 <tr class="row-odd"><td><p>Griewank</p></td>
 <td><p>5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.027\)</span> · 2118 · 0/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.047\)</span> · 2500 · 0/5</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.030\)</span> · 1641 · 0/5</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.011\)</span></strong> · 397 · 0/5</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.011\)</span> · 397 · 0/5</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p><em>Table 6. Box subdivision and baselines, <span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations per
+variable.</em></p>
 <img alt="Cost of the best variant and of each baseline on each problem, with the optima reached" class="only-light" src="../_images/results.svg" />
 <img alt="Cost of the best variant and of each baseline on each problem, with the optima reached" class="only-dark" src="../_images/results-dark.svg" />
-<p>The same runs as data profiles, on the targets of the variants. EGO is added at
-the <span class="math notranslate nohighlight">\(500\)</span> evaluations its surrogate can afford, its curve marked where that
-budget ends; <a class="reference internal" href="#at-a-budget-every-method-can-afford">the next section</a> compares
-every method at that budget.</p>
-<img alt="The fraction of the targets the best variant and each baseline reach against the evaluations spent" class="only-light" src="../_images/data_profiles.svg" />
-<img alt="The fraction of the targets the best variant and each baseline reach against the evaluations spent" class="only-dark" src="../_images/data_profiles-dark.svg" />
+<p><em>Figure 3. Cost and number of optima reached for each method and problem.</em></p>
+<p>Figure 4 shows the same runs as data profiles, with the targets of the variants.
+EGO is added with the <span class="math notranslate nohighlight">\(500\)</span> evaluations its surrogate model can afford; the end
+of its budget is marked on its curve, and all methods are compared at this
+budget in the <a class="reference internal" href="#comparison-at-a-budget-of-500-evaluations">next section</a>.</p>
+<img alt="Fraction of the targets reached by the best variant and each baseline against the evaluations spent" class="only-light" src="../_images/data_profiles.svg" />
+<img alt="Fraction of the targets reached by the best variant and each baseline against the evaluations spent" class="only-dark" src="../_images/data_profiles-dark.svg" />
+<p><em>Figure 4. Data profiles of the best variant and of the baselines.</em></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><span class="math notranslate nohighlight">\(n\)</span></p></th>
@@ -1130,12 +1125,12 @@ every method at that budget.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>2</p></td>
-<td><p><strong>box subdivision, 16 probes</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.92\)</span></strong></p></td>
+<td><p>box subdivision, 16 probes</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.92\)</span></p></td>
 <td><p>56%</p></td>
-<td><p><strong>99%</strong></p></td>
-<td><p><strong>99%</strong></p></td>
-<td><p><strong>99%</strong></p></td>
+<td><p>99%</p></td>
+<td><p>99%</p></td>
+<td><p>99%</p></td>
 </tr>
 <tr class="row-odd"><td><p>2</p></td>
 <td><p>multistart</p></td>
@@ -1158,24 +1153,24 @@ every method at that budget.</p>
 <td><p><span class="math notranslate nohighlight">\(0.90\)</span></p></td>
 <td><p>69%</p></td>
 <td><p>84%</p></td>
-<td><p><strong>99%</strong></p></td>
-<td><p><strong>99%</strong></p></td>
+<td><p>99%</p></td>
+<td><p>99%</p></td>
 </tr>
 <tr class="row-even"><td><p>2</p></td>
 <td><p>EGO, 500 evaluations</p></td>
 <td><p>—</p></td>
-<td><p><strong>74%</strong></p></td>
+<td><p>74%</p></td>
 <td><p>84%</p></td>
 <td><p>86%</p></td>
 <td><p>86%‡</p></td>
 </tr>
 <tr class="row-odd"><td><p>5</p></td>
-<td><p><strong>box subdivision, 10 per variable</strong></p></td>
+<td><p>box subdivision, 10 per variable</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.64\)</span></p></td>
 <td><p>30%</p></td>
 <td><p>62%</p></td>
 <td><p>73%</p></td>
-<td><p><strong>84%</strong></p></td>
+<td><p>84%</p></td>
 </tr>
 <tr class="row-even"><td><p>5</p></td>
 <td><p>multistart</p></td>
@@ -1195,10 +1190,10 @@ every method at that budget.</p>
 </tr>
 <tr class="row-even"><td><p>5</p></td>
 <td><p>DIRECT</p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.76\)</span></strong></p></td>
-<td><p><strong>75%</strong></p></td>
-<td><p><strong>79%</strong></p></td>
-<td><p><strong>79%</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.76\)</span></p></td>
+<td><p>75%</p></td>
+<td><p>79%</p></td>
+<td><p>79%</p></td>
 <td><p>79%</p></td>
 </tr>
 <tr class="row-odd"><td><p>5</p></td>
@@ -1212,64 +1207,66 @@ every method at that budget.</p>
 </tbody>
 </table>
 </div>
-<p>‡ at its own budget of <span class="math notranslate nohighlight">\(500\)</span>, which in five variables falls before a quarter of
-the others’; EGO has no area, the mean over a budget it was not given.</p>
-<p><strong>In two variables the method is the fastest to the targets.</strong> Sixteen probes
-reach <span class="math notranslate nohighlight">\(99\%\)</span> of them within a quarter of the budget, <span class="math notranslate nohighlight">\(250\)</span> evaluations, where
-DIRECT, the strongest baseline, is at <span class="math notranslate nohighlight">\(84\%\)</span> and needs twice as many to catch
-up. It solves Rastrigin, Ackley and Styblinski-Tang from every starting point.
-It is <strong>not the cheapest to finish</strong>: its runs keep proposing boxes once the
-optimum is found, and spend the whole budget on Ackley where DIRECT stops at
-<span class="math notranslate nohighlight">\(417\)</span>. The profile measures how soon a target is reached, the cost column how
-soon a run stops, and the two rank the methods differently.</p>
-<p><strong>In five variables DIRECT leads for most of the budget and the method finishes
-highest.</strong> DIRECT reaches <span class="math notranslate nohighlight">\(75\%\)</span> of the targets within <span class="math notranslate nohighlight">\(250\)</span> evaluations and
-then stalls at <span class="math notranslate nohighlight">\(79\%\)</span>; ten subdivisions per variable is slower, behind both
-DIRECT and CMA-ES until <span class="math notranslate nohighlight">\(1890\)</span> evaluations, the last quarter of the budget, and
-ends at <span class="math notranslate nohighlight">\(84\%\)</span>. It is <strong>the only method here that solves Rastrigin in five
-variables at all</strong>, from two starting points of five, and it solves
-Styblinski-Tang from every starting point for <span class="math notranslate nohighlight">\(789\)</span> evaluations against <span class="math notranslate nohighlight">\(2340\)</span>
-for multistart and <span class="math notranslate nohighlight">\(2505\)</span> for DIRECT. <strong>It is not the most reliable</strong>: on Ackley
-CMA-ES reaches the optimum from every starting point and the method from three,
-and on Griewank no method reaches it, DIRECT getting closest at a fraction of
-the cost.</p>
-<p>The best target is the global optimum on every problem in two variables and on
-three of four in five; on Griewank in five no run reaches the optimum, so its
-best target is the best value any run found, which compares the methods with
-each other rather than with the optimum.</p>
+<p><em>Table 7. Area under the data profile and fraction of targets reached at a
+tenth, a quarter, a half and the whole budget. ‡ At the EGO budget of <span class="math notranslate nohighlight">\(500\)</span>,
+which in five variables is less than a quarter of the budget of the other
+methods; no area is given for EGO.</em></p>
+<p>In two variables, the method with sixteen probes reaches <span class="math notranslate nohighlight">\(99\%\)</span> of the targets
+within a quarter of the budget (<span class="math notranslate nohighlight">\(250\)</span> evaluations), against <span class="math notranslate nohighlight">\(84\%\)</span> for DIRECT,
+which reaches the same fraction at half the budget. It reaches the optimum of
+Rastrigin, Ackley and Styblinski-Tang from all starting points. Its runs,
+however, continue to propose boxes after the optimum has been found and spend
+the whole budget on Ackley, whereas DIRECT terminates after <span class="math notranslate nohighlight">\(417\)</span> evaluations.
+The data profile measures how early a target is reached, the cost column when a
+run terminates, and the two criteria rank the methods differently.</p>
+<p>In five variables, DIRECT has the highest fraction of targets for most of the
+budget: <span class="math notranslate nohighlight">\(75\%\)</span> after <span class="math notranslate nohighlight">\(250\)</span> evaluations, then <span class="math notranslate nohighlight">\(79\%\)</span> until the end. The method
+with ten subdivisions per variable is behind DIRECT and CMA-ES until <span class="math notranslate nohighlight">\(1890\)</span>
+evaluations and ends at <span class="math notranslate nohighlight">\(84\%\)</span>. It is the only method that reaches the optimum
+of Rastrigin in five variables, from two starting points of five, and it reaches
+the optimum of Styblinski-Tang from all starting points for <span class="math notranslate nohighlight">\(789\)</span> evaluations,
+against <span class="math notranslate nohighlight">\(2340\)</span> for the multistart and <span class="math notranslate nohighlight">\(2505\)</span> for DIRECT. On Ackley, CMA-ES
+reaches the optimum from all starting points and the method from three; on
+Griewank no method reaches it, DIRECT obtaining the smallest distance at a
+lower cost.</p>
+<p>The last target is the global optimum on all problems in two variables and on
+three of the four in five. On Griewank in five variables no run reaches the
+optimum, so the last target is the best value found by any run; it compares the
+methods with one another rather than with the optimum.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><strong>These numbers are measurements, not a claim of generalization.</strong> The best
-variant was selected on these very problems and scored on the same runs, which
-flatters it: it is the best of up to twelve, each of them measured once. The sweep
-removes the convexity margin from what a user has to tune, not the probes or the
-density, and a claim about the method still needs a held-out set of problems and
-a protocol fixed in advance.</p>
+<p>The best variant was selected on the same problems and runs on which it is
+scored, as the best of up to twelve variants measured once each, which biases
+the comparison in its favour. The sweep removes the convexity margin from the
+settings to be tuned, but not the number of probes or the density. A claim on
+the general performance of the method requires a separate set of test problems
+and a protocol fixed in advance.</p>
 </div>
-<p>The study takes a few hours, EGO accounting for nearly all of it, and resumes
-where it stopped when interrupted:</p>
+<p>The study takes a few hours, mostly for EGO, and resumes from its last state
+when interrupted:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>benchmarks.data_profiles<span class="w">   </span><span class="c1"># writes docs/_static/data_profiles.json</span>
 python<span class="w"> </span>docs/figures.py<span class="w"> </span>variant_profiles<span class="w"> </span>data_profiles<span class="w"> </span>results
 </pre></div>
 </div>
 </section>
-<section id="at-a-budget-every-method-can-afford">
-<h2>At a budget every method can afford<a class="headerlink" href="#at-a-budget-every-method-can-afford" title="Link to this heading">#</a></h2>
-<p>The comparison above gives every method <span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations <strong>per
-variable</strong>, which is generous to all of them and representative of nothing
-industrial. It also excludes Bayesian optimization, whose cost per iteration is
-cubic in the points gathered so far: one EGO run of <span class="math notranslate nohighlight">\(500\)</span> evaluations takes
-about two and a half minutes here against three seconds for the box subdivision,
-and at the budgets above it would measure wall time rather than method quality.</p>
-<p>So here is the same set of methods at <strong>one budget of <span class="math notranslate nohighlight">\(500\)</span> evaluations</strong>, which
-every one of them can afford, and which is the regime both EGO and this method
-are built for: an objective costing minutes, where a few hundred evaluations is
-the whole budget. Four problems, two dimensions each, three starting points, the
-median distance to the optimum and the number of starting points reaching it.</p>
-<p>The method is the <strong>swept</strong> configuration here, the one a user gets having tuned
-nothing. The calibrated one reaches the same distance on every row and differs
-only in what it reaches it from: <span class="math notranslate nohighlight">\(2/3\)</span> rather than <span class="math notranslate nohighlight">\(3/3\)</span> on Ackley in two
-dimensions and on Styblinski-Tang in five.</p>
+<section id="comparison-at-a-budget-of-500-evaluations">
+<h2>Comparison at a budget of 500 evaluations<a class="headerlink" href="#comparison-at-a-budget-of-500-evaluations" title="Link to this heading">#</a></h2>
+<p>The comparison above gives each method <span class="math notranslate nohighlight">\(500\)</span> equivalent evaluations per
+variable, which is large for industrial applications, and excludes Bayesian
+optimization, whose cost per iteration is cubic in the number of points: an EGO
+run of <span class="math notranslate nohighlight">\(500\)</span> evaluations takes about two and a half minutes on the test machine,
+against three seconds for the box subdivision. At larger budgets the comparison
+would measure the overhead of the surrogate rather than the quality of the
+method.</p>
+<p>The same methods are therefore compared at a budget of <span class="math notranslate nohighlight">\(500\)</span> evaluations, which
+all of them can afford and which corresponds to an expensive objective, where a
+few hundred evaluations make up the whole budget. Table 8 gives, for four
+problems in two and five dimensions and three starting points, the median
+distance to the optimum and the number of starting points from which it is
+reached. The box subdivision uses the swept configuration, i.e. no tuned
+setting. The calibrated configuration gives the same distances on all rows and
+differs only in the number of starting points: <span class="math notranslate nohighlight">\(2/3\)</span> instead of <span class="math notranslate nohighlight">\(3/3\)</span> on Ackley
+in two dimensions and on Styblinski-Tang in five.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>problem</p></th>
@@ -1284,26 +1281,26 @@ dimensions and on Styblinski-Tang in five.</p>
 <tbody>
 <tr class="row-even"><td><p>Rastrigin</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong> · 457</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3 · 457</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(1.00\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
 </tr>
 <tr class="row-odd"><td><p>Ackley</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(9.58\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.32\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p>Styblinski-Tang</p></td>
 <td><p>2</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong> · 334</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3 · 334</p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 2/3</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.29\)</span> · 29‡</p></td>
 </tr>
 <tr class="row-odd"><td><p>Griewank</p></td>
@@ -1312,7 +1309,7 @@ dimensions and on Styblinski-Tang in five.</p>
 <td><p><span class="math notranslate nohighlight">\(0.067\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.048\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.009\)</span></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.008\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.008\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p>Rastrigin</p></td>
 <td><p>5</p></td>
@@ -1320,22 +1317,22 @@ dimensions and on Styblinski-Tang in five.</p>
 <td><p><span class="math notranslate nohighlight">\(9.95\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(11.20\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(4.98\)</span></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(1.99\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.99\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p>Ackley</p></td>
 <td><p>5</p></td>
 <td><p><span class="math notranslate nohighlight">\(14.43\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(17.06\)</span></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.05\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.05\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.11\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(2.90\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p>Styblinski-Tang</p></td>
 <td><p>5</p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(14.14\)</span> · 1/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.003\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · <strong>3/3</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.00\)</span> · 3/3</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.14\)</span> · 219‡</p></td>
 </tr>
 <tr class="row-odd"><td><p>Griewank</p></td>
@@ -1343,297 +1340,159 @@ dimensions and on Styblinski-Tang in five.</p>
 <td><p><span class="math notranslate nohighlight">\(0.061\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.096\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.381\)</span></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(0.011\)</span></strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.011\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.104\)</span></p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<img alt="What each method reaches at 500 evaluations, and what it costs to run" class="only-light" src="../_images/small_budget.svg" />
-<img alt="What each method reaches at 500 evaluations, and what it costs to run" class="only-dark" src="../_images/small_budget-dark.svg" />
-<p>The lower row is the caveat the upper one cannot show: the distance to the
-optimum is measured in evaluations, and EGO’s own time per run is two orders of
-magnitude above every other method’s. On an objective costing minutes that row
-vanishes; on these it decides.</p>
-<p>The figure draws the <strong>calibrated</strong> configuration where the table above draws
-the swept one. Its lower row is wall time, which is a property of the machine
-that measured it as much as of the method, so a series timed elsewhere cannot be
-set beside the others; the two configurations differ in the upper row only by
-the two cells the table names.</p>
-<p>‡ EGO stopped on its own criterion, after <span class="math notranslate nohighlight">\(29\)</span> and <span class="math notranslate nohighlight">\(219\)</span> evaluations of the
-<span class="math notranslate nohighlight">\(500\)</span> it was allowed: its expected improvement collapses once the process models
-the landscape. Every other cell of the table spent its whole budget.</p>
-<p><strong>EGO is the best explorer of the hard multimodal cases at this budget</strong>, and by
-a wide margin where it matters most: on Rastrigin in five dimensions it returns
-<span class="math notranslate nohighlight">\(1.99\)</span> where the next best is DIRECT at <span class="math notranslate nohighlight">\(4.98\)</span> and the box subdivision at
-<span class="math notranslate nohighlight">\(8.57\)</span>. It also gets closest on Griewank in two dimensions. That is the result
-your intuition should keep: given few evaluations and a landscape of many
-basins, a surrogate over the whole history beats every method here that throws
-its history away.</p>
-<p><strong>It is also a hundred times more expensive in its own time</strong>, <span class="math notranslate nohighlight">\(444\)</span> seconds
-against <span class="math notranslate nohighlight">\(3\)</span> for the box subdivision on the same cell, and that cost is not
-counted anywhere in the table. On an objective costing minutes the ratio
-inverts and the table stands; on these analytic problems it does not.</p>
-<p><strong>The box subdivision is the cheapest route to a solved problem where the
-subdivision resolves the basins</strong>, Styblinski-Tang at <span class="math notranslate nohighlight">\(334\)</span> evaluations in two
-dimensions, ending on its own criterion rather than on the budget. In five it
-reaches the optimum from every starting point too, but spends the whole five
-hundred doing so, which is a solve at the wall rather than a cheap one — the
-calibrated configuration ends at <span class="math notranslate nohighlight">\(458\)</span> and reaches it from two. Where the
-subdivision does not resolve the basins, five hundred evaluations is simply too
-few: Rastrigin at five variables needs the <span class="math notranslate nohighlight">\(2103\)</span> of the density sweep above,
-and no method here solves that problem at this budget.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This table and the one above answer different questions, and neither supersedes
-the other. This one asks which method gets furthest when evaluations are scarce,
-which is the industrial case. The one above asks what each method reaches when
-evaluations are plentiful, which is where the box subdivision’s density can be
-afforded at all.</p>
-</div>
+<p><em>Table 8. Median distance to the optimum and number of starting points reaching
+it at a budget of <span class="math notranslate nohighlight">\(500\)</span> evaluations; a third number is the cost of a run that
+terminated before the budget. ‡ EGO terminated on its own criterion after <span class="math notranslate nohighlight">\(29\)</span>
+and <span class="math notranslate nohighlight">\(219\)</span> evaluations, its expected improvement having vanished.</em></p>
+<img alt="Distance reached by each method at 500 evaluations, and its run time" class="only-light" src="../_images/small_budget.svg" />
+<img alt="Distance reached by each method at 500 evaluations, and its run time" class="only-dark" src="../_images/small_budget-dark.svg" />
+<p><em>Figure 5. Distance reached at <span class="math notranslate nohighlight">\(500\)</span> evaluations (top) and run time (bottom).
+The figure shows the calibrated configuration of the box subdivision; its run
+time depends on the machine, so that a configuration timed elsewhere cannot be
+added. The two configurations differ in the top row only in the two cells
+mentioned above.</em></p>
+<p>At this budget EGO obtains the smallest distance on the hardest multimodal
+case, Rastrigin in five dimensions, <span class="math notranslate nohighlight">\(1.99\)</span> against <span class="math notranslate nohighlight">\(4.98\)</span> for DIRECT and <span class="math notranslate nohighlight">\(8.57\)</span>
+for the box subdivision, and on Griewank in two dimensions. With few
+evaluations and many basins, a surrogate model built on the whole history is
+more effective than the methods that do not reuse it. Its own computation time
+is, however, about a hundred times larger, <span class="math notranslate nohighlight">\(444\)</span> seconds against <span class="math notranslate nohighlight">\(3\)</span> for the box
+subdivision on the same problem, and is not counted in Table 8; it becomes
+negligible only for an objective that is expensive to evaluate.</p>
+<p>The box subdivision reaches the optimum of Styblinski-Tang in two dimensions
+after <span class="math notranslate nohighlight">\(334\)</span> evaluations, terminating on its own criterion. In five dimensions it
+reaches it from all starting points but uses the whole budget, whereas the
+calibrated configuration terminates after <span class="math notranslate nohighlight">\(458\)</span> evaluations and reaches it from
+two. When the subdivision does not separate the basins, <span class="math notranslate nohighlight">\(500\)</span> evaluations are
+not sufficient: Rastrigin in five variables requires the <span class="math notranslate nohighlight">\(2103\)</span> evaluations of
+Table 3, and no method reaches its optimum at this budget.</p>
+<p>Tables 6 and 8 address different situations: Table 8 the case of scarce
+evaluations, typical of industrial problems, and Table 6 the case of a budget
+large enough to afford the densities the box subdivision requires.</p>
 </section>
-<section id="an-application-the-ggp-short-cantilever">
-<h2>An application: the GGP short cantilever<a class="headerlink" href="#an-application-the-ggp-short-cantilever" title="Link to this heading">#</a></h2>
-<p>The analytic problems above are cheap, low-dimensional and unconstrained, which
-is not the case the method is built for. The short cantilever of
+<section id="application-to-the-ggp-short-cantilever">
+<h2>Application to the GGP short cantilever<a class="headerlink" href="#application-to-the-ggp-short-cantilever" title="Link to this heading">#</a></h2>
+<p>The analytic problems above are inexpensive, of low dimension and without
+constraints. The short cantilever of
 <a class="reference external" href="https://github.com/SimoneConiglio/generalized_geometry_projection">generalized geometry projection</a>
-is: <span class="math notranslate nohighlight">\(18\)</span> bars, each posed by its centre and its angle and sized by its length,
-its thickness and its density, <span class="math notranslate nohighlight">\(108\)</span> variables in all, a compliance to minimize
-under a volume constraint, and adjoint gradients. The objective the disciplines
-return is <span class="math notranslate nohighlight">\(\log(C + 1)\)</span>, as in the reference MATLAB implementation; the tables
-report the compliance <span class="math notranslate nohighlight">\(C\)</span> itself, with <span class="math notranslate nohighlight">\(\log(C + 1)\)</span> beside it.</p>
-<p>Two studies follow. The first is in the setting of the MATLAB code of the GGP
-paper; the second, earlier and broader, compares the method with the baselines
-in a setting that departs from it, and keeps its own conclusions.</p>
-<section id="in-the-setting-of-ggp-matlab">
-<h3>In the setting of GGP-Matlab<a class="headerlink" href="#in-the-setting-of-ggp-matlab" title="Link to this heading">#</a></h3>
-<p>The preset <code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code> of the GGP package is <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code> with the
-Moving Node Approach: the cubic characteristic function of width <span class="math notranslate nohighlight">\(1\)</span>, the
-volume through the density <span class="math notranslate nohighlight">\(M_c\)</span> and the stiffness through <span class="math notranslate nohighlight">\(M_c^3\)</span>, their
-aggregation and saturation, the penalty <span class="math notranslate nohighlight">\(p = 3\)</span> on the aggregated density with
-<span class="math notranslate nohighlight">\(E_{\min} = 10^{-6}\)</span>, the angle of a bar in <span class="math notranslate nohighlight">\([-2\pi, 2\pi]\)</span>, and MMA with the
-settings of <code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code>, a move of <span class="math notranslate nohighlight">\(0.01\)</span> and asymptotes held within <span class="math notranslate nohighlight">\(0.01\)</span>. The
-start is that of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>: the crossed bars of a <span class="math notranslate nohighlight">\(3 \times 3\)</span> grid, of length
-<span class="math notranslate nohighlight">\(44.7\)</span>, thickness <span class="math notranslate nohighlight">\(2\)</span> and density <span class="math notranslate nohighlight">\(0.5\)</span>. A line-by-line port of the MATLAB code
-gives the same densities and compliances as the Python disciplines to <span class="math notranslate nohighlight">\(10^{-8}\)</span>,
-once the bounds of the variables are taken, as MATLAB does, from the nodes of
-the mesh rather than from the centres of its elements. The box subdivision
-resolves the pose of every bar, ten subdivisions each, <span class="math notranslate nohighlight">\(54\)</span> variables and <span class="math notranslate nohighlight">\(540\)</span>
-binaries, with the convexity swept and nine probes per round; the length, the
-thickness and the density stay free variables of each box’s sub-problem,
-restarted at the values of the start:</p>
+(GGP) is a constrained problem with adjoint gradients: <span class="math notranslate nohighlight">\(18\)</span> bars, each defined
+by the position of its centre, its angle, its length, its thickness and its
+density, i.e. <span class="math notranslate nohighlight">\(108\)</span> variables, whose compliance <span class="math notranslate nohighlight">\(C\)</span> is minimized under a volume
+fraction constraint of <span class="math notranslate nohighlight">\(0.4\)</span>. As in the MATLAB implementation of the GGP paper,
+the objective of the disciplines is <span class="math notranslate nohighlight">\(\log(C + 1)\)</span>; the results are given in
+terms of <span class="math notranslate nohighlight">\(C\)</span>.</p>
+<section id="setting">
+<h3>Setting<a class="headerlink" href="#setting" title="Link to this heading">#</a></h3>
+<p>The problem is solved with the preset <code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code> of the GGP package,
+which reproduces the script <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code> of the MATLAB implementation with the
+Moving Node Approach (MNA): a cubic characteristic function of width <span class="math notranslate nohighlight">\(1\)</span>, the
+volume and the stiffness weighted by <span class="math notranslate nohighlight">\(M_c\)</span> and <span class="math notranslate nohighlight">\(M_c^3\)</span> respectively, where
+<span class="math notranslate nohighlight">\(M_c\)</span> is the density of a bar, a lower-bound Kreisselmeier-Steinhauser
+aggregation with <span class="math notranslate nohighlight">\(k_a = 10\)</span> followed by a smooth saturation, a penalization
+exponent <span class="math notranslate nohighlight">\(p = 3\)</span> on the aggregated density with <span class="math notranslate nohighlight">\(E_{\min} = 10^{-6}\)</span>, and
+bounds of <span class="math notranslate nohighlight">\([-2\pi, 2\pi]\)</span> on the angles. The finite element mesh has
+<span class="math notranslate nohighlight">\(60 \times 30\)</span> elements. MMA is used with the settings of <code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code>: a move
+limit of <span class="math notranslate nohighlight">\(0.01\)</span> and asymptotes within <span class="math notranslate nohighlight">\(0.01\)</span> of the current design. The initial
+design is that of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>, pairs of crossed bars at the nodes of a
+<span class="math notranslate nohighlight">\(3 \times 3\)</span> grid, of length <span class="math notranslate nohighlight">\(44.7\)</span>, thickness <span class="math notranslate nohighlight">\(2\)</span> and density <span class="math notranslate nohighlight">\(0.5\)</span>.</p>
+<p>The Python implementation was verified against a direct port of the MATLAB code:
+for the same design the densities agree to <span class="math notranslate nohighlight">\(3 \cdot 10^{-8}\)</span> and the
+compliances to all reported digits, provided the bounds of the variables are
+derived from the mesh nodes, as in <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>.</p>
+<p>The box subdivision subdivides the pose of every bar, i.e. the coordinates of
+its centre and its angle, into ten intervals, which gives <span class="math notranslate nohighlight">\(54\)</span> subdivided
+variables and <span class="math notranslate nohighlight">\(540\)</span> binaries. The length, thickness and density are continuous
+variables of each sub-problem, initialized at the values of the initial design.
+The convexity is swept, the master proposes nine boxes per iteration, which are
+solved in parallel, and each sub-problem is solved by MMA with at most <span class="math notranslate nohighlight">\(1800\)</span>
+iterations. Parallel evaluation of the probes requires the correction of merge
+request 139 of gemseo-bilevel-outer-approximation.</p>
+<p>The multistart solves the same problem with MMA from 63 initial designs,
+one per box solved by the box subdivision: the initial design of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>
+and 62 designs whose bar poses are drawn uniformly within the bounds,
+the length, thickness and density being those of the initial design, as in the
+sub-problems. Each run uses the settings above and at most <span class="math notranslate nohighlight">\(1800\)</span> iterations,
+and the runs are distributed over four processes.</p>
+</section>
+<section id="id1">
+<h3>Results<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>method</p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(C\)</span></p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(\log(C + 1)\)</span></p></th>
-<th class="head"><p>designs to its best</p></th>
-<th class="head"><p>designs spent</p></th>
+<th class="head"><p>designs to the best</p></th>
+<th class="head"><p>designs evaluated</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>MMA from the start of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code></p></td>
+<tr class="row-even"><td><p>MMA from the initial design of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(84.0\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(4.443\)</span></p></td>
 <td><p>680</p></td>
 <td><p>680</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>box subdivision, MMA in each box, nine probes in parallel</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(82.1\)</span></strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(4.420\)</span></strong></p></td>
+<tr class="row-odd"><td><p>multistart of MMA, 63 initial designs</p></td>
+<td><p><span class="math notranslate nohighlight">\(83.0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.431\)</span></p></td>
+<td><p>9967¹</p></td>
+<td><p>59322</p></td>
+</tr>
+<tr class="row-even"><td><p>box subdivision, 9 probes, 63 boxes</p></td>
+<td><p><span class="math notranslate nohighlight">\(82.1\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.420\)</span></p></td>
 <td><p>31070</p></td>
 <td><p>55995</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-light" src="../_images/cantilever.gif" />
-<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-dark" src="../_images/cantilever-dark.gif" />
-<p>The run round by round: on the left the boxes of a round as their local solves
-progress, an infeasible design starred and the best in the accent; on the right
-the best feasible design so far, and the best compliance against the designs
-analysed by all the processes, beside MMA from the same start.</p>
-<p><strong>MMA reproduces the paper; the box subdivision finds a stiffer layout.</strong> From
-the start of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>, MMA converges to the symmetric truss of the GGP
-paper, at <span class="math notranslate nohighlight">\(84.0\)</span>. The box subdivision passes it in its first box, after <span class="math notranslate nohighlight">\(349\)</span>
-designs, and reaches <span class="math notranslate nohighlight">\(82.1\)</span>, <span class="math notranslate nohighlight">\(2.3\%\)</span> lower, in its <span class="math notranslate nohighlight">\(32\)</span>nd box after
-<span class="math notranslate nohighlight">\(31\,070\)</span> designs and seventy minutes on four cores; its layout is not
-symmetric, the lower diagonals meeting the bottom chord in one node instead of
-crossing. The ten best of its <span class="math notranslate nohighlight">\(63\)</span> boxes end between <span class="math notranslate nohighlight">\(82.1\)</span> and <span class="math notranslate nohighlight">\(82.4\)</span>, the
-median at <span class="math notranslate nohighlight">\(83.8\)</span>: a basin the master returns to, not one lucky box.</p>
-<p><strong>The settings of MMA are part of the result.</strong> With a move of <span class="math notranslate nohighlight">\(0.1\)</span> and the
-asymptotes free to widen, the port of the MATLAB code ends anywhere between <span class="math notranslate nohighlight">\(84\)</span>
-and <span class="math notranslate nohighlight">\(128\)</span> from starts <span class="math notranslate nohighlight">\(10^{-12}\)</span> to <span class="math notranslate nohighlight">\(10^{-9}\)</span> apart; with the move and the
-asymptotes of <code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code> it ends at <span class="math notranslate nohighlight">\(84.4\)</span> from all of them. The study keeps the
-latter, the setting in which the paper’s design is reproducible.</p>
-</section>
-<section id="the-earlier-study-against-the-baselines">
-<h3>The earlier study, against the baselines<a class="headerlink" href="#the-earlier-study-against-the-baselines" title="Link to this heading">#</a></h3>
-<p>This study departs from the setting of GGP-Matlab in three ways, found after
-it was run: the GP projection with <span class="math notranslate nohighlight">\(p = 1\)</span> and <span class="math notranslate nohighlight">\(E_{\min} = 0\)</span>, which leaves
-intermediate densities unpenalized; the bounds of the variables taken from
-the centres of the elements, which changes the normalized variables MMA moves
-in; and a <strong>trivial</strong> start of its own, the bar poses of the preset with the
-length, the thickness and the density at the middle of their ranges, a
-thickness of <span class="math notranslate nohighlight">\(33\)</span> that is no plausible guess. Its designs are therefore not
-those of the paper, and its reference, MMA from the preset’s design at <span class="math notranslate nohighlight">\(74.3\)</span>,
-is not the symmetric truss. What it compares holds within it: every method
-starts from the trivial design, the box subdivision is configured as above with
-one, four or nine probes, and plain MMA from the preset’s design is the
-reference, not a competitor. One run per row:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>method</p></th>
-<th class="head"><p><span class="math notranslate nohighlight">\(C\)</span></p></th>
-<th class="head"><p><span class="math notranslate nohighlight">\(\log(C + 1)\)</span></p></th>
-<th class="head"><p>designs to its best</p></th>
-<th class="head"><p>designs spent</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>MMA from the preset’s design (reference)</p></td>
-<td><p><span class="math notranslate nohighlight">\(74.3\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.321\)</span></p></td>
-<td><p>385</p></td>
-<td><p>385</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>box subdivision, MMA in each box, nine probes in parallel</strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(76.8\)</span></strong></p></td>
-<td><p><strong><span class="math notranslate nohighlight">\(4.354\)</span></strong></p></td>
-<td><p>26413</p></td>
-<td><p>107630</p></td>
-</tr>
-<tr class="row-even"><td><p>box subdivision, MMA in each box, four probes in parallel</p></td>
-<td><p><span class="math notranslate nohighlight">\(81.6\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.414\)</span></p></td>
-<td><p>2nd box, first round</p></td>
-<td><p>40385</p></td>
-</tr>
-<tr class="row-odd"><td><p>multistart of MMA, nine starts</p></td>
-<td><p><span class="math notranslate nohighlight">\(82.1\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.420\)</span></p></td>
-<td><p>9380</p></td>
-<td><p>12325</p></td>
-</tr>
-<tr class="row-even"><td><p>box subdivision, MMA in each box, one probe</p></td>
-<td><p><span class="math notranslate nohighlight">\(82.7\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.427\)</span></p></td>
-<td><p>4536</p></td>
-<td><p>12325</p></td>
-</tr>
-<tr class="row-odd"><td><p>box subdivision, boxes drawn at random</p></td>
-<td><p><span class="math notranslate nohighlight">\(88.9\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.498\)</span></p></td>
-<td><p>14709</p></td>
-<td><p>17725</p></td>
-</tr>
-<tr class="row-even"><td><p>SLSQP</p></td>
-<td><p><span class="math notranslate nohighlight">\(90.9\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.520\)</span></p></td>
-<td><p>241</p></td>
-<td><p>241</p></td>
-</tr>
-<tr class="row-odd"><td><p>box subdivision, SLSQP in each box</p></td>
-<td><p><span class="math notranslate nohighlight">\(95.5\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.569\)</span></p></td>
-<td><p>8525</p></td>
-<td><p>9793</p></td>
-</tr>
-<tr class="row-even"><td><p>MMA</p></td>
-<td><p><span class="math notranslate nohighlight">\(105.1\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.664\)</span></p></td>
-<td><p>1715</p></td>
-<td><p>1715</p></td>
-</tr>
-<tr class="row-odd"><td><p>CMA-ES</p></td>
-<td><p><span class="math notranslate nohighlight">\(418\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(6.039\)</span></p></td>
-<td><p>11243</p></td>
-<td><p>12325</p></td>
-</tr>
-<tr class="row-even"><td><p>GE-SBO, stopped by its own trust region</p></td>
-<td><p><span class="math notranslate nohighlight">\(1276\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(7.152\)</span></p></td>
-<td><p>119</p></td>
-<td><p>129</p></td>
-</tr>
-<tr class="row-odd"><td><p>EGO on SMT’s GEKPLS, 80 iterations</p></td>
-<td><p><span class="math notranslate nohighlight">\(1293\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(7.165\)</span></p></td>
-<td><p>—</p></td>
-<td><p>100</p></td>
-</tr>
-<tr class="row-even"><td><p>EGO (egobox, KPLS), stopped for cost</p></td>
-<td><p><span class="math notranslate nohighlight">\(1359\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(7.215\)</span></p></td>
-<td><p>—</p></td>
-<td><p>248</p></td>
-</tr>
-<tr class="row-odd"><td><p>DIRECT</p></td>
-<td><p><span class="math notranslate nohighlight">\(1433\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(7.268\)</span></p></td>
-<td><p>6038</p></td>
-<td><p>12325</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><strong>Without the gradient, nothing competes.</strong> DIRECT, CMA-ES and both EGOs end
-between four and twenty times above the local solvers, and the two methods that
-condition a surrogate on the adjoint gradients, GE-SBO and EGO on GEKPLS, do no
-better than the one that does not: at <span class="math notranslate nohighlight">\(108\)</span> variables the surrogate is the
-bottleneck, not the information it is given. This is the regime where the
-comparison of the analytic problems does not transfer.</p>
-<p><strong>The box subdivision improves on the local solve it is built on.</strong> From the
-same start, MMA converges to <span class="math notranslate nohighlight">\(105.1\)</span> and cannot go further; the box subdivision
-passes it within its first box, a start at the centre of each box descending
-faster than the trivial design, and reaches <span class="math notranslate nohighlight">\(82.7\)</span> in its fourth. The master’s
-choice of boxes is what earns it: the same subdivision with boxes drawn at
-random reaches <span class="math notranslate nohighlight">\(88.9\)</span>, after three times the designs.</p>
-<p><strong>More probes find better boxes.</strong> The master proposes its probes together and
-the boxes they designate are solved in parallel, which needs the fix of the
-master’s parallel evaluation in gemseo-bilevel-outer-approximation’s merge
-request 139. With four probes the box subdivision solves <span class="math notranslate nohighlight">\(28\)</span> boxes in the hour
-and a half the single probe took for <span class="math notranslate nohighlight">\(11\)</span>, and reaches <span class="math notranslate nohighlight">\(81.6\)</span> in the second, the
-<span class="math notranslate nohighlight">\(27\)</span> others ending between <span class="math notranslate nohighlight">\(84.7\)</span> and <span class="math notranslate nohighlight">\(139\)</span>. With nine probes, on the same four
-cores, it solves <span class="math notranslate nohighlight">\(63\)</span> boxes in four and a half hours and reaches <span class="math notranslate nohighlight">\(76.8\)</span> in its
-<span class="math notranslate nohighlight">\(13\)</span>th box, in the master’s second round of probes, after <span class="math notranslate nohighlight">\(26\,413\)</span> designs and
-an hour and twelve minutes, fewer designs than the four probes spent in all;
-five boxes, the <span class="math notranslate nohighlight">\(13\)</span>th, <span class="math notranslate nohighlight">\(24\)</span>th, <span class="math notranslate nohighlight">\(25\)</span>th, <span class="math notranslate nohighlight">\(29\)</span>th and <span class="math notranslate nohighlight">\(53\)</span>rd, end below <span class="math notranslate nohighlight">\(77.5\)</span>, so
-the value is a basin the master returns to, not one lucky box. Each probe is a
-box the master would otherwise reach only after the cuts of the boxes before it;
-solved together they spread the first rounds over more of the poses, which is
-where this run found its best. A second run, recording every solve, repeated
-it box for box.</p>
-<p><strong>It beats a multistart of MMA, which was lucky.</strong> Nine starts, the first the
-trivial design and the others random poses, reach <span class="math notranslate nohighlight">\(82.1\)</span>; but seven of the nine
-converge between <span class="math notranslate nohighlight">\(105\)</span> and <span class="math notranslate nohighlight">\(109\)</span>, one to <span class="math notranslate nohighlight">\(90.7\)</span>, and only the seventh to <span class="math notranslate nohighlight">\(82.1\)</span>.
-The single probe ties it in half the designs and nine probes pass it by <span class="math notranslate nohighlight">\(7\%\)</span>,
-though with nearly nine times its designs, while a multistart with a different
-seed would more likely end near <span class="math notranslate nohighlight">\(105\)</span> than near <span class="math notranslate nohighlight">\(82\)</span>; one run of each cannot
-settle it.</p>
-<p><strong>SLSQP is the better local solver and the worse sub-solver.</strong> From the trivial
-start it converges in <span class="math notranslate nohighlight">\(241\)</span> iterations, seven times fewer than MMA, and lower,
-<span class="math notranslate nohighlight">\(90.9\)</span> against <span class="math notranslate nohighlight">\(105.1\)</span>. Inside the boxes it does not carry over: forty-five
-boxes of up to three hundred iterations reach <span class="math notranslate nohighlight">\(95.5\)</span>, above SLSQP’s own single
-run, the restarts at the centres of the boxes losing more than the master’s
-choice of boxes finds.</p>
-<p><strong>Nine probes come within <span class="math notranslate nohighlight">\(3.4\%\)</span> of the preset’s MMA.</strong> In this setting, MMA
-from the preset’s design reaches <span class="math notranslate nohighlight">\(74.3\)</span> in <span class="math notranslate nohighlight">\(385\)</span> designs; from the trivial
-design, the box subdivision with nine probes reaches <span class="math notranslate nohighlight">\(76.8\)</span>, every other method
-stays above <span class="math notranslate nohighlight">\(81\)</span>, and plain MMA stops at <span class="math notranslate nohighlight">\(105.1\)</span>. A good starting design remains
-the cheapest way to the optimum; without one, the box subdivision with enough
-probes is the only method here that gets close.</p>
+<p><em>Table 9. Short cantilever: best feasible compliance, number of designs
+evaluated until the best one was found, and total number of designs evaluated.
+¹ Designs of the runs from initial designs 0 to 8, the best being found by
+run 8; the runs are executed in parallel.</em></p>
+<img alt="Box subdivision with nine probes on the cantilever, compared with MMA from the same initial design" class="only-light" src="../_images/cantilever.gif" />
+<img alt="Box subdivision with nine probes on the cantilever, compared with MMA from the same initial design" class="only-dark" src="../_images/cantilever-dark.gif" />
+<p><em>Figure 6. Box subdivision on the short cantilever, by round of the master.
+Left: the boxes of the current round during their local solutions, infeasible
+designs marked with an asterisk. Right: the best feasible design so far, and the
+best compliance against the number of designs evaluated by all processes,
+compared with MMA from the same initial design.</em></p>
+<p>MMA from the initial design of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code> converges to the symmetric design
+reported in the GGP paper, with <span class="math notranslate nohighlight">\(C = 84.0\)</span>. The multistart reaches <span class="math notranslate nohighlight">\(C = 83.0\)</span>
+from three of its <span class="math notranslate nohighlight">\(63\)</span> initial designs (runs 8, 62 and 34); seven runs end below
+the MMA solution from the initial design of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>, which is run 0, the
+median run ends at <span class="math notranslate nohighlight">\(95.6\)</span>, and eight runs are stopped at <span class="math notranslate nohighlight">\(1800\)</span> iterations. It
+took <span class="math notranslate nohighlight">\(3.9\)</span> hours of wall time on four processes, against <span class="math notranslate nohighlight">\(2.0\)</span> hours for the box
+subdivision on the same four cores. The box subdivision improves on the MMA
+solution in its first box, after <span class="math notranslate nohighlight">\(349\)</span> designs, and reaches <span class="math notranslate nohighlight">\(C = 82.1\)</span> in its
+<span class="math notranslate nohighlight">\(32\)</span>nd box, after <span class="math notranslate nohighlight">\(31\,070\)</span> designs and about seventy minutes on four cores. The
+corresponding layout is not symmetric: the lower diagonal bars meet the bottom
+chord at a single node instead of crossing. The ten best of the 63 boxes have a
+compliance between <span class="math notranslate nohighlight">\(82.1\)</span> and <span class="math notranslate nohighlight">\(82.4\)</span> and the median box <span class="math notranslate nohighlight">\(83.8\)</span>, so that the best
+value is not attained by an isolated box.</p>
+<p>The result depends on the MMA settings. With a move limit of <span class="math notranslate nohighlight">\(0.1\)</span> and
+asymptotes allowed to widen, the direct port of the MATLAB code converged to
+compliances between <span class="math notranslate nohighlight">\(84\)</span> and <span class="math notranslate nohighlight">\(128\)</span> from initial designs differing by <span class="math notranslate nohighlight">\(10^{-12}\)</span>
+to <span class="math notranslate nohighlight">\(10^{-9}\)</span>; with the settings of <code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code>, all these runs converged to
+<span class="math notranslate nohighlight">\(84.4\)</span>. The latter settings are therefore used throughout.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Every row is a single run from a single start, and the box subdivision was
-configured by hand — ten subdivisions of the poses, the number of MMA iterations
-per box — on this very problem. The drivers are in <code class="docutils literal notranslate"><span class="pre">benchmarks/cantilever/</span></code>;
-they run from the GGP repository, in its environment with legacy FEniCS, and not
-in the test suite.</p>
+<p>Each row of Tables 1 to 9 corresponds to the stated number of runs only, and
+the box subdivision was configured on the problems it is evaluated on: the
+density, the number of probes and, for the cantilever, the number of MMA
+iterations per box. The cantilever drivers are in <code class="docutils literal notranslate"><span class="pre">benchmarks/cantilever/</span></code>; they
+are run from the GGP repository, in its environment with the legacy FEniCS
+version, and are not part of the test suite.</p>
 </div>
-<p>What all of this establishes, and where it can go, is <a class="reference internal" href="conclusion.html"><span class="std std-doc">the
-conclusion</span></a>.</p>
+<p>The conclusions drawn from these results are discussed in
+<a class="reference internal" href="conclusion.html"><span class="std std-doc">the conclusion</span></a>.</p>
 </section>
 </section>
 </section>
@@ -1685,19 +1544,19 @@ conclusion</span></a>.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-enumeration-of-the-boxes">Against the enumeration of the boxes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-variants-of-the-method-profiled">The variants of the method, profiled</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-density-of-the-subdivision-decides">The density of the subdivision decides</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proposing-it-rather-than-sweeping-it">Proposing it rather than sweeping it</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-with-the-enumeration-of-the-boxes">Comparison with the enumeration of the boxes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variants-of-the-method">Variants of the method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#density-of-the-subdivision">Density of the subdivision</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proposed-density">Proposed density</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sweeping-the-convexity-rather-than-supplying-it">Sweeping the convexity rather than supplying it</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-extensions-and-what-they-are-worth">The extensions, and what they are worth</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-baselines">Against the baselines</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#at-a-budget-every-method-can-afford">At a budget every method can afford</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-application-the-ggp-short-cantilever">An application: the GGP short cantilever</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#in-the-setting-of-ggp-matlab">In the setting of GGP-Matlab</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-earlier-study-against-the-baselines">The earlier study, against the baselines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#swept-convexity">Swept convexity</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extensions">Extensions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-with-the-baselines">Comparison with the baselines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-at-a-budget-of-500-evaluations">Comparison at a budget of 500 evaluations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#application-to-the-ggp-short-cantilever">Application to the GGP short cantilever</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting">Setting</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Results</a></li>
 </ul>
 </li>
 </ul>

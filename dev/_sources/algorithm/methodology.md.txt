@@ -107,7 +107,7 @@ returns a value and a post-optimal sensitivity that describe a constrained
 solution on its border, which says nothing about where the minimum is, so an
 over-fine subdivision degrades the ranking rather than merely wasting
 sub-problems. All three effects are measured in
-[the results](benchmark.md#the-density-of-the-subdivision-decides).
+[the results](benchmark.md#density-of-the-subdivision).
 
 ## The bi-level problem
 
@@ -255,7 +255,7 @@ Small. On Rastrigin with five variables and ten subdivisions, a radius of two
 components reaches the optimum from every starting point; widening it to the
 whole design space, or removing the region altogether, loses it. The region is
 what makes a fine subdivision usable at all, see
-[the benchmark](benchmark.md#the-density-of-the-subdivision-decides), and the
+[the benchmark](benchmark.md#density-of-the-subdivision), and the
 measurements are in [annex C](tuning.md).
 
 ## Two formulations
@@ -463,7 +463,7 @@ is implemented there. What this package supplies is
 [`SweptBoxSubdivisionSettings`](usage.md#not-choosing-the-convexity-at-all), the
 entry point of a run that calibrates nothing, and a driver that sweeps from
 outside a master predating the loop. What the sweep costs and what it reaches is
-in [the results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it),
+in [the results](benchmark.md#swept-convexity),
 and the measurements behind it in
 [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
@@ -498,7 +498,7 @@ multimodal in all of them.
 Everything above turns on the subdivision resolving the basins of the landscape,
 and $m_j$ is the one setting with no default: too coarse and a box holds several
 minima, too fine and it holds none, and
-[the results](benchmark.md#the-density-of-the-subdivision-decides) show no single
+[the results](benchmark.md#density-of-the-subdivision) show no single
 value serving four problems. It can be estimated from the objective rather than
 supplied.
 

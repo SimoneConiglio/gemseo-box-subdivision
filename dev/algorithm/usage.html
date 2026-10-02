@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=2ae74f06"></script>
+    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -512,7 +512,7 @@ rejects, see
 <p><code class="docutils literal notranslate"><span class="pre">n_subdivisions</span></code> has to resolve the basins of the landscape and keep the binaries
 below the sub-problems a budget can pay for, and refining past the basins makes
 things worse rather than merely slower, see
-<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a>.</p>
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the benchmark</span></a>.</p>
 <p>It counts subdivisions <strong>per component</strong>, not per variable. A variable of size
 <span class="math notranslate nohighlight">\(s\)</span> subdivided into <span class="math notranslate nohighlight">\(m\)</span> is <span class="math notranslate nohighlight">\(s\)</span> independent choices of one subdivision out of <span class="math notranslate nohighlight">\(m\)</span>:
 each component is cut over its own range, the master carries <span class="math notranslate nohighlight">\(s\)</span> one-hot groups
@@ -1265,7 +1265,7 @@ whether the installed master declares them.</p>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_subdivisions</span></code></p></td>
 <td><p>fine enough to resolve the basins, over the variables the objective is multimodal in</p></td>
-<td><p>a box that still holds several basins defeats the local solve, and the number of boxes costs evaluations rather than master size, the binaries growing linearly. See <a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a></p></td>
+<td><p>a box that still holds several basins defeats the local solve, and the number of boxes costs evaluations rather than master size, the binaries growing linearly. See <a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the benchmark</span></a></p></td>
 </tr>
 </tbody>
 </table>

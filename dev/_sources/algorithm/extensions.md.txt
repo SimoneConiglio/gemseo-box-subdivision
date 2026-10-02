@@ -10,7 +10,7 @@
 # Annex D: the extensions, measured
 
 The four extensions of the method, table by table, and the budget re-runs behind
-the rankings. [The results](benchmark.md#the-extensions-and-what-they-are-worth)
+the rankings. [The results](benchmark.md#extensions)
 carry the verdicts; this annex carries what they were read off.
 
 Five variables, $2500$ equivalent evaluations, three starting points unless a
@@ -202,7 +202,7 @@ at a budget of $2500$, of $5000$ and of $10\,000$ alike. Where a cell reports a
 cost equal to its budget, the number is an upper bound and the ranking is only
 "within this budget" until it is re-run, as Ackley was here.
 
-What the results make of all this is [the page these tables support](benchmark.md#the-extensions-and-what-they-are-worth).
+What the results make of all this is [the page these tables support](benchmark.md#extensions).
 
 ## Estimating the density instead of supplying it
 
@@ -451,7 +451,7 @@ starting points, each problem at its proposed density and Ackley at ten:
 
 $4.95$ on Ackley is the best a flat subdivision reaches anywhere in this
 benchmark, against the $6.30$ of
-[the density sweep](benchmark.md#the-density-of-the-subdivision-decides), and it
+[the density sweep](benchmark.md#density-of-the-subdivision), and it
 comes from a setting rather than from a mechanism. **Quality never gets worse
 and improves on three of the five.** What it costs is evaluations, and not
 evenly: `partly_multimodal` gets cheaper, Styblinski-Tang is flat, Ackley is
@@ -505,7 +505,7 @@ touched, shows a window rather than a trend:
 
 ### The estimated density with the convexity swept
 
-Which is what [the sweep](benchmark.md#sweeping-the-convexity-rather-than-supplying-it)
+Which is what [the sweep](benchmark.md#swept-convexity)
 exists to remove. Run at the estimated densities with **nothing supplied at all**,
 neither a margin nor a density, against the same densities at the calibrated
 margin:

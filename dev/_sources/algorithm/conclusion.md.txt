@@ -43,13 +43,13 @@ distance at all, and it cost this method its best result until it was found.
 across the parallel probes the master already runs, with no value supplied,
 reaches the same median distance to the optimum as the calibrated configuration
 on every problem of [the profiles of the
-variants](benchmark.md#the-variants-of-the-method-profiled), and reaches it from
+variants](benchmark.md#variants-of-the-method), and reaches it from
 more starting points on two of them. A user tunes the density of the subdivision
 now, not the units of their own objective. The trust region remains, and so does
 the subdivision: what the sweep removes is one of the two, not both, and it is
 measured on four problems in two dimensions and five, from five starting points
 each, which is this benchmark rather than a held-out set. See [the
-results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it), with the
+results](benchmark.md#swept-convexity), with the
 tables in [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
 
 ## What is established, and what is not

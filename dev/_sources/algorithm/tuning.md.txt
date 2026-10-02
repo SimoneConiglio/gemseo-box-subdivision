@@ -156,7 +156,7 @@ The Upper bound stopped changing for 10 iterations.
 that do not improve the incumbent, whatever its lower bound says. With one box
 solved per iteration, that alone caps a run at a few dozen boxes out of a
 hundred, which is what the
-[comparison against the enumeration](benchmark.md#against-the-enumeration-of-the-boxes)
+[comparison against the enumeration](benchmark.md#comparison-with-the-enumeration-of-the-boxes)
 measures: twenty to thirty-six boxes solved, and no configuration goes far
 past that whatever its constant.
 
@@ -438,14 +438,14 @@ the radius alone recovers the guarantee.
 The two-dimensional benchmark is where the mechanisms were tuned, and what works
 there does not carry over unchanged. At five variables the first knob is not the
 mechanism at all: it is the **density** of the subdivision, swept in
-[the benchmark](benchmark.md#the-density-of-the-subdivision-decides). The
+[the benchmark](benchmark.md#density-of-the-subdivision). The
 mechanism is the second, and the two interact.
 
 That first knob can be read off the landscape rather than turned. Counting the
 basins along jittered axial scans of each component proposes a density, and on
 every problem whose ladder settled it picks the better of the two densities this
 annex compares — see
-[proposing it rather than sweeping it](benchmark.md#proposing-it-rather-than-sweeping-it).
+[proposing it rather than sweeping it](benchmark.md#proposed-density).
 What follows still matters, because the proposal fixes the density and not the
 mechanism, and the table below is what the mechanism does at each of them.
 

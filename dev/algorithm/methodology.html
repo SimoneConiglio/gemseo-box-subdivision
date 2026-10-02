@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=2ae74f06"></script>
+    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -529,7 +529,7 @@ returns a value and a post-optimal sensitivity that describe a constrained
 solution on its border, which says nothing about where the minimum is, so an
 over-fine subdivision degrades the ranking rather than merely wasting
 sub-problems. All three effects are measured in
-<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the results</span></a>.</p>
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the results</span></a>.</p>
 </section>
 <section id="the-bi-level-problem">
 <h2>The bi-level problem<a class="headerlink" href="#the-bi-level-problem" title="Link to this heading">#</a></h2>
@@ -657,7 +657,7 @@ boxes being no more alike than distant ones.</p>
 components reaches the optimum from every starting point; widening it to the
 whole design space, or removing the region altogether, loses it. The region is
 what makes a fine subdivision usable at all, see
-<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the benchmark</span></a>, and the
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the benchmark</span></a>, and the
 measurements are in <a class="reference internal" href="tuning.html"><span class="std std-doc">annex C</span></a>.</p>
 </section>
 </section>
@@ -843,7 +843,7 @@ is implemented there. What this package supplies is
 <a class="reference internal" href="usage.html#not-choosing-the-convexity-at-all"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></span></a>, the
 entry point of a run that calibrates nothing, and a driver that sweeps from
 outside a master predating the loop. What the sweep costs and what it reaches is
-in <a class="reference internal" href="benchmark.html#sweeping-the-convexity-rather-than-supplying-it"><span class="std std-ref">the results</span></a>,
+in <a class="reference internal" href="benchmark.html#swept-convexity"><span class="std std-ref">the results</span></a>,
 and the measurements behind it in
 <a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
 </section>
@@ -869,7 +869,7 @@ multimodal in all of them.</p>
 <p>Everything above turns on the subdivision resolving the basins of the landscape,
 and <span class="math notranslate nohighlight">\(m_j\)</span> is the one setting with no default: too coarse and a box holds several
 minima, too fine and it holds none, and
-<a class="reference internal" href="benchmark.html#the-density-of-the-subdivision-decides"><span class="std std-ref">the results</span></a> show no single
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the results</span></a> show no single
 value serving four problems. It can be estimated from the objective rather than
 supplied.</p>
 <p>The quantity to estimate is <strong>not a wavelength</strong>. A general objective has none

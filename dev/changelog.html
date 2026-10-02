@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=2ae74f06"></script>
+    <script src="_static/documentation_options.js?v=8e9fcb1f"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -464,19 +464,17 @@ profiles now run them beside the baselines on one set of targets, at <span class
 evaluations per variable, and cache every finished run so an interrupted
 study resumes. <code class="docutils literal notranslate"><span class="pre">run_swept_box_subdivision</span></code> takes the probes, the top of the
 ladder and the levels of the encoding.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/cantilever/</span></code>, the method on the short cantilever of the GGP
-package, 108 variables under a volume constraint with adjoint gradients,
-from a trivial start: the box subdivision with MMA or SLSQP in its boxes
-against MMA, SLSQP, a multistart of MMA, DIRECT, CMA-ES, EGO, GE-SBO and EGO
-on SMT’s GEKPLS, and an animation of the box run. The results page reports it
-in compliance, the disciplines returning its logarithm. <code class="docutils literal notranslate"><span class="pre">--processes</span></code> solves
-the master’s probes in parallel, which needs merge request 139 of
-gemseo-bilevel-outer-approximation; nine probes reach a compliance of 76.8,
-within 3.4% of MMA from the preset’s design. <code class="docutils literal notranslate"><span class="pre">--record</span></code> keeps every solve of
-every process. A second study runs in the setting of GGP-Matlab, the Moving
-Node Approach with p = 3, mmasub.m’s settings and GGP_main.m’s start: MMA
-reproduces the symmetric truss of the GGP paper at 84.0, the box subdivision
-with nine probes reaches 82.1, and the animation shows that run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/cantilever/</span></code>: drivers for the short cantilever of the GGP
+package (108 variables, volume constraint, adjoint gradients) with the
+preset <code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code>, which reproduces <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code> with the Moving
+Node Approach. <code class="docutils literal notranslate"><span class="pre">trivial_start.py</span></code> runs the box subdivision, with
+<code class="docutils literal notranslate"><span class="pre">--processes</span></code> to solve the probes in parallel (requires merge request 139 of
+gemseo-bilevel-outer-approximation) and <code class="docutils literal notranslate"><span class="pre">--record</span></code> to store every finite
+element solution; <code class="docutils literal notranslate"><span class="pre">parallel_multistart.py</span></code> runs a multistart of MMA over
+several processes; <code class="docutils literal notranslate"><span class="pre">cantilever_parallel_gif.py</span></code> animates a recorded run;
+<code class="docutils literal notranslate"><span class="pre">global_baselines.py</span></code> runs DIRECT, CMA-ES, EGO, GE-SBO and EGO on SMT’s
+GEKPLS. The results page reports MMA, the multistart and the box
+subdivision with nine probes.</p></li>
 </ul>
 </section>
 <section id="changed">
