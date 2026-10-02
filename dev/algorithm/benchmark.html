@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=1d1fc56c"></script>
+    <script src="../_static/documentation_options.js?v=2ae74f06"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -1400,15 +1400,87 @@ is not the case the method is built for. The short cantilever of
 is: <span class="math notranslate nohighlight">\(18\)</span> bars, each posed by its centre and its angle and sized by its length,
 its thickness and its density, <span class="math notranslate nohighlight">\(108\)</span> variables in all, a compliance to minimize
 under a volume constraint, and adjoint gradients. The objective the disciplines
-return is <span class="math notranslate nohighlight">\(\log(C + 1)\)</span>, as in the reference MATLAB implementation; the table
-reports the compliance <span class="math notranslate nohighlight">\(C\)</span> itself, with <span class="math notranslate nohighlight">\(\log(C + 1)\)</span> beside it.</p>
-<p>Every run starts from a <strong>trivial</strong> design: the bar poses of the preset, and
-the length, the thickness and the density at the middle of their ranges. The
-preset’s own starting design is a far better guess, and plain MMA from it is
-the reference, not a competitor. The box subdivision resolves the pose of every
-bar, ten subdivisions each, <span class="math notranslate nohighlight">\(54\)</span> variables and <span class="math notranslate nohighlight">\(540\)</span> binaries, with the
-convexity swept; the length, the thickness and the density stay free variables
-of each box’s sub-problem, restarted at the trivial values. One run per row:</p>
+return is <span class="math notranslate nohighlight">\(\log(C + 1)\)</span>, as in the reference MATLAB implementation; the tables
+report the compliance <span class="math notranslate nohighlight">\(C\)</span> itself, with <span class="math notranslate nohighlight">\(\log(C + 1)\)</span> beside it.</p>
+<p>Two studies follow. The first is in the setting of the MATLAB code of the GGP
+paper; the second, earlier and broader, compares the method with the baselines
+in a setting that departs from it, and keeps its own conclusions.</p>
+<section id="in-the-setting-of-ggp-matlab">
+<h3>In the setting of GGP-Matlab<a class="headerlink" href="#in-the-setting-of-ggp-matlab" title="Link to this heading">#</a></h3>
+<p>The preset <code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code> of the GGP package is <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code> with the
+Moving Node Approach: the cubic characteristic function of width <span class="math notranslate nohighlight">\(1\)</span>, the
+volume through the density <span class="math notranslate nohighlight">\(M_c\)</span> and the stiffness through <span class="math notranslate nohighlight">\(M_c^3\)</span>, their
+aggregation and saturation, the penalty <span class="math notranslate nohighlight">\(p = 3\)</span> on the aggregated density with
+<span class="math notranslate nohighlight">\(E_{\min} = 10^{-6}\)</span>, the angle of a bar in <span class="math notranslate nohighlight">\([-2\pi, 2\pi]\)</span>, and MMA with the
+settings of <code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code>, a move of <span class="math notranslate nohighlight">\(0.01\)</span> and asymptotes held within <span class="math notranslate nohighlight">\(0.01\)</span>. The
+start is that of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>: the crossed bars of a <span class="math notranslate nohighlight">\(3 \times 3\)</span> grid, of length
+<span class="math notranslate nohighlight">\(44.7\)</span>, thickness <span class="math notranslate nohighlight">\(2\)</span> and density <span class="math notranslate nohighlight">\(0.5\)</span>. A line-by-line port of the MATLAB code
+gives the same densities and compliances as the Python disciplines to <span class="math notranslate nohighlight">\(10^{-8}\)</span>,
+once the bounds of the variables are taken, as MATLAB does, from the nodes of
+the mesh rather than from the centres of its elements. The box subdivision
+resolves the pose of every bar, ten subdivisions each, <span class="math notranslate nohighlight">\(54\)</span> variables and <span class="math notranslate nohighlight">\(540\)</span>
+binaries, with the convexity swept and nine probes per round; the length, the
+thickness and the density stay free variables of each box’s sub-problem,
+restarted at the values of the start:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>method</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(C\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\log(C + 1)\)</span></p></th>
+<th class="head"><p>designs to its best</p></th>
+<th class="head"><p>designs spent</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>MMA from the start of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(84.0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(4.443\)</span></p></td>
+<td><p>680</p></td>
+<td><p>680</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>box subdivision, MMA in each box, nine probes in parallel</strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(82.1\)</span></strong></p></td>
+<td><p><strong><span class="math notranslate nohighlight">\(4.420\)</span></strong></p></td>
+<td><p>31070</p></td>
+<td><p>55995</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-light" src="../_images/cantilever.gif" />
+<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-dark" src="../_images/cantilever-dark.gif" />
+<p>The run round by round: on the left the boxes of a round as their local solves
+progress, an infeasible design starred and the best in the accent; on the right
+the best feasible design so far, and the best compliance against the designs
+analysed by all the processes, beside MMA from the same start.</p>
+<p><strong>MMA reproduces the paper; the box subdivision finds a stiffer layout.</strong> From
+the start of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>, MMA converges to the symmetric truss of the GGP
+paper, at <span class="math notranslate nohighlight">\(84.0\)</span>. The box subdivision passes it in its first box, after <span class="math notranslate nohighlight">\(349\)</span>
+designs, and reaches <span class="math notranslate nohighlight">\(82.1\)</span>, <span class="math notranslate nohighlight">\(2.3\%\)</span> lower, in its <span class="math notranslate nohighlight">\(32\)</span>nd box after
+<span class="math notranslate nohighlight">\(31\,070\)</span> designs and seventy minutes on four cores; its layout is not
+symmetric, the lower diagonals meeting the bottom chord in one node instead of
+crossing. The ten best of its <span class="math notranslate nohighlight">\(63\)</span> boxes end between <span class="math notranslate nohighlight">\(82.1\)</span> and <span class="math notranslate nohighlight">\(82.4\)</span>, the
+median at <span class="math notranslate nohighlight">\(83.8\)</span>: a basin the master returns to, not one lucky box.</p>
+<p><strong>The settings of MMA are part of the result.</strong> With a move of <span class="math notranslate nohighlight">\(0.1\)</span> and the
+asymptotes free to widen, the port of the MATLAB code ends anywhere between <span class="math notranslate nohighlight">\(84\)</span>
+and <span class="math notranslate nohighlight">\(128\)</span> from starts <span class="math notranslate nohighlight">\(10^{-12}\)</span> to <span class="math notranslate nohighlight">\(10^{-9}\)</span> apart; with the move and the
+asymptotes of <code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code> it ends at <span class="math notranslate nohighlight">\(84.4\)</span> from all of them. The study keeps the
+latter, the setting in which the paper’s design is reproducible.</p>
+</section>
+<section id="the-earlier-study-against-the-baselines">
+<h3>The earlier study, against the baselines<a class="headerlink" href="#the-earlier-study-against-the-baselines" title="Link to this heading">#</a></h3>
+<p>This study departs from the setting of GGP-Matlab in three ways, found after
+it was run: the GP projection with <span class="math notranslate nohighlight">\(p = 1\)</span> and <span class="math notranslate nohighlight">\(E_{\min} = 0\)</span>, which leaves
+intermediate densities unpenalized; the bounds of the variables taken from
+the centres of the elements, which changes the normalized variables MMA moves
+in; and a <strong>trivial</strong> start of its own, the bar poses of the preset with the
+length, the thickness and the density at the middle of their ranges, a
+thickness of <span class="math notranslate nohighlight">\(33\)</span> that is no plausible guess. Its designs are therefore not
+those of the paper, and its reference, MMA from the preset’s design at <span class="math notranslate nohighlight">\(74.3\)</span>,
+is not the symmetric truss. What it compares holds within it: every method
+starts from the trivial design, the box subdivision is configured as above with
+one, four or nine probes, and plain MMA from the preset’s design is the
+reference, not a competitor. One run per row:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>method</p></th>
@@ -1506,20 +1578,6 @@ of each box’s sub-problem, restarted at the trivial values. One run per row:</
 </tbody>
 </table>
 </div>
-<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-light" src="../_images/cantilever.gif" />
-<img alt="The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start" class="only-dark" src="../_images/cantilever-dark.gif" />
-<p>The run with nine probes in the setting of GGP-Matlab, round by round: the
-Moving Node Approach with the penalty <span class="math notranslate nohighlight">\(p = 3\)</span>, MMA with the settings of
-<code class="docutils literal notranslate"><span class="pre">mmasub.m</span></code>, and the starting design of <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code>, the preset
-<code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code> of the GGP package. On the left the boxes of a round as
-their local solves progress, an infeasible design starred and the best in the
-accent; on the right the best feasible design so far, and the best compliance
-against the designs analysed by all the processes, beside MMA from the same
-start, which converges to the symmetric truss of the GGP paper at <span class="math notranslate nohighlight">\(84.0\)</span>. The
-box subdivision passes it in its first box and reaches <span class="math notranslate nohighlight">\(82.1\)</span> in its <span class="math notranslate nohighlight">\(32\)</span>nd,
-after <span class="math notranslate nohighlight">\(31\,070\)</span> designs; the ten best of its <span class="math notranslate nohighlight">\(63\)</span> boxes end between <span class="math notranslate nohighlight">\(82.1\)</span> and
-<span class="math notranslate nohighlight">\(82.4\)</span>. The table above is the earlier study, with the GP projection, <span class="math notranslate nohighlight">\(p = 1\)</span>
-and a thickness started at mid-range.</p>
 <p><strong>Without the gradient, nothing competes.</strong> DIRECT, CMA-ES and both EGOs end
 between four and twenty times above the local solvers, and the two methods that
 condition a surrogate on the adjoint gradients, GE-SBO and EGO on GEKPLS, do no
@@ -1545,8 +1603,8 @@ five boxes, the <span class="math notranslate nohighlight">\(13\)</span>th, <spa
 the value is a basin the master returns to, not one lucky box. Each probe is a
 box the master would otherwise reach only after the cuts of the boxes before it;
 solved together they spread the first rounds over more of the poses, which is
-where this run found its best. A second run, recording every solve for the
-animation, repeated it box for box.</p>
+where this run found its best. A second run, recording every solve, repeated
+it box for box.</p>
 <p><strong>It beats a multistart of MMA, which was lucky.</strong> Nine starts, the first the
 trivial design and the others random poses, reach <span class="math notranslate nohighlight">\(82.1\)</span>; but seven of the nine
 converge between <span class="math notranslate nohighlight">\(105\)</span> and <span class="math notranslate nohighlight">\(109\)</span>, one to <span class="math notranslate nohighlight">\(90.7\)</span>, and only the seventh to <span class="math notranslate nohighlight">\(82.1\)</span>.
@@ -1560,11 +1618,11 @@ start it converges in <span class="math notranslate nohighlight">\(241\)</span> 
 boxes of up to three hundred iterations reach <span class="math notranslate nohighlight">\(95.5\)</span>, above SLSQP’s own single
 run, the restarts at the centres of the boxes losing more than the master’s
 choice of boxes finds.</p>
-<p><strong>Nine probes come within <span class="math notranslate nohighlight">\(3.4\%\)</span> of the preset.</strong> MMA from the preset’s
-design reaches <span class="math notranslate nohighlight">\(74.3\)</span> in <span class="math notranslate nohighlight">\(385\)</span> designs; from the trivial design, the box
-subdivision with nine probes reaches <span class="math notranslate nohighlight">\(76.8\)</span>, every other method stays above
-<span class="math notranslate nohighlight">\(81\)</span>, and plain MMA stops at <span class="math notranslate nohighlight">\(105.1\)</span>. A good starting design remains the
-cheapest way to the optimum; without one, the box subdivision with enough
+<p><strong>Nine probes come within <span class="math notranslate nohighlight">\(3.4\%\)</span> of the preset’s MMA.</strong> In this setting, MMA
+from the preset’s design reaches <span class="math notranslate nohighlight">\(74.3\)</span> in <span class="math notranslate nohighlight">\(385\)</span> designs; from the trivial
+design, the box subdivision with nine probes reaches <span class="math notranslate nohighlight">\(76.8\)</span>, every other method
+stays above <span class="math notranslate nohighlight">\(81\)</span>, and plain MMA stops at <span class="math notranslate nohighlight">\(105.1\)</span>. A good starting design remains
+the cheapest way to the optimum; without one, the box subdivision with enough
 probes is the only method here that gets close.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -1576,6 +1634,7 @@ in the test suite.</p>
 </div>
 <p>What all of this establishes, and where it can go, is <a class="reference internal" href="conclusion.html"><span class="std std-doc">the
 conclusion</span></a>.</p>
+</section>
 </section>
 </section>
 
@@ -1636,7 +1695,11 @@ conclusion</span></a>.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-extensions-and-what-they-are-worth">The extensions, and what they are worth</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-baselines">Against the baselines</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#at-a-budget-every-method-can-afford">At a budget every method can afford</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-application-the-ggp-short-cantilever">An application: the GGP short cantilever</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-application-the-ggp-short-cantilever">An application: the GGP short cantilever</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#in-the-setting-of-ggp-matlab">In the setting of GGP-Matlab</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-earlier-study-against-the-baselines">The earlier study, against the baselines</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

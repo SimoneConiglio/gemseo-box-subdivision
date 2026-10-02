@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=1d1fc56c"></script>
+    <script src="_static/documentation_options.js?v=2ae74f06"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -473,8 +473,10 @@ in compliance, the disciplines returning its logarithm. <code class="docutils li
 the master’s probes in parallel, which needs merge request 139 of
 gemseo-bilevel-outer-approximation; nine probes reach a compliance of 76.8,
 within 3.4% of MMA from the preset’s design. <code class="docutils literal notranslate"><span class="pre">--record</span></code> keeps every solve of
-every process, and the animation of the box run shows that run, round by
-round.</p></li>
+every process. A second study runs in the setting of GGP-Matlab, the Moving
+Node Approach with p = 3, mmasub.m’s settings and GGP_main.m’s start: MMA
+reproduces the symmetric truss of the GGP paper at 84.0, the box subdivision
+with nine probes reaches 82.1, and the animation shows that run.</p></li>
 </ul>
 </section>
 <section id="changed">

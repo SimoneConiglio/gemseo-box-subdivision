@@ -592,16 +592,80 @@ is not the case the method is built for. The short cantilever of
 is: $18$ bars, each posed by its centre and its angle and sized by its length,
 its thickness and its density, $108$ variables in all, a compliance to minimize
 under a volume constraint, and adjoint gradients. The objective the disciplines
-return is $\log(C + 1)$, as in the reference MATLAB implementation; the table
-reports the compliance $C$ itself, with $\log(C + 1)$ beside it.
+return is $\log(C + 1)$, as in the reference MATLAB implementation; the tables
+report the compliance $C$ itself, with $\log(C + 1)$ beside it.
 
-Every run starts from a **trivial** design: the bar poses of the preset, and
-the length, the thickness and the density at the middle of their ranges. The
-preset's own starting design is a far better guess, and plain MMA from it is
-the reference, not a competitor. The box subdivision resolves the pose of every
-bar, ten subdivisions each, $54$ variables and $540$ binaries, with the
-convexity swept; the length, the thickness and the density stay free variables
-of each box's sub-problem, restarted at the trivial values. One run per row:
+Two studies follow. The first is in the setting of the MATLAB code of the GGP
+paper; the second, earlier and broader, compares the method with the baselines
+in a setting that departs from it, and keeps its own conclusions.
+
+### In the setting of GGP-Matlab
+
+The preset `short_cantilever_mna` of the GGP package is `GGP_main.m` with the
+Moving Node Approach: the cubic characteristic function of width $1$, the
+volume through the density $M_c$ and the stiffness through $M_c^3$, their
+aggregation and saturation, the penalty $p = 3$ on the aggregated density with
+$E_{\min} = 10^{-6}$, the angle of a bar in $[-2\pi, 2\pi]$, and MMA with the
+settings of `mmasub.m`, a move of $0.01$ and asymptotes held within $0.01$. The
+start is that of `GGP_main.m`: the crossed bars of a $3 \times 3$ grid, of length
+$44.7$, thickness $2$ and density $0.5$. A line-by-line port of the MATLAB code
+gives the same densities and compliances as the Python disciplines to $10^{-8}$,
+once the bounds of the variables are taken, as MATLAB does, from the nodes of
+the mesh rather than from the centres of its elements. The box subdivision
+resolves the pose of every bar, ten subdivisions each, $54$ variables and $540$
+binaries, with the convexity swept and nine probes per round; the length, the
+thickness and the density stay free variables of each box's sub-problem,
+restarted at the values of the start:
+
+| method | $C$ | $\log(C + 1)$ | designs to its best | designs spent |
+|--------|-----|---------------|---------------------|---------------|
+| MMA from the start of `GGP_main.m` | $84.0$ | $4.443$ | 680 | 680 |
+| **box subdivision, MMA in each box, nine probes in parallel** | **$82.1$** | **$4.420$** | 31070 | 55995 |
+
+```{image} ../_static/figures/cantilever.gif
+:class: only-light
+:alt: The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start
+```
+
+```{image} ../_static/figures/cantilever-dark.gif
+:class: only-dark
+:alt: The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start
+```
+
+The run round by round: on the left the boxes of a round as their local solves
+progress, an infeasible design starred and the best in the accent; on the right
+the best feasible design so far, and the best compliance against the designs
+analysed by all the processes, beside MMA from the same start.
+
+**MMA reproduces the paper; the box subdivision finds a stiffer layout.** From
+the start of `GGP_main.m`, MMA converges to the symmetric truss of the GGP
+paper, at $84.0$. The box subdivision passes it in its first box, after $349$
+designs, and reaches $82.1$, $2.3\%$ lower, in its $32$nd box after
+$31\,070$ designs and seventy minutes on four cores; its layout is not
+symmetric, the lower diagonals meeting the bottom chord in one node instead of
+crossing. The ten best of its $63$ boxes end between $82.1$ and $82.4$, the
+median at $83.8$: a basin the master returns to, not one lucky box.
+
+**The settings of MMA are part of the result.** With a move of $0.1$ and the
+asymptotes free to widen, the port of the MATLAB code ends anywhere between $84$
+and $128$ from starts $10^{-12}$ to $10^{-9}$ apart; with the move and the
+asymptotes of `mmasub.m` it ends at $84.4$ from all of them. The study keeps the
+latter, the setting in which the paper's design is reproducible.
+
+### The earlier study, against the baselines
+
+This study departs from the setting of GGP-Matlab in three ways, found after
+it was run: the GP projection with $p = 1$ and $E_{\min} = 0$, which leaves
+intermediate densities unpenalized; the bounds of the variables taken from
+the centres of the elements, which changes the normalized variables MMA moves
+in; and a **trivial** start of its own, the bar poses of the preset with the
+length, the thickness and the density at the middle of their ranges, a
+thickness of $33$ that is no plausible guess. Its designs are therefore not
+those of the paper, and its reference, MMA from the preset's design at $74.3$,
+is not the symmetric truss. What it compares holds within it: every method
+starts from the trivial design, the box subdivision is configured as above with
+one, four or nine probes, and plain MMA from the preset's design is the
+reference, not a competitor. One run per row:
 
 | method | $C$ | $\log(C + 1)$ | designs to its best | designs spent |
 |--------|-----|---------------|---------------------|---------------|
@@ -619,29 +683,6 @@ of each box's sub-problem, restarted at the trivial values. One run per row:
 | EGO on SMT's GEKPLS, 80 iterations | $1293$ | $7.165$ | — | 100 |
 | EGO (egobox, KPLS), stopped for cost | $1359$ | $7.215$ | — | 248 |
 | DIRECT | $1433$ | $7.268$ | 6038 | 12325 |
-
-```{image} ../_static/figures/cantilever.gif
-:class: only-light
-:alt: The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start
-```
-
-```{image} ../_static/figures/cantilever-dark.gif
-:class: only-dark
-:alt: The box subdivision with nine probes on the cantilever, round by round, against MMA from the same start
-```
-
-The run with nine probes in the setting of GGP-Matlab, round by round: the
-Moving Node Approach with the penalty $p = 3$, MMA with the settings of
-`mmasub.m`, and the starting design of `GGP_main.m`, the preset
-`short_cantilever_mna` of the GGP package. On the left the boxes of a round as
-their local solves progress, an infeasible design starred and the best in the
-accent; on the right the best feasible design so far, and the best compliance
-against the designs analysed by all the processes, beside MMA from the same
-start, which converges to the symmetric truss of the GGP paper at $84.0$. The
-box subdivision passes it in its first box and reaches $82.1$ in its $32$nd,
-after $31\,070$ designs; the ten best of its $63$ boxes end between $82.1$ and
-$82.4$. The table above is the earlier study, with the GP projection, $p = 1$
-and a thickness started at mid-range.
 
 **Without the gradient, nothing competes.** DIRECT, CMA-ES and both EGOs end
 between four and twenty times above the local solvers, and the two methods that
@@ -670,8 +711,8 @@ five boxes, the $13$th, $24$th, $25$th, $29$th and $53$rd, end below $77.5$, so
 the value is a basin the master returns to, not one lucky box. Each probe is a
 box the master would otherwise reach only after the cuts of the boxes before it;
 solved together they spread the first rounds over more of the poses, which is
-where this run found its best. A second run, recording every solve for the
-animation, repeated it box for box.
+where this run found its best. A second run, recording every solve, repeated
+it box for box.
 
 **It beats a multistart of MMA, which was lucky.** Nine starts, the first the
 trivial design and the others random poses, reach $82.1$; but seven of the nine
@@ -688,11 +729,11 @@ boxes of up to three hundred iterations reach $95.5$, above SLSQP's own single
 run, the restarts at the centres of the boxes losing more than the master's
 choice of boxes finds.
 
-**Nine probes come within $3.4\%$ of the preset.** MMA from the preset's
-design reaches $74.3$ in $385$ designs; from the trivial design, the box
-subdivision with nine probes reaches $76.8$, every other method stays above
-$81$, and plain MMA stops at $105.1$. A good starting design remains the
-cheapest way to the optimum; without one, the box subdivision with enough
+**Nine probes come within $3.4\%$ of the preset's MMA.** In this setting, MMA
+from the preset's design reaches $74.3$ in $385$ designs; from the trivial
+design, the box subdivision with nine probes reaches $76.8$, every other method
+stays above $81$, and plain MMA stops at $105.1$. A good starting design remains
+the cheapest way to the optimum; without one, the box subdivision with enough
 probes is the only method here that gets close.
 
 :::{warning}
