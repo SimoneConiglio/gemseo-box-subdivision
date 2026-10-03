@@ -129,7 +129,7 @@ subdivisions per variable, the area is between $0.49$ and $0.52$ whatever the
 number of probes: with two subdivisions per variable no box separates the basins
 of Rastrigin or Ackley, so that the choice among boxes does not matter. The
 values four, eight and sixteen avoid the degradation observed with six probes in
-[annex D](extensions.md#the-probes-decide-and-six-of-them-is-a-hole).
+[annex D](extensions.md#number-of-probes).
 
 The cost of the master is not counted in the budget. Sixteen probes with ten
 subdivisions per variable in five dimensions (fifty binaries) were excluded from
@@ -178,7 +178,7 @@ start in both dimensions, $69\%$ of the targets after $100$ evaluations in two
 variables and $42\%$ after $250$ in five, and the flattest profile afterwards,
 ending at $85\%$ and $44\%$. With the convexity swept it misses the optimum of
 Styblinski-Tang in five variables from all starting points, whereas the
-calibrated encoding of [annex D](extensions.md#the-multi-resolution-encoding)
+calibrated encoding of [annex D](extensions.md#multi-resolution-encoding)
 reached it from one of three.
 
 ## Density of the subdivision
@@ -247,7 +247,7 @@ one starting point of three. Ten subdivisions divide each basin into five boxes,
 and the value and sensitivity returned by a box that contains no minimum carry
 no information on the location of the minimum. The same behaviour is observed
 with the pure convexification and with three of the four trust-region radii of
-[annex C](tuning.md#the-density-and-the-mechanism-are-not-independent), which
+[annex C](tuning.md#interaction-between-density-and-mechanism), which
 attributes it to the subdivision rather than to the master.
 
 The useful density thus lies between the one separating the basins and the one
@@ -257,11 +257,11 @@ best density for three of them and the worst for the fourth. The default of
 
 ### Proposed density
 
-The density can be proposed by counting the basins along jittered axial scans
-of each component, as described in
-[the methodology](methodology.md#where-the-density-comes-from). Each problem of
-Table 4 is given four times the budget implied by its proposed density, so that
-every run terminates on its own criterion; three starting points, median
+The density can be proposed by counting the basins along jittered axial scans of
+each component, as described in [the
+methodology](methodology.md#estimation-of-the-subdivision-density). Each problem
+of Table 4 is given four times the budget implied by its proposed density, so
+that every run terminates on its own criterion; three starting points, median
 distance and median cost.
 
 | problem | proposed $m$ | binaries | distance | cost | reached | compared with a fixed density |
@@ -304,14 +304,14 @@ be discarded; the same indicator directs such a problem to a hierarchy.
 The estimate is based on the objective only. For a problem whose basins are
 separated by non-convex constraints it returns one subdivision per component and
 reports itself as converged, the objective having a single basin;
-[annex D](extensions.md#where-the-constraints-cut-the-basins) describes the
+[annex D](extensions.md#constraint-aware-count) describes the
 constraint-aware count and its limitations.
 
 ## Swept convexity
 
 The results of the density study were obtained with a convexity margin chosen
 for each problem, in the units of its objective. The alternative is to
-[sweep the value](methodology.md#sweeping-it-instead-of-calibrating-it): the
+[sweep the value](methodology.md#swept-convexity): the
 parallel probes of the master carry a ladder of convexity values, a probe
 proposing a box already solved moves to the next rung, and the upper bound of
 the ladder is derived from the spread of the objective over the boxes already
@@ -350,7 +350,7 @@ chosen; it does not establish a general factor. A broader comparison is given by
 the [variants](#variants-of-the-method), on four problems in two and five
 dimensions from five starting points, for the adaptive repair only. The full
 table and the derivation of the bound are in
-[annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
+[annex C](tuning.md#swept-convexity).
 
 ## Extensions
 
@@ -378,7 +378,7 @@ rank a box. None of them was adopted as a default. The tables are given in
   unweighted metric, as for the trust region.
 
 Several of these comparisons involve runs stopped by the budget, so
-[annex D](extensions.md#does-more-budget-change-the-answer) repeats the most
+[annex D](extensions.md#effect-of-the-budget) repeats the most
 sensitive one at two and four times the budget. The flat subdivision then
 reaches Ackley from two starting points of six instead of none, which reduces
 the advantage of the hierarchy to four against two; beyond that, a larger budget

@@ -15,8 +15,8 @@ Commons, PO Box 1866, Mountain View, CA 94042, USA.
 [![CI](https://github.com/SimoneConiglio/gemseo-box-subdivision/actions/workflows/ci.yml/badge.svg)](https://github.com/SimoneConiglio/gemseo-box-subdivision/actions/workflows/ci.yml)
 [![Documentation](https://github.com/SimoneConiglio/gemseo-box-subdivision/actions/workflows/docs.yml/badge.svg)](https://simoneconiglio.github.io/gemseo-box-subdivision/)
 
-A laboratory for exploring optimization algorithms built on
-[GEMSEO](https://gemseo.org).
+gemseo-box-subdivision is a [GEMSEO](https://gemseo.org) plugin for the study of
+optimization algorithms.
 
 ## Installation
 
@@ -24,29 +24,29 @@ A laboratory for exploring optimization algorithms built on
 pip install gemseo-box-subdivision
 ```
 
-Python 3.10 to 3.13. This also installs GEMSEO and
-[gemseo-bilevel-outer-approximation](https://pypi.org/project/gemseo-bilevel-outer-approximation/).
+Python versions 3.10 to 3.13 are supported. GEMSEO and
+[gemseo-bilevel-outer-approximation](https://pypi.org/project/gemseo-bilevel-outer-approximation/)
+are installed as dependencies.
 
 ## Documentation
 
 **<https://simoneconiglio.github.io/gemseo-box-subdivision/>**
 
-| Page | Contents |
+| page | contents |
 |------|----------|
-| [Methodology](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/methodology.html) | the bi-level problem, the cuts, the trust region, the constructions |
-| [Implementation](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/implementation.html) | the layers, the building blocks and their pitfalls |
-| [Usage](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/usage.html) | setting up each construction, and applying them to a new problem |
-| [Results](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/benchmark.html) | what is measured, against enumeration and four baselines |
-| [Conclusion](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/conclusion.html) | what is established, what is not, and where it can go |
+| [Methodology](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/methodology.html) | bi-level problem, cuts, trust region, extensions |
+| [Implementation](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/implementation.html) | architecture, components and their verification |
+| [Usage](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/usage.html) | configuration of each construction and application to a new problem |
+| [Results](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/benchmark.html) | comparison with the enumeration of the boxes and with baselines, application to topology optimization |
+| [Conclusion](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/conclusion.html) | summary, limitations and further work |
 
-## What it does
+## Method
 
-The package is a **GEMSEO plugin** implementing the **box-subdivision outer
-approximation**, a bi-level method for multimodal non-linear problems. The design
-space is cut into a Cartesian grid of boxes, which turns the choice of a region
-into a categorical variable: a mixed-integer master decides which box to look
-into from the cuts of the boxes already solved, and a local solver does the rest
-inside it. Exploration and local exploitation stay in two distinct levels.
+The package implements the box-subdivision outer approximation, a bi-level
+method for multimodal nonlinear problems. The design space is divided into a
+Cartesian grid of boxes, which turns the choice of a region into a categorical
+variable: a mixed-integer master selects a box from the cuts of the boxes already
+solved, and a local solver solves the problem within it.
 
 ```python
 from gemseo_box_subdivision import BoxSubdivisionScenario
@@ -57,68 +57,67 @@ scenario = BoxSubdivisionScenario(
 scenario.execute()
 ```
 
-The scenario owns the assembly, which is a set of invariants rather than a set of
-choices: chaining the mapping before the objective, building the design space
-from the same subdivision, naming the variables the master optimizes over,
-selecting the formulation, and sizing the trust region. What it leaves to you is
-what the measurements say decides a run.
+The scenario performs the assembly: it chains the mapping before the objective,
+builds the design space from the same subdivision, names the variables of the
+master, selects the formulation and sets the trust region.
 
-## What is measured
+## Results
 
-On Rastrigin in two dimensions over $100$ boxes it reaches the optimum after
-solving twenty to thirty-six of them, about three times cheaper than solving all
-of them. In five dimensions, with ten subdivisions per variable, it reaches the
-optimum from **every starting point** for $1920$ evaluations, which no
-baseline here does at any budget tried.
+On the Rastrigin function in two dimensions with $100$ boxes, the method reaches
+the optimum after solving 20 to 36 boxes, at about one third of the cost of
+solving all of them. In five dimensions, with ten subdivisions per variable, it
+reaches the optimum from all starting points for $1920$ evaluations; none of the
+baselines reaches it at the budgets tested.
 
-The subdivision has to **resolve the basins** of the landscape, and it can afford
-to: the master grows with the one-hot binaries, not with the boxes, so five
-variables subdivided ten times each is a hundred thousand boxes and only fifty
-binaries. That is the ceiling; the floor is the spacing of the basins, and
-refining past them degrades the result rather than merely costing more.
+The subdivision must separate the basins of the landscape. The master grows with
+the number of one-hot binaries and not with the number of boxes, so that five
+variables with ten subdivisions each give one hundred thousand boxes and fifty
+binaries. The number of binaries the budget can identify limits the density from
+above, the spacing of the basins from below, and refining beyond the basins
+degrades the results.
 
-Where the subdivision does not resolve the basins, other methods do better. At a
-small budget, the regime this method targets, **Bayesian optimization explores
-the hard multimodal cases better than it does**, at a hundred times its cost in
-its own time. The [results] report both sides.
+When the subdivision does not separate the basins, other methods perform better.
+At small budgets, Bayesian optimization gives better results on the hardest
+multimodal problems, at about a hundred times the computation time of the method.
+On the short cantilever of the GGP package, a constrained problem with $108$
+variables and adjoint gradients, the method reaches a compliance of $82.1$,
+against $84.0$ for MMA from the reference initial design and $83.0$ for a
+multistart of MMA with the same number of local solutions. See the [results].
 
 [results]: https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/benchmark.html
 
-## Two settings decide a run
+## Main settings
 
-Neither has a default that transfers between problems.
+Two settings have no default value that transfers between problems:
 
 ```python
 from gemseo_box_subdivision import BoxSubdivisionSettings
 
 BoxSubdivisionSettings(
-    convexity_margin=80.0,  # absolute, in the units of *your* objective
-    trust_region_radius=2,  # in components changed, and small
+    convexity_margin=80.0,  # absolute, in the units of the objective
+    trust_region_radius=2,  # in number of changed components
 )
 ```
 
-`convexity_margin` guards the outer-approximation cuts against the non-convexity
-of a multimodal problem. Left unguarded, as GEMSEO's master is by default, the
-cuts are invalid: the master converges after two or three sub-problems and
-reports success far from the optimum. The settings pick **one** of the two
-mechanisms and switch the other off, since measuring both at once measures
-neither.
+`convexity_margin` protects the outer-approximation cuts against the
+non-convexity of a multimodal problem. Without protection, which is the default
+of the GEMSEO master, the cuts are invalid: the master converges after two or
+three sub-problems and reports success far from the optimum. The settings select
+one of the two available mechanisms and disable the other.
 
-`trust_region_radius` counts the components a candidate box may change, every
-subdivision being weighed alike. Keep it small: widening it to the diameter of
-the design space loses Rastrigin at five variables, and removing the region is
-worse still.
+`trust_region_radius` is the number of components a candidate box may change,
+all intervals having the same weight. It should be small: a radius equal to the
+diameter of the design space fails on Rastrigin in five variables, and no trust
+region gives worse results.
 
-### Or let the margin sweep itself
+### Swept convexity
 
-The margin is absolute, so calibrating it is the standing criticism of the
-method. The master already probes a ladder of trust-region radii per iteration,
-one per parallel point; the same probes can sweep a ladder of **convexity**
-values, the low rungs proposing the box next door and the high rungs the box
-across the design space, with every probe that proposes nothing new redeployed a
-rung higher. That is a separate entry point rather than a setting: a run that
-sweeps has no convexity to calibrate, and its rungs are the parallel points the
-master already probes. The user supplies an upper bound, or nothing at all:
+Since the margin is absolute, it has to be calibrated for each problem. The
+master already probes a ladder of trust-region radii at each iteration, one per
+parallel point; the same probes can evaluate a ladder of convexity values, the
+low rungs proposing neighbouring boxes and the high rungs distant boxes, and a
+probe that proposes no new box is moved to the next rung. This is configured by a
+separate settings class, which requires an upper bound or no value at all:
 
 ```python
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
@@ -126,22 +125,20 @@ from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 SweptBoxSubdivisionSettings()
 ```
 
-Given nothing, the bound is computed from the objective as the run observes it:
-the spread over the boxes already solved, lifted by a decade of headroom, so no
-number in the units of the objective is ever asked for.
+Without a value, the bound is computed during the run from the spread of the
+objective over the boxes already solved, multiplied by a headroom factor of ten.
 
-On Rastrigin and Ackley, whose objectives differ by a factor of four in scale,
-that reaches the optimum from every starting point on both, which no single
-margin does. The sweep itself belongs to the master, under its settings
-`convexity_sweep_points` and `convexity_sweep_max`; against a master predating
-them the settings fall back to the conservative end of the ladder, and the
-benchmarks drive it from outside instead. See
-[annex C](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/tuning.html#sweeping-the-convexity-instead-of-calibrating-it).
+On Rastrigin and Ackley, whose objectives differ in scale by a factor of four,
+this reaches the optimum from all starting points on both problems, which no
+single margin does. The sweep is implemented in the master through the settings
+`convexity_sweep_points` and `convexity_sweep_max`; for master versions that do
+not implement it, the package performs it from outside. See
+[annex C](https://simoneconiglio.github.io/gemseo-box-subdivision/algorithm/tuning.html#swept-convexity).
 
-## Beyond a flat subdivision
+## Extensions
 
-The same entry point covers the constructions, each answering one reason for a
-flat subdivision to be out of reach:
+The same scenario supports the extensions of the method, each addressing a case
+where a flat subdivision is not applicable:
 
 ```python
 # Subdivide the variables the objective is multimodal in, at a density each.
@@ -151,8 +148,8 @@ BoxSubdivisionScenario([d], "f", space, n_subdivisions={"x_1": 10, "x_2": 4})
 BoxSubdivisionScenario([d], "f", space, n_subdivisions=4, levels=2)
 ```
 
-and `refine_deep`, `refine_two_levels` and `refine_frontier` build hierarchies
-that refine a box rather than subdividing finely.
+`refine_deep`, `refine_two_levels` and `refine_frontier` build hierarchies that
+refine a box instead of subdividing the whole space finely.
 
 ## Development
 

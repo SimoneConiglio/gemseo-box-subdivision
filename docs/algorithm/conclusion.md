@@ -9,199 +9,182 @@
 
 # Conclusion
 
-The box-subdivision outer approximation separates the exploration of a design
-space from its local exploitation: a Cartesian subdivision turns the choice of a
-region into a categorical variable, a mixed-integer master decides which box to
-look into from the cuts of the boxes already solved, and a local solver does the
-rest inside it.
+The box-subdivision outer approximation separates the exploration of the design
+space from local optimization. A Cartesian subdivision turns the choice of a
+region into a categorical variable; a mixed-integer master selects a box from
+the cuts of the boxes already solved, and a local solver solves the problem
+within the selected box.
 
-## What the method is, once measured
+## Summary of the results
 
-**It is a method for a landscape of few, well-separated basins.** Where the
-subdivision resolves them, it reaches the optimum for three to five times fewer
-evaluations than multistart, CMA-ES or DIRECT, and for about a quarter of the
-cost of enumerating the boxes it replaces. Where it does not, it is the worst of
-the four, and no setting recovers it.
+The method is suited to landscapes with a moderate number of well-separated
+basins. When the subdivision separates them, it reaches the optimum with fewer
+evaluations than the baselines, for instance $789$ evaluations on
+Styblinski-Tang in five variables against $2340$ for the multistart and $2505$
+for DIRECT, and at between a quarter and a third of the cost of the enumeration
+of the boxes. When the subdivision does not separate the basins, its results are
+the worst of the four methods compared, and no setting was found to compensate.
 
-**Its size is set by the binaries, not by the boxes.** The master grows as
-$\sum_j m_j$ while the boxes grow as $\prod_j m_j$, so a hundred thousand boxes
-over five variables is a master of fifty binaries, and that density solves
-Rastrigin in five dimensions, which none of the baselines does. The limit is the
-ratio between those binaries and the sub-problems a budget can pay for: past
-some fifty coefficients for fifty cuts, the cut model is underdetermined and the
-quality collapses.
+The size of the master is determined by the number of binaries rather than by
+the number of boxes: the master grows as $\sum_j m_j$ whereas the number of
+boxes grows as $\prod_j m_j$. One hundred thousand boxes over five variables
+correspond to fifty binaries, and this density reaches the optimum of Rastrigin
+in five dimensions, which none of the baselines does. The limit is the ratio
+between the number of binaries and the number of sub-problems affordable within
+the budget: beyond about fifty coefficients for fifty cuts the cut model is
+underdetermined and the results degrade.
 
-**Two settings decided whether a run worked at all**, and both failed silently
-when wrong: the guard against non-convexity, the adaptive repair of the cut
-slopes or the convexification constant, never both; and the trust region of the
-master, which has to measure the **number of components a candidate changes** and
-to keep a radius of about two. Weighing the subdivisions by their own indexes,
-which the upstream design space does by default for a numeric catalogue, is not a
-distance at all, and it cost this method its best result until it was found.
+Two settings determined whether a run succeeded, and both fail without warning
+when set incorrectly: the safeguard against non-convexity, either the adaptive
+repair of the cut slopes or the convexification constant but not both, and the
+trust region of the master, which must count the number of components changed by
+a candidate and use a radius of about two. Weighting the subdivisions by their
+indices, as the upstream design space does by default for a numeric catalogue,
+does not define a distance; this default degraded the results of the method
+until it was identified.
 
-**The guard is no longer one of them.** Sweeping a ladder of convexity values
-across the parallel probes the master already runs, with no value supplied,
-reaches the same median distance to the optimum as the calibrated configuration
-on every problem of [the profiles of the
-variants](benchmark.md#variants-of-the-method), and reaches it from
-more starting points on two of them. A user tunes the density of the subdivision
-now, not the units of their own objective. The trust region remains, and so does
-the subdivision: what the sweep removes is one of the two, not both, and it is
-measured on four problems in two dimensions and five, from five starting points
-each, which is this benchmark rather than a held-out set. See [the
-results](benchmark.md#swept-convexity), with the
-tables in [annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
+The first of these settings no longer needs to be chosen. Sweeping a ladder of
+convexity values over the parallel probes of the master, without any supplied
+value, reaches the same median distance to the optimum as the calibrated
+configuration on all problems of the
+[comparison of the variants](benchmark.md#variants-of-the-method), and reaches
+it from more starting points on two of them. The density of the subdivision and
+the trust region remain to be set. The sweep was evaluated on four problems in
+two and five dimensions with five starting points each, which are the problems of
+this study and not a separate test set. See
+[the results](benchmark.md#swept-convexity) and
+[annex C](tuning.md#swept-convexity).
 
-## What is established, and what is not
+On the short cantilever of the GGP package, a constrained problem with $108$
+variables and adjoint gradients, in the setting of the MATLAB implementation of
+the GGP paper, MMA from the reference initial design reaches $C = 84.0$, a
+multistart of MMA from $63$ initial designs $83.0$, and the box subdivision with
+nine probes and $63$ boxes $82.1$, for a comparable number of designs.
 
-Established:
+## Findings and limitations
 
-- against the exhaustive enumeration of the boxes, the outer approximation
-  reaches the same optimum solving about a quarter of them, at about a quarter of
-  the cost;
-- the sub-problem starting point and the guard against non-convexity are both
-  decisive, and both fail silently when wrong;
-- where the subdivision resolves the basins, the method reaches the optimum for
-  three to five times fewer evaluations than multistart, CMA-ES or DIRECT, and it
-  does so **with no convexity value supplied**: the swept configuration matches
-  the calibrated one on every row of that comparison and is more reliable on two;
-- a subdivision fine enough to resolve them stays tractable, the master growing
-  with the binaries and not with the boxes: Rastrigin in five dimensions, out of
-  reach of every baseline here, is solved over $100\,000$ boxes;
-- subdividing only the variables the objective is multimodal in solves a problem
-  that subdividing every variable coarsely does not, and loses when the
-  multimodality is spread over all of them;
-- the density need not be supplied: counting the basins along jittered axial
-  scans proposes one, and on every problem whose ladder settled it picks the
-  better of the two fixed densities tried, beating both on the problem with
-  unimodal components to leave alone. The two reversals the benchmark is built
-  around come out right without being told. Its error is one sided by
-  construction, so a ladder that does not settle is a **flag rather than a
-  wrong answer**, and on Ackley that flag is what marks the one proposal to
-  discard;
-- the trust region has to be **tight** and measured in components changed: a
-  radius of two solves Rastrigin at five variables from every starting point,
-  where the diameter of the design space reaches it from two out of six and no
-  region at all from one;
-- the ordinal proximity between neighbouring boxes, which the constraint appears
-  to promise, is worth nothing here: measured through a stub it is as reliable
-  as counting components and half again as expensive, multimodality behaving
-  like a categorical choice rather than a discrete one;
-- the multi-resolution encoding reaches a resolution on **fewer binaries**, two
-  levels of four reaching sixteen subdivisions per component on forty binaries
-  against eighty, and it is not worse at that resolution: on Styblinski-Tang,
-  the problem the best flat density breaks on, it gets within $0.27$ of the
-  optimum for fewer evaluations than the flat encoding that matches it. Its cost
-  is a cut model additive over the digits, so fewer and wider levels beat more
-  and narrower ones;
-- a hierarchy of subdivisions loses to the flat method wherever a flat
-  subdivision can resolve the basins, and wins on the one case it cannot, a
-  basin too broad for any affordable density: on Ackley at five variables the
-  deep hierarchy reaches the optimum from four starting points out of six
-  against two for the flat method, both having stopped on their own criteria.
+The following findings are supported by the experiments:
 
-Not established:
+- compared with the exhaustive enumeration of the boxes, the outer approximation
+  reaches the same optimum after solving 20 to 36% of the boxes, at between a
+  quarter and a third of the cost;
+- the starting point of the sub-problems and the safeguard against
+  non-convexity both determine the outcome, and both fail without warning when
+  set incorrectly;
+- when the subdivision separates the basins, the method requires fewer
+  evaluations than multistart, CMA-ES and DIRECT, without a supplied convexity
+  value: the swept configuration performs as well as the calibrated one on all
+  rows of that comparison and is more reliable on two;
+- a subdivision fine enough to separate the basins remains tractable, the master
+  growing with the binaries and not with the boxes: the optimum of Rastrigin in
+  five dimensions, not reached by any baseline, is reached with $100\,000$
+  boxes;
+- subdividing only the variables in which the objective is multimodal solves a
+  problem that a coarse subdivision of all variables does not, and degrades the
+  results when the multimodality concerns all variables;
+- the density can be proposed by counting the basins along jittered axial scans.
+  On all problems whose count converged, the proposal coincides with the better
+  of the two fixed densities tested, and improves on both for the problem with
+  unimodal components. The error of the estimate is one-sided by construction, so
+  that a count that does not converge indicates an unreliable proposal; on Ackley
+  this indicator identifies the proposal to discard;
+- the trust region must be small and measured in components changed: a radius of
+  two reaches the optimum of Rastrigin in five variables from all starting
+  points, a radius equal to the diameter of the design space from two of six, and
+  no trust region from one;
+- the ordinal proximity between neighbouring boxes brings no improvement: an
+  implementation based on it is as reliable as counting components and about
+  50% more expensive, the multimodality behaving as a categorical rather than an
+  ordinal choice;
+- the multi-resolution encoding reaches a given resolution with fewer binaries,
+  sixteen subdivisions per component with forty binaries instead of eighty,
+  without degrading the results at that resolution: on Styblinski-Tang, where the
+  best flat density fails, it reaches a distance of $0.27$ to the optimum with
+  fewer evaluations than the equivalent flat encoding. Its cut model is additive
+  over the levels, so that fewer and coarser levels perform better;
+- a hierarchy of subdivisions performs worse than the flat method whenever a flat
+  subdivision separates the basins, and better when a basin is too broad for any
+  affordable density: on Ackley in five variables the deep hierarchy reaches the
+  optimum from four starting points of six against two for the flat method, both
+  terminating on their own criteria.
 
-- **anything beyond the budget each comparison was run at.** A run whose cost
-  equals its budget was stopped rather than finished, and ranking two of them
-  says which got further, not which is better. Where it was checked, on Ackley
-  at five variables, a larger budget did change the answer, from no starting
-  point reaching the optimum to two out of six, and then stopped changing it:
-  both configurations end at the same evaluation whether they are allowed
-  $5000$ or $10\,000$, because what binds them is their own stopping rule and
-  not the budget. Every other truncated cell carries the same caveat until it is
-  re-run.
-- **generalization.** The number of subdivisions, the trust-region radius and
-  the headroom of the unbounded sweep were all chosen on the problems then
-  reported. The convexity margin has left that list, the swept configuration
-  supplying none, but a claim about the method still needs a held-out set or a
-  protocol fixed in advance.
-- **a rule for the number of subdivisions.** It has to follow the spacing of the
-  basins rather than the dimension, and that spacing is not known a priori. The
-  sweep gives a ceiling, the binaries a budget can identify, and a floor, the
-  basins, but no single value serves the four problems: ten subdivisions per
-  variable is the best density for three of them and the worst for the fourth.
-  Estimating the spacing, from the curvature or from a first sampling, is the
-  most valuable next step, and the same estimate would say which variables to
-  subdivide at all.
-- **the convergence guarantee of the convexification.** A run ends on the trust
-  region or on the stall counter, never on the optimality test, so the guarantee
-  is out of reach whatever the constant, and lifting both caps to recover it
-  costs the sub-problems the method exists to save.
-- **behaviour with constraints.** Every problem here is bound-constrained only.
-- **the industrial case.** The method earns its complexity when a sub-problem
-  costs minutes, which is the regime none of these analytic problems is in, and
-  the one where the baselines that need an algebraic form cannot compete. The
-  comparison with Bayesian optimization now exists, at a budget of five hundred
-  evaluations, and it is the one that should worry a claim made for this method:
-  EGO explores the hard multimodal cases better at that budget, returning $1.99$
-  on Rastrigin at five variables where this method returns $8.57$. What is not
-  counted there is EGO's own cost, a hundred times this method's on the same
-  cell, which an expensive objective would invert. Establishing the method
-  against it needs a case where that inversion is real, not an analytic problem
-  where it is argued.
+The following points are not established:
 
-## Where this can go
+- Results beyond the budget of each comparison. A run whose cost equals its
+  budget was stopped, and the comparison of two such runs ranks the progress made
+  within the budget. On Ackley in five variables, a larger budget changed the
+  result from no starting point reaching the optimum to two of six, and then no
+  longer: both configurations terminate at the same evaluation with budgets of
+  $5000$ and $10\,000$, being limited by their own stopping rules. The other
+  truncated results remain subject to the same restriction.
+- Generalization. The number of subdivisions, the trust-region radius and the
+  headroom of the unbounded sweep were chosen on the problems on which they are
+  reported. The convexity margin is no longer among these settings, but a claim
+  on the general performance of the method requires a separate set of test
+  problems or a protocol fixed in advance.
+- A rule for the number of subdivisions. The density must follow the spacing of
+  the basins rather than the dimension, and this spacing is not known in advance.
+  The experiments give an upper limit, the number of binaries the budget can
+  identify, and a lower limit, the spacing of the basins, but no single value is
+  suitable for the four problems: ten subdivisions per variable is the best
+  density for three of them and the worst for the fourth.
+- Convergence of the convexified method. Runs terminate on the trust region or on
+  the stall counter, never on the optimality test, so that the theoretical
+  guarantee is not attained for any constant; removing both limits to recover it
+  would require the sub-problems the method is designed to avoid.
+- Behaviour with constraints. The analytic problems are bound-constrained only;
+  the short cantilever is the only constrained problem, with a single volume
+  constraint.
+- Expensive objectives. The method is intended for sub-problems costing minutes,
+  whereas the analytic problems cost microseconds per evaluation. At a budget of
+  $500$ evaluations, EGO obtains better results on the hardest multimodal cases,
+  $1.99$ on Rastrigin in five variables against $8.57$ for this method, at about
+  a hundred times the computation time of the method, a cost that becomes
+  negligible only for expensive objectives. A comparison on such an objective is
+  required to conclude.
 
-Five directions follow from the measurements above, in the order in which they
-would pay.
+## Further work
 
-**A subdivision that follows the basins the constraints cut.** Counting basins
-along axial scans settled the first half of this: the density is proposed rather
-than tuned, and the proposal says which variables deserve subdividing at all.
-What it reads is the **objective**, which is an assumption about where the
-multimodality lives rather than a property of the method, and the assumption
-fails in the worst way available — silently. A mass-like objective under a
-non-convex constraint returns one subdivision per component and reports itself
-settled, because the objective really does have one basin.
+Five directions follow from the results.
 
-The constraint-aware count exists and is the right estimand — the minima of $f$
-restricted to each maximal feasible interval, which counts a disconnected
-feasible set and an active-set corner by one rule — but three things stand
-between it and a stress-constrained problem, and only the first is a matter of
-effort. A raw density field is neither something this method subdivides nor
-affordable to scan, so it wants a reduced parameterisation. A stress-feasible
-region is rarely a slab normal to a design variable, and an axial scan across a
-diagonal boundary overcounts or threads it. And a singular optimum lies in a
-degenerate part of the feasible set that carries no volume, so no sampling of
-feasibility will land on it at all.
+**Subdivision guided by the constraints.** Counting basins along axial scans
+proposes the density and indicates which variables to subdivide, but it is based
+on the objective only. For an objective such as the mass under a non-convex
+constraint, the count returns one subdivision per component and reports itself
+as converged, the objective having a single basin. A constraint-aware count, the
+minima of $f$ restricted to each maximal feasible interval, treats disconnected
+feasible sets and active-set corners with a single rule. Three difficulties
+remain for stress-constrained problems: a density field is neither subdivided by
+this method nor affordable to scan, which calls for a reduced parameterization;
+a stress-feasible region is rarely bounded by planes normal to the design
+variables, so that axial scans across an oblique boundary may overcount it or
+miss it; and a singular optimum lies in a degenerate part of the feasible set of
+zero volume, which no sampling of feasibility reaches.
 
-**Finishing the convexity nobody has to calibrate.** The margin and the constant
-are absolute quantities in the units of the objective, which was the criticism
-this method had not answered; the sweep answers it, and the answer is measured
-rather than proposed. Across the profiles of the variants, four problems in two
-dimensions and five, the swept configuration matches the calibrated margin on
-every problem and reaches the optimum from more starting points on two of them,
-one of those at five variables, with no value supplied at all.
+**Convexity without calibration.** The margin and the constant are absolute
+quantities in the units of the objective. The sweep removes them, and on the
+variants it performs as well as the calibrated margin on all problems and better
+on two. Three points remain: the headroom of the unbounded form was chosen on the
+two problems of annex C and requires validation on other problems; the pure
+convexification has not been swept, only the adaptive repair; and the sweep is
+driven from this package because the released master does not implement it, a
+workaround to be removed when `MASTER_SWEEPS_CONVEXITY` indicates that it does.
 
-Three things are missing before that is a result rather than a measurement. The
-decade of **headroom** the unbounded form needs was chosen on the two problems
-annex C reports it on, so it wants a **held-out problem**. The **pure
-convexification has never been swept**, every measurement above sweeping the
-adaptive repair alone, and the two mechanisms fail differently. And the loop
-belongs to the master, where a released one does not yet implement it, so this
-package drives it from outside: that driver is temporary and goes the day
-`MASTER_SWEEPS_CONVEXITY` says the master sweeps.
+**A master that keeps its cuts when the boxes change.** The hierarchies restart a
+master at each node, which explains their poor performance. A master over a
+growing set of leaves, adding binaries when a box is split and keeping all cuts,
+would implement a lazy branch-and-bound. It cannot be built on a catalogue
+design space fixed at construction, and requires a dedicated master problem.
 
-**A master that keeps its cuts while the boxes change.** The hierarchies all
-restart a master per node, which is what makes them lose. A master over a
-**growing set of leaves**, adding binaries as a box is split and keeping every
-cut, would be the genuine lazy branch-and-bound: the frontier without its cost.
-It cannot be built on a catalogue design space fixed at construction, so it means
-writing the master problem rather than calling it.
+**A meaningful lower bound.** Runs terminate on the trust region or on the stall
+counter because the convexification degrades the lower bound by its constant.
+Reporting the bound without a term that vanishes at every integer point would
+give a meaningful gap, and allow a run to terminate on an optimality certificate
+rather than on its budget.
 
-**A bound worth the name.** A run ends on its trust region or on its stall
-counter, never on its optimality test, because the convexification degrades the
-lower bound by its own constant. Reporting the bound net of a term that vanishes
-at every integer point would make the gap meaningful, and a meaningful gap is
-what turns the method into one that can stop on a proof rather than on a budget.
-
-**The regime the method is for.** Every problem here is analytic and
-bound-constrained, where a sub-problem costs microseconds. The method is built
-for a sub-problem that costs minutes and comes with an adjoint, and for
-constraints that make a box infeasible rather than merely expensive. Bayesian
-optimization is now in the comparison, and at a small budget it is the method to
-beat on the hardest landscapes; what the benchmark cannot show is the one thing
-that would decide between them, an objective expensive enough that the cost of
-fitting a surrogate stops being free. A case of that kind is what would establish
-either.
+**Expensive constrained problems.** The method is designed for sub-problems that
+cost minutes and provide adjoint gradients, and for constraints that make some
+boxes infeasible. The short cantilever is a first case of this kind; at small
+budgets, Bayesian optimization remains the reference on the hardest analytic
+landscapes, and a comparison on an objective whose cost makes the surrogate
+overhead negligible is needed to decide between the two approaches.
