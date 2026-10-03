@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=e16edfcb"></script>
+    <script src="_static/documentation_options.js?v=d69655a1"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -439,87 +439,10 @@ Changelog titles are:
 <a class="reference external" href="https://keepachangelog.com/en/1.0.0">Keep a Changelog</a>
 and this project adheres to
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<section id="unreleased">
-<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h2>0.3.0 (2026-10-03)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>An animation of a run in two dimensions, on the landing page and in the
-methodology: the master choosing boxes of Rastrigin one after the other, the
-local solver descending in each, and the best value against the evaluations
-spent. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/figures.py</span> <span class="pre">solve</span></code> writes it, and naming figures on that
-command line now writes only those.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/data_profiles.py</span></code>, the <strong>data profiles</strong> of every method, which
-finally puts the <code class="docutils literal notranslate"><span class="pre">gemseo-benchmark</span></code> dependency of the <code class="docutils literal notranslate"><span class="pre">benchmark</span></code> group to
-use: the targets come from its <code class="docutils literal notranslate"><span class="pre">TargetsGenerator</span></code> over the pooled histories,
-the profiles from its <code class="docutils literal notranslate"><span class="pre">DataProfile</span></code>. The tables report where a method ends;
-the profiles report how fast it gets there. The benchmark <code class="docutils literal notranslate"><span class="pre">Counter</span></code> records
-the best value after each call, and a <code class="docutils literal notranslate"><span class="pre">Result</span></code> carries it as <code class="docutils literal notranslate"><span class="pre">history</span></code>, one
-entry per equivalent evaluation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/variants.py</span></code>, the <strong>variants of the method</strong> behind the interface
-of the baselines, each changing one thing from the swept configuration: the
-probes, the top of the convexity ladder, the density fixed or proposed by the
-basin count, the multi-resolution encoding and the deep hierarchy. The data
-profiles now run them beside the baselines on one set of targets, at <span class="math notranslate nohighlight">\(500\)</span>
-evaluations per variable, and cache every finished run so an interrupted
-study resumes. <code class="docutils literal notranslate"><span class="pre">run_swept_box_subdivision</span></code> takes the probes, the top of the
-ladder and the levels of the encoding.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/cantilever/</span></code>: drivers for the short cantilever of the GGP
-package (108 variables, volume constraint, adjoint gradients) with the
-preset <code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code>, which reproduces <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code> with the Moving
-Node Approach. <code class="docutils literal notranslate"><span class="pre">trivial_start.py</span></code> runs the box subdivision, with
-<code class="docutils literal notranslate"><span class="pre">--processes</span></code> to solve the probes in parallel (requires merge request 139 of
-gemseo-bilevel-outer-approximation) and <code class="docutils literal notranslate"><span class="pre">--record</span></code> to store every finite
-element solution; <code class="docutils literal notranslate"><span class="pre">parallel_multistart.py</span></code> runs a multistart of MMA over
-several processes; <code class="docutils literal notranslate"><span class="pre">cantilever_parallel_gif.py</span></code> animates a recorded run;
-<code class="docutils literal notranslate"><span class="pre">global_baselines.py</span></code> runs DIRECT, CMA-ES, EGO, GE-SBO and EGO on SMT’s
-GEKPLS. The results page reports MMA, the multistart and the box
-subdivision with nine probes.</p></li>
-</ul>
-</section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>The results page profiles the variants <strong>before</strong> comparing with the
-baselines, and the comparison keeps only the best variant of each dimension:
-sixteen probes in two variables, ten subdivisions per variable in five. Its
-table and figure are rebuilt from the runs of the profiles, five starting
-points instead of three.</p></li>
-</ul>
-</section>
-<section id="fixed">
-<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>The table proposing the density no longer passes for its whole cost: the
-scans deciding the density were never counted, and they cost more than the
-runs they configure, about <span class="math notranslate nohighlight">\(6100\)</span> evaluations on Rastrigin in five variables
-against <span class="math notranslate nohighlight">\(2103\)</span>. The page says so, and the profiles charge them.</p></li>
-</ul>
-</section>
-</section>
-<section id="id1">
-<h2>0.3.0 (2026-09-27)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
-<section id="id2">
-<h3>Fixed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>The constraint formulation no longer fails when only some of the variables
-are subdivided: the adapter starting a sub-problem inside its box sets the
-starting point of the subdivided variables one at a time, instead of handing
-the design space a current value covering part of its variables, which it
-rejects. The variables that are not subdivided keep the value they have.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">markdownlint</span></code> pre-commit hook checked nothing at all. Its <code class="docutils literal notranslate"><span class="pre">--disable</span></code>
-takes a list of rules, so it consumed the file names <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> appends;
-<code class="docutils literal notranslate"><span class="pre">markdownlint</span></code> then printed its usage and exited 0, and the hook reported
-passing. The rule it disables moves into <code class="docutils literal notranslate"><span class="pre">.markdownlint.yml</span></code>, leaving nothing
-variadic on the command line.</p></li>
-<li><p>A table of <em>Using the method</em> dropped part of a row when rendered. It writes
-an absolute value with bars, and Markdown reads those as cell delimiters —
-five cells against a header of three — so everything after them was missing
-from the published page. Written <code class="docutils literal notranslate"><span class="pre">\vert</span></code> the row is three cells again.</p></li>
-</ul>
-</section>
-<section id="id3">
-<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/basin_spacing.py</span></code>, which <strong>proposes the number of subdivisions
 per variable</strong> instead of requiring it declared. The density was the one
@@ -579,6 +502,70 @@ indistinguishable from a run the margin governed well: what rejects a box is
 the <code class="docutils literal notranslate"><span class="pre">is_feasible</span></code> gate, so no value of the margin would have admitted one.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">keep_couplings_internal</span></code> and <code class="docutils literal notranslate"><span class="pre">keep_every_mda_couplings_internal</span></code>, which do
 that to an MDA, for a composition built without the scenario.</p></li>
+<li><p>An animation of a run in two dimensions, on the landing page and in the
+methodology: the master choosing boxes of Rastrigin one after the other, the
+local solver descending in each, and the best value against the evaluations
+spent. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/figures.py</span> <span class="pre">solve</span></code> writes it, and naming figures on that
+command line now writes only those.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/data_profiles.py</span></code>, the <strong>data profiles</strong> of every method, which
+finally puts the <code class="docutils literal notranslate"><span class="pre">gemseo-benchmark</span></code> dependency of the <code class="docutils literal notranslate"><span class="pre">benchmark</span></code> group to
+use: the targets come from its <code class="docutils literal notranslate"><span class="pre">TargetsGenerator</span></code> over the pooled histories,
+the profiles from its <code class="docutils literal notranslate"><span class="pre">DataProfile</span></code>. The tables report where a method ends;
+the profiles report how fast it gets there. The benchmark <code class="docutils literal notranslate"><span class="pre">Counter</span></code> records
+the best value after each call, and a <code class="docutils literal notranslate"><span class="pre">Result</span></code> carries it as <code class="docutils literal notranslate"><span class="pre">history</span></code>, one
+entry per equivalent evaluation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/variants.py</span></code>, the <strong>variants of the method</strong> behind the interface
+of the baselines, each changing one thing from the swept configuration: the
+probes, the top of the convexity ladder, the density fixed or proposed by the
+basin count, the multi-resolution encoding and the deep hierarchy. The data
+profiles now run them beside the baselines on one set of targets, at <span class="math notranslate nohighlight">\(500\)</span>
+evaluations per variable, and cache every finished run so an interrupted
+study resumes. <code class="docutils literal notranslate"><span class="pre">run_swept_box_subdivision</span></code> takes the probes, the top of the
+ladder and the levels of the encoding.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/cantilever/</span></code>: drivers for the short cantilever of the GGP
+package (108 variables, volume constraint, adjoint gradients) with the
+preset <code class="docutils literal notranslate"><span class="pre">short_cantilever_mna</span></code>, which reproduces <code class="docutils literal notranslate"><span class="pre">GGP_main.m</span></code> with the Moving
+Node Approach. <code class="docutils literal notranslate"><span class="pre">trivial_start.py</span></code> runs the box subdivision, with
+<code class="docutils literal notranslate"><span class="pre">--processes</span></code> to solve the probes in parallel (requires merge request 139 of
+gemseo-bilevel-outer-approximation) and <code class="docutils literal notranslate"><span class="pre">--record</span></code> to store every finite
+element solution; <code class="docutils literal notranslate"><span class="pre">parallel_multistart.py</span></code> runs a multistart of MMA over
+several processes; <code class="docutils literal notranslate"><span class="pre">cantilever_parallel_gif.py</span></code> animates a recorded run;
+<code class="docutils literal notranslate"><span class="pre">global_baselines.py</span></code> runs DIRECT, CMA-ES, EGO, GE-SBO and EGO on SMT’s
+GEKPLS. The results page reports MMA, the multistart and the box
+subdivision with nine probes.</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The results page profiles the variants <strong>before</strong> comparing with the
+baselines, and the comparison keeps only the best variant of each dimension:
+sixteen probes in two variables, ten subdivisions per variable in five. Its
+table and figure are rebuilt from the runs of the profiles, five starting
+points instead of three.</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The constraint formulation no longer fails when only some of the variables
+are subdivided: the adapter starting a sub-problem inside its box sets the
+starting point of the subdivided variables one at a time, instead of handing
+the design space a current value covering part of its variables, which it
+rejects. The variables that are not subdivided keep the value they have.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">markdownlint</span></code> pre-commit hook checked nothing at all. Its <code class="docutils literal notranslate"><span class="pre">--disable</span></code>
+takes a list of rules, so it consumed the file names <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> appends;
+<code class="docutils literal notranslate"><span class="pre">markdownlint</span></code> then printed its usage and exited 0, and the hook reported
+passing. The rule it disables moves into <code class="docutils literal notranslate"><span class="pre">.markdownlint.yml</span></code>, leaving nothing
+variadic on the command line.</p></li>
+<li><p>A table of <em>Using the method</em> dropped part of a row when rendered. It writes
+an absolute value with bars, and Markdown reads those as cell delimiters —
+five cells against a header of three — so everything after them was missing
+from the published page. Written <code class="docutils literal notranslate"><span class="pre">\vert</span></code> the row is three cells again.</p></li>
+<li><p>The table proposing the density no longer passes for its whole cost: the
+scans deciding the density were never counted, and they cost more than the
+runs they configure, about <span class="math notranslate nohighlight">\(6100\)</span> evaluations on Rastrigin in five variables
+against <span class="math notranslate nohighlight">\(2103\)</span>. The page says so, and the profiles charge them.</p></li>
 </ul>
 </section>
 <section id="documentation">
@@ -664,8 +651,8 @@ gets a feed-forward evaluation and no warning.</p></li>
 </ul>
 </section>
 </section>
-<section id="id4">
-<h2>0.2.0 (2026-09-19)<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h2>0.2.0 (2026-09-19)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>The settings, in two entry points: the general construction, which names the
 master and the solver running inside a box, and the swept one, which asks the
 master to sweep the convexity rather than asking its user for a margin in the
@@ -678,8 +665,8 @@ calibrated one on every problem of the benchmark, and reaches it from more
 starting points on two of them. The numbers this release reports are therefore
 the ones a user gets without first tuning the method to the problem they are
 about to solve.</p>
-<section id="id5">
-<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul>
 <li><p>The algorithm of each of the two levels is a setting, with its own settings:
 <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_name</span></code> and <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> for the
@@ -730,8 +717,8 @@ sweep.</p>
 </li>
 </ul>
 </section>
-<section id="id6">
-<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Every setting is given by name.</strong> The three settings classes are keyword-only,
 since which one holds which setting follows what applies to what rather than an
@@ -789,8 +776,8 @@ published. See <code class="docutils literal notranslate"><span class="pre">CONT
 old name still works, and warns; given both, <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> wins.</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h3>Fixed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A variable of size <span class="math notranslate nohighlight">\(s\)</span> subdivided into <span class="math notranslate nohighlight">\(m\)</span> was always <span class="math notranslate nohighlight">\(s\)</span> independent choices
 of one subdivision out of <span class="math notranslate nohighlight">\(m\)</span>, one one-hot group per component, and it still
@@ -803,15 +790,15 @@ the same master.</p></li>
 </ul>
 </section>
 </section>
-<section id="id8">
-<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<section id="id6">
+<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
 <p>First public release.</p>
 <p>The method, its four constructions and the benchmark that measures them. The
 results are measurements on the problems reported, not a claim of generalization:
 the settings were tuned on those very problems, and the convexity margin is in
 the units of the objective, so it does not transfer between them unchanged.</p>
-<section id="id9">
-<h3>Added<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>EGO, the Bayesian optimization of <code class="docutils literal notranslate"><span class="pre">egobox</span></code>, is a fifth baseline, and with it a
 comparison at one budget of five hundred evaluations that every method can
@@ -880,8 +867,8 @@ formulation solving the sub-problem in the normalized variables of the box.</p><
 formulations, and the convexification tuned for each of them.</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Changed<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The multi-resolution encoding, one categorical variable per level, is part of
 the package rather than of the benchmarks: <code class="docutils literal notranslate"><span class="pre">MultiResolution</span></code> and
@@ -935,8 +922,8 @@ GitHub Pages by a dedicated workflow.</p></li>
 navigation, a page outline and cards on the landing pages.</p></li>
 </ul>
 </section>
-<section id="id11">
-<h3>Fixed<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<section id="id9">
+<h3>Fixed<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The trust region of the master measures a distance. The design spaces of this
 package now weigh every subdivision alike, so that the distance between two
@@ -1020,29 +1007,24 @@ CDNs, or a local build, left unreachable.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.3.0 (2026-10-03)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.3.0 (2026-09-27)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Changed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Fixed</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Fixed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Fixed</a></li>
 </ul>
 </li>
 </ul>
