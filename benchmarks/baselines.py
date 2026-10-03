@@ -36,6 +36,7 @@ from __future__ import annotations
 import logging
 from contextlib import suppress
 from dataclasses import dataclass
+from dataclasses import field
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 from typing import Any
@@ -136,6 +137,9 @@ class Result:
     cost_adjoint: int
     cost_finite_differences: int
     budget: int = 0
+    history: tuple[float, ...] = field(default=(), repr=False, compare=False)
+    """The best value after each equivalent evaluation, under the adjoint
+    convention, which is what :mod:`benchmarks.data_profiles` compares."""
 
     @property
     def truncated(self) -> bool:
@@ -307,6 +311,9 @@ def run_swept_box_subdivision(
     budget: int,
     adjoint: bool,
     n_subdivisions: int = 0,
+    n_parallel_points: int = 0,
+    max_value: float = 0.0,
+    levels: int = 1,
 ) -> Result:
     """Run the method with the convexity swept rather than calibrated.
 
@@ -325,8 +332,16 @@ def run_swept_box_subdivision(
         seed: The seed of the starting point.
         budget: The budget in equivalent objective evaluations.
         adjoint: Whether a gradient costs one objective evaluation.
-        n_subdivisions: The number of subdivisions per variable.
-            If zero, use :func:`.default_n_subdivisions`.
+        n_subdivisions: The number of subdivisions per variable, or per level
+            of the multi-resolution encoding. If zero, use
+            :func:`.default_n_subdivisions`.
+        n_parallel_points: The probes of the master per iteration, which are
+            also the rungs of the convexity ladder. If zero, use the number of
+            the calibrated configuration.
+        max_value: The top of the convexity ladder, or zero to read it off the
+            objective as the run observes it.
+        levels: The levels of the multi-resolution encoding, one being the flat
+            subdivision.
 
     Returns:
         The outcome of the run.
@@ -340,11 +355,12 @@ def run_swept_box_subdivision(
         "f",
         design_space,
         n_subdivisions=n_subdivisions or default_n_subdivisions(dimension),
+        levels=levels,
         settings=SweptBoxSubdivisionSettings(
             trust_region_radius=TRUST_REGION_RADIUS,
-            n_parallel_points=CONFIGURATIONS[DEFAULT_CONFIGURATION][
-                "number_of_parallel_points"
-            ],
+            n_parallel_points=n_parallel_points
+            or CONFIGURATIONS[DEFAULT_CONFIGURATION]["number_of_parallel_points"],
+            max_value=max_value,
             max_iter=10000,
             tolerance=1e-4,
         ),
@@ -556,6 +572,7 @@ def _result(
         cost_adjoint=counter.cost(dimension, adjoint=True),
         cost_finite_differences=counter.cost(dimension, adjoint=False),
         budget=getattr(counter, "budget", 0),
+        history=counter.history(dimension, adjoint=True),
     )
 
 

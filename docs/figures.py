@@ -21,11 +21,24 @@ committed, so that building the documentation needs no plotting:
 ```shell
 python docs/figures.py
 ```
+
+Naming some of them writes only those, which is how the animation is refreshed
+without rerunning every figure that runs the benchmarks:
+
+```shell
+python docs/figures.py solve
+```
+
+The animation is a GIF on a solid background, the format having no partial
+transparency, and the data profiles are drawn from the file
+``python -m benchmarks.data_profiles`` writes.
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import matplotlib
 from numpy import arange
@@ -42,7 +55,12 @@ from numpy import sqrt
 
 matplotlib.use("Agg")
 
+import operator
+
 import matplotlib.pyplot as plt  # noqa: E402
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 DIRECTORY = Path(__file__).parent / "_static" / "figures"
 """The directory of the figures."""
@@ -778,47 +796,40 @@ def draw_sampling(foreground: str):
 
 
 def draw_results(foreground: str):
-    """Draw the cost of each method, per problem and dimension."""
-    labels = (
-        "Rastrigin 2",
-        "Rastrigin 5",
-        "Ackley 2",
-        "Ackley 5",
-        "Styblinski 2",
-        "Styblinski 5",
-        "Griewank 2",
-        "Griewank 5",
-    )
-    # The swept column is what a user gets having tuned nothing; the calibrated
-    # one carries a margin chosen on these very problems.
-    costs = {
-        "box subdivision, swept": (457, 899, 613, 361, 334, 601, 556, 1009),
-        "box subdivision, margin 100": (543, 823, 347, 892, 218, 458, 607, 1016),
-        "multistart": (1000, 2500, 1000, 2500, 1000, 2340, 1000, 2500),
-        "CMA-ES": (631, 1945, 745, 2009, 535, 1457, 643, 1769),
-        "DIRECT": (649, 461, 417, 353, 1011, 2505, 1011, 397),
+    """Draw the cost of the best variant and of the baselines, per problem."""
+    data = _read_profiles()
+    names = {"rastrigin": "Rastrigin", "ackley": "Ackley"}
+    names |= {"styblinski_tang": "Styblinski", "griewank": "Griewank"}
+    cells = [
+        (problem, dimension) for problem in data["problems"] for dimension in ("2", "5")
+    ]
+    labels = [f"{names[problem]} {dimension}" for problem, dimension in cells]
+    hues = series(foreground)
+    methods = {"best variant": None} | {
+        name: label for name, label in BASELINE_LABELS.items() if name != "egobox"
     }
-    reached = {
-        "box subdivision, swept": (3, 0, 3, 0, 3, 3, 0, 0),
-        "box subdivision, margin 100": (3, 0, 2, 0, 3, 2, 0, 0),
-        "multistart": (2, 0, 3, 0, 3, 3, 0, 0),
-        "CMA-ES": (0, 0, 3, 3, 2, 2, 0, 0),
-        "DIRECT": (3, 0, 3, 0, 3, 3, 0, 0),
-    }
-    # The budget is 500 equivalent evaluations per design variable, so a bar
-    # reaching it is a run stopped by the budget rather than by itself.
-    budgets = tuple(500 * int(label.split()[-1]) for label in labels)
-    colours = (ACCENT, FOURTH, SECOND, THIRD, "#868e96")
     figure, axes = plt.subplots(figsize=(8.6, 3.6))
     positions = arange(len(labels))
-    width = 0.16
-    for index, (name, values) in enumerate(costs.items()):
-        offset = (index - 2) * width
+    width = 0.2
+    for index, (method, label) in enumerate(methods.items()):
+        values, reached, budgets = [], [], []
+        for problem, dimension in cells:
+            entry = data["dimensions"][dimension]
+            name = entry["ranking"][0] if label is None else method
+            _, cost, count = entry["summary"][name][problem]
+            values.append(cost)
+            reached.append(count)
+            budgets.append(entry["budget"])
+
         bars = axes.bar(
-            positions + offset, values, width, color=colours[index], label=name
+            positions + (index - 1.5) * width,
+            values,
+            width,
+            color=hues[index],
+            label="box subdivision, best variant" if label is None else label,
         )
         for bar, count, cost, budget in zip(
-            bars, reached[name], values, budgets, strict=True
+            bars, reached, values, budgets, strict=True
         ):
             if cost >= budget:
                 bar.set_hatch("///")
@@ -827,11 +838,11 @@ def draw_results(foreground: str):
             if count:
                 axes.text(
                     bar.get_x() + bar.get_width() / 2,
-                    bar.get_height() + 40,
-                    "✓" * count,
+                    bar.get_height() + 30,
+                    str(count),
                     ha="center",
-                    fontsize=6.5,
-                    color=colours[index],
+                    fontsize=7,
+                    color=hues[index],
                 )
 
     axes.text(
@@ -844,15 +855,14 @@ def draw_results(foreground: str):
         fontsize=7.5,
         style="italic",
     )
-
     axes.set_xticks(positions)
     axes.set_xticklabels(labels, rotation=20, ha="right")
-    axes.set_ylabel("equivalent evaluations")
+    axes.set_ylabel("median equivalent evaluations")
     axes.set_title(
-        "Cost at equal budget, a tick per starting point reaching the optimum",
+        "Cost at equal budget, and the starting points of five reaching the optimum",
         pad=26,
     )
-    axes.legend(ncols=5, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, 1.10))
+    axes.legend(ncols=4, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, 1.10))
     return figure
 
 
@@ -1257,6 +1267,441 @@ def draw_density(foreground: str):  # noqa: ARG001
     return figure
 
 
+DATA_PROFILES = Path(__file__).parent / "_static" / "data_profiles.json"
+"""The profiles written by ``python -m benchmarks.data_profiles``."""
+
+BASELINE_LABELS = {
+    "multistart": "multistart",
+    "cmaes": "CMA-ES",
+    "direct": "DIRECT",
+    "egobox": "EGO",
+}
+"""The label of each baseline of the data profiles."""
+
+
+def _read_profiles() -> dict:
+    """Return what ``python -m benchmarks.data_profiles`` wrote."""
+    import json
+
+    return json.loads(DATA_PROFILES.read_text(encoding="utf-8"))
+
+
+def _plot_profile(axes, points, **settings) -> None:  # noqa: ANN001
+    """Draw a profile from the evaluations where it changes.
+
+    Args:
+        axes: The axes.
+        points: The evaluation and the fraction at each change.
+        **settings: The settings of the line.
+    """
+    evaluations, ratios = zip(*points, strict=True)
+    settings.setdefault("linewidth", 1.5)
+    axes.plot(evaluations, ratios, drawstyle="steps-post", **settings)
+
+
+def _profile_axes(axes, dimension: str, budget: int, title: str) -> None:  # noqa: ANN001
+    """Set the axes of a panel of profiles.
+
+    Args:
+        axes: The axes.
+        dimension: The number of design variables.
+        budget: The budget of the panel.
+        title: The title of the panel.
+    """
+    axes.set_title(f"{dimension} variables: {title}", fontsize=9.5)
+    axes.set_xlim(1, budget)
+    axes.set_ylim(0.0, 1.02)
+    axes.yaxis.set_major_formatter(
+        matplotlib.ticker.PercentFormatter(xmax=1.0, decimals=0)
+    )
+    axes.grid(alpha=0.25)
+
+
+EXPLORING = ("probes_8", "probes_16", "ceiling_30", "ceiling_10", "margin_100")
+"""The variants changing how the master explores, a hue each."""
+
+RESOLVING = (
+    "density_10",
+    "proposed_density",
+    "proposed_density_free",
+    "multi_resolution",
+    "deep_hierarchy",
+)
+"""The variants changing what the subdivision resolves, a hue each."""
+
+AT_DENSITY_10 = {"density_10_ceiling_10": "ceiling_10"}
+"""The exploring variants measured again at ten subdivisions per variable."""
+
+
+def draw_variant_profiles(foreground: str):
+    """Draw the profiles of the variants, one row per dimension."""
+    data = _read_profiles()
+    labels = data["labels"]
+    hues = series(foreground)
+    dimensions = data["dimensions"]
+    figure, axes_grid = plt.subplots(
+        len(dimensions),
+        2,
+        figsize=(10.4, 3.3 * len(dimensions)),
+        sharey=True,
+        squeeze=False,
+    )
+    for row, (dimension, entry) in zip(axes_grid, dimensions.items(), strict=True):
+        profiles = entry["profiles"]
+        budget = entry["budget"]
+        for axes, names, title in (
+            (row[0], EXPLORING, "how the master explores"),
+            (row[1], RESOLVING, "what the subdivision resolves"),
+        ):
+            _plot_profile(
+                axes,
+                profiles["swept"],
+                color=foreground,
+                alpha=0.55,
+                label=labels["swept"],
+            )
+            for hue, name in zip(hues, names, strict=False):
+                if name in profiles:
+                    _plot_profile(
+                        axes,
+                        profiles[name],
+                        color=hue,
+                        linestyle=":" if name == "proposed_density" else "-",
+                        label=labels[name],
+                    )
+
+            _profile_axes(axes, dimension, budget, title)
+
+        # The exploring variants at the density resolving Rastrigin, dashed in
+        # the hue of the same variant at the default density, beside the swept
+        # configuration at that density.
+        if "density_10" in profiles and AT_DENSITY_10.keys() & profiles.keys():
+            _plot_profile(
+                row[0],
+                profiles["density_10"],
+                color=foreground,
+                alpha=0.55,
+                linestyle="--",
+                label=labels["density_10"],
+            )
+
+        for name, twin in AT_DENSITY_10.items():
+            if name in profiles:
+                _plot_profile(
+                    row[0],
+                    profiles[name],
+                    color=hues[EXPLORING.index(twin)],
+                    linestyle="--",
+                    label=labels[name],
+                )
+
+        row[0].set_ylabel("targets reached")
+
+    for axes in axes_grid[-1]:
+        axes.set_xlabel("equivalent evaluations")
+        axes.legend(fontsize=7, loc="lower right", ncols=1)
+
+    axes_grid[0][0].legend(fontsize=7, loc="lower right")
+    axes_grid[0][1].legend(fontsize=7, loc="lower right")
+    figure.tight_layout()
+    return figure
+
+
+def draw_data_profiles(foreground: str):
+    """Draw the best variant against the baselines, one panel per dimension."""
+    data = _read_profiles()
+    hues = series(foreground)
+    dimensions = data["dimensions"]
+    figure, axes_grid = plt.subplots(
+        1, len(dimensions), figsize=(9.6, 3.6), sharey=True, squeeze=False
+    )
+    axes_row = axes_grid[0]
+    for axes, (dimension, entry) in zip(axes_row, dimensions.items(), strict=True):
+        profiles = entry["profiles"]
+        best = entry["ranking"][0]
+        _plot_profile(
+            axes,
+            profiles[best],
+            color=hues[0],
+            linewidth=2.2,
+            label=f"box subdivision: {data['labels'][best]}",
+        )
+        for hue, (name, label) in zip(hues[1:], BASELINE_LABELS.items(), strict=True):
+            _plot_profile(axes, profiles[name], color=hue, label=label)
+            # EGO's budget is shorter, so its curve is marked where it was
+            # stopped rather than extended as if it had finished.
+            end, ratio = profiles[name][-1]
+            if end < entry["budget"]:
+                axes.plot(end, ratio, marker="o", color=hue, markersize=4)
+
+        optimal = len(entry["best_target_is_the_optimum"])
+        _profile_axes(
+            axes,
+            dimension,
+            entry["budget"],
+            f"best target the optimum on {optimal} of {len(data['problems'])}",
+        )
+        axes.set_xlabel("equivalent evaluations")
+        axes.legend(fontsize=7, loc="lower right")
+
+    axes_row[0].set_ylabel("targets reached")
+    figure.tight_layout()
+    return figure
+
+
+SOLVE_SEED = 11
+"""The seed of the starting point of the animated run."""
+
+BACKGROUNDS = {LIGHT: "#ffffff", DARK: "#14181e"}
+"""The background of each theme, a GIF having no partial transparency."""
+
+
+def _trace_solve():
+    """Run the method on Rastrigin in two dimensions, recording every box.
+
+    The run is the one of the README, the scenario with its default settings
+    over ten subdivisions per variable, so what the animation shows is what a
+    user gets.
+
+    Returns:
+        The box, the evaluated points, and the cost and best value once solved,
+        of each box in the order the master chose them.
+    """
+    import logging
+
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+    from benchmarks.baselines import _design_space
+    from benchmarks.baselines import _starting_point
+    from benchmarks.problems import PROBLEMS
+    from benchmarks.problems import Counter
+    from benchmarks.problems import Objective
+    from numpy import argmax
+
+    from gemseo_box_subdivision import BoxSubdivisionScenario
+    from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
+
+    logging.disable(logging.CRITICAL)
+    problem = PROBLEMS["rastrigin"]
+    solves = []
+    current = [None]
+
+    def run(self, input_data):  # noqa: ANN001, ANN202
+        """Record the box the sub-problem is being solved in."""
+        current[0] = tuple(
+            int(i) for i in argmax(input_data["x_box"].reshape(2, -1), 1)
+        )
+        return original(self, input_data)
+
+    class Recorder(Counter):
+        """A counter recording each evaluation in the box it belongs to."""
+
+        def objective(self, x):  # noqa: ANN001, ANN202, D102
+            value = super().objective(x)
+            if not solves or solves[-1]["box"] != current[0]:
+                solves.append({"box": current[0], "points": [], "values": []})
+
+            solves[-1]["points"].append(x.copy())
+            solves[-1]["values"].append(value)
+            solves[-1]["cost"] = self.cost(2, adjoint=True)
+            solves[-1]["best"] = self.best
+            return value
+
+        def gradient(self, x):  # noqa: ANN001, ANN202, D102
+            gradient = super().gradient(x)
+            if solves:
+                solves[-1]["cost"] = self.cost(2, adjoint=True)
+
+            return gradient
+
+    counter = Recorder(problem)
+    original = BoxMapping._run
+    BoxMapping._run = run
+    try:
+        BoxSubdivisionScenario(
+            [Objective(counter, 2)],
+            "f",
+            _design_space(problem, 2, _starting_point(problem, 2, SOLVE_SEED)),
+            n_subdivisions=10,
+        ).execute()
+    finally:
+        BoxMapping._run = original
+        logging.disable(logging.NOTSET)
+
+    for solve in solves:
+        solve["points"] = array(solve["points"])
+
+    return solves
+
+
+def _draw_solve_frame(foreground: str, solves, index: int, landscape):
+    """Draw the run once the first boxes are solved.
+
+    Args:
+        foreground: The foreground colour of the theme.
+        solves: The boxes in the order they were solved.
+        index: The number of boxes solved.
+        landscape: The grid and the values of the objective over it.
+
+    Returns:
+        The figure.
+    """
+    grid_x, grid_y, values, breakpoints = landscape
+    width = breakpoints[1] - breakpoints[0]
+    figure, (left, right) = plt.subplots(
+        1, 2, figsize=(8.4, 3.9), gridspec_kw={"width_ratios": (1.0, 1.15)}
+    )
+    figure.set_facecolor(BACKGROUNDS[foreground])
+    figure.subplots_adjust(wspace=0.32)
+    left.contourf(grid_x, grid_y, values, 30, cmap="Greys_r")
+    for position in breakpoints:
+        left.axvline(position, color=foreground, linewidth=0.4, alpha=0.45)
+        left.axhline(position, color=foreground, linewidth=0.4, alpha=0.45)
+
+    done = solves[:index]
+    best = min(done, key=operator.itemgetter("best")) if done else None
+    for solve in done:
+        i, j = solve["box"]
+        left.add_patch(
+            plt.Rectangle(
+                (breakpoints[i], breakpoints[j]),
+                width,
+                width,
+                facecolor=SECOND,
+                alpha=0.35,
+                linewidth=0,
+            )
+        )
+        local = solve["points"][int(array(solve["values"]).argmin())]
+        left.plot(*local, marker="o", markersize=2.5, color=SECOND, linestyle="none")
+
+    if done:
+        last = done[-1]
+        i, j = last["box"]
+        left.add_patch(
+            plt.Rectangle(
+                (breakpoints[i], breakpoints[j]),
+                width,
+                width,
+                facecolor="none",
+                edgecolor=ACCENT,
+                linewidth=2.2,
+            )
+        )
+        left.plot(
+            last["points"][:, 0],
+            last["points"][:, 1],
+            marker="o",
+            markersize=2.5,
+            linewidth=1.0,
+            color=ACCENT,
+        )
+        incumbent = best["points"][int(array(best["values"]).argmin())]
+        left.plot(
+            *incumbent,
+            marker="o",
+            markersize=9,
+            markerfacecolor="none",
+            markeredgecolor=THIRD,
+            markeredgewidth=2.0,
+            linestyle="none",
+        )
+
+    left.plot(
+        [0.0], [0.0], marker="*", color="#ffd43b", markersize=11, linestyle="none"
+    )
+    left.set_xlim(breakpoints[0], breakpoints[-1])
+    left.set_ylim(breakpoints[0], breakpoints[-1])
+    left.set_aspect("equal")
+    left.set_xticks([])
+    left.set_yticks([])
+    left.set_xlabel("$x_1$")
+    left.set_ylabel("$x_2$")
+    n_boxes = (len(breakpoints) - 1) ** 2
+    left.set_title(
+        f"{index} of {n_boxes} boxes solved"
+        if index
+        else f"Rastrigin cut into {n_boxes} boxes"
+    )
+
+    costs = [0] + [solve["cost"] for solve in solves]
+    bests = [solves[0]["best"]] + [solve["best"] for solve in solves]
+    right.step(costs, bests, where="post", color=foreground, alpha=0.15, linewidth=1.2)
+    if index:
+        right.step(
+            costs[: index + 1],
+            bests[: index + 1],
+            where="post",
+            color=ACCENT,
+            linewidth=1.8,
+        )
+        right.plot(costs[index], bests[index], marker="o", color=ACCENT, markersize=5)
+
+    right.set_yscale("symlog", linthresh=0.1)
+    right.set_xlim(0, costs[-1] * 1.03)
+    right.set_xlabel("equivalent evaluations")
+    right.set_ylabel("best objective so far")
+    right.grid(alpha=0.25)
+    right.set_title(
+        f"{costs[index]} evaluations, best {bests[index]:.3g}"
+        if index
+        else "the master picks a box, a local solver descends in it"
+    )
+    return figure
+
+
+def animate_solve(name: str = "solve") -> None:
+    """Animate a run of the method on Rastrigin in two dimensions, per theme.
+
+    Each frame is one more box solved: the box the master has just chosen in
+    orange with the path of the local solver inside it, the boxes already
+    solved in blue, the incumbent circled in green, and on the right the best
+    value against the evaluations spent.
+
+    Args:
+        name: The name of the animation, without its extension.
+    """
+    from io import BytesIO
+
+    from PIL import Image
+
+    solves = _trace_solve()
+    x = linspace(-4.1, 5.9, 300)
+    grid_x, grid_y = meshgrid(x, x)
+    landscape = (grid_x, grid_y, rastrigin(grid_x, grid_y), linspace(-4.1, 5.9, 11))
+    DIRECTORY.mkdir(parents=True, exist_ok=True)
+    for suffix, foreground in (("", LIGHT), ("-dark", DARK)):
+        frames = []
+        with plt.rc_context({
+            **_style(foreground),
+            "savefig.transparent": False,
+            "savefig.facecolor": BACKGROUNDS[foreground],
+        }):
+            for index in range(len(solves) + 1):
+                figure = _draw_solve_frame(foreground, solves, index, landscape)
+                buffer = BytesIO()
+                figure.savefig(buffer, format="png", dpi=100)
+                plt.close(figure)
+                buffer.seek(0)
+                frames.append(Image.open(buffer).convert("RGB"))
+
+        # One palette for every frame, so that the colours do not flicker.
+        palette = frames[-1].quantize(colors=128, method=Image.Quantize.MEDIANCUT)
+        frames = [
+            frame.quantize(palette=palette, dither=Image.Dither.NONE)
+            for frame in frames
+        ]
+        durations = [1500] + [550] * (len(frames) - 2) + [3500]
+        frames[0].save(
+            DIRECTORY / f"{name}{suffix}.gif",
+            save_all=True,
+            append_images=frames[1:],
+            duration=durations,
+            loop=0,
+            optimize=True,
+        )
+
+
 FIGURES = {
     "subdivision": (draw_subdivision, "png"),
     "bilevel": (draw_bilevel, "svg"),
@@ -1275,16 +1720,31 @@ FIGURES = {
     "density": (draw_density, "svg"),
     "small_budget": (draw_small_budget, "svg"),
     "encodings": (draw_encodings, "svg"),
+    "variant_profiles": (draw_variant_profiles, "svg"),
+    "data_profiles": (draw_data_profiles, "svg"),
 }
 """The figures, by name, with the format each is written in."""
 
+ANIMATIONS = {"solve": animate_solve}
+"""The animations, by name, each written as a GIF."""
 
-def main() -> None:
-    """Write every figure, for both themes."""
+
+def main(names: Sequence[str] = ()) -> None:
+    """Write the figures and the animations, for both themes.
+
+    Args:
+        names: The names of those to write. If empty, write them all.
+    """
     for name, (draw, extension) in FIGURES.items():
-        save(name, draw, extension)
-        print(f"{name}.{extension}")  # noqa: T201
+        if not names or name in names:
+            save(name, draw, extension)
+            print(f"{name}.{extension}")  # noqa: T201
+
+    for name, animate in ANIMATIONS.items():
+        if not names or name in names:
+            animate(name)
+            print(f"{name}.gif")  # noqa: T201
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

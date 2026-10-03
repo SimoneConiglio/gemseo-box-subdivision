@@ -77,6 +77,7 @@ if TYPE_CHECKING:
     from numpy import ndarray
 
     from benchmarks.problems import Problem
+    from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
 DIMENSION = 5
 """The number of design variables."""
@@ -187,7 +188,11 @@ def _design_space(
 
 
 def _solve_level(
-    counter: Level, design_space: DesignSpace, dimension: int, n_subdivisions: int
+    counter: Level,
+    design_space: DesignSpace,
+    dimension: int,
+    n_subdivisions: int,
+    box_settings: SweptBoxSubdivisionSettings | None = None,
 ) -> tuple[BoxSubdivision, list[tuple[ndarray, float, ndarray]]]:
     """Run the method once on a design space.
 
@@ -196,6 +201,10 @@ def _solve_level(
         design_space: The design space of the level.
         dimension: The number of design variables.
         n_subdivisions: The number of subdivisions per variable.
+        box_settings: The swept construction to run the level with, which
+            supplies no convexity value and spreads a ladder over the parallel
+            probes. If ``None``, run the calibrated configuration, whose
+            ``min_dfk`` is absolute and sized on Rastrigin.
 
     Returns:
         The subdivision, and the one-hot vector, the value and the post-optimal
@@ -211,16 +220,29 @@ def _solve_level(
         sub_problem_algo_settings=SLSQP_Settings(max_iter=40),
         sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
     )
-    settings = dict(CONFIGURATIONS[DEFAULT_CONFIGURATION])
-    settings["max_step"] = TRUST_REGION_RADIUS
     # A budget spent inside a linearization leaves the discipline without its
     # output, which GEMSEO then reports as a missing key.
-    with suppress(BudgetExceededError, KeyError):
-        scenario.execute(
-            BiLevelMasterOuterApproximation_Settings(
-                max_iter=10000, ub_tol=1e-4, **settings
+    if box_settings is None:
+        settings = dict(CONFIGURATIONS[DEFAULT_CONFIGURATION])
+        settings["max_step"] = TRUST_REGION_RADIUS
+        with suppress(BudgetExceededError, KeyError):
+            scenario.execute(
+                BiLevelMasterOuterApproximation_Settings(
+                    max_iter=10000, ub_tol=1e-4, **settings
+                )
             )
-        )
+    else:
+        # The ladder is driven around the solves of a master that does not
+        # sweep, so the level is executed inside that context rather than being
+        # handed a convexity value.
+        with (
+            box_settings.drive_the_master(),
+            suppress(BudgetExceededError, KeyError),
+        ):
+            scenario.execute(
+                algo_name=box_settings.master_algo_name,
+                **box_settings.to_master_settings(None),
+            )
 
     return subdivision, read_solved_boxes(scenario.formulation.optimization_problem)
 
@@ -302,6 +324,7 @@ def run_deep(
     branching: int = 2,
     depth: int = 4,
     ranking: str = "value",
+    box_settings: SweptBoxSubdivisionSettings | None = None,
 ) -> tuple[float, int]:
     r"""Refine the same box again and again, splitting each variable in two.
 
@@ -320,6 +343,8 @@ def run_deep(
         branching: The number of subdivisions per variable at every level.
         depth: The number of levels.
         ranking: The rule deciding which box to refine.
+        box_settings: The swept construction to run every level with. If
+            ``None``, run the calibrated configuration.
 
     Returns:
         The best objective value and the cost under the adjoint convention.
@@ -340,6 +365,7 @@ def run_deep(
                 _design_space(lower, upper, dimension, value),
                 dimension,
                 branching,
+                box_settings,
             )
 
         if not solved:

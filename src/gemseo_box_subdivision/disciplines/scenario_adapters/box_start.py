@@ -70,7 +70,6 @@ def create_box_start_adapter_class(
             super()._pre_run()
             design_space = self.scenario.formulation.optimization_problem.design_space
             data = self.io.data
-            current_value = {}
             for variable_name, one_hot_name in names.items():
                 if variable_name not in design_space or one_hot_name not in data:
                     continue
@@ -78,9 +77,11 @@ def create_box_start_adapter_class(
                 lower_bound, upper_bound = subdivision.compute_bounds(
                     variable_name, data[one_hot_name]
                 )
-                current_value[variable_name] = (lower_bound + upper_bound) / 2.0
-
-            if current_value:
-                design_space.set_current_value(current_value)
+                # One variable at a time: a design space holding variables that
+                # are not subdivided rejects a current value covering only some
+                # of its variables, and those others keep the value they have.
+                design_space.set_current_variable(
+                    variable_name, (lower_bound + upper_bound) / 2.0
+                )
 
     return BoxStartScenarioAdapter

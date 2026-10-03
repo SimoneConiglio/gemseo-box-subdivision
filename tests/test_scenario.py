@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import pytest
 from gemseo.algos.design_space import DesignSpace
 from gemseo.core.discipline import Discipline
@@ -23,6 +25,9 @@ from gemseo.settings.opt import NLOPT_COBYLA_Settings
 from gemseo.settings.opt import SLSQP_Settings
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BiLevelMasterOuterApproximation_Settings,
+)
+from gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders import (  # noqa: E501
+    MDOScenarioAdapterBenders,
 )
 from numpy import array
 from numpy import cos
@@ -576,3 +581,99 @@ def test_the_components_of_a_variable_are_independent_under_the_levels() -> None
     # lower quarter for the second.
     assert_allclose(one_hot, [0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0], atol=1e-6)
     assert scenario.optimization_result.f_opt < 1e-8
+
+
+class RecordingAdapter(MDOScenarioAdapterBenders):
+    """An adapter recording that it ran, to show which class the run used."""
+
+    boxes: ClassVar[list[str]] = []
+
+    def _pre_run(self) -> None:
+        super()._pre_run()
+        RecordingAdapter.boxes.append(type(self).__name__)
+
+
+@pytest.mark.parametrize("formulation", ["normalized", "constraint"])
+def test_the_starting_point_of_a_sub_problem_is_the_callers_to_own(
+    formulation,
+) -> None:
+    """An adapter given by the caller must be the one the sub-problems run under.
+
+    The center of a box is a starting point, not a law: a problem whose
+    disciplines reject that point needs its own policy, and the normalized
+    formulation used to offer no way to supply one.
+    """
+    scenario = create_box_subdivision_scenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=2,
+        formulation=formulation,
+        scenario_adapter_cls=RecordingAdapter,
+    )
+    adapter = scenario.formulation.sub_problem_scenario_adapter
+    assert isinstance(adapter, RecordingAdapter)
+
+
+def test_the_caller_adapter_wins_over_the_box_start_one() -> None:
+    """The constraint formulation hard-coded its adapter; the caller now wins."""
+    scenario = create_box_subdivision_scenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=2,
+        formulation="constraint",
+        scenario_adapter_cls=RecordingAdapter,
+    )
+    adapter = scenario.formulation.sub_problem_scenario_adapter
+    assert type(adapter).__name__ == "RecordingAdapter"
+    # The box is still enforced by the constraint the formulation declares.
+    problem = adapter.scenario.formulation.optimization_problem
+    assert problem.constraints.get_names() == ["g_box"]
+
+
+def test_the_multi_resolution_encoding_takes_the_adapter_too() -> None:
+    """Every construction goes through one adapter, so all three must take one."""
+    scenario = create_box_subdivision_scenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=2,
+        levels=2,
+        scenario_adapter_cls=RecordingAdapter,
+    )
+    adapter = scenario.formulation.sub_problem_scenario_adapter
+    assert isinstance(adapter, RecordingAdapter)
+
+
+def test_the_default_adapter_is_unchanged() -> None:
+    """Supplying nothing must leave each construction on the policy it had."""
+    normalized = create_box_subdivision_scenario(
+        [Rastrigin()], "f", design_space(), n_subdivisions=2
+    )
+    constrained = create_box_subdivision_scenario(
+        [Rastrigin()], "f", design_space(), n_subdivisions=2, formulation="constraint"
+    )
+    assert (
+        type(normalized.formulation.sub_problem_scenario_adapter).__name__
+        == "MDOScenarioAdapterBenders"
+    )
+    assert (
+        type(constrained.formulation.sub_problem_scenario_adapter).__name__
+        == "BoxStartScenarioAdapter"
+    )
+
+
+def test_a_caller_adapter_runs_the_sub_problems() -> None:
+    """The adapter must be reached by an execution, not merely be stored."""
+    RecordingAdapter.boxes.clear()
+    scenario = create_box_subdivision_scenario(
+        [Rastrigin()],
+        "f",
+        design_space(),
+        n_subdivisions=2,
+        settings=BoxSubdivisionSettings(max_iter=2, sub_problem_max_iter=5),
+        scenario_adapter_cls=RecordingAdapter,
+    )
+    scenario.execute()
+    assert RecordingAdapter.boxes

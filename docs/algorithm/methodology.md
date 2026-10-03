@@ -9,29 +9,32 @@
 
 # Methodology
 
-## The problem
+## Problem statement
+
+We consider the problem
 
 $$
 \min_{x \in [L, U] \subset \mathbb{R}^n} f(x)
-\quad \text{subject to} \quad g(x) \le 0
+\quad \text{subject to} \quad g(x) \le 0,
 $$
 
-with $f$ and/or $g$ non-convex, so that the problem has several local minima. A
-local solver returns whichever minimum lies in the basin of its starting point,
-and a global one pays for the exploration of the whole design space.
+where $f$ and/or $g$ are non-convex, so that the problem has several local
+minima. A local solver returns the minimum of the basin containing its starting
+point, whereas a global method has to explore the whole design space.
 
-## Motivation: separating exploration from exploitation
+## Separation of exploration and exploitation
 
-The idea is to make the two concerns explicit rather than have a single
-algorithm arbitrate between them:
+The method separates two tasks that a single algorithm would otherwise have to
+balance:
 
-- **exploration** decides *where* to look, over a finite set of regions;
-- **exploitation** solves the original problem *inside* one region, with a local
-  gradient-based algorithm, which is what such algorithms are good at.
+- exploration, i.e. the selection of the region to be searched among a finite
+  set of regions;
+- exploitation, i.e. the solution of the original problem within one region by a
+  local gradient-based algorithm.
 
-The regions come from a **Cartesian subdivision** of the design space: each
-component $x_j$ is split into $m_j$ contiguous subdivisions
-$[l_{j,k}, u_{j,k}]$. Their Cartesian product defines $\prod_j m_j$ boxes.
+The regions result from a Cartesian subdivision of the design space: each
+component $x_j$ is divided into $m_j$ contiguous intervals $[l_{j,k}, u_{j,k}]$,
+whose Cartesian product defines $\prod_j m_j$ boxes.
 
 ```{image} ../_static/figures/subdivision.png
 :class: only-light
@@ -43,22 +46,25 @@ $[l_{j,k}, u_{j,k}]$. Their Cartesian product defines $\prod_j m_j$ boxes.
 :alt: A Cartesian subdivision of a two-dimensional design space
 ```
 
-Choosing a box is a categorical decision, solving inside it is a continuous one,
-so the problem becomes a **mixed-integer non-linear program**, which is exactly
-what a bi-level outer approximation solves.
+*Figure 1. Cartesian subdivision of a two-dimensional design space.*
 
-## Encoding the choice of a box
+The selection of a box is a categorical decision and the optimization within it
+a continuous one, so that the problem becomes a mixed-integer nonlinear program,
+which is solved by a bi-level outer approximation.
 
-One categorical variable per design variable component, one-hot encoded as
-$\alpha_{j,k} \in \{0,1\}$ with $\sum_k \alpha_{j,k} = 1$.
+## Encoding of the box selection
+
+One categorical variable is associated with each component of the design
+variables and encoded as a one-hot vector $\alpha_{j,k} \in \{0,1\}$ with
+$\sum_k \alpha_{j,k} = 1$.
 
 :::{important}
-The master problem carries $\sum_j m_j$ binaries, **linear** in the number of
-components, while the number of boxes $\prod_j m_j$ is exponential in it. The
-Cartesian product is never enumerated.
+The master problem has $\sum_j m_j$ binary variables, a number linear in the
+number of components, whereas the number of boxes $\prod_j m_j$ is exponential.
+The Cartesian product is never enumerated.
 :::
 
-The bounds of the selected box are **affine** in $\alpha$:
+The bounds of the selected box are affine functions of $\alpha$:
 
 $$
 \ell_j(\alpha) = \sum_k l_{j,k}\, \alpha_{j,k},
@@ -66,61 +72,68 @@ $$
 u_j(\alpha) = \sum_k u_{j,k}\, \alpha_{j,k}.
 $$
 
-## What grows with the dimension
+## Growth with the dimension
 
-The boxes are the Cartesian product of the subdivisions, $\prod_j m_j$, which
-explodes with the number of variables. The **master does not see them**: it sees
-the one-hot binaries, $\sum_j m_j$, which grow linearly. Five variables with ten
-subdivisions each is $100\,000$ boxes and $50$ binaries.
+The number of boxes, $\prod_j m_j$, grows exponentially with the number of
+variables, whereas the master works with the $\sum_j m_j$ one-hot binaries, a
+number that grows linearly. Five variables with ten subdivisions each give
+$100\,000$ boxes and $50$ binaries.
 
 ```{image} ../_static/figures/complexity.svg
 :class: only-light
-:alt: The boxes grow as a product, the binaries as a sum
+:alt: The number of boxes grows as a product, the number of binaries as a sum
 ```
 
 ```{image} ../_static/figures/complexity-dark.svg
 :class: only-dark
-:alt: The boxes grow as a product, the binaries as a sum
+:alt: The number of boxes grows as a product, the number of binaries as a sum
 ```
 
-What a budget buys is neither of those, but the number of **sub-problems solved**,
-a few dozen for a few thousand evaluations. So the quantity that decides whether
-a subdivision is usable is the ratio between the coefficients of the cut model,
-$\sum_j m_j$, and the cuts that can be afforded. A fine subdivision is not out of
-reach because of its boxes; it is demanding because its model has more
-coefficients to identify.
+*Figure 2. Number of boxes and number of binaries against the number of
+variables.*
 
-That ratio is measurable, and it is the **ceiling** on the density: on five
-variables with a budget affording some fifty sub-problems, ten subdivisions per
-variable, fifty binaries over a hundred thousand boxes, is the best density
-measured, while sixteen, eighty binaries, is markedly worse.
+A budget determines the number of sub-problems that can be solved, typically a
+few dozen for a few thousand evaluations. The relevant quantity for the
+usability of a subdivision is therefore the ratio between the number of
+coefficients of the cut model, $\sum_j m_j$, and the number of affordable cuts.
+A fine subdivision is not limited by its number of boxes but by the number of
+coefficients of its cut model.
 
-The **floor** is set by the landscape rather than the budget: the subdivision has
-to separate the basins, which is why a problem whose minima are one unit apart
-over a range of ten needs ten subdivisions and is not solved by two. Between the
-two there is usually room, and there need not be: a subdivision fine enough to
-resolve the basins may already carry more coefficients than the budget can
-identify, and that is the case the method cannot serve.
+This ratio gives an upper limit on the density: in five variables, with a budget
+of about fifty sub-problems, ten subdivisions per variable (fifty binaries, one
+hundred thousand boxes) gave the best results, and sixteen (eighty binaries)
+markedly worse results.
 
-Refining past the basins is not free either. A box holding no minimum of its own
-returns a value and a post-optimal sensitivity that describe a constrained
-solution on its border, which says nothing about where the minimum is, so an
-over-fine subdivision degrades the ranking rather than merely wasting
-sub-problems. All three effects are measured in
-[the results](benchmark.md#the-density-of-the-subdivision-decides).
+The lower limit is determined by the landscape: the subdivision must separate
+the basins, so that a problem whose minima are one unit apart over a range of ten
+requires ten subdivisions and is not solved with two. The interval between the
+two limits may be empty, when a subdivision fine enough to separate the basins
+already has more coefficients than the budget can identify; the method is not
+applicable in that case.
 
-## The bi-level problem
+Refining beyond the basins also degrades the results. A box that contains no
+minimum returns a value and a post-optimal sensitivity corresponding to a
+constrained solution on its boundary, which carry no information on the location
+of the minimum, so that an excessively fine subdivision degrades the ranking of
+the boxes. These three effects are quantified in
+[the results](benchmark.md#density-of-the-subdivision).
+
+## Bi-level problem
+
+The problem is reformulated as
 
 $$
 \min_\alpha\ u(\alpha)
 \quad \text{where} \quad
-u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \right\}
+u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \right\}.
 $$
 
-| Level | Decides | Solved by | Role |
-|-------|---------|-----------|------|
-| Main | the box, $\alpha$ | MINLP master, outer approximation | exploration |
-| Sub | $x$ inside the box | NLP, local | exploitation |
+| level | variables | solver | role |
+|-------|-----------|--------|------|
+| main | box selection $\alpha$ | mixed-integer master, outer approximation | exploration |
+| sub | $x$ within the box | local nonlinear solver | exploitation |
+
+*Table 1. The two levels of the problem.*
 
 This is the `Benders` formulation of
 [gemseo-bilevel-outer-approximation](https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation),
@@ -129,18 +142,40 @@ problem.
 
 ```{image} ../_static/figures/bilevel.svg
 :class: only-light
-:alt: The exchange between the master and the sub-problem
+:alt: Exchanges between the master and the sub-problem
 ```
 
 ```{image} ../_static/figures/bilevel-dark.svg
 :class: only-dark
-:alt: The exchange between the master and the sub-problem
+:alt: Exchanges between the master and the sub-problem
 ```
 
-## Outer approximation and its sensitivity
+*Figure 3. Exchanges between the master and the sub-problem.*
 
-The master builds a piecewise-linear underestimator of $u$ from the
-sub-problems solved so far, one cut per visited $\alpha^{(i)}$:
+```{image} ../_static/figures/solve.gif
+:class: only-light
+:alt: The master selecting boxes of the Rastrigin function, with the path of the local solver in each
+```
+
+```{image} ../_static/figures/solve-dark.gif
+:class: only-dark
+:alt: The master selecting boxes of the Rastrigin function, with the path of the local solver in each
+```
+
+*Figure 4. Iterations of the method on the Rastrigin function in two dimensions:
+box selected by the master (orange) from the cuts of the boxes already solved
+(blue), and path of the local solver from the centre of the box. The animation
+is generated by `python docs/figures.py solve`.*
+
+In the run of Figure 4, none of the first six boxes improves on the local minimum
+of $8.95$ returned by the first box; the seventh returns the global minimum,
+after $154$ evaluations. The incumbent (green) no longer changes, and the
+thirteen following boxes are solved before the stopping criterion is met.
+
+## Outer approximation and sensitivity
+
+The master builds a piecewise-linear underestimator of $u$ from the sub-problems
+already solved, with one cut per visited point $\alpha^{(i)}$:
 
 $$
 \eta \ \ge\ u(\alpha^{(i)}) + s^{(i)\top} (\alpha - \alpha^{(i)}),
@@ -148,11 +183,11 @@ $$
 s^{(i)} = \left.\frac{\mathrm{d}u}{\mathrm{d}\alpha}\right|_{\alpha^{(i)}},
 $$
 
-and minimizes $\eta$ over the one-hot polytope. The cuts are what make the
-exploration informed rather than exhaustive, so the **slope $s^{(i)}$ is the
-heart of the method**.
+and minimizes $\eta$ over the one-hot polytope. The cuts make the exploration
+informed rather than exhaustive, so that the slope $s^{(i)}$ is the central
+quantity of the method.
 
-GEMSEO obtains it by post-optimal analysis of the sub-problem:
+GEMSEO computes it by post-optimal analysis of the sub-problem:
 
 $$
 \frac{\mathrm{d} f(x^\ast(p), p)}{\mathrm{d} p}
@@ -161,95 +196,96 @@ $$
 + \lambda_h^\top \frac{\partial h}{\partial p} .
 $$
 
-The bounds $\ell \le x \le u$ appear in the sub-problem but **not** in this
-formula: it assumes them constant with respect to the parameter $p$. This single
-fact drives the whole implementation, and the two formulations below are the two
-ways of living with it.
+The bounds $\ell \le x \le u$ appear in the sub-problem but not in this formula,
+which assumes them independent of the parameter $p$. This assumption determines
+the implementation, and the two formulations below are two ways of satisfying
+it.
 
-(formulations)=
-## The trust region of the master
+## Trust region of the master
 
-The master does not choose among all the boxes at every iteration: it restricts
-the mixed-integer problem to a neighbourhood of the incumbent box $\alpha$,
+At each iteration the master restricts the mixed-integer problem to a
+neighbourhood of the incumbent box $\alpha$,
 
 $$
 \sum_{j \,:\, \alpha'_j = \alpha_j} w_j(\alpha)
 \ \ge\ \sum_j w_j(\alpha) - \texttt{max\_step},
 $$
 
-whose radius shrinks when the upper bound stops improving. The constraint reads
-as a budget: a candidate $\alpha'$ pays $w_j(\alpha)$ for every component it
-changes, and may spend `max_step` in all.
+whose radius decreases when the upper bound stops improving. A candidate
+$\alpha'$ is charged $w_j(\alpha)$ for each component it changes, within a total
+of `max_step`.
 
-### What the weights have to be
+### Choice of the weights
 
-The weight charged is the one the **incumbent** selects, $w_j(\alpha)$, not
-anything about the category the candidate moves to. The constraint therefore
-cannot express a proximity between categories: whether a candidate moves to the
-neighbouring subdivision or to the far end of the range, it pays the same. This
-is the right constraint for a genuinely categorical variable, where no two
-categories are nearer than any others, and it is what the bilevel outer
-approximation was written for.
+The weight charged is the one selected by the incumbent, $w_j(\alpha)$, and does
+not depend on the category selected by the candidate. The constraint therefore
+cannot express a proximity between categories: a move to the neighbouring
+interval and a move to the other end of the range have the same cost. This is
+appropriate for a categorical variable, for which no category is closer to
+another, and corresponds to the purpose of the bi-level outer approximation.
 
-A subdivided variable looks ordinal, and taking that invitation — weighting each
-subdivision by its own index — is the obvious thing to do. It makes the
-region **lopsided rather than local**: leaving the first subdivision of a
-component is free, leaving the last costs $m_j - 1$, and neither has anything to
-do with where the candidate lands.
+A subdivided variable appears ordinal, which suggests weighting each interval by
+its index. The resulting region is then asymmetric rather than local: leaving the
+first interval of a component costs nothing, leaving the last one costs
+$m_j - 1$, independently of the interval reached.
 
 ```{image} ../_static/figures/trust_region.svg
 :class: only-light
-:alt: The same radius seen from a low incumbent and from a high one, under either metric
+:alt: The same radius from a low incumbent and from a high one, under either metric
 ```
 
 ```{image} ../_static/figures/trust_region-dark.svg
 :class: only-dark
-:alt: The same radius seen from a low incumbent and from a high one, under either metric
+:alt: The same radius from a low incumbent and from a high one, under either metric
 ```
 
-The two rows are the same two radii seen from two incumbents. Under the
-catalogue values the region is the whole design space at $(1,1)$ and the
-incumbent alone at $(7,6)$; counting components it is the same nineteen boxes at
-both.
+*Figure 5. Trust region of the same two radii seen from two incumbents, with
+index weights and with unit weights.*
 
-So the design spaces of this package weigh **every subdivision alike**,
-$w_j \equiv 1$, and the distance becomes the number of components a candidate
-changes, that is the Hamming distance between the two one-hot encodings. The
-diameter is then $n$, which
-{py:attr}`~gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step`
-returns, and that is the radius at which the region stops constraining, not the
-radius to use.
+In Figure 5, with index weights the region is the whole design space from the
+incumbent $(1,1)$ and the incumbent alone from $(7,6)$; with unit weights it
+contains the same nineteen boxes in both cases.
 
-Expressing the ordinal proximity properly would need a different constraint,
-$|v^\top\alpha' - v^\top\alpha| \le \texttt{max\_step}$ on the catalogue values
-$v$, which is not what the master builds. It was measured through a stub, in
-[annex C](tuning.md#which-metric-wins), and
-it is not better: multimodality behaves like a categorical choice, neighbouring
-boxes being no more alike than distant ones.
+The design spaces of this package therefore use unit weights, $w_j \equiv 1$, so
+that the distance is the number of components changed by a candidate, i.e. the
+Hamming distance between the one-hot encodings. The diameter is then $n$, the
+value returned by
+{py:attr}`~gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step`; it
+is the radius beyond which the region no longer constrains the master, not the
+radius to be used.
 
-### How wide it should be
+An ordinal proximity would require a different constraint, $|v^\top\alpha' -
+v^\top\alpha| \le \texttt{max\_step}$ on the catalogue values $v$, which the
+master does not build. This variant was evaluated with a stub in [annex
+C](tuning.md#comparison-of-the-metrics) and gave no improvement: neighbouring
+boxes are no more similar than distant ones, and the multimodality behaves as a
+categorical choice.
 
-Small. On Rastrigin with five variables and ten subdivisions, a radius of two
-components reaches the optimum from every starting point; widening it to the
-whole design space, or removing the region altogether, loses it. The region is
-what makes a fine subdivision usable at all, see
-[the benchmark](benchmark.md#the-density-of-the-subdivision-decides), and the
-measurements are in [annex C](tuning.md).
+### Radius
 
-## Two formulations
+The radius must be small. On Rastrigin with five variables and ten subdivisions,
+a radius of two components reaches the optimum from all starting points; a
+radius equal to the diameter of the design space, or no trust region, does not.
+The trust region is required for fine subdivisions, see
+[the results](benchmark.md#density-of-the-subdivision) and
+[annex C](tuning.md).
+
+(formulations)=
+
+## Formulations of the sub-problem
 
 ### Box as a constraint
 
-Keep $x$ as the sub-problem variable and move the box into the constraints, as
-one vector-valued function of dimension $2n$:
+The sub-problem keeps $x$ as variable and the box is expressed as a
+vector-valued constraint of dimension $2n$:
 
 $$
 g_{\text{box}}(x, \alpha) =
 \begin{bmatrix} x - u(\alpha) \\ \ell(\alpha) - x \end{bmatrix} \le 0 .
 $$
 
-The dependency on $\alpha$ now travels through $\lambda_g^\top \partial g/\partial \alpha$,
-and the slope is exact and analytic:
+The dependence on $\alpha$ is then accounted for by the term
+$\lambda_g^\top \partial g/\partial \alpha$, and the slope is exact and analytic:
 
 $$
 \frac{\mathrm{d} u}{\mathrm{d} \alpha_{j,k}}
@@ -257,23 +293,22 @@ $$
 $$
 
 where $\lambda^{u}_j, \lambda^{\ell}_j \ge 0$ are the multipliers of the upper
-and lower faces of the box, that is the shadow price of moving a face.
+and lower faces of the box.
 
-$g_{\text{box}}$ is linear in $x$ and affine in $\alpha$, hence **jointly
-convex**: all the non-convexity stays in the original $f$ and $g$.
+$g_{\text{box}}$ is linear in $x$ and affine in $\alpha$, hence jointly convex:
+the non-convexity remains confined to $f$ and $g$.
 
 ### Box as normalized variables
 
-Solve instead for $\xi \in [0,1]^n$, with
+The sub-problem is solved for $\xi \in [0,1]^n$, with
 
 $$
 x(\xi, \alpha) = \ell(\alpha) + \xi \odot (u(\alpha) - \ell(\alpha)).
 $$
 
-The box is then the *bounds* of the sub-problem, and those bounds are the unit
-interval **whatever the box**, so the assumption made by the post-optimal
-analysis holds instead of being worked around. The slope comes from the partial
-derivative rather than from multipliers:
+The box then defines the bounds of the sub-problem, which are the unit interval
+for every box, so that the assumption of the post-optimal analysis is satisfied.
+The slope is given by the partial derivative instead of the multipliers:
 
 $$
 \frac{\mathrm{d}u}{\mathrm{d}\alpha_{j,k}}
@@ -283,39 +318,43 @@ $$
 = (1-\xi_j)\, l_{j,k} + \xi_j\, u_{j,k},
 $$
 
-correct at an interior optimum, where $\nabla_x f$ vanishes, and on a face,
-where $\xi_j$ is pinned to a bound so the partial derivative is the total one.
+which is correct at an interior optimum, where $\nabla_x f$ vanishes, and on a
+face, where $\xi_j$ is fixed at a bound and the partial derivative equals the
+total derivative.
 
-The counterpart is that $x$ is **bilinear** in $(\xi, \alpha)$: the choice of the
-box enters the non-linearity of the objective instead of staying in a jointly
-convex constraint. As shown in [the benchmark](benchmark.md), this costs nothing
-in quality: under the same master settings the normalized formulation reaches the
-optimum from every starting point and the constraint one from all but one.
+In this formulation $x$ is bilinear in $(\xi, \alpha)$, so that the box selection
+enters the nonlinearity of the objective instead of a jointly convex constraint.
+In the experiments this has no adverse effect on the results: with the same
+master settings the normalized formulation reaches the optimum from all starting
+points and the constraint formulation from all but one, see
+[the results](benchmark.md).
 
 (convexification)=
+
 ## Convexification
 
-Outer-approximation cuts are supporting hyperplanes **only if $u$ is convex**. On
-a multimodal problem $u$ is not, so a cut built at one box can lie *above* $u$
-elsewhere and cut the global optimum off. The master then converges quickly, and
-reports a wrong answer without any error.
+Outer-approximation cuts are supporting hyperplanes only if $u$ is convex. For a
+multimodal problem $u$ is not convex, and a cut built at one box can lie above
+$u$ elsewhere and exclude the global optimum. The master then converges rapidly
+to an incorrect solution without reporting an error.
 
 :::{warning}
-Guarding against this is the single most important setting of the method, and
-both guards are off by default: `convexification_constant=0.0` and
-`adapt=False`. On the benchmark below, that default reaches the global optimum
-from **none** of the starting points while reporting success.
+The safeguard against this behaviour is the most important setting of the method,
+and both available safeguards are disabled by default:
+`convexification_constant=0.0` and `adapt=False`. With these defaults, no
+starting point of the benchmark reaches the global optimum, while the runs report
+success.
 :::
 
-The master offers two mechanisms for it, described below. They act differently
-and are **not meant to be combined**: use the fixed constant $\kappa$, which
-carries the convergence guarantee, or the adaptive repair with its convexity
-margin, which reaches the optimum more often, and leave the other at zero.
+The master provides two mechanisms, described below. They act differently and are
+not intended to be combined: either the fixed constant $\kappa$, which carries the
+convergence guarantee, or the adaptive repair with its convexity margin, which
+reaches the optimum more often, the other being set to zero.
 
-### What the convexification actually is
+### Convexification term
 
-`gemseo-bilevel-outer-approximation` adds to the objective a term that is
-**convex in the relaxed one-hot variables and vanishes at every integer point**:
+`gemseo-bilevel-outer-approximation` adds to the objective a term that is convex
+in the relaxed one-hot variables and vanishes at every integer point:
 
 $$
 \tilde u(\alpha) = u(\alpha) + \kappa\, C(\alpha),
@@ -334,119 +373,112 @@ $$
 :alt: The convexification term over a relaxed box choice
 ```
 
-Each term $\alpha(\alpha-1)$ is convex, equals $0$ at $\alpha \in \{0,1\}$ and
-reaches $-1/4$ at $\alpha = 1/2$. Two consequences:
+*Figure 6. Convexification term over a relaxed box selection.*
 
-- **the discrete problem is unchanged**: at any feasible one-hot $\alpha$,
-  $C(\alpha) = 0$, so $\tilde u = u$ and the optimum is exactly the optimum of
-  the original problem;
-- **the relaxation is lowered between the vertices**, which is what restores the
-  validity of the cuts. Large enough $\kappa$ dominates the non-convexity of $u$
-  over the relaxed polytope.
+Each term $\alpha(\alpha-1)$ is convex, equal to $0$ for $\alpha \in \{0,1\}$ and
+to $-1/4$ for $\alpha = 1/2$. Consequently:
 
-In practice the term is never evaluated: only the **slope** of each cut is
-corrected, by $\nabla(\kappa C)$,
+- the discrete problem is unchanged: for any feasible one-hot $\alpha$,
+  $C(\alpha) = 0$ and $\tilde u = u$, so that the optimum is that of the original
+  problem;
+- the relaxation is lowered between the vertices, which restores the validity of
+  the cuts; a sufficiently large $\kappa$ dominates the non-convexity of $u$ over
+  the relaxed polytope.
+
+In practice the term is not evaluated; only the slope of each cut is corrected by
+$\nabla(\kappa C)$,
 
 $$
-s^{(i)} \leftarrow s^{(i)} + \frac{\kappa}{n_{\text{comp}}}\left(2\alpha^{(i)} - 1\right),
+s^{(i)} \leftarrow s^{(i)}
+  + \frac{\kappa}{n_{\text{comp}}}\left(2\alpha^{(i)} - 1\right),
 $$
 
-which at an integer $\alpha^{(i)}$ tilts the hyperplane by $\pm\kappa/n_{\text{comp}}$
-per component while leaving its value at $\alpha^{(i)}$ untouched.
+which at an integer point $\alpha^{(i)}$ tilts the hyperplane by
+$\pm\kappa/n_{\text{comp}}$ per component without changing its value at
+$\alpha^{(i)}$.
 
 :::{note}
-This is a convexification **in the space of the box selection $\alpha$**, not an
-$\alpha$BB-style underestimator of $f$ in the space of the design variables $x$.
-It is not built from bounds on the Hessian of $f$, and it does **not** become
-tighter as the boxes get smaller. Subdividing more finely still helps, but for a
-different reason: each box becomes closer to unimodal, so the local sub-problem
-solve is more likely to return the box optimum, which is what the cuts assume.
+This convexification acts in the space of the box selection $\alpha$; it is not
+an $\alpha$BB underestimator of $f$ in the space of the design variables $x$. It
+does not use bounds on the Hessian of $f$ and does not become tighter as the
+boxes become smaller. A finer subdivision nevertheless helps for another reason:
+each box is closer to unimodal, so that the local solution is more likely to be
+the optimum of the box, as assumed by the cuts.
 :::
 
 ### Adaptive convexification
 
-With `adapt=True`, instead of relying on $\kappa$ alone, the master repairs the
-slopes against the data it has already gathered. For every pair of visited
-points, the cut at $\alpha^{(i)}$ must not over-predict the observed value at
-$\alpha^{(j)}$:
+With `adapt=True`, the master corrects the slopes using the values already
+computed instead of relying on $\kappa$. For every pair of visited points, the cut
+at $\alpha^{(i)}$ must not overestimate the observed value at $\alpha^{(j)}$:
 
 $$
 u(\alpha^{(i)}) + s^{(i)\top}\left(\alpha^{(j)} - \alpha^{(i)}\right)
 \ \le\ u(\alpha^{(j)}) - \delta ,
 $$
 
-with $\delta$ a convexity margin (`min_dfk`). The violations are collected and a
-least-squares correction is applied to each slope so that the cuts become
-consistent with the whole history. It is a data-driven repair of cut validity,
-and it **replaces** $\kappa$ rather than composing with it: the margin $\delta$
-enforces the convexity the constant would otherwise impose, from the observed
-values rather than from a worst case, so setting both applies the correction
-twice over. Being a margin on the objective, $\delta$ is an **absolute**
-quantity in the units of $f$ and has to be scaled to the problem, whereas
-$\kappa$ scales with the relaxed polytope.
+where $\delta$ is a convexity margin (`min_dfk`). The violations are collected and
+a least-squares correction is applied to each slope, so that the cuts are
+consistent with the whole history. This repair replaces $\kappa$ rather than
+complementing it: the margin $\delta$ enforces the convexity that the constant
+would otherwise impose, based on the observed values rather than on a worst case,
+so that setting both applies the correction twice. Being a margin on the
+objective, $\delta$ is an absolute quantity in the units of $f$ and must be scaled
+to the problem, whereas $\kappa$ scales with the relaxed polytope.
 
-The two differ in what they guarantee. A large enough $\kappa$ dominates the
-non-convexity of $u$ over the relaxed polytope and the cuts are then valid by
-construction, which is the convergence argument; but it also lowers the master's
-lower bound by nearly $\kappa$, so the bound never meets the incumbent and the
-run ends on the trust region instead of on the tolerance, see
-[annex C](tuning.md#the-two-caps-that-end-a-run).
-The adaptive repair keeps the bound usable and, on the benchmark, reaches the
-optimum from every starting point, but it enforces convexity only against the
-boxes already visited, so it carries no guarantee.
+The two mechanisms differ in their guarantees. A sufficiently large $\kappa$
+makes the cuts valid by construction, which yields the convergence argument, but
+also lowers the lower bound of the master by nearly $\kappa$, so that the bound
+does not meet the incumbent and the run terminates on the trust region rather
+than on the tolerance, see [annex C](tuning.md#termination-of-the-runs). The
+adaptive repair keeps the lower bound usable and reaches the optimum from all
+starting points in the experiments, but it enforces convexity only with respect
+to the visited boxes and carries no guarantee.
 
-### Sweeping it instead of calibrating it
+### Swept convexity
 
-Both mechanisms ask for the same thing in the end: a number in the **units of the
-objective**, of the order of the variation the cuts have to dominate. That number
-is the standing criticism of the method, because the user is asked for it before
-the run has measured anything. A margin of $100$ reaches the optimum from every
-starting point on Rastrigin, which spans about eighty, and is the worst of those
-tried on Ackley, which spans about twenty-two, so a better default does not
-answer the criticism: no single number is right for two problems.
+Both mechanisms require a value in the units of the objective, of the order of
+the variation the cuts must dominate, which has to be supplied before any
+information on the objective is available. A margin of $100$ reaches the optimum
+from all starting points on Rastrigin, whose range is about eighty, and gives the
+worst result among the tested values on Ackley, whose range is about twenty-two;
+no single value is suitable for both problems.
 
-Not choosing does. The master already refuses to choose its trust-region radius:
-it probes one radius per parallel point, over $[\Delta/2, \Delta]$, so **its
-parallel points are a sweep rather than a batch**. The same probes can carry a
-ladder of convexity values $\kappa_1 < \dots < \kappa_N$, geometric below an
-upper bound, one rung per probe:
+The master already avoids choosing its trust-region radius: it assigns one radius
+per parallel probe over $[\Delta/2, \Delta]$, so that its parallel probes form a
+sweep. The same probes can carry a ladder of convexity values
+$\kappa_1 < \dots < \kappa_N$, geometric below an upper bound, with one rung per
+probe:
 
-- **probe $k$ solves the master at rung $k$**, so one iteration spans the ladder
-  instead of repeating one value. The two ladders pair up, the tight region with
-  the raw cuts and the wide one with the dominated cuts, so an iteration returns
-  the exploitative box *and* the exploratory one;
-- **a probe proposing a box already solved climbs one rung**, and again, until it
-  proposes a new box or the ladder is exhausted. Escalating changes the cuts,
-  which is what moves the master elsewhere, and it costs one more mixed-integer
-  solve and **no objective evaluation** — the currency this method is measured
-  in;
-- **every probe exhausting the ladder is a stopping criterion**, and a stronger
-  one than a single value proposing nothing: no convexity up to $\kappa_{\max}$
-  proposes a box that has not been solved.
+- probe $k$ solves the master with rung $k$, so that one iteration covers the
+  ladder. The two ladders are paired, the small trust region with the raw cuts
+  and the large one with the dominated cuts, so that an iteration returns both an
+  exploitative and an exploratory box;
+- a probe proposing a box already solved moves to the next rung, until it
+  proposes a new box or the ladder is exhausted. Each step changes the cuts and
+  costs one mixed-integer solution but no objective evaluation;
+- the exhaustion of the ladder by all probes is a stopping criterion: no
+  convexity value up to $\kappa_{\max}$ proposes an unsolved box.
 
-What is left to supply is the upper bound alone, the rungs being the probes. And
-the bound need not be supplied either: both mechanisms are calibrated against the
-variation of the objective over the design space, which the master **observes** as
-it solves boxes, so the bound can be read off the spread of the values already
-obtained. Read literally that estimate is circular — the first boxes are the
-handful the first iterations proposed, and on a broad basin they look alike — so
-it is taken with a decade of headroom, a **dimensionless** factor, which is not
-the quantity the criticism is about.
+Only the upper bound of the ladder remains to be supplied, and it can be derived
+from the spread of the objective values over the boxes already solved. Since the
+first boxes are few and may be similar on a broad basin, this estimate is
+multiplied by a dimensionless headroom factor of ten.
 
-The sweep is a loop over the master's own probes, so it belongs to the master and
-is implemented there. What this package supplies is
-[`SweptBoxSubdivisionSettings`](usage.md#not-choosing-the-convexity-at-all), the
-entry point of a run that calibrates nothing, and a driver that sweeps from
-outside a master predating the loop. What the sweep costs and what it reaches is
-in [the results](benchmark.md#sweeping-the-convexity-rather-than-supplying-it),
-and the measurements behind it in
-[annex C](tuning.md#sweeping-the-convexity-instead-of-calibrating-it).
+The sweep is a loop over the probes of the master and is implemented in the
+master. This package provides
+[`SweptBoxSubdivisionSettings`](usage.md#swept-convexity), which
+configures a run without calibrated values, and a driver that performs the sweep
+from outside for master versions that do not implement it. The cost and results
+of the sweep are given in [the results](benchmark.md#swept-convexity) and the
+underlying measurements in
+[annex C](tuning.md#swept-convexity).
 
-## Subdividing some variables only
+## Subdivision of a subset of the variables
 
-Nothing requires every variable to be subdivided. A variable left out stays an
-ordinary variable of the sub-problem, which keeps the product of the
-subdivisions small while resolving the variables that need it:
+Not all variables need to be subdivided. A variable that is not subdivided
+remains a continuous variable of the sub-problem, which keeps the number of boxes
+small while subdividing the variables that require it:
 
 ```python
 subdivision = BoxSubdivision.from_design_space(design_space, 10, ["x_split"])
@@ -462,22 +494,91 @@ subdivision = BoxSubdivision.from_design_space(design_space, 10, ["x_split"])
 :alt: A subdivision of one variable only
 ```
 
-The exchange is only worth it when the objective is close to unimodal in the
-variables left out: one of them keeps all of its basins inside every box, and the
-local solve returns the basin it starts in. It therefore solves a problem whose
-multimodality is concentrated in a few variables, and loses on one that is
-multimodal in all of them.
+*Figure 7. Subdivision of one variable only.*
+
+This is beneficial only when the objective is close to unimodal in the variables
+that are not subdivided, since all their basins remain within every box and the
+local solution returns the basin of its starting point. It is suited to problems
+whose multimodality is concentrated in a few variables, and not to problems that
+are multimodal in all variables.
+
+## Estimation of the subdivision density
+
+The method requires the subdivision to separate the basins of the landscape, and
+$m_j$ is the only setting without a default value: a box that is too coarse
+contains several minima and a box that is too fine contains none, and
+[the results](benchmark.md#density-of-the-subdivision) show that no single value
+is suitable for the four problems. The density can be estimated from the
+objective.
+
+The quantity to estimate is not a wavelength: the restriction of $f$ to a line
+along $e_j$ has a spectrum that depends on the position of the line, so that a
+period is not a property of the problem. The expected number of minima along such
+a line is, however, well defined for any $C^1$ objective,
+
+$$
+N_j = \mathbb{E}_{x_\perp}\big[\#\{t : \partial_j f(x_\perp + t e_j) = 0,\
+\partial_{jj} f > 0\}\big],
+$$
+
+and is the number of basins a subdivision of the $j$-th component must separate,
+so that $m_j = N_j$. This expectation is estimated by Monte Carlo integration over
+axial line scans: an anchor $x_\perp$ is drawn at random, the component is swept
+over its bounds, and the sufficiently deep minima are counted.
+
+A space-filling design cannot replace these scans. Averaging over the other
+components estimates the main effect $\mathbb{E}[f \mid x_j]$, and multimodality
+due to interactions does not survive this average, as for Griewank (a product
+over all components) or Ackley (inside a norm).
+
+The minima are selected by depth rather than curvature. A minimum is retained
+when its topographic prominence exceeds a fraction of the range of the scan, the
+prominence being measured with respect to the key saddle: moving outwards until
+the scan falls below the minimum again, the highest point crossed closes the
+basin, and the lower of the two sides gives its depth. Measured against the
+highest point on each side, every ripple inside a bowl would appear as deep as
+the bowl. A component without a sufficiently deep minimum is assigned a single
+interval, which yields a
+[partial subdivision](#subdivision-of-a-subset-of-the-variables) determined by
+the landscape.
+
+The abscissae are drawn at random along the line. An evenly spaced scan resonates
+with a regular landscape and produces a consistent but incorrect count: on
+Ackley, whose ripples are about one unit apart, a uniform ladder reports a single
+basin at two consecutive rates, which a stopping rule interprets as convergence.
+
+The error of the estimate is one-sided. A scan reveals the basins it resolves and
+no others, so that no finite sample bounds the roughness of an objective: a ladder
+of scan rates can establish a lower bound on the number of basins but not an
+upper bound. A ladder that does not converge therefore indicates that a
+subdivision with one box per basin is not appropriate, which is the case for
+which [the hierarchies](#hierarchies-of-subdivisions) are designed; on the test
+problems this indicator selects them correctly.
+
+When the basins are due to constraints, the same construction applies to the
+minima of $f$ restricted to the feasible set. Along a line this set is a union of
+intervals, and the count decomposes into the minima retained within each maximal
+feasible interval and, for an interval without such a minimum, the interval
+itself, whose minimum lies on a boundary, i.e. where the active set changes. A
+single rule thus covers disconnected feasible sets and optima on a constraint.
+
+The estimate assumes that the multimodality is visible to the scans. If only the
+objective is scanned, a landscape whose basins are due to the constraints yields
+a single interval per component and a converged ladder, since the objective has a
+single basin. [Annex D](extensions.md#estimation-of-the-density)
+reports the performance of the estimate on the test problems and its
+limitations.
 
 ## Hierarchies of subdivisions
 
-A subdivision fine enough to resolve the basins spends its budget over the whole
-design space. A **hierarchy** spends it where it seems to matter: subdivide
-coarsely, rank the boxes, and refine a promising one with a subdivision of its
-own, recursively. Formally, a node of the hierarchy is a box $B = [l, u]$, and
-refining it means running the method of the previous sections on $B$ instead of
-on the original design space, its children being the boxes of that subdivision.
-The resolution after two levels of $m^{(1)}$ and $m^{(2)}$ subdivisions is their
-product, $m^{(1)} m^{(2)}$ per variable, while no master ever carries more than
+A subdivision fine enough to separate the basins spends its budget over the
+whole design space. A hierarchy concentrates it: the space is subdivided
+coarsely, the boxes are ranked, and a promising box is refined with its own
+subdivision, recursively. Formally, a node of the hierarchy is a box $B = [l, u]$,
+and its refinement consists in applying the method of the previous sections to
+$B$ instead of the original design space, its children being the boxes of this
+subdivision. After two levels of $m^{(1)}$ and $m^{(2)}$ subdivisions the
+resolution is $m^{(1)} m^{(2)}$ per variable, while no master has more than
 $\sum_j m^{(k)}_j$ binaries.
 
 ```{image} ../_static/figures/hierarchy.svg
@@ -490,18 +591,19 @@ $\sum_j m^{(k)}_j$ binaries.
 :alt: Three shapes of hierarchy over the boxes
 ```
 
-### Scoring a box
+*Figure 8. Three shapes of hierarchy.*
 
-Everything depends on how a box is scored, since the score decides what is
-refined, and two scores are available.
+### Scores of a box
 
-The **value** of a box is the optimum of its sub-problem,
-$u(\alpha) = \min_{x \in B(\alpha)} f(x)$, as returned by the local solve. It is
-an *upper* bound on the true optimum of the box, since a local solve started at
-the centre of $B$ returns the minimum of the basin it lands in. It exists only
-for the boxes actually solved, a few dozen of them at most.
+The score of a box determines which box is refined. Two scores are available.
 
-The **cut model** is the lower envelope the master has built from those solves,
+The value of a box is the optimum of its sub-problem,
+$u(\alpha) = \min_{x \in B(\alpha)} f(x)$, as returned by the local solution. It
+is an upper bound on the true optimum of the box, since a local solution started
+at the centre of $B$ returns the minimum of the basin it reaches. It is available
+only for the boxes actually solved, a few dozen at most.
+
+The cut model is the lower envelope built by the master from these solutions,
 
 $$
 \hat u(\alpha) = \max_i \left[ u(\alpha^{(i)})
@@ -509,21 +611,21 @@ $$
 \qquad s^{(i)} = \nabla_\alpha u(\alpha^{(i)}),
 $$
 
-with $s^{(i)}$ the post-optimal sensitivity of the sub-problem. It is defined at
-**every** box of the subdivision, those never solved included, and it is an
-*optimistic* estimate wherever the cuts are valid.
+where $s^{(i)}$ is the post-optimal sensitivity of the sub-problem. It is defined
+for every box of the subdivision, including the unsolved ones, and is an
+optimistic estimate wherever the cuts are valid.
 
-The two therefore rank for opposite reasons. Ranking by the value **exploits**:
-it can only propose a box already solved, and its ranking is meaningless when a
-coarse box holds several basins, since the score is then decided by which basin
-the centre falls into. Ranking by the cut model **explores**: far from every
-solved box the cuts extrapolate linearly downwards, so the lowest score belongs
-to a distant, unvisited box.
+The two scores lead to opposite rankings. The value favours exploitation: it can
+only select a box already solved, and its ranking is not meaningful when a coarse
+box contains several basins, since the score then depends on the basin in which
+the centre lies. The cut model favours exploration: far from the solved boxes the
+cuts extrapolate linearly downwards, so that the lowest score belongs to a
+distant unvisited box.
 
-### Three shapes
+### Shapes of hierarchy
 
-**Two levels.** Solve the coarse subdivision, rank its boxes, refine the best
-$k$ of them with a share of the budget each:
+Two levels: the coarse subdivision is solved, its boxes are ranked, and the best
+$k$ boxes are refined, each with a share of the budget.
 
 ```text
 solve the coarse subdivision of the whole space
@@ -531,9 +633,9 @@ for each of the k best boxes:
     solve a fine subdivision of that box
 ```
 
-**Deep and narrow.** Split every variable in two at each of $d$ levels, refining
-the best box each time, which reaches $2^d$ subdivisions per variable while
-keeping $2n$ coefficients per level:
+Deep hierarchy: each variable is divided in two at each of $d$ levels and the
+best box is refined each time, which gives $2^d$ subdivisions per variable with
+$2n$ coefficients per level.
 
 ```text
 B <- the whole design space
@@ -542,8 +644,8 @@ repeat d times:
     B <- the best box of that subdivision
 ```
 
-**A frontier.** Keep the open boxes of every level in one priority queue, expand
-the most promising, and put its children back:
+Frontier: the open boxes of all levels are kept in a priority queue, the most
+promising box is expanded, and its children are added to the queue.
 
 ```text
 frontier <- {the whole design space}
@@ -553,54 +655,51 @@ while the budget allows:
     push its most promising children onto the frontier
 ```
 
-Only the last one can **undo a choice**: the first two descend, so the box
-refined at one level is the only space the next level ever sees, and a score that
-was wrong is never revisited. That is the definition of a spatial
-branch-and-bound, with the cut model in the place where a relaxation would be.
+Only the frontier can revise a choice: in the first two shapes, the box refined
+at one level is the only region seen by the next level, and an incorrect score is
+never corrected. The frontier corresponds to a spatial branch-and-bound in which
+the cut model replaces the relaxation.
 
-### What a hierarchy costs
+### Cost of a hierarchy
 
-A node solved in isolation is a master of its own, and that is where the
-construction pays for itself. Writing $c$ for the number of sub-problems a
-budget affords, a flat run puts all $c$ cuts into **one** model of
-$\sum_j m_j$ coefficients, while a hierarchy of $N$ nodes puts $c/N$ cuts into
-each of $N$ models. The cuts of a parent are moreover expressed over the one-hot
-variables of *its* subdivision, so they have no meaning in the subdivision of a
-child: refining discards them.
+Each node is solved by its own master. With $c$ the number of sub-problems
+affordable within the budget, a flat run uses all $c$ cuts in one model of
+$\sum_j m_j$ coefficients, whereas a hierarchy of $N$ nodes uses $c/N$ cuts in
+each of $N$ models. Moreover, the cuts of a parent are expressed in the one-hot
+variables of its subdivision and have no meaning in the subdivision of a child,
+so that they are discarded at each refinement.
 
-That is the trade, and it is the reason the shapes above behave as they do: a
-hierarchy improves the ratio of coefficients to cuts **per level** and destroys
-the model the ratio is about. A hierarchy that did not pay it would need a master
-over a **growing set of leaves**, adding binaries as a box is split and keeping
-every cut, which is a different master problem from the one this package builds
-on, whose catalogue of boxes is fixed when the design space is created.
+A hierarchy thus improves the ratio of coefficients to cuts at each level but
+discards the model to which this ratio applies. Avoiding this would require a
+master over a growing set of leaves, adding binaries when a box is split and
+keeping all cuts; this is a different master problem from the one used by this
+package, whose catalogue of boxes is fixed when the design space is created.
 
-That trade is why the hierarchies lose to the flat subdivision on the problems
-a flat subdivision can resolve. Where they win is a case the flat method does not
-reach within the same budget: a basin **too broad for the densities that budget
-affords**. Ackley's single basin spans a range of sixty, and the deep hierarchy,
-splitting each variable in two four times over, reaches its optimum from four
-starting points out of six against two for the flat subdivision at its best
-density, both having stopped on their own criteria rather than on their budget. Each of its levels carries only $2n$
-coefficients, so a quarter of the budget is enough to determine one, and the
-resolution reached is $2^4$ per variable without any level ever being large.
+For this reason the hierarchies perform worse than the flat subdivision on
+problems that a flat subdivision can resolve. They perform better on a case the
+flat method does not resolve within the same budget, a basin too broad for the
+affordable densities. The single basin of Ackley spans a range of sixty, and the
+deep hierarchy, dividing each variable in two four times, reaches its optimum
+from four starting points of six, against two for the flat subdivision at its
+best density, both terminating on their own criteria. Each level has only $2n$
+coefficients, so that a quarter of the budget suffices to identify them, and the
+resolution reaches $2^4$ per variable without any large level.
 
-The measured behaviour of the three shapes, and of the two scores, is in
-[annex D](extensions.md#the-hierarchies).
+The results of the three shapes and of the two scores are given in
+[annex D](extensions.md#hierarchies).
 
-## One master, several levels: the multi-resolution encoding
+## Multi-resolution encoding
 
-The hierarchies above put their levels in **different masters**, one after the
-other, and that is what they pay for. The same levels can be put in the **same**
-master instead, and the construction that does it is worth setting out on its
-own, because it removes the cost of a hierarchy without removing its resolution.
+The hierarchies above place their levels in different masters, solved one after
+the other, which causes their cost. The levels can instead be placed in the same
+master, which keeps the resolution of a hierarchy without its cost.
 
-### The encoding
+### Encoding
 
-A box is chosen by **one categorical variable per level** rather than by one
+A box is selected by one categorical variable per level instead of a single
 categorical variable over the whole subdivision. With $L$ levels of $m$
 subdivisions each, the lower bound of a component is the sum of the fractions of
-the design space its levels select:
+the design space selected by its levels:
 
 $$
 l_j(\alpha) = L_j + \Delta_j \sum_{k=1}^{L} m^{-k} \, d_k(\alpha_j),
@@ -608,10 +707,10 @@ l_j(\alpha) = L_j + \Delta_j \sum_{k=1}^{L} m^{-k} \, d_k(\alpha_j),
 u_j(\alpha) = l_j(\alpha) + \Delta_j \, m^{-L},
 $$
 
-with $\Delta_j = U_j - L_j$ and $d_k \in \{0, \dots, m-1\}$ the subdivision the
-$k$-th level selects, one-hot encoded. This is the **base-$m$ representation of
-the box index**: the levels are its digits, the first level choosing the coarse
-region and each further level choosing a sub-region inside it.
+with $\Delta_j = U_j - L_j$ and $d_k \in \{0, \dots, m-1\}$ the interval selected
+by the $k$-th level, one-hot encoded. This is the base-$m$ representation of the
+box index: the levels are its digits, the first level selecting the coarse region
+and each further level a sub-region within it.
 
 ```{image} ../_static/figures/multiresolution.svg
 :class: only-light
@@ -623,61 +722,63 @@ region and each further level choosing a sub-region inside it.
 :alt: The levels as digits of the box index, and the binaries a resolution costs
 ```
 
-### What it buys
+*Figure 9. Levels as digits of the box index, and number of binaries against the
+resolution.*
 
-**The resolution grows as a power and the binaries as a product.** The encoding
-reaches $m^L$ subdivisions per component for $n m L$ binaries, where the flat
-encoding needs $n m^L$:
+### Properties
+
+The resolution grows as a power and the number of binaries as a product: the
+encoding gives $m^L$ subdivisions per component with $n m L$ binaries, whereas
+the flat encoding requires $n m^L$.
 
 | resolution per component | flat binaries, $n=5$ | levels, $n=5$ |
 |--------------------------|----------------------|---------------|
-| $16$ | $80$ | $40$ as $m=2, L=4$; $40$ as $m=4, L=2$ |
-| $64$ | $320$ | $60$ as $m=4, L=3$ |
-| $1024$ | $5120$ | $100$ as $m=4, L=5$ |
+| $16$ | $80$ | $40$ with $m=2, L=4$; $40$ with $m=4, L=2$ |
+| $64$ | $320$ | $60$ with $m=4, L=3$ |
+| $1024$ | $5120$ | $100$ with $m=4, L=5$ |
 
-Since the density is bounded above by the binaries a budget can identify, and
-not by the boxes, this is the one construction here that moves that bound.
+*Table 2. Number of binaries of the flat and multi-resolution encodings.*
 
-**The bounds stay affine** in the one-hot variables, and the width
-$\Delta_j m^{-L}$ no longer depends on them at all, so the mapping
-$x = l(\alpha) + \xi \, \Delta \, m^{-L}$ is bilinear in $(\xi, \alpha)$ exactly
-as the one-level mapping is, with constant Jacobian blocks. Nothing in the
-bi-level machinery has to change.
+Since the density is limited by the number of binaries a budget can identify
+rather than by the number of boxes, this encoding raises that limit.
 
-**Nothing is discarded and nothing is committed.** One master holds every level,
-so the cuts survive, and the master may change a coarse digit and a fine one in
-the same iteration. That is the backtracking the descending hierarchies lack,
-obtained without restarting anything.
+The bounds remain affine in the one-hot variables, and the width
+$\Delta_j m^{-L}$ no longer depends on them, so that the mapping
+$x = l(\alpha) + \xi \, \Delta \, m^{-L}$ is bilinear in $(\xi, \alpha)$, as for
+a single level, with constant Jacobian blocks. The bi-level formulation is
+unchanged.
 
-### What it costs
+A single master holds all levels, so that the cuts are kept and the master can
+change a coarse and a fine digit in the same iteration. This provides the
+backtracking that the descending hierarchies lack, without restart.
 
-**The model class.** The cut model is linear in the one-hot variables, so over
-the digits it is **additive**: it can represent what each level contributes on
-its own, and not that the effect of a fine digit depends on the coarse digit it
-sits inside. On a landscape where it does — and on a multimodal one it always
-does, the same fine offset meaning different things in different regions — the
-model is misspecified in a way the flat encoding is not, the flat encoding
-having one coefficient per box index and no such restriction.
+### Limitations
 
-**The trust region has to be rescaled.** The metric counts the one-hot groups a
-candidate changes, and this encoding has $nL$ groups where the flat one has $n$.
-A radius of two would let the master change two *digits*, which is far tighter
-than letting it change two whole variables, so the radius is scaled to $2L$ to
-compare like with like. Measured with the radius left at the diameter, that is
-with no effective region at all, the encoding looks considerably worse than it
-is.
+The cut model is linear in the one-hot variables and therefore additive over the
+digits: it represents the contribution of each level independently, but not the
+dependence of the effect of a fine digit on the coarse digit. On a multimodal
+landscape this dependence is always present, since the same fine offset has
+different effects in different regions, so that the model is misspecified,
+unlike the flat encoding, which has one coefficient per box index.
 
-What it is worth is in
-[annex D](extensions.md#the-multi-resolution-encoding).
+The trust region must be rescaled. The metric counts the one-hot groups changed
+by a candidate, and this encoding has $nL$ groups instead of $n$. A radius of two
+would allow the master to change two digits, which is much more restrictive than
+changing two variables, so that the radius is set to $2L$ for a consistent
+comparison. With a radius equal to the diameter, i.e. without an effective trust
+region, the encoding appears considerably worse than it is.
+
+The results are given in
+[annex D](extensions.md#multi-resolution-encoding).
 
 ## Relation to spatial branch-and-bound
 
-Seen as a whole, the method is a **spatial branch-and-bound whose branching tree
-is fixed a priori and flattened into a single MINLP master**, rather than refined
-adaptively. That framing sets the expectations: a fixed subdivision is either too
-coarse, and the lower bound is weak, or too fine, and the master grows. Refining
-only the promising boxes would recover a genuine spatial branch-and-bound, at the
-cost of a master problem that grows during the run.
+The method can be viewed as a spatial branch-and-bound whose branching tree is
+fixed in advance and flattened into a single mixed-integer master, instead of
+being refined adaptively. A fixed subdivision is either too coarse, which weakens
+the lower bound, or too fine, which enlarges the master. Refining only the
+promising boxes would give a spatial branch-and-bound, at the cost of a master
+problem that grows during the run.
 
 ## References
 

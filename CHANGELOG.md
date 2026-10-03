@@ -26,6 +26,230 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.0 (2026-10-03)
+
+### Added
+
+- `benchmarks/basin_spacing.py`, which **proposes the number of subdivisions
+  per variable** instead of requiring it declared. The density was the one
+  setting with no default and no way for a caller to choose it well. The
+  estimand is not a wavelength, which a general objective does not have per
+  direction, but the expected number of minima along an axial line, which is
+  exactly what the subdivision has to separate: jittered scans per component,
+  minima kept by **topographic prominence** so a ripple riding a bowl is not a
+  basin of its own, and a ladder of scan rates whose **failure to converge is
+  information** rather than an error — on these problems it is the signal that
+  routes a landscape to a hierarchy instead of a flat subdivision. The
+  abscissae are drawn at random because an even scan resonates with a regular
+  landscape: a uniform ladder reports a single basin for Ackley, twice running,
+  which any stopping rule reads as convergence.
+
+- A `constraint` for that estimator, because scanning the objective is an
+  assumption about **where the multimodality lives**. Where the basins are cut
+  by non-convex constraints — a feasible set in pieces, or a minimum pinned
+  wherever the active set changes — a scan of the objective sees none of them
+  and does not report that it has not: a mass, monotone along every line, under
+  a limit feasible on six intervals per axis, returned one subdivision per
+  component with the ladder marked converged. Given a constraint, what is
+  counted is the minima of the objective **restricted to the feasible set**,
+  which along a line decomposes into its feasible intervals, so a disconnected
+  feasible set and an active-set corner are counted by the same rule. An
+  infeasible line raises `NoFeasibleScanError` rather than counting as one
+  basin, that being the confident wrong answer the change exists to remove.
+
+- `BoxSubdivisionScenario.scenario_adapter_cls`, the adapter running the
+  sub-problem of a box, which is where its **starting point** is decided. The
+  center of a box was the policy of every construction and the only one the
+  normalized formulation could express; it is still the default, and it now
+  assumes something a caller may need to deny. A problem whose disciplines
+  reject the center of a box — an unanalysable geometry, a simulation that does
+  not converge there — returns that center unchanged from its local solver, and
+  the master then cuts on a value nothing computed. Supplying an adapter lets
+  the caller restore a startable point inside the box first. Applying the method
+  to the EX-link engine, whose design box is 94 % unanalysable, is what asked
+  for it.
+
+- A constraint whose **name** differs from the discipline output it is built
+  from is now refused by `add_constraint`, where it is written, instead of
+  raising `KeyError` the first time the master linearizes the sub-problem
+  adapter — several iterations into a run, which a short one never reaches.
+  Three ordinary ways of writing a constraint rename it: `constraint_name=`,
+  which is how a band is written as two inequalities on one output;
+  `positive=True`, which GEMSEO names `-g`; and a non-zero `value`, which it
+  names `[g-0.5]`. The message names the limitation and the way around it, a
+  `LinearCombination` giving each side its own discipline output.
+
+- `find_renamed_constraints`, `check_constraint_names` and
+  `guard_renamed_constraints`, which read and enforce that rule, for a
+  composition built by hand rather than through `BoxSubdivisionScenario`.
+
+- `read_margin_report` and `MarginReport`, which say what the convexity margin
+  was doing over a finished run: how many boxes were solved, how many of them
+  were cut on *feasibility* rather than admitted, the best feasible value, and
+  the spread of the objective over **every box solved**, which is the scale the
+  margin has to be calibrated in and the one the sweep reads. A run that
+  admitted no box at all now **logs a warning**, being otherwise
+  indistinguishable from a run the margin governed well: what rejects a box is
+  the `is_feasible` gate, so no value of the margin would have admitted one.
+
+- `keep_couplings_internal` and `keep_every_mda_couplings_internal`, which do
+  that to an MDA, for a composition built without the scenario.
+
+- An animation of a run in two dimensions, on the landing page and in the
+  methodology: the master choosing boxes of Rastrigin one after the other, the
+  local solver descending in each, and the best value against the evaluations
+  spent. `python docs/figures.py solve` writes it, and naming figures on that
+  command line now writes only those.
+
+- `benchmarks/data_profiles.py`, the **data profiles** of every method, which
+  finally puts the `gemseo-benchmark` dependency of the `benchmark` group to
+  use: the targets come from its `TargetsGenerator` over the pooled histories,
+  the profiles from its `DataProfile`. The tables report where a method ends;
+  the profiles report how fast it gets there. The benchmark `Counter` records
+  the best value after each call, and a `Result` carries it as `history`, one
+  entry per equivalent evaluation.
+
+- `benchmarks/variants.py`, the **variants of the method** behind the interface
+  of the baselines, each changing one thing from the swept configuration: the
+  probes, the top of the convexity ladder, the density fixed or proposed by the
+  basin count, the multi-resolution encoding and the deep hierarchy. The data
+  profiles now run them beside the baselines on one set of targets, at $500$
+  evaluations per variable, and cache every finished run so an interrupted
+  study resumes. `run_swept_box_subdivision` takes the probes, the top of the
+  ladder and the levels of the encoding.
+
+- `benchmarks/cantilever/`: drivers for the short cantilever of the GGP
+  package (108 variables, volume constraint, adjoint gradients) with the
+  preset `short_cantilever_mna`, which reproduces `GGP_main.m` with the Moving
+  Node Approach. `trivial_start.py` runs the box subdivision, with
+  `--processes` to solve the probes in parallel (requires merge request 139 of
+  gemseo-bilevel-outer-approximation) and `--record` to store every finite
+  element solution; `parallel_multistart.py` runs a multistart of MMA over
+  several processes; `cantilever_parallel_gif.py` animates a recorded run;
+  `global_baselines.py` runs DIRECT, CMA-ES, EGO, GE-SBO and EGO on SMT's
+  GEKPLS. The results page reports MMA, the multistart and the box
+  subdivision with nine probes.
+
+### Changed
+
+- The results page profiles the variants **before** comparing with the
+  baselines, and the comparison keeps only the best variant of each dimension:
+  sixteen probes in two variables, ten subdivisions per variable in five. Its
+  table and figure are rebuilt from the runs of the profiles, five starting
+  points instead of three.
+
+### Fixed
+
+- The constraint formulation no longer fails when only some of the variables
+  are subdivided: the adapter starting a sub-problem inside its box sets the
+  starting point of the subdivided variables one at a time, instead of handing
+  the design space a current value covering part of its variables, which it
+  rejects. The variables that are not subdivided keep the value they have.
+
+- The `markdownlint` pre-commit hook checked nothing at all. Its `--disable`
+  takes a list of rules, so it consumed the file names `pre-commit` appends;
+  `markdownlint` then printed its usage and exited 0, and the hook reported
+  passing. The rule it disables moves into `.markdownlint.yml`, leaving nothing
+  variadic on the command line.
+
+- A table of *Using the method* dropped part of a row when rendered. It writes
+  an absolute value with bars, and Markdown reads those as cell delimiters —
+  five cells against a header of three — so everything after them was missing
+  from the published page. Written `\vert` the row is three cells again.
+
+- The table proposing the density no longer passes for its whole cost: the
+  scans deciding the density were never counted, and they cost more than the
+  runs they configure, about $6100$ evaluations on Rastrigin in five variables
+  against $2103$. The page says so, and the profiles charge them.
+
+### Documentation
+
+- *Estimating the density instead of supplying it*, reporting the estimator
+  above and four findings about configuring the method that it turned up: the
+  convexity margin is **absolute, in the units of the objective**, and the
+  calibrated hundred is 690 % of the range Ackley spans and 2045 % of
+  Griewank's, which are exactly the two problems that never reach the optimum,
+  so it was the margin losing Ackley and not the density; the patience of the
+  master has to move with the trust region, holding the region open at its
+  floor while leaving the stall count at ten costing Rastrigin its result; the
+  number of trust-region probes is **not monotone**, four working, six not and
+  ten working everywhere, on both encodings; and `number_of_processes` buys
+  nothing here, the work being identical at one, two and four processes for a
+  speed-up between 0.74 and 1.00, since the fan-out covers about a tenth of a
+  run while roughly three quarters of it is the master's own MILP. One earlier
+  reading is retracted in place rather than dropped.
+
+- What the estimator does **not** reach, stress-constrained sizing and topology
+  being the case that asks: a raw density field is neither something this
+  method subdivides nor affordable to scan; a stress-feasible region is rarely
+  a slab normal to a design variable, and an axial scan across a diagonal
+  boundary overcounts or threads it; and a singular optimum lies in a
+  degenerate part of the feasible set that carries no volume, so no sampling of
+  feasibility will land on it.
+
+- *Where the density comes from*, in the methodology: the estimand is the
+  expected number of minima along an axial line rather than a wavelength, which
+  a general objective does not have per direction; why a space-filling design
+  cannot replace the line scans, its average being the ANOVA main effect, which
+  neither Griewank's multimodality nor Ackley's survives; why the abscissae are
+  drawn at random, an even scan resonating with a regular landscape and
+  reporting a single basin for Ackley twice running; and why the one-sided error
+  is kept rather than hidden, a ladder that does not settle being the signal
+  that per-basin boxing is the wrong target.
+
+- *Proposing it rather than sweeping it*, in the results, where the density had
+  been described as the first thing to sweep on a new problem. On every problem
+  whose ladder settled the proposal picks the better of the two fixed densities
+  compared there, and beats both on the one with unimodal components to leave
+  alone. The annex on tuning now says the first knob can be read off the
+  landscape instead of turned.
+
+- The conclusion no longer lists estimating the density among the directions the
+  work could take, that being done, and lists instead what is left of it: the
+  basins a **constraint** cuts, with the three things standing between the
+  constraint-aware count and a stress-constrained problem, only the first of
+  which is a matter of effort.
+
+- Where each fault found in the master while profiling these runs went, as
+  issues 7 to 11 of `gemseo-bilevel-outer-approximation`. Which master is
+  installed is not cosmetic: the benchmark asserts that a run's outcome is
+  identical at one process and at four, which is false without the first of
+  them.
+
+- *What the margin reaches, and what it does not*, with the repair written out:
+  the margin is subtracted from differences of objective value over the whole
+  history the master is given, which is the feasible and the infeasible boxes
+  **together**, so an infeasible box's objective cut is guarded like any other
+  and the scale to calibrate against is the spread over every box solved. What
+  the margin does not reach is the `is_feasible` gate, an *equality* constraint
+  the master repairs with a margin of zero — the master passes `min_dfk` to its
+  inequality-constraint cuts only — so no value of it will admit a box the gate
+  rejects. The section points at the sweep, which reads that same scale off the
+  run and asks for no number at all.
+- The tuning guidance now says that "erring high costs sub-problems rather than
+  quality" is measured on the unconstrained benchmarks, and that the range to
+  scale the margin to is the range over **every box solved**, which a penalised
+  branch can make far wider than the design space suggests.
+- A warning against counting feasible points in the database of the
+  *sub-problem*: under the normalized formulation every box writes to the same
+  keys, the centre of every box being `0.5`, so a later box overwrites an
+  earlier one and that database reports the last box solved rather than the run.
+
+- An MDA can now be a discipline of a `BoxSubdivisionScenario` once a
+  constraint is attached. The disciplines are collapsed into one chain, which
+  treats the couplings of an MDA as inputs of the chain, so the adapter asked
+  the MDA for derivatives with respect to its own couplings as soon as there
+  was a constraint to differentiate, and the Jacobian assembly refused with
+  `Variable y2 is both a coupling and a design variable`. Inside a chain those
+  couplings are internal, and the derivative that is no longer asked for is
+  zero: a coupling enters an MDA as an initial guess and leaves it converged,
+  and a converged fixed point does not depend on where the iteration started.
+
+- *Coupled problems: the disciplines are chained*, saying that the disciplines
+  are chained and that a coupled problem therefore needs its MDA built
+  explicitly — a reader handing the scenario five coupled disciplines otherwise
+  gets a feed-forward evaluation and no warning.
+
 ## 0.2.0 (2026-09-19)
 
 The settings, in two entry points: the general construction, which names the

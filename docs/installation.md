@@ -13,16 +13,17 @@
 pip install gemseo-box-subdivision
 ```
 
-This installs [GEMSEO](https://gemseo.org) and
+This command installs [GEMSEO](https://gemseo.org) and
 [gemseo-bilevel-outer-approximation](https://pypi.org/project/gemseo-bilevel-outer-approximation/),
-whose `Benders` formulation and outer-approximation master the package builds on.
+which provides the `Benders` formulation and the outer-approximation master used
+by the package.
 
-Python 3.10 to 3.13 are supported.
+Python versions 3.10 to 3.13 are supported.
 
-## Checking the installation
+## Verification of the installation
 
-The plugin registers itself through the `gemseo_plugins` entry point, so its
-algorithms appear in the GEMSEO factories:
+The plugin is registered through the `gemseo_plugins` entry point, so that its
+algorithms are available in the GEMSEO factories:
 
 ```python
 from gemseo.algos.opt.factory import OptimizationLibraryFactory
@@ -30,7 +31,7 @@ from gemseo.algos.opt.factory import OptimizationLibraryFactory
 print(OptimizationLibraryFactory().algorithms)
 ```
 
-## From the sources
+## Installation from the sources
 
 ```shell
 git clone https://github.com/SimoneConiglio/gemseo-box-subdivision.git
