@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=8e9fcb1f"></script>
+    <script src="_static/documentation_options.js?v=45165bd2"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -419,22 +419,23 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>gemseo-box-subdivision
 </pre></div>
 </div>
-<p>This installs <a class="reference external" href="https://gemseo.org">GEMSEO</a> and
+<p>This command installs <a class="reference external" href="https://gemseo.org">GEMSEO</a> and
 <a class="reference external" href="https://pypi.org/project/gemseo-bilevel-outer-approximation/">gemseo-bilevel-outer-approximation</a>,
-whose <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation and outer-approximation master the package builds on.</p>
-<p>Python 3.10 to 3.13 are supported.</p>
-<section id="checking-the-installation">
-<h2>Checking the installation<a class="headerlink" href="#checking-the-installation" title="Link to this heading">#</a></h2>
-<p>The plugin registers itself through the <code class="docutils literal notranslate"><span class="pre">gemseo_plugins</span></code> entry point, so its
-algorithms appear in the GEMSEO factories:</p>
+which provides the <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation and the outer-approximation master used
+by the package.</p>
+<p>Python versions 3.10 to 3.13 are supported.</p>
+<section id="verification-of-the-installation">
+<h2>Verification of the installation<a class="headerlink" href="#verification-of-the-installation" title="Link to this heading">#</a></h2>
+<p>The plugin is registered through the <code class="docutils literal notranslate"><span class="pre">gemseo_plugins</span></code> entry point, so that its
+algorithms are available in the GEMSEO factories:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gemseo.algos.opt.factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizationLibraryFactory</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">OptimizationLibraryFactory</span><span class="p">()</span><span class="o">.</span><span class="n">algorithms</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="from-the-sources">
-<h2>From the sources<a class="headerlink" href="#from-the-sources" title="Link to this heading">#</a></h2>
+<section id="installation-from-the-sources">
+<h2>Installation from the sources<a class="headerlink" href="#installation-from-the-sources" title="Link to this heading">#</a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/SimoneConiglio/gemseo-box-subdivision.git
 <span class="nb">cd</span><span class="w"> </span>gemseo-box-subdivision
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>tox<span class="w"> </span>tox-uv
@@ -518,8 +519,8 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-the-installation">Checking the installation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-the-sources">From the sources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verification-of-the-installation">Verification of the installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-from-the-sources">Installation from the sources</a></li>
 </ul>
   </nav></div>
 

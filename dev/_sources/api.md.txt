@@ -9,10 +9,10 @@
 
 # API reference
 
-Everything below is re-exported from the top-level `gemseo_box_subdivision`
-namespace, which is what user code should import from.
+The objects below are re-exported by the top-level `gemseo_box_subdivision`
+namespace, from which they should be imported.
 
-## The entry point
+## Scenario and settings
 
 ```{eval-rst}
 .. autosummary::

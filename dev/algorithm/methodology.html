@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
+    <script src="../_static/documentation_options.js?v=45165bd2"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -453,46 +453,50 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="methodology">
 <h1>Methodology<a class="headerlink" href="#methodology" title="Link to this heading">#</a></h1>
-<section id="the-problem">
-<h2>The problem<a class="headerlink" href="#the-problem" title="Link to this heading">#</a></h2>
+<section id="problem-statement">
+<h2>Problem statement<a class="headerlink" href="#problem-statement" title="Link to this heading">#</a></h2>
+<p>We consider the problem</p>
 <div class="math notranslate nohighlight">
 \[
 \min_{x \in [L, U] \subset \mathbb{R}^n} f(x)
-\quad \text{subject to} \quad g(x) \le 0
+\quad \text{subject to} \quad g(x) \le 0,
 \]</div>
-<p>with <span class="math notranslate nohighlight">\(f\)</span> and/or <span class="math notranslate nohighlight">\(g\)</span> non-convex, so that the problem has several local minima. A
-local solver returns whichever minimum lies in the basin of its starting point,
-and a global one pays for the exploration of the whole design space.</p>
+<p>where <span class="math notranslate nohighlight">\(f\)</span> and/or <span class="math notranslate nohighlight">\(g\)</span> are non-convex, so that the problem has several local
+minima. A local solver returns the minimum of the basin containing its starting
+point, whereas a global method has to explore the whole design space.</p>
 </section>
-<section id="motivation-separating-exploration-from-exploitation">
-<h2>Motivation: separating exploration from exploitation<a class="headerlink" href="#motivation-separating-exploration-from-exploitation" title="Link to this heading">#</a></h2>
-<p>The idea is to make the two concerns explicit rather than have a single
-algorithm arbitrate between them:</p>
+<section id="separation-of-exploration-and-exploitation">
+<h2>Separation of exploration and exploitation<a class="headerlink" href="#separation-of-exploration-and-exploitation" title="Link to this heading">#</a></h2>
+<p>The method separates two tasks that a single algorithm would otherwise have to
+balance:</p>
 <ul class="simple">
-<li><p><strong>exploration</strong> decides <em>where</em> to look, over a finite set of regions;</p></li>
-<li><p><strong>exploitation</strong> solves the original problem <em>inside</em> one region, with a local
-gradient-based algorithm, which is what such algorithms are good at.</p></li>
+<li><p>exploration, i.e. the selection of the region to be searched among a finite
+set of regions;</p></li>
+<li><p>exploitation, i.e. the solution of the original problem within one region by a
+local gradient-based algorithm.</p></li>
 </ul>
-<p>The regions come from a <strong>Cartesian subdivision</strong> of the design space: each
-component <span class="math notranslate nohighlight">\(x_j\)</span> is split into <span class="math notranslate nohighlight">\(m_j\)</span> contiguous subdivisions
-<span class="math notranslate nohighlight">\([l_{j,k}, u_{j,k}]\)</span>. Their Cartesian product defines <span class="math notranslate nohighlight">\(\prod_j m_j\)</span> boxes.</p>
+<p>The regions result from a Cartesian subdivision of the design space: each
+component <span class="math notranslate nohighlight">\(x_j\)</span> is divided into <span class="math notranslate nohighlight">\(m_j\)</span> contiguous intervals <span class="math notranslate nohighlight">\([l_{j,k}, u_{j,k}]\)</span>,
+whose Cartesian product defines <span class="math notranslate nohighlight">\(\prod_j m_j\)</span> boxes.</p>
 <img alt="A Cartesian subdivision of a two-dimensional design space" class="only-light" src="../_images/subdivision.png" />
 <img alt="A Cartesian subdivision of a two-dimensional design space" class="only-dark" src="../_images/subdivision-dark.png" />
-<p>Choosing a box is a categorical decision, solving inside it is a continuous one,
-so the problem becomes a <strong>mixed-integer non-linear program</strong>, which is exactly
-what a bi-level outer approximation solves.</p>
+<p><em>Figure 1. Cartesian subdivision of a two-dimensional design space.</em></p>
+<p>The selection of a box is a categorical decision and the optimization within it
+a continuous one, so that the problem becomes a mixed-integer nonlinear program,
+which is solved by a bi-level outer approximation.</p>
 </section>
-<section id="encoding-the-choice-of-a-box">
-<h2>Encoding the choice of a box<a class="headerlink" href="#encoding-the-choice-of-a-box" title="Link to this heading">#</a></h2>
-<p>One categorical variable per design variable component, one-hot encoded as
-<span class="math notranslate nohighlight">\(\alpha_{j,k} \in \{0,1\}\)</span> with <span class="math notranslate nohighlight">\(\sum_k \alpha_{j,k} = 1\)</span>.</p>
+<section id="encoding-of-the-box-selection">
+<h2>Encoding of the box selection<a class="headerlink" href="#encoding-of-the-box-selection" title="Link to this heading">#</a></h2>
+<p>One categorical variable is associated with each component of the design
+variables and encoded as a one-hot vector <span class="math notranslate nohighlight">\(\alpha_{j,k} \in \{0,1\}\)</span> with
+<span class="math notranslate nohighlight">\(\sum_k \alpha_{j,k} = 1\)</span>.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>The master problem carries <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> binaries, <strong>linear</strong> in the number of
-components, while the number of boxes <span class="math notranslate nohighlight">\(\prod_j m_j\)</span> is exponential in it. The
-Cartesian product is never enumerated.</p>
+<p>The master problem has <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> binary variables, a number linear in the
+number of components, whereas the number of boxes <span class="math notranslate nohighlight">\(\prod_j m_j\)</span> is exponential.
+The Cartesian product is never enumerated.</p>
 </div>
-<p>The bounds of the selected box are <strong>affine</strong> in <span class="math notranslate nohighlight">\(\alpha\)</span>:</p>
+<p>The bounds of the selected box are affine functions of <span class="math notranslate nohighlight">\(\alpha\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[
 \ell_j(\alpha) = \sum_k l_{j,k}\, \alpha_{j,k},
@@ -500,99 +504,103 @@ Cartesian product is never enumerated.</p>
 u_j(\alpha) = \sum_k u_{j,k}\, \alpha_{j,k}.
 \]</div>
 </section>
-<section id="what-grows-with-the-dimension">
-<h2>What grows with the dimension<a class="headerlink" href="#what-grows-with-the-dimension" title="Link to this heading">#</a></h2>
-<p>The boxes are the Cartesian product of the subdivisions, <span class="math notranslate nohighlight">\(\prod_j m_j\)</span>, which
-explodes with the number of variables. The <strong>master does not see them</strong>: it sees
-the one-hot binaries, <span class="math notranslate nohighlight">\(\sum_j m_j\)</span>, which grow linearly. Five variables with ten
-subdivisions each is <span class="math notranslate nohighlight">\(100\,000\)</span> boxes and <span class="math notranslate nohighlight">\(50\)</span> binaries.</p>
-<img alt="The boxes grow as a product, the binaries as a sum" class="only-light" src="../_images/complexity.svg" />
-<img alt="The boxes grow as a product, the binaries as a sum" class="only-dark" src="../_images/complexity-dark.svg" />
-<p>What a budget buys is neither of those, but the number of <strong>sub-problems solved</strong>,
-a few dozen for a few thousand evaluations. So the quantity that decides whether
-a subdivision is usable is the ratio between the coefficients of the cut model,
-<span class="math notranslate nohighlight">\(\sum_j m_j\)</span>, and the cuts that can be afforded. A fine subdivision is not out of
-reach because of its boxes; it is demanding because its model has more
-coefficients to identify.</p>
-<p>That ratio is measurable, and it is the <strong>ceiling</strong> on the density: on five
-variables with a budget affording some fifty sub-problems, ten subdivisions per
-variable, fifty binaries over a hundred thousand boxes, is the best density
-measured, while sixteen, eighty binaries, is markedly worse.</p>
-<p>The <strong>floor</strong> is set by the landscape rather than the budget: the subdivision has
-to separate the basins, which is why a problem whose minima are one unit apart
-over a range of ten needs ten subdivisions and is not solved by two. Between the
-two there is usually room, and there need not be: a subdivision fine enough to
-resolve the basins may already carry more coefficients than the budget can
-identify, and that is the case the method cannot serve.</p>
-<p>Refining past the basins is not free either. A box holding no minimum of its own
-returns a value and a post-optimal sensitivity that describe a constrained
-solution on its border, which says nothing about where the minimum is, so an
-over-fine subdivision degrades the ranking rather than merely wasting
-sub-problems. All three effects are measured in
+<section id="growth-with-the-dimension">
+<h2>Growth with the dimension<a class="headerlink" href="#growth-with-the-dimension" title="Link to this heading">#</a></h2>
+<p>The number of boxes, <span class="math notranslate nohighlight">\(\prod_j m_j\)</span>, grows exponentially with the number of
+variables, whereas the master works with the <span class="math notranslate nohighlight">\(\sum_j m_j\)</span> one-hot binaries, a
+number that grows linearly. Five variables with ten subdivisions each give
+<span class="math notranslate nohighlight">\(100\,000\)</span> boxes and <span class="math notranslate nohighlight">\(50\)</span> binaries.</p>
+<img alt="The number of boxes grows as a product, the number of binaries as a sum" class="only-light" src="../_images/complexity.svg" />
+<img alt="The number of boxes grows as a product, the number of binaries as a sum" class="only-dark" src="../_images/complexity-dark.svg" />
+<p><em>Figure 2. Number of boxes and number of binaries against the number of
+variables.</em></p>
+<p>A budget determines the number of sub-problems that can be solved, typically a
+few dozen for a few thousand evaluations. The relevant quantity for the
+usability of a subdivision is therefore the ratio between the number of
+coefficients of the cut model, <span class="math notranslate nohighlight">\(\sum_j m_j\)</span>, and the number of affordable cuts.
+A fine subdivision is not limited by its number of boxes but by the number of
+coefficients of its cut model.</p>
+<p>This ratio gives an upper limit on the density: in five variables, with a budget
+of about fifty sub-problems, ten subdivisions per variable (fifty binaries, one
+hundred thousand boxes) gave the best results, and sixteen (eighty binaries)
+markedly worse results.</p>
+<p>The lower limit is determined by the landscape: the subdivision must separate
+the basins, so that a problem whose minima are one unit apart over a range of ten
+requires ten subdivisions and is not solved with two. The interval between the
+two limits may be empty, when a subdivision fine enough to separate the basins
+already has more coefficients than the budget can identify; the method is not
+applicable in that case.</p>
+<p>Refining beyond the basins also degrades the results. A box that contains no
+minimum returns a value and a post-optimal sensitivity corresponding to a
+constrained solution on its boundary, which carry no information on the location
+of the minimum, so that an excessively fine subdivision degrades the ranking of
+the boxes. These three effects are quantified in
 <a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the results</span></a>.</p>
 </section>
-<section id="the-bi-level-problem">
-<h2>The bi-level problem<a class="headerlink" href="#the-bi-level-problem" title="Link to this heading">#</a></h2>
+<section id="bi-level-problem">
+<h2>Bi-level problem<a class="headerlink" href="#bi-level-problem" title="Link to this heading">#</a></h2>
+<p>The problem is reformulated as</p>
 <div class="math notranslate nohighlight">
 \[
 \min_\alpha\ u(\alpha)
 \quad \text{where} \quad
-u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \right\}
+u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \right\}.
 \]</div>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Level</p></th>
-<th class="head"><p>Decides</p></th>
-<th class="head"><p>Solved by</p></th>
-<th class="head"><p>Role</p></th>
+<tr class="row-odd"><th class="head"><p>level</p></th>
+<th class="head"><p>variables</p></th>
+<th class="head"><p>solver</p></th>
+<th class="head"><p>role</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Main</p></td>
-<td><p>the box, <span class="math notranslate nohighlight">\(\alpha\)</span></p></td>
-<td><p>MINLP master, outer approximation</p></td>
+<tr class="row-even"><td><p>main</p></td>
+<td><p>box selection <span class="math notranslate nohighlight">\(\alpha\)</span></p></td>
+<td><p>mixed-integer master, outer approximation</p></td>
 <td><p>exploration</p></td>
 </tr>
-<tr class="row-odd"><td><p>Sub</p></td>
-<td><p><span class="math notranslate nohighlight">\(x\)</span> inside the box</p></td>
-<td><p>NLP, local</p></td>
+<tr class="row-odd"><td><p>sub</p></td>
+<td><p><span class="math notranslate nohighlight">\(x\)</span> within the box</p></td>
+<td><p>local nonlinear solver</p></td>
 <td><p>exploitation</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p><em>Table 1. The two levels of the problem.</em></p>
 <p>This is the <code class="docutils literal notranslate"><span class="pre">Benders</span></code> formulation of
 <a class="reference external" href="https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation">gemseo-bilevel-outer-approximation</a>,
 with the box-selection variables as the categorical variables of the main
 problem.</p>
-<img alt="The exchange between the master and the sub-problem" class="only-light" src="../_images/bilevel.svg" />
-<img alt="The exchange between the master and the sub-problem" class="only-dark" src="../_images/bilevel-dark.svg" />
-<p>Run on Rastrigin in two dimensions, the exchange looks like this: each frame is
-one iteration of the loop above seen from the design space, the master choosing
-a box (orange) from the cuts of the boxes already solved (blue), and the local
-solver descending inside it from its center.</p>
-<img alt="The master choosing boxes of Rastrigin one after the other, a local solver descending in each" class="only-light" src="../_images/solve.gif" />
-<img alt="The master choosing boxes of Rastrigin one after the other, a local solver descending in each" class="only-dark" src="../_images/solve-dark.gif" />
-<p>None of the first six boxes improves on the local minimum of <span class="math notranslate nohighlight">\(8.95\)</span> the first
-one returns; the seventh returns the global one, after <span class="math notranslate nohighlight">\(154\)</span> evaluations. The
-incumbent (green) no longer changes after that, and the thirteen boxes that
-follow are what the master spends before its stopping criterion ends the run.
-The animation is written by <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/figures.py</span> <span class="pre">solve</span></code>.</p>
+<img alt="Exchanges between the master and the sub-problem" class="only-light" src="../_images/bilevel.svg" />
+<img alt="Exchanges between the master and the sub-problem" class="only-dark" src="../_images/bilevel-dark.svg" />
+<p><em>Figure 3. Exchanges between the master and the sub-problem.</em></p>
+<img alt="The master selecting boxes of the Rastrigin function, with the path of the local solver in each" class="only-light" src="../_images/solve.gif" />
+<img alt="The master selecting boxes of the Rastrigin function, with the path of the local solver in each" class="only-dark" src="../_images/solve-dark.gif" />
+<p><em>Figure 4. Iterations of the method on the Rastrigin function in two dimensions:
+box selected by the master (orange) from the cuts of the boxes already solved
+(blue), and path of the local solver from the centre of the box. The animation
+is generated by <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/figures.py</span> <span class="pre">solve</span></code>.</em></p>
+<p>In the run of Figure 4, none of the first six boxes improves on the local minimum
+of <span class="math notranslate nohighlight">\(8.95\)</span> returned by the first box; the seventh returns the global minimum,
+after <span class="math notranslate nohighlight">\(154\)</span> evaluations. The incumbent (green) no longer changes, and the
+thirteen following boxes are solved before the stopping criterion is met.</p>
 </section>
-<section id="outer-approximation-and-its-sensitivity">
-<h2>Outer approximation and its sensitivity<a class="headerlink" href="#outer-approximation-and-its-sensitivity" title="Link to this heading">#</a></h2>
-<p>The master builds a piecewise-linear underestimator of <span class="math notranslate nohighlight">\(u\)</span> from the
-sub-problems solved so far, one cut per visited <span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span>:</p>
+<section id="outer-approximation-and-sensitivity">
+<h2>Outer approximation and sensitivity<a class="headerlink" href="#outer-approximation-and-sensitivity" title="Link to this heading">#</a></h2>
+<p>The master builds a piecewise-linear underestimator of <span class="math notranslate nohighlight">\(u\)</span> from the sub-problems
+already solved, with one cut per visited point <span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[
 \eta \ \ge\ u(\alpha^{(i)}) + s^{(i)\top} (\alpha - \alpha^{(i)}),
 \qquad
 s^{(i)} = \left.\frac{\mathrm{d}u}{\mathrm{d}\alpha}\right|_{\alpha^{(i)}},
 \]</div>
-<p>and minimizes <span class="math notranslate nohighlight">\(\eta\)</span> over the one-hot polytope. The cuts are what make the
-exploration informed rather than exhaustive, so the <strong>slope <span class="math notranslate nohighlight">\(s^{(i)}\)</span> is the
-heart of the method</strong>.</p>
-<p>GEMSEO obtains it by post-optimal analysis of the sub-problem:</p>
+<p>and minimizes <span class="math notranslate nohighlight">\(\eta\)</span> over the one-hot polytope. The cuts make the exploration
+informed rather than exhaustive, so that the slope <span class="math notranslate nohighlight">\(s^{(i)}\)</span> is the central
+quantity of the method.</p>
+<p>GEMSEO computes it by post-optimal analysis of the sub-problem:</p>
 <div class="math notranslate nohighlight">
 \[
 \frac{\mathrm{d} f(x^\ast(p), p)}{\mathrm{d} p}
@@ -600,102 +608,99 @@ heart of the method</strong>.</p>
 + \lambda_g^\top \frac{\partial g}{\partial p}
 + \lambda_h^\top \frac{\partial h}{\partial p} .
 \]</div>
-<p>The bounds <span class="math notranslate nohighlight">\(\ell \le x \le u\)</span> appear in the sub-problem but <strong>not</strong> in this
-formula: it assumes them constant with respect to the parameter <span class="math notranslate nohighlight">\(p\)</span>. This single
-fact drives the whole implementation, and the two formulations below are the two
-ways of living with it.</p>
+<p>The bounds <span class="math notranslate nohighlight">\(\ell \le x \le u\)</span> appear in the sub-problem but not in this formula,
+which assumes them independent of the parameter <span class="math notranslate nohighlight">\(p\)</span>. This assumption determines
+the implementation, and the two formulations below are two ways of satisfying
+it.</p>
 </section>
-<section id="the-trust-region-of-the-master">
-<span id="formulations"></span><h2>The trust region of the master<a class="headerlink" href="#the-trust-region-of-the-master" title="Link to this heading">#</a></h2>
-<p>The master does not choose among all the boxes at every iteration: it restricts
-the mixed-integer problem to a neighbourhood of the incumbent box <span class="math notranslate nohighlight">\(\alpha\)</span>,</p>
+<section id="trust-region-of-the-master">
+<h2>Trust region of the master<a class="headerlink" href="#trust-region-of-the-master" title="Link to this heading">#</a></h2>
+<p>At each iteration the master restricts the mixed-integer problem to a
+neighbourhood of the incumbent box <span class="math notranslate nohighlight">\(\alpha\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[
 \sum_{j \,:\, \alpha'_j = \alpha_j} w_j(\alpha)
 \ \ge\ \sum_j w_j(\alpha) - \texttt{max\_step},
 \]</div>
-<p>whose radius shrinks when the upper bound stops improving. The constraint reads
-as a budget: a candidate <span class="math notranslate nohighlight">\(\alpha'\)</span> pays <span class="math notranslate nohighlight">\(w_j(\alpha)\)</span> for every component it
-changes, and may spend <code class="docutils literal notranslate"><span class="pre">max_step</span></code> in all.</p>
-<section id="what-the-weights-have-to-be">
-<h3>What the weights have to be<a class="headerlink" href="#what-the-weights-have-to-be" title="Link to this heading">#</a></h3>
-<p>The weight charged is the one the <strong>incumbent</strong> selects, <span class="math notranslate nohighlight">\(w_j(\alpha)\)</span>, not
-anything about the category the candidate moves to. The constraint therefore
-cannot express a proximity between categories: whether a candidate moves to the
-neighbouring subdivision or to the far end of the range, it pays the same. This
-is the right constraint for a genuinely categorical variable, where no two
-categories are nearer than any others, and it is what the bilevel outer
-approximation was written for.</p>
-<p>A subdivided variable looks ordinal, and taking that invitation — weighting each
-subdivision by its own index — is the obvious thing to do. It makes the
-region <strong>lopsided rather than local</strong>: leaving the first subdivision of a
-component is free, leaving the last costs <span class="math notranslate nohighlight">\(m_j - 1\)</span>, and neither has anything to
-do with where the candidate lands.</p>
-<img alt="The same radius seen from a low incumbent and from a high one, under either metric" class="only-light" src="../_images/trust_region.svg" />
-<img alt="The same radius seen from a low incumbent and from a high one, under either metric" class="only-dark" src="../_images/trust_region-dark.svg" />
-<p>The two rows are the same two radii seen from two incumbents. Under the
-catalogue values the region is the whole design space at <span class="math notranslate nohighlight">\((1,1)\)</span> and the
-incumbent alone at <span class="math notranslate nohighlight">\((7,6)\)</span>; counting components it is the same nineteen boxes at
-both.</p>
-<p>So the design spaces of this package weigh <strong>every subdivision alike</strong>,
-<span class="math notranslate nohighlight">\(w_j \equiv 1\)</span>, and the distance becomes the number of components a candidate
-changes, that is the Hamming distance between the two one-hot encodings. The
-diameter is then <span class="math notranslate nohighlight">\(n\)</span>, which
-<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_step</span></code></a>
-returns, and that is the radius at which the region stops constraining, not the
-radius to use.</p>
-<p>Expressing the ordinal proximity properly would need a different constraint,
-<span class="math notranslate nohighlight">\(|v^\top\alpha' - v^\top\alpha| \le \texttt{max\_step}\)</span> on the catalogue values
-<span class="math notranslate nohighlight">\(v\)</span>, which is not what the master builds. It was measured through a stub, in
-<a class="reference internal" href="tuning.html#which-metric-wins"><span class="std std-ref">annex C</span></a>, and
-it is not better: multimodality behaves like a categorical choice, neighbouring
-boxes being no more alike than distant ones.</p>
+<p>whose radius decreases when the upper bound stops improving. A candidate
+<span class="math notranslate nohighlight">\(\alpha'\)</span> is charged <span class="math notranslate nohighlight">\(w_j(\alpha)\)</span> for each component it changes, within a total
+of <code class="docutils literal notranslate"><span class="pre">max_step</span></code>.</p>
+<section id="choice-of-the-weights">
+<h3>Choice of the weights<a class="headerlink" href="#choice-of-the-weights" title="Link to this heading">#</a></h3>
+<p>The weight charged is the one selected by the incumbent, <span class="math notranslate nohighlight">\(w_j(\alpha)\)</span>, and does
+not depend on the category selected by the candidate. The constraint therefore
+cannot express a proximity between categories: a move to the neighbouring
+interval and a move to the other end of the range have the same cost. This is
+appropriate for a categorical variable, for which no category is closer to
+another, and corresponds to the purpose of the bi-level outer approximation.</p>
+<p>A subdivided variable appears ordinal, which suggests weighting each interval by
+its index. The resulting region is then asymmetric rather than local: leaving the
+first interval of a component costs nothing, leaving the last one costs
+<span class="math notranslate nohighlight">\(m_j - 1\)</span>, independently of the interval reached.</p>
+<img alt="The same radius from a low incumbent and from a high one, under either metric" class="only-light" src="../_images/trust_region.svg" />
+<img alt="The same radius from a low incumbent and from a high one, under either metric" class="only-dark" src="../_images/trust_region-dark.svg" />
+<p><em>Figure 5. Trust region of the same two radii seen from two incumbents, with
+index weights and with unit weights.</em></p>
+<p>In Figure 5, with index weights the region is the whole design space from the
+incumbent <span class="math notranslate nohighlight">\((1,1)\)</span> and the incumbent alone from <span class="math notranslate nohighlight">\((7,6)\)</span>; with unit weights it
+contains the same nineteen boxes in both cases.</p>
+<p>The design spaces of this package therefore use unit weights, <span class="math notranslate nohighlight">\(w_j \equiv 1\)</span>, so
+that the distance is the number of components changed by a candidate, i.e. the
+Hamming distance between the one-hot encodings. The diameter is then <span class="math notranslate nohighlight">\(n\)</span>, the
+value returned by
+<a class="reference internal" href="../_autosummary/gemseo_box_subdivision.subdivisions.box.html#gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step" title="gemseo_box_subdivision.subdivisions.box.BoxSubdivision.max_step"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_step</span></code></a>; it
+is the radius beyond which the region no longer constrains the master, not the
+radius to be used.</p>
+<p>An ordinal proximity would require a different constraint, <span class="math notranslate nohighlight">\(|v^\top\alpha' -
+v^\top\alpha| \le \texttt{max\_step}\)</span> on the catalogue values <span class="math notranslate nohighlight">\(v\)</span>, which the
+master does not build. This variant was evaluated with a stub in <a class="reference internal" href="tuning.html#comparison-of-the-metrics"><span class="std std-ref">annex
+C</span></a> and gave no improvement: neighbouring
+boxes are no more similar than distant ones, and the multimodality behaves as a
+categorical choice.</p>
 </section>
-<section id="how-wide-it-should-be">
-<h3>How wide it should be<a class="headerlink" href="#how-wide-it-should-be" title="Link to this heading">#</a></h3>
-<p>Small. On Rastrigin with five variables and ten subdivisions, a radius of two
-components reaches the optimum from every starting point; widening it to the
-whole design space, or removing the region altogether, loses it. The region is
-what makes a fine subdivision usable at all, see
-<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the benchmark</span></a>, and the
-measurements are in <a class="reference internal" href="tuning.html"><span class="std std-doc">annex C</span></a>.</p>
+<section id="radius">
+<h3>Radius<a class="headerlink" href="#radius" title="Link to this heading">#</a></h3>
+<p>The radius must be small. On Rastrigin with five variables and ten subdivisions,
+a radius of two components reaches the optimum from all starting points; a
+radius equal to the diameter of the design space, or no trust region, does not.
+The trust region is required for fine subdivisions, see
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the results</span></a> and
+<a class="reference internal" href="tuning.html"><span class="std std-doc">annex C</span></a>.</p>
 </section>
 </section>
-<section id="two-formulations">
-<h2>Two formulations<a class="headerlink" href="#two-formulations" title="Link to this heading">#</a></h2>
+<section id="formulations-of-the-sub-problem">
+<span id="formulations"></span><h2>Formulations of the sub-problem<a class="headerlink" href="#formulations-of-the-sub-problem" title="Link to this heading">#</a></h2>
 <section id="box-as-a-constraint">
 <h3>Box as a constraint<a class="headerlink" href="#box-as-a-constraint" title="Link to this heading">#</a></h3>
-<p>Keep <span class="math notranslate nohighlight">\(x\)</span> as the sub-problem variable and move the box into the constraints, as
-one vector-valued function of dimension <span class="math notranslate nohighlight">\(2n\)</span>:</p>
+<p>The sub-problem keeps <span class="math notranslate nohighlight">\(x\)</span> as variable and the box is expressed as a
+vector-valued constraint of dimension <span class="math notranslate nohighlight">\(2n\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
 g_{\text{box}}(x, \alpha) =
 \begin{bmatrix} x - u(\alpha) \\ \ell(\alpha) - x \end{bmatrix} \le 0 .
 \end{split}\]</div>
-<p>The dependency on <span class="math notranslate nohighlight">\(\alpha\)</span> now travels through
-<span class="math notranslate nohighlight">\(\lambda_g^\top \partial g/\partial \alpha\)</span>, and the slope is exact and
-analytic:</p>
+<p>The dependence on <span class="math notranslate nohighlight">\(\alpha\)</span> is then accounted for by the term
+<span class="math notranslate nohighlight">\(\lambda_g^\top \partial g/\partial \alpha\)</span>, and the slope is exact and analytic:</p>
 <div class="math notranslate nohighlight">
 \[
 \frac{\mathrm{d} u}{\mathrm{d} \alpha_{j,k}}
 = -\lambda^{u}_j\, u_{j,k} + \lambda^{\ell}_j\, l_{j,k},
 \]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda^{u}_j, \lambda^{\ell}_j \ge 0\)</span> are the multipliers of the upper
-and lower faces of the box, that is the shadow price of moving a face.</p>
-<p><span class="math notranslate nohighlight">\(g_{\text{box}}\)</span> is linear in <span class="math notranslate nohighlight">\(x\)</span> and affine in <span class="math notranslate nohighlight">\(\alpha\)</span>, hence <strong>jointly
-convex</strong>: all the non-convexity stays in the original <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(g\)</span>.</p>
+and lower faces of the box.</p>
+<p><span class="math notranslate nohighlight">\(g_{\text{box}}\)</span> is linear in <span class="math notranslate nohighlight">\(x\)</span> and affine in <span class="math notranslate nohighlight">\(\alpha\)</span>, hence jointly convex:
+the non-convexity remains confined to <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(g\)</span>.</p>
 </section>
 <section id="box-as-normalized-variables">
 <h3>Box as normalized variables<a class="headerlink" href="#box-as-normalized-variables" title="Link to this heading">#</a></h3>
-<p>Solve instead for <span class="math notranslate nohighlight">\(\xi \in [0,1]^n\)</span>, with</p>
+<p>The sub-problem is solved for <span class="math notranslate nohighlight">\(\xi \in [0,1]^n\)</span>, with</p>
 <div class="math notranslate nohighlight">
 \[
 x(\xi, \alpha) = \ell(\alpha) + \xi \odot (u(\alpha) - \ell(\alpha)).
 \]</div>
-<p>The box is then the <em>bounds</em> of the sub-problem, and those bounds are the unit
-interval <strong>whatever the box</strong>, so the assumption made by the post-optimal
-analysis holds instead of being worked around. The slope comes from the partial
-derivative rather than from multipliers:</p>
+<p>The box then defines the bounds of the sub-problem, which are the unit interval
+for every box, so that the assumption of the post-optimal analysis is satisfied.
+The slope is given by the partial derivative instead of the multipliers:</p>
 <div class="math notranslate nohighlight">
 \[
 \frac{\mathrm{d}u}{\mathrm{d}\alpha_{j,k}}
@@ -704,36 +709,39 @@ derivative rather than from multipliers:</p>
 \frac{\partial x_j}{\partial \alpha_{j,k}}
 = (1-\xi_j)\, l_{j,k} + \xi_j\, u_{j,k},
 \]</div>
-<p>correct at an interior optimum, where <span class="math notranslate nohighlight">\(\nabla_x f\)</span> vanishes, and on a face,
-where <span class="math notranslate nohighlight">\(\xi_j\)</span> is pinned to a bound so the partial derivative is the total one.</p>
-<p>The counterpart is that <span class="math notranslate nohighlight">\(x\)</span> is <strong>bilinear</strong> in <span class="math notranslate nohighlight">\((\xi, \alpha)\)</span>: the choice of the
-box enters the non-linearity of the objective instead of staying in a jointly
-convex constraint. As shown in <a class="reference internal" href="benchmark.html"><span class="std std-doc">the benchmark</span></a>, this costs nothing
-in quality: under the same master settings the normalized formulation reaches the
-optimum from every starting point and the constraint one from all but one.</p>
+<p>which is correct at an interior optimum, where <span class="math notranslate nohighlight">\(\nabla_x f\)</span> vanishes, and on a
+face, where <span class="math notranslate nohighlight">\(\xi_j\)</span> is fixed at a bound and the partial derivative equals the
+total derivative.</p>
+<p>In this formulation <span class="math notranslate nohighlight">\(x\)</span> is bilinear in <span class="math notranslate nohighlight">\((\xi, \alpha)\)</span>, so that the box selection
+enters the nonlinearity of the objective instead of a jointly convex constraint.
+In the experiments this has no adverse effect on the results: with the same
+master settings the normalized formulation reaches the optimum from all starting
+points and the constraint formulation from all but one, see
+<a class="reference internal" href="benchmark.html"><span class="std std-doc">the results</span></a>.</p>
 </section>
 </section>
 <section id="convexification">
 <span id="id1"></span><h2>Convexification<a class="headerlink" href="#convexification" title="Link to this heading">#</a></h2>
-<p>Outer-approximation cuts are supporting hyperplanes <strong>only if <span class="math notranslate nohighlight">\(u\)</span> is convex</strong>. On
-a multimodal problem <span class="math notranslate nohighlight">\(u\)</span> is not, so a cut built at one box can lie <em>above</em> <span class="math notranslate nohighlight">\(u\)</span>
-elsewhere and cut the global optimum off. The master then converges quickly, and
-reports a wrong answer without any error.</p>
+<p>Outer-approximation cuts are supporting hyperplanes only if <span class="math notranslate nohighlight">\(u\)</span> is convex. For a
+multimodal problem <span class="math notranslate nohighlight">\(u\)</span> is not convex, and a cut built at one box can lie above
+<span class="math notranslate nohighlight">\(u\)</span> elsewhere and exclude the global optimum. The master then converges rapidly
+to an incorrect solution without reporting an error.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Guarding against this is the single most important setting of the method, and
-both guards are off by default: <code class="docutils literal notranslate"><span class="pre">convexification_constant=0.0</span></code> and
-<code class="docutils literal notranslate"><span class="pre">adapt=False</span></code>. On the benchmark below, that default reaches the global optimum
-from <strong>none</strong> of the starting points while reporting success.</p>
+<p>The safeguard against this behaviour is the most important setting of the method,
+and both available safeguards are disabled by default:
+<code class="docutils literal notranslate"><span class="pre">convexification_constant=0.0</span></code> and <code class="docutils literal notranslate"><span class="pre">adapt=False</span></code>. With these defaults, no
+starting point of the benchmark reaches the global optimum, while the runs report
+success.</p>
 </div>
-<p>The master offers two mechanisms for it, described below. They act differently
-and are <strong>not meant to be combined</strong>: use the fixed constant <span class="math notranslate nohighlight">\(\kappa\)</span>, which
-carries the convergence guarantee, or the adaptive repair with its convexity
-margin, which reaches the optimum more often, and leave the other at zero.</p>
-<section id="what-the-convexification-actually-is">
-<h3>What the convexification actually is<a class="headerlink" href="#what-the-convexification-actually-is" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">gemseo-bilevel-outer-approximation</span></code> adds to the objective a term that is
-<strong>convex in the relaxed one-hot variables and vanishes at every integer point</strong>:</p>
+<p>The master provides two mechanisms, described below. They act differently and are
+not intended to be combined: either the fixed constant <span class="math notranslate nohighlight">\(\kappa\)</span>, which carries the
+convergence guarantee, or the adaptive repair with its convexity margin, which
+reaches the optimum more often, the other being set to zero.</p>
+<section id="convexification-term">
+<h3>Convexification term<a class="headerlink" href="#convexification-term" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">gemseo-bilevel-outer-approximation</span></code> adds to the objective a term that is convex
+in the relaxed one-hot variables and vanishes at every integer point:</p>
 <div class="math notranslate nohighlight">
 \[
 \tilde u(\alpha) = u(\alpha) + \kappa\, C(\alpha),
@@ -743,250 +751,237 @@ C(\alpha) = \frac{1}{n_{\text{comp}}}
 \]</div>
 <img alt="The convexification term over a relaxed box choice" class="only-light" src="../_images/convexification.svg" />
 <img alt="The convexification term over a relaxed box choice" class="only-dark" src="../_images/convexification-dark.svg" />
-<p>Each term <span class="math notranslate nohighlight">\(\alpha(\alpha-1)\)</span> is convex, equals <span class="math notranslate nohighlight">\(0\)</span> at <span class="math notranslate nohighlight">\(\alpha \in \{0,1\}\)</span> and
-reaches <span class="math notranslate nohighlight">\(-1/4\)</span> at <span class="math notranslate nohighlight">\(\alpha = 1/2\)</span>. Two consequences:</p>
+<p><em>Figure 6. Convexification term over a relaxed box selection.</em></p>
+<p>Each term <span class="math notranslate nohighlight">\(\alpha(\alpha-1)\)</span> is convex, equal to <span class="math notranslate nohighlight">\(0\)</span> for <span class="math notranslate nohighlight">\(\alpha \in \{0,1\}\)</span> and
+to <span class="math notranslate nohighlight">\(-1/4\)</span> for <span class="math notranslate nohighlight">\(\alpha = 1/2\)</span>. Consequently:</p>
 <ul class="simple">
-<li><p><strong>the discrete problem is unchanged</strong>: at any feasible one-hot <span class="math notranslate nohighlight">\(\alpha\)</span>,
-<span class="math notranslate nohighlight">\(C(\alpha) = 0\)</span>, so <span class="math notranslate nohighlight">\(\tilde u = u\)</span> and the optimum is exactly the optimum of
-the original problem;</p></li>
-<li><p><strong>the relaxation is lowered between the vertices</strong>, which is what restores the
-validity of the cuts. Large enough <span class="math notranslate nohighlight">\(\kappa\)</span> dominates the non-convexity of <span class="math notranslate nohighlight">\(u\)</span>
-over the relaxed polytope.</p></li>
+<li><p>the discrete problem is unchanged: for any feasible one-hot <span class="math notranslate nohighlight">\(\alpha\)</span>,
+<span class="math notranslate nohighlight">\(C(\alpha) = 0\)</span> and <span class="math notranslate nohighlight">\(\tilde u = u\)</span>, so that the optimum is that of the original
+problem;</p></li>
+<li><p>the relaxation is lowered between the vertices, which restores the validity of
+the cuts; a sufficiently large <span class="math notranslate nohighlight">\(\kappa\)</span> dominates the non-convexity of <span class="math notranslate nohighlight">\(u\)</span> over
+the relaxed polytope.</p></li>
 </ul>
-<p>In practice the term is never evaluated: only the <strong>slope</strong> of each cut is
-corrected, by <span class="math notranslate nohighlight">\(\nabla(\kappa C)\)</span>,</p>
+<p>In practice the term is not evaluated; only the slope of each cut is corrected by
+<span class="math notranslate nohighlight">\(\nabla(\kappa C)\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[
 s^{(i)} \leftarrow s^{(i)}
   + \frac{\kappa}{n_{\text{comp}}}\left(2\alpha^{(i)} - 1\right),
 \]</div>
-<p>which at an integer <span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span> tilts the hyperplane by <span class="math notranslate nohighlight">\(\pm\kappa/n_{\text{comp}}\)</span>
-per component while leaving its value at <span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span> untouched.</p>
+<p>which at an integer point <span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span> tilts the hyperplane by
+<span class="math notranslate nohighlight">\(\pm\kappa/n_{\text{comp}}\)</span> per component without changing its value at
+<span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is a convexification <strong>in the space of the box selection <span class="math notranslate nohighlight">\(\alpha\)</span></strong>, not an
-<span class="math notranslate nohighlight">\(\alpha\)</span>BB-style underestimator of <span class="math notranslate nohighlight">\(f\)</span> in the space of the design variables <span class="math notranslate nohighlight">\(x\)</span>.
-It is not built from bounds on the Hessian of <span class="math notranslate nohighlight">\(f\)</span>, and it does <strong>not</strong> become
-tighter as the boxes get smaller. Subdividing more finely still helps, but for a
-different reason: each box becomes closer to unimodal, so the local sub-problem
-solve is more likely to return the box optimum, which is what the cuts assume.</p>
+<p>This convexification acts in the space of the box selection <span class="math notranslate nohighlight">\(\alpha\)</span>; it is not
+an <span class="math notranslate nohighlight">\(\alpha\)</span>BB underestimator of <span class="math notranslate nohighlight">\(f\)</span> in the space of the design variables <span class="math notranslate nohighlight">\(x\)</span>. It
+does not use bounds on the Hessian of <span class="math notranslate nohighlight">\(f\)</span> and does not become tighter as the
+boxes become smaller. A finer subdivision nevertheless helps for another reason:
+each box is closer to unimodal, so that the local solution is more likely to be
+the optimum of the box, as assumed by the cuts.</p>
 </div>
 </section>
 <section id="adaptive-convexification">
 <h3>Adaptive convexification<a class="headerlink" href="#adaptive-convexification" title="Link to this heading">#</a></h3>
-<p>With <code class="docutils literal notranslate"><span class="pre">adapt=True</span></code>, instead of relying on <span class="math notranslate nohighlight">\(\kappa\)</span> alone, the master repairs the
-slopes against the data it has already gathered. For every pair of visited
-points, the cut at <span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span> must not over-predict the observed value at
-<span class="math notranslate nohighlight">\(\alpha^{(j)}\)</span>:</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">adapt=True</span></code>, the master corrects the slopes using the values already
+computed instead of relying on <span class="math notranslate nohighlight">\(\kappa\)</span>. For every pair of visited points, the cut
+at <span class="math notranslate nohighlight">\(\alpha^{(i)}\)</span> must not overestimate the observed value at <span class="math notranslate nohighlight">\(\alpha^{(j)}\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[
 u(\alpha^{(i)}) + s^{(i)\top}\left(\alpha^{(j)} - \alpha^{(i)}\right)
 \ \le\ u(\alpha^{(j)}) - \delta ,
 \]</div>
-<p>with <span class="math notranslate nohighlight">\(\delta\)</span> a convexity margin (<code class="docutils literal notranslate"><span class="pre">min_dfk</span></code>). The violations are collected and a
-least-squares correction is applied to each slope so that the cuts become
-consistent with the whole history. It is a data-driven repair of cut validity,
-and it <strong>replaces</strong> <span class="math notranslate nohighlight">\(\kappa\)</span> rather than composing with it: the margin <span class="math notranslate nohighlight">\(\delta\)</span>
-enforces the convexity the constant would otherwise impose, from the observed
-values rather than from a worst case, so setting both applies the correction
-twice over. Being a margin on the objective, <span class="math notranslate nohighlight">\(\delta\)</span> is an <strong>absolute</strong>
-quantity in the units of <span class="math notranslate nohighlight">\(f\)</span> and has to be scaled to the problem, whereas
-<span class="math notranslate nohighlight">\(\kappa\)</span> scales with the relaxed polytope.</p>
-<p>The two differ in what they guarantee. A large enough <span class="math notranslate nohighlight">\(\kappa\)</span> dominates the
-non-convexity of <span class="math notranslate nohighlight">\(u\)</span> over the relaxed polytope and the cuts are then valid by
-construction, which is the convergence argument; but it also lowers the master’s
-lower bound by nearly <span class="math notranslate nohighlight">\(\kappa\)</span>, so the bound never meets the incumbent and the
-run ends on the trust region instead of on the tolerance, see
-<a class="reference internal" href="tuning.html#the-two-caps-that-end-a-run"><span class="std std-ref">annex C</span></a>.
-The adaptive repair keeps the bound usable and, on the benchmark, reaches the
-optimum from every starting point, but it enforces convexity only against the
-boxes already visited, so it carries no guarantee.</p>
+<p>where <span class="math notranslate nohighlight">\(\delta\)</span> is a convexity margin (<code class="docutils literal notranslate"><span class="pre">min_dfk</span></code>). The violations are collected and
+a least-squares correction is applied to each slope, so that the cuts are
+consistent with the whole history. This repair replaces <span class="math notranslate nohighlight">\(\kappa\)</span> rather than
+complementing it: the margin <span class="math notranslate nohighlight">\(\delta\)</span> enforces the convexity that the constant
+would otherwise impose, based on the observed values rather than on a worst case,
+so that setting both applies the correction twice. Being a margin on the
+objective, <span class="math notranslate nohighlight">\(\delta\)</span> is an absolute quantity in the units of <span class="math notranslate nohighlight">\(f\)</span> and must be scaled
+to the problem, whereas <span class="math notranslate nohighlight">\(\kappa\)</span> scales with the relaxed polytope.</p>
+<p>The two mechanisms differ in their guarantees. A sufficiently large <span class="math notranslate nohighlight">\(\kappa\)</span>
+makes the cuts valid by construction, which yields the convergence argument, but
+also lowers the lower bound of the master by nearly <span class="math notranslate nohighlight">\(\kappa\)</span>, so that the bound
+does not meet the incumbent and the run terminates on the trust region rather
+than on the tolerance, see <a class="reference internal" href="tuning.html#termination-of-the-runs"><span class="std std-ref">annex C</span></a>. The
+adaptive repair keeps the lower bound usable and reaches the optimum from all
+starting points in the experiments, but it enforces convexity only with respect
+to the visited boxes and carries no guarantee.</p>
 </section>
-<section id="sweeping-it-instead-of-calibrating-it">
-<h3>Sweeping it instead of calibrating it<a class="headerlink" href="#sweeping-it-instead-of-calibrating-it" title="Link to this heading">#</a></h3>
-<p>Both mechanisms ask for the same thing in the end: a number in the <strong>units of the
-objective</strong>, of the order of the variation the cuts have to dominate. That number
-is the standing criticism of the method, because the user is asked for it before
-the run has measured anything. A margin of <span class="math notranslate nohighlight">\(100\)</span> reaches the optimum from every
-starting point on Rastrigin, which spans about eighty, and is the worst of those
-tried on Ackley, which spans about twenty-two, so a better default does not
-answer the criticism: no single number is right for two problems.</p>
-<p>Not choosing does. The master already refuses to choose its trust-region radius:
-it probes one radius per parallel point, over <span class="math notranslate nohighlight">\([\Delta/2, \Delta]\)</span>, so <strong>its
-parallel points are a sweep rather than a batch</strong>. The same probes can carry a
-ladder of convexity values <span class="math notranslate nohighlight">\(\kappa_1 &lt; \dots &lt; \kappa_N\)</span>, geometric below an
-upper bound, one rung per probe:</p>
+<section id="swept-convexity">
+<h3>Swept convexity<a class="headerlink" href="#swept-convexity" title="Link to this heading">#</a></h3>
+<p>Both mechanisms require a value in the units of the objective, of the order of
+the variation the cuts must dominate, which has to be supplied before any
+information on the objective is available. A margin of <span class="math notranslate nohighlight">\(100\)</span> reaches the optimum
+from all starting points on Rastrigin, whose range is about eighty, and gives the
+worst result among the tested values on Ackley, whose range is about twenty-two;
+no single value is suitable for both problems.</p>
+<p>The master already avoids choosing its trust-region radius: it assigns one radius
+per parallel probe over <span class="math notranslate nohighlight">\([\Delta/2, \Delta]\)</span>, so that its parallel probes form a
+sweep. The same probes can carry a ladder of convexity values
+<span class="math notranslate nohighlight">\(\kappa_1 &lt; \dots &lt; \kappa_N\)</span>, geometric below an upper bound, with one rung per
+probe:</p>
 <ul class="simple">
-<li><p><strong>probe <span class="math notranslate nohighlight">\(k\)</span> solves the master at rung <span class="math notranslate nohighlight">\(k\)</span></strong>, so one iteration spans the ladder
-instead of repeating one value. The two ladders pair up, the tight region with
-the raw cuts and the wide one with the dominated cuts, so an iteration returns
-the exploitative box <em>and</em> the exploratory one;</p></li>
-<li><p><strong>a probe proposing a box already solved climbs one rung</strong>, and again, until it
-proposes a new box or the ladder is exhausted. Escalating changes the cuts,
-which is what moves the master elsewhere, and it costs one more mixed-integer
-solve and <strong>no objective evaluation</strong> — the currency this method is measured
-in;</p></li>
-<li><p><strong>every probe exhausting the ladder is a stopping criterion</strong>, and a stronger
-one than a single value proposing nothing: no convexity up to <span class="math notranslate nohighlight">\(\kappa_{\max}\)</span>
-proposes a box that has not been solved.</p></li>
+<li><p>probe <span class="math notranslate nohighlight">\(k\)</span> solves the master with rung <span class="math notranslate nohighlight">\(k\)</span>, so that one iteration covers the
+ladder. The two ladders are paired, the small trust region with the raw cuts
+and the large one with the dominated cuts, so that an iteration returns both an
+exploitative and an exploratory box;</p></li>
+<li><p>a probe proposing a box already solved moves to the next rung, until it
+proposes a new box or the ladder is exhausted. Each step changes the cuts and
+costs one mixed-integer solution but no objective evaluation;</p></li>
+<li><p>the exhaustion of the ladder by all probes is a stopping criterion: no
+convexity value up to <span class="math notranslate nohighlight">\(\kappa_{\max}\)</span> proposes an unsolved box.</p></li>
 </ul>
-<p>What is left to supply is the upper bound alone, the rungs being the probes. And
-the bound need not be supplied either: both mechanisms are calibrated against the
-variation of the objective over the design space, which the master <strong>observes</strong> as
-it solves boxes, so the bound can be read off the spread of the values already
-obtained. Read literally that estimate is circular — the first boxes are the
-handful the first iterations proposed, and on a broad basin they look alike — so
-it is taken with a decade of headroom, a <strong>dimensionless</strong> factor, which is not
-the quantity the criticism is about.</p>
-<p>The sweep is a loop over the master’s own probes, so it belongs to the master and
-is implemented there. What this package supplies is
-<a class="reference internal" href="usage.html#not-choosing-the-convexity-at-all"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></span></a>, the
-entry point of a run that calibrates nothing, and a driver that sweeps from
-outside a master predating the loop. What the sweep costs and what it reaches is
-in <a class="reference internal" href="benchmark.html#swept-convexity"><span class="std std-ref">the results</span></a>,
-and the measurements behind it in
-<a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
+<p>Only the upper bound of the ladder remains to be supplied, and it can be derived
+from the spread of the objective values over the boxes already solved. Since the
+first boxes are few and may be similar on a broad basin, this estimate is
+multiplied by a dimensionless headroom factor of ten.</p>
+<p>The sweep is a loop over the probes of the master and is implemented in the
+master. This package provides
+<a class="reference internal" href="usage.html#swept-convexity"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">SweptBoxSubdivisionSettings</span></code></span></a>, which
+configures a run without calibrated values, and a driver that performs the sweep
+from outside for master versions that do not implement it. The cost and results
+of the sweep are given in <a class="reference internal" href="benchmark.html#swept-convexity"><span class="std std-ref">the results</span></a> and the
+underlying measurements in
+<a class="reference internal" href="tuning.html#swept-convexity"><span class="std std-ref">annex C</span></a>.</p>
 </section>
 </section>
-<section id="subdividing-some-variables-only">
-<h2>Subdividing some variables only<a class="headerlink" href="#subdividing-some-variables-only" title="Link to this heading">#</a></h2>
-<p>Nothing requires every variable to be subdivided. A variable left out stays an
-ordinary variable of the sub-problem, which keeps the product of the
-subdivisions small while resolving the variables that need it:</p>
+<section id="subdivision-of-a-subset-of-the-variables">
+<h2>Subdivision of a subset of the variables<a class="headerlink" href="#subdivision-of-a-subset-of-the-variables" title="Link to this heading">#</a></h2>
+<p>Not all variables need to be subdivided. A variable that is not subdivided
+remains a continuous variable of the sub-problem, which keeps the number of boxes
+small while subdividing the variables that require it:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subdivision</span> <span class="o">=</span> <span class="n">BoxSubdivision</span><span class="o">.</span><span class="n">from_design_space</span><span class="p">(</span><span class="n">design_space</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_split"</span><span class="p">])</span>
 </pre></div>
 </div>
 <img alt="A subdivision of one variable only" class="only-light" src="../_images/partial_refinement.png" />
 <img alt="A subdivision of one variable only" class="only-dark" src="../_images/partial_refinement-dark.png" />
-<p>The exchange is only worth it when the objective is close to unimodal in the
-variables left out: one of them keeps all of its basins inside every box, and the
-local solve returns the basin it starts in. It therefore solves a problem whose
-multimodality is concentrated in a few variables, and loses on one that is
-multimodal in all of them.</p>
+<p><em>Figure 7. Subdivision of one variable only.</em></p>
+<p>This is beneficial only when the objective is close to unimodal in the variables
+that are not subdivided, since all their basins remain within every box and the
+local solution returns the basin of its starting point. It is suited to problems
+whose multimodality is concentrated in a few variables, and not to problems that
+are multimodal in all variables.</p>
 </section>
-<section id="where-the-density-comes-from">
-<h2>Where the density comes from<a class="headerlink" href="#where-the-density-comes-from" title="Link to this heading">#</a></h2>
-<p>Everything above turns on the subdivision resolving the basins of the landscape,
-and <span class="math notranslate nohighlight">\(m_j\)</span> is the one setting with no default: too coarse and a box holds several
-minima, too fine and it holds none, and
-<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the results</span></a> show no single
-value serving four problems. It can be estimated from the objective rather than
-supplied.</p>
-<p>The quantity to estimate is <strong>not a wavelength</strong>. A general objective has none
-per direction: the restriction of <span class="math notranslate nohighlight">\(f\)</span> to a line along <span class="math notranslate nohighlight">\(e_j\)</span> has a spectrum that
-depends on where the line is, so a period is not a property of the problem. What
-is well defined for any <span class="math notranslate nohighlight">\(C^1\)</span> objective is the expected number of minima along
-such a line,</p>
+<section id="estimation-of-the-subdivision-density">
+<h2>Estimation of the subdivision density<a class="headerlink" href="#estimation-of-the-subdivision-density" title="Link to this heading">#</a></h2>
+<p>The method requires the subdivision to separate the basins of the landscape, and
+<span class="math notranslate nohighlight">\(m_j\)</span> is the only setting without a default value: a box that is too coarse
+contains several minima and a box that is too fine contains none, and
+<a class="reference internal" href="benchmark.html#density-of-the-subdivision"><span class="std std-ref">the results</span></a> show that no single value
+is suitable for the four problems. The density can be estimated from the
+objective.</p>
+<p>The quantity to estimate is not a wavelength: the restriction of <span class="math notranslate nohighlight">\(f\)</span> to a line
+along <span class="math notranslate nohighlight">\(e_j\)</span> has a spectrum that depends on the position of the line, so that a
+period is not a property of the problem. The expected number of minima along such
+a line is, however, well defined for any <span class="math notranslate nohighlight">\(C^1\)</span> objective,</p>
 <div class="math notranslate nohighlight">
 \[
 N_j = \mathbb{E}_{x_\perp}\big[\#\{t : \partial_j f(x_\perp + t e_j) = 0,\
 \partial_{jj} f &gt; 0\}\big],
 \]</div>
-<p>which is exactly what a subdivision of the <span class="math notranslate nohighlight">\(j\)</span>-th component has to separate, so
-<span class="math notranslate nohighlight">\(m_j = N_j\)</span> without a conversion. That expectation is a Monte Carlo integral over
-<strong>axial line scans</strong>: fix an anchor <span class="math notranslate nohighlight">\(x_\perp\)</span> at random, sweep one component
-across its bounds, count the minima deep enough to matter.</p>
-<p>A space-filling design does not serve in its place. Averaging one over the other
-components estimates the ANOVA main effect <span class="math notranslate nohighlight">\(\mathbb{E}[f \mid x_j]\)</span>, and
-multimodality carried by interaction does not survive that average — neither
-Griewank’s, a product over every component, nor Ackley’s, inside a norm.</p>
-<p>Which minima count is a question about <strong>depth, not curvature</strong>. A dip is kept
-when its topographic prominence exceeds a fraction of the range of the scan,
-prominence measured against the <strong>key saddle</strong>: walking outwards until the scan
-drops below the dip again, the highest point crossed is what closes the basin,
-and the shallower of the two sides is what the basin is worth. Measured instead
-against the highest ground anywhere to each side, every ripple inside a bowl
-looks as deep as the bowl. A component whose objective carries no dip deep enough
-is proposed a single subdivision, which is how
-<a class="reference internal" href="#subdividing-some-variables-only">a partial refinement</a> is reached from the
-landscape rather than declared.</p>
-<p>The abscissae are drawn <strong>at random along the line</strong>. An evenly spaced scan
-resonates with a regular landscape, and the failure is not a wrong count but a
-confident one: on Ackley, whose ripples are about a unit apart, a uniform ladder
-reports a single basin at two consecutive rates, which any stopping rule reads as
-convergence.</p>
-<p>The error of such an estimate is <strong>one sided</strong>. A scan reveals the basins it
-resolves and never more, so no finite sample bounds the roughness of an objective
-from below: a ladder of scan rates can certify that a landscape has at least this
-many basins and never that it has no more. That is a property worth keeping
-rather than hiding, because a ladder that does not settle is the signal that
-per-basin boxing is the wrong target — which is the case
-<a class="reference internal" href="#hierarchies-of-subdivisions">the hierarchies</a> exist for, and on these problems
-the flag routes them correctly.</p>
-<p>Where the basins are cut by <strong>constraints</strong> instead, the same construction
-applies to a different function. The minima to count are those of <span class="math notranslate nohighlight">\(f\)</span> restricted
-to the feasible set, and along a line that set is a union of intervals, so the
-count decomposes: within each maximal feasible interval the minima the gate
-keeps, and for an interval holding none the interval itself, whose minimum lies
-on a boundary — which is to say wherever the <strong>active set changes</strong>. One rule
-therefore covers a feasible set in pieces and an optimum held against a
-constraint alike.</p>
-<p>This does assume the multimodality is somewhere the scan looks. Given only the
-objective, a landscape whose basins are the constraints’ returns a single
-subdivision per component and reports the ladder settled, because the objective
-really does have one basin. <a class="reference internal" href="extensions.html#estimating-the-density-instead-of-supplying-it"><span class="std std-ref">Annex D</span></a>
-reports what the estimate is worth on the benchmark problems, and what it does
-not reach.</p>
+<p>and is the number of basins a subdivision of the <span class="math notranslate nohighlight">\(j\)</span>-th component must separate,
+so that <span class="math notranslate nohighlight">\(m_j = N_j\)</span>. This expectation is estimated by Monte Carlo integration over
+axial line scans: an anchor <span class="math notranslate nohighlight">\(x_\perp\)</span> is drawn at random, the component is swept
+over its bounds, and the sufficiently deep minima are counted.</p>
+<p>A space-filling design cannot replace these scans. Averaging over the other
+components estimates the main effect <span class="math notranslate nohighlight">\(\mathbb{E}[f \mid x_j]\)</span>, and multimodality
+due to interactions does not survive this average, as for Griewank (a product
+over all components) or Ackley (inside a norm).</p>
+<p>The minima are selected by depth rather than curvature. A minimum is retained
+when its topographic prominence exceeds a fraction of the range of the scan, the
+prominence being measured with respect to the key saddle: moving outwards until
+the scan falls below the minimum again, the highest point crossed closes the
+basin, and the lower of the two sides gives its depth. Measured against the
+highest point on each side, every ripple inside a bowl would appear as deep as
+the bowl. A component without a sufficiently deep minimum is assigned a single
+interval, which yields a
+<a class="reference internal" href="#subdivision-of-a-subset-of-the-variables">partial subdivision</a> determined by
+the landscape.</p>
+<p>The abscissae are drawn at random along the line. An evenly spaced scan resonates
+with a regular landscape and produces a consistent but incorrect count: on
+Ackley, whose ripples are about one unit apart, a uniform ladder reports a single
+basin at two consecutive rates, which a stopping rule interprets as convergence.</p>
+<p>The error of the estimate is one-sided. A scan reveals the basins it resolves and
+no others, so that no finite sample bounds the roughness of an objective: a ladder
+of scan rates can establish a lower bound on the number of basins but not an
+upper bound. A ladder that does not converge therefore indicates that a
+subdivision with one box per basin is not appropriate, which is the case for
+which <a class="reference internal" href="#hierarchies-of-subdivisions">the hierarchies</a> are designed; on the test
+problems this indicator selects them correctly.</p>
+<p>When the basins are due to constraints, the same construction applies to the
+minima of <span class="math notranslate nohighlight">\(f\)</span> restricted to the feasible set. Along a line this set is a union of
+intervals, and the count decomposes into the minima retained within each maximal
+feasible interval and, for an interval without such a minimum, the interval
+itself, whose minimum lies on a boundary, i.e. where the active set changes. A
+single rule thus covers disconnected feasible sets and optima on a constraint.</p>
+<p>The estimate assumes that the multimodality is visible to the scans. If only the
+objective is scanned, a landscape whose basins are due to the constraints yields
+a single interval per component and a converged ladder, since the objective has a
+single basin. <a class="reference internal" href="extensions.html#estimation-of-the-density"><span class="std std-ref">Annex D</span></a>
+reports the performance of the estimate on the test problems and its
+limitations.</p>
 </section>
 <section id="hierarchies-of-subdivisions">
 <h2>Hierarchies of subdivisions<a class="headerlink" href="#hierarchies-of-subdivisions" title="Link to this heading">#</a></h2>
-<p>A subdivision fine enough to resolve the basins spends its budget over the whole
-design space. A <strong>hierarchy</strong> spends it where it seems to matter: subdivide
-coarsely, rank the boxes, and refine a promising one with a subdivision of its
-own, recursively. Formally, a node of the hierarchy is a box <span class="math notranslate nohighlight">\(B = [l, u]\)</span>, and
-refining it means running the method of the previous sections on <span class="math notranslate nohighlight">\(B\)</span> instead of
-on the original design space, its children being the boxes of that subdivision.
-The resolution after two levels of <span class="math notranslate nohighlight">\(m^{(1)}\)</span> and <span class="math notranslate nohighlight">\(m^{(2)}\)</span> subdivisions is their
-product, <span class="math notranslate nohighlight">\(m^{(1)} m^{(2)}\)</span> per variable, while no master ever carries more than
+<p>A subdivision fine enough to separate the basins spends its budget over the
+whole design space. A hierarchy concentrates it: the space is subdivided
+coarsely, the boxes are ranked, and a promising box is refined with its own
+subdivision, recursively. Formally, a node of the hierarchy is a box <span class="math notranslate nohighlight">\(B = [l, u]\)</span>,
+and its refinement consists in applying the method of the previous sections to
+<span class="math notranslate nohighlight">\(B\)</span> instead of the original design space, its children being the boxes of this
+subdivision. After two levels of <span class="math notranslate nohighlight">\(m^{(1)}\)</span> and <span class="math notranslate nohighlight">\(m^{(2)}\)</span> subdivisions the
+resolution is <span class="math notranslate nohighlight">\(m^{(1)} m^{(2)}\)</span> per variable, while no master has more than
 <span class="math notranslate nohighlight">\(\sum_j m^{(k)}_j\)</span> binaries.</p>
 <img alt="Three shapes of hierarchy over the boxes" class="only-light" src="../_images/hierarchy.svg" />
 <img alt="Three shapes of hierarchy over the boxes" class="only-dark" src="../_images/hierarchy-dark.svg" />
-<section id="scoring-a-box">
-<h3>Scoring a box<a class="headerlink" href="#scoring-a-box" title="Link to this heading">#</a></h3>
-<p>Everything depends on how a box is scored, since the score decides what is
-refined, and two scores are available.</p>
-<p>The <strong>value</strong> of a box is the optimum of its sub-problem,
-<span class="math notranslate nohighlight">\(u(\alpha) = \min_{x \in B(\alpha)} f(x)\)</span>, as returned by the local solve. It is
-an <em>upper</em> bound on the true optimum of the box, since a local solve started at
-the centre of <span class="math notranslate nohighlight">\(B\)</span> returns the minimum of the basin it lands in. It exists only
-for the boxes actually solved, a few dozen of them at most.</p>
-<p>The <strong>cut model</strong> is the lower envelope the master has built from those solves,</p>
+<p><em>Figure 8. Three shapes of hierarchy.</em></p>
+<section id="scores-of-a-box">
+<h3>Scores of a box<a class="headerlink" href="#scores-of-a-box" title="Link to this heading">#</a></h3>
+<p>The score of a box determines which box is refined. Two scores are available.</p>
+<p>The value of a box is the optimum of its sub-problem,
+<span class="math notranslate nohighlight">\(u(\alpha) = \min_{x \in B(\alpha)} f(x)\)</span>, as returned by the local solution. It
+is an upper bound on the true optimum of the box, since a local solution started
+at the centre of <span class="math notranslate nohighlight">\(B\)</span> returns the minimum of the basin it reaches. It is available
+only for the boxes actually solved, a few dozen at most.</p>
+<p>The cut model is the lower envelope built by the master from these solutions,</p>
 <div class="math notranslate nohighlight">
 \[
 \hat u(\alpha) = \max_i \left[ u(\alpha^{(i)})
 + s^{(i)\top}\left(\alpha - \alpha^{(i)}\right) \right],
 \qquad s^{(i)} = \nabla_\alpha u(\alpha^{(i)}),
 \]</div>
-<p>with <span class="math notranslate nohighlight">\(s^{(i)}\)</span> the post-optimal sensitivity of the sub-problem. It is defined at
-<strong>every</strong> box of the subdivision, those never solved included, and it is an
-<em>optimistic</em> estimate wherever the cuts are valid.</p>
-<p>The two therefore rank for opposite reasons. Ranking by the value <strong>exploits</strong>:
-it can only propose a box already solved, and its ranking is meaningless when a
-coarse box holds several basins, since the score is then decided by which basin
-the centre falls into. Ranking by the cut model <strong>explores</strong>: far from every
-solved box the cuts extrapolate linearly downwards, so the lowest score belongs
-to a distant, unvisited box.</p>
+<p>where <span class="math notranslate nohighlight">\(s^{(i)}\)</span> is the post-optimal sensitivity of the sub-problem. It is defined
+for every box of the subdivision, including the unsolved ones, and is an
+optimistic estimate wherever the cuts are valid.</p>
+<p>The two scores lead to opposite rankings. The value favours exploitation: it can
+only select a box already solved, and its ranking is not meaningful when a coarse
+box contains several basins, since the score then depends on the basin in which
+the centre lies. The cut model favours exploration: far from the solved boxes the
+cuts extrapolate linearly downwards, so that the lowest score belongs to a
+distant unvisited box.</p>
 </section>
-<section id="three-shapes">
-<h3>Three shapes<a class="headerlink" href="#three-shapes" title="Link to this heading">#</a></h3>
-<p><strong>Two levels.</strong> Solve the coarse subdivision, rank its boxes, refine the best
-<span class="math notranslate nohighlight">\(k\)</span> of them with a share of the budget each:</p>
+<section id="shapes-of-hierarchy">
+<h3>Shapes of hierarchy<a class="headerlink" href="#shapes-of-hierarchy" title="Link to this heading">#</a></h3>
+<p>Two levels: the coarse subdivision is solved, its boxes are ranked, and the best
+<span class="math notranslate nohighlight">\(k\)</span> boxes are refined, each with a share of the budget.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>solve the coarse subdivision of the whole space
 for each of the k best boxes:
     solve a fine subdivision of that box
 </pre></div>
 </div>
-<p><strong>Deep and narrow.</strong> Split every variable in two at each of <span class="math notranslate nohighlight">\(d\)</span> levels, refining
-the best box each time, which reaches <span class="math notranslate nohighlight">\(2^d\)</span> subdivisions per variable while
-keeping <span class="math notranslate nohighlight">\(2n\)</span> coefficients per level:</p>
+<p>Deep hierarchy: each variable is divided in two at each of <span class="math notranslate nohighlight">\(d\)</span> levels and the
+best box is refined each time, which gives <span class="math notranslate nohighlight">\(2^d\)</span> subdivisions per variable with
+<span class="math notranslate nohighlight">\(2n\)</span> coefficients per level.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>B &lt;- the whole design space
 repeat d times:
     solve the subdivision of B in two per variable
     B &lt;- the best box of that subdivision
 </pre></div>
 </div>
-<p><strong>A frontier.</strong> Keep the open boxes of every level in one priority queue, expand
-the most promising, and put its children back:</p>
+<p>Frontier: the open boxes of all levels are kept in a priority queue, the most
+promising box is expanded, and its children are added to the queue.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>frontier &lt;- {the whole design space}
 while the budget allows:
     B &lt;- the box of the frontier with the lowest score
@@ -994,70 +989,68 @@ while the budget allows:
     push its most promising children onto the frontier
 </pre></div>
 </div>
-<p>Only the last one can <strong>undo a choice</strong>: the first two descend, so the box
-refined at one level is the only space the next level ever sees, and a score that
-was wrong is never revisited. That is the definition of a spatial
-branch-and-bound, with the cut model in the place where a relaxation would be.</p>
+<p>Only the frontier can revise a choice: in the first two shapes, the box refined
+at one level is the only region seen by the next level, and an incorrect score is
+never corrected. The frontier corresponds to a spatial branch-and-bound in which
+the cut model replaces the relaxation.</p>
 </section>
-<section id="what-a-hierarchy-costs">
-<h3>What a hierarchy costs<a class="headerlink" href="#what-a-hierarchy-costs" title="Link to this heading">#</a></h3>
-<p>A node solved in isolation is a master of its own, and that is where the
-construction pays for itself. Writing <span class="math notranslate nohighlight">\(c\)</span> for the number of sub-problems a
-budget affords, a flat run puts all <span class="math notranslate nohighlight">\(c\)</span> cuts into <strong>one</strong> model of
-<span class="math notranslate nohighlight">\(\sum_j m_j\)</span> coefficients, while a hierarchy of <span class="math notranslate nohighlight">\(N\)</span> nodes puts <span class="math notranslate nohighlight">\(c/N\)</span> cuts into
-each of <span class="math notranslate nohighlight">\(N\)</span> models. The cuts of a parent are moreover expressed over the one-hot
-variables of <em>its</em> subdivision, so they have no meaning in the subdivision of a
-child: refining discards them.</p>
-<p>That is the trade, and it is the reason the shapes above behave as they do: a
-hierarchy improves the ratio of coefficients to cuts <strong>per level</strong> and destroys
-the model the ratio is about. A hierarchy that did not pay it would need a master
-over a <strong>growing set of leaves</strong>, adding binaries as a box is split and keeping
-every cut, which is a different master problem from the one this package builds
-on, whose catalogue of boxes is fixed when the design space is created.</p>
-<p>That trade is why the hierarchies lose to the flat subdivision on the problems
-a flat subdivision can resolve. Where they win is a case the flat method does not
-reach within the same budget: a basin <strong>too broad for the densities that budget
-affords</strong>. Ackley’s single basin spans a range of sixty, and the deep hierarchy,
-splitting each variable in two four times over, reaches its optimum from four
-starting points out of six against two for the flat subdivision at its best
-density, both having stopped on their own criteria rather than on their
-budget. Each of its levels carries only <span class="math notranslate nohighlight">\(2n\)</span> coefficients, so a quarter of the
-budget is enough to determine one, and the resolution reached is <span class="math notranslate nohighlight">\(2^4\)</span> per
-variable without any level ever being large.</p>
-<p>The measured behaviour of the three shapes, and of the two scores, is in
-<a class="reference internal" href="extensions.html#the-hierarchies"><span class="std std-ref">annex D</span></a>.</p>
+<section id="cost-of-a-hierarchy">
+<h3>Cost of a hierarchy<a class="headerlink" href="#cost-of-a-hierarchy" title="Link to this heading">#</a></h3>
+<p>Each node is solved by its own master. With <span class="math notranslate nohighlight">\(c\)</span> the number of sub-problems
+affordable within the budget, a flat run uses all <span class="math notranslate nohighlight">\(c\)</span> cuts in one model of
+<span class="math notranslate nohighlight">\(\sum_j m_j\)</span> coefficients, whereas a hierarchy of <span class="math notranslate nohighlight">\(N\)</span> nodes uses <span class="math notranslate nohighlight">\(c/N\)</span> cuts in
+each of <span class="math notranslate nohighlight">\(N\)</span> models. Moreover, the cuts of a parent are expressed in the one-hot
+variables of its subdivision and have no meaning in the subdivision of a child,
+so that they are discarded at each refinement.</p>
+<p>A hierarchy thus improves the ratio of coefficients to cuts at each level but
+discards the model to which this ratio applies. Avoiding this would require a
+master over a growing set of leaves, adding binaries when a box is split and
+keeping all cuts; this is a different master problem from the one used by this
+package, whose catalogue of boxes is fixed when the design space is created.</p>
+<p>For this reason the hierarchies perform worse than the flat subdivision on
+problems that a flat subdivision can resolve. They perform better on a case the
+flat method does not resolve within the same budget, a basin too broad for the
+affordable densities. The single basin of Ackley spans a range of sixty, and the
+deep hierarchy, dividing each variable in two four times, reaches its optimum
+from four starting points of six, against two for the flat subdivision at its
+best density, both terminating on their own criteria. Each level has only <span class="math notranslate nohighlight">\(2n\)</span>
+coefficients, so that a quarter of the budget suffices to identify them, and the
+resolution reaches <span class="math notranslate nohighlight">\(2^4\)</span> per variable without any large level.</p>
+<p>The results of the three shapes and of the two scores are given in
+<a class="reference internal" href="extensions.html#hierarchies"><span class="std std-ref">annex D</span></a>.</p>
 </section>
 </section>
-<section id="one-master-several-levels-the-multi-resolution-encoding">
-<h2>One master, several levels: the multi-resolution encoding<a class="headerlink" href="#one-master-several-levels-the-multi-resolution-encoding" title="Link to this heading">#</a></h2>
-<p>The hierarchies above put their levels in <strong>different masters</strong>, one after the
-other, and that is what they pay for. The same levels can be put in the <strong>same</strong>
-master instead, and the construction that does it is worth setting out on its
-own, because it removes the cost of a hierarchy without removing its resolution.</p>
-<section id="the-encoding">
-<h3>The encoding<a class="headerlink" href="#the-encoding" title="Link to this heading">#</a></h3>
-<p>A box is chosen by <strong>one categorical variable per level</strong> rather than by one
+<section id="multi-resolution-encoding">
+<h2>Multi-resolution encoding<a class="headerlink" href="#multi-resolution-encoding" title="Link to this heading">#</a></h2>
+<p>The hierarchies above place their levels in different masters, solved one after
+the other, which causes their cost. The levels can instead be placed in the same
+master, which keeps the resolution of a hierarchy without its cost.</p>
+<section id="encoding">
+<h3>Encoding<a class="headerlink" href="#encoding" title="Link to this heading">#</a></h3>
+<p>A box is selected by one categorical variable per level instead of a single
 categorical variable over the whole subdivision. With <span class="math notranslate nohighlight">\(L\)</span> levels of <span class="math notranslate nohighlight">\(m\)</span>
 subdivisions each, the lower bound of a component is the sum of the fractions of
-the design space its levels select:</p>
+the design space selected by its levels:</p>
 <div class="math notranslate nohighlight">
 \[
 l_j(\alpha) = L_j + \Delta_j \sum_{k=1}^{L} m^{-k} \, d_k(\alpha_j),
 \qquad
 u_j(\alpha) = l_j(\alpha) + \Delta_j \, m^{-L},
 \]</div>
-<p>with <span class="math notranslate nohighlight">\(\Delta_j = U_j - L_j\)</span> and <span class="math notranslate nohighlight">\(d_k \in \{0, \dots, m-1\}\)</span> the subdivision the
-<span class="math notranslate nohighlight">\(k\)</span>-th level selects, one-hot encoded. This is the <strong>base-<span class="math notranslate nohighlight">\(m\)</span> representation of
-the box index</strong>: the levels are its digits, the first level choosing the coarse
-region and each further level choosing a sub-region inside it.</p>
+<p>with <span class="math notranslate nohighlight">\(\Delta_j = U_j - L_j\)</span> and <span class="math notranslate nohighlight">\(d_k \in \{0, \dots, m-1\}\)</span> the interval selected
+by the <span class="math notranslate nohighlight">\(k\)</span>-th level, one-hot encoded. This is the base-<span class="math notranslate nohighlight">\(m\)</span> representation of the
+box index: the levels are its digits, the first level selecting the coarse region
+and each further level a sub-region within it.</p>
 <img alt="The levels as digits of the box index, and the binaries a resolution costs" class="only-light" src="../_images/multiresolution.svg" />
 <img alt="The levels as digits of the box index, and the binaries a resolution costs" class="only-dark" src="../_images/multiresolution-dark.svg" />
+<p><em>Figure 9. Levels as digits of the box index, and number of binaries against the
+resolution.</em></p>
 </section>
-<section id="what-it-buys">
-<h3>What it buys<a class="headerlink" href="#what-it-buys" title="Link to this heading">#</a></h3>
-<p><strong>The resolution grows as a power and the binaries as a product.</strong> The encoding
-reaches <span class="math notranslate nohighlight">\(m^L\)</span> subdivisions per component for <span class="math notranslate nohighlight">\(n m L\)</span> binaries, where the flat
-encoding needs <span class="math notranslate nohighlight">\(n m^L\)</span>:</p>
+<section id="properties">
+<h3>Properties<a class="headerlink" href="#properties" title="Link to this heading">#</a></h3>
+<p>The resolution grows as a power and the number of binaries as a product: the
+encoding gives <span class="math notranslate nohighlight">\(m^L\)</span> subdivisions per component with <span class="math notranslate nohighlight">\(n m L\)</span> binaries, whereas
+the flat encoding requires <span class="math notranslate nohighlight">\(n m^L\)</span>.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>resolution per component</p></th>
@@ -1068,59 +1061,57 @@ encoding needs <span class="math notranslate nohighlight">\(n m^L\)</span>:</p>
 <tbody>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(16\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(80\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(40\)</span> as <span class="math notranslate nohighlight">\(m=2, L=4\)</span>; <span class="math notranslate nohighlight">\(40\)</span> as <span class="math notranslate nohighlight">\(m=4, L=2\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(40\)</span> with <span class="math notranslate nohighlight">\(m=2, L=4\)</span>; <span class="math notranslate nohighlight">\(40\)</span> with <span class="math notranslate nohighlight">\(m=4, L=2\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(64\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(320\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(60\)</span> as <span class="math notranslate nohighlight">\(m=4, L=3\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(60\)</span> with <span class="math notranslate nohighlight">\(m=4, L=3\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(1024\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(5120\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(100\)</span> as <span class="math notranslate nohighlight">\(m=4, L=5\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(100\)</span> with <span class="math notranslate nohighlight">\(m=4, L=5\)</span></p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Since the density is bounded above by the binaries a budget can identify, and
-not by the boxes, this is the one construction here that moves that bound.</p>
-<p><strong>The bounds stay affine</strong> in the one-hot variables, and the width
-<span class="math notranslate nohighlight">\(\Delta_j m^{-L}\)</span> no longer depends on them at all, so the mapping
-<span class="math notranslate nohighlight">\(x = l(\alpha) + \xi \, \Delta \, m^{-L}\)</span> is bilinear in <span class="math notranslate nohighlight">\((\xi, \alpha)\)</span> exactly
-as the one-level mapping is, with constant Jacobian blocks. Nothing in the
-bi-level machinery has to change.</p>
-<p><strong>Nothing is discarded and nothing is committed.</strong> One master holds every level,
-so the cuts survive, and the master may change a coarse digit and a fine one in
-the same iteration. That is the backtracking the descending hierarchies lack,
-obtained without restarting anything.</p>
+<p><em>Table 2. Number of binaries of the flat and multi-resolution encodings.</em></p>
+<p>Since the density is limited by the number of binaries a budget can identify
+rather than by the number of boxes, this encoding raises that limit.</p>
+<p>The bounds remain affine in the one-hot variables, and the width
+<span class="math notranslate nohighlight">\(\Delta_j m^{-L}\)</span> no longer depends on them, so that the mapping
+<span class="math notranslate nohighlight">\(x = l(\alpha) + \xi \, \Delta \, m^{-L}\)</span> is bilinear in <span class="math notranslate nohighlight">\((\xi, \alpha)\)</span>, as for
+a single level, with constant Jacobian blocks. The bi-level formulation is
+unchanged.</p>
+<p>A single master holds all levels, so that the cuts are kept and the master can
+change a coarse and a fine digit in the same iteration. This provides the
+backtracking that the descending hierarchies lack, without restart.</p>
 </section>
-<section id="what-it-costs">
-<h3>What it costs<a class="headerlink" href="#what-it-costs" title="Link to this heading">#</a></h3>
-<p><strong>The model class.</strong> The cut model is linear in the one-hot variables, so over
-the digits it is <strong>additive</strong>: it can represent what each level contributes on
-its own, and not that the effect of a fine digit depends on the coarse digit it
-sits inside. On a landscape where it does — and on a multimodal one it always
-does, the same fine offset meaning different things in different regions — the
-model is misspecified in a way the flat encoding is not, the flat encoding
-having one coefficient per box index and no such restriction.</p>
-<p><strong>The trust region has to be rescaled.</strong> The metric counts the one-hot groups a
-candidate changes, and this encoding has <span class="math notranslate nohighlight">\(nL\)</span> groups where the flat one has <span class="math notranslate nohighlight">\(n\)</span>.
-A radius of two would let the master change two <em>digits</em>, which is far tighter
-than letting it change two whole variables, so the radius is scaled to <span class="math notranslate nohighlight">\(2L\)</span> to
-compare like with like. Measured with the radius left at the diameter, that is
-with no effective region at all, the encoding looks considerably worse than it
-is.</p>
-<p>What it is worth is in
-<a class="reference internal" href="extensions.html#the-multi-resolution-encoding"><span class="std std-ref">annex D</span></a>.</p>
+<section id="limitations">
+<h3>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">#</a></h3>
+<p>The cut model is linear in the one-hot variables and therefore additive over the
+digits: it represents the contribution of each level independently, but not the
+dependence of the effect of a fine digit on the coarse digit. On a multimodal
+landscape this dependence is always present, since the same fine offset has
+different effects in different regions, so that the model is misspecified,
+unlike the flat encoding, which has one coefficient per box index.</p>
+<p>The trust region must be rescaled. The metric counts the one-hot groups changed
+by a candidate, and this encoding has <span class="math notranslate nohighlight">\(nL\)</span> groups instead of <span class="math notranslate nohighlight">\(n\)</span>. A radius of two
+would allow the master to change two digits, which is much more restrictive than
+changing two variables, so that the radius is set to <span class="math notranslate nohighlight">\(2L\)</span> for a consistent
+comparison. With a radius equal to the diameter, i.e. without an effective trust
+region, the encoding appears considerably worse than it is.</p>
+<p>The results are given in
+<a class="reference internal" href="extensions.html#multi-resolution-encoding"><span class="std std-ref">annex D</span></a>.</p>
 </section>
 </section>
 <section id="relation-to-spatial-branch-and-bound">
 <h2>Relation to spatial branch-and-bound<a class="headerlink" href="#relation-to-spatial-branch-and-bound" title="Link to this heading">#</a></h2>
-<p>Seen as a whole, the method is a <strong>spatial branch-and-bound whose branching tree
-is fixed a priori and flattened into a single MINLP master</strong>, rather than refined
-adaptively. That framing sets the expectations: a fixed subdivision is either too
-coarse, and the lower bound is weak, or too fine, and the master grows. Refining
-only the promising boxes would recover a genuine spatial branch-and-bound, at the
-cost of a master problem that grows during the run.</p>
+<p>The method can be viewed as a spatial branch-and-bound whose branching tree is
+fixed in advance and flattened into a single mixed-integer master, instead of
+being refined adaptively. A fixed subdivision is either too coarse, which weakens
+the lower bound, or too fine, which enlarges the master. Refining only the
+promising boxes would give a spatial branch-and-bound, at the cost of a master
+problem that grows during the run.</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
@@ -1185,40 +1176,40 @@ a class of mixed-integer nonlinear programs.</em> Mathematical Programming, 36(3
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-problem">The problem</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation-separating-exploration-from-exploitation">Motivation: separating exploration from exploitation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoding-the-choice-of-a-box">Encoding the choice of a box</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-grows-with-the-dimension">What grows with the dimension</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-bi-level-problem">The bi-level problem</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#outer-approximation-and-its-sensitivity">Outer approximation and its sensitivity</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-trust-region-of-the-master">The trust region of the master</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-weights-have-to-be">What the weights have to be</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-wide-it-should-be">How wide it should be</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-statement">Problem statement</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#separation-of-exploration-and-exploitation">Separation of exploration and exploitation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoding-of-the-box-selection">Encoding of the box selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#growth-with-the-dimension">Growth with the dimension</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bi-level-problem">Bi-level problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#outer-approximation-and-sensitivity">Outer approximation and sensitivity</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#trust-region-of-the-master">Trust region of the master</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#choice-of-the-weights">Choice of the weights</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#radius">Radius</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-formulations">Two formulations</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formulations-of-the-sub-problem">Formulations of the sub-problem</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#box-as-a-constraint">Box as a constraint</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#box-as-normalized-variables">Box as normalized variables</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convexification">Convexification</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-convexification-actually-is">What the convexification actually is</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convexification-term">Convexification term</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adaptive-convexification">Adaptive convexification</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sweeping-it-instead-of-calibrating-it">Sweeping it instead of calibrating it</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#swept-convexity">Swept convexity</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subdividing-some-variables-only">Subdividing some variables only</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-density-comes-from">Where the density comes from</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subdivision-of-a-subset-of-the-variables">Subdivision of a subset of the variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estimation-of-the-subdivision-density">Estimation of the subdivision density</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hierarchies-of-subdivisions">Hierarchies of subdivisions</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scoring-a-box">Scoring a box</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#three-shapes">Three shapes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-a-hierarchy-costs">What a hierarchy costs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scores-of-a-box">Scores of a box</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shapes-of-hierarchy">Shapes of hierarchy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cost-of-a-hierarchy">Cost of a hierarchy</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-master-several-levels-the-multi-resolution-encoding">One master, several levels: the multi-resolution encoding</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-encoding">The encoding</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-buys">What it buys</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-costs">What it costs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-resolution-encoding">Multi-resolution encoding</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#encoding">Encoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#properties">Properties</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relation-to-spatial-branch-and-bound">Relation to spatial branch-and-bound</a></li>

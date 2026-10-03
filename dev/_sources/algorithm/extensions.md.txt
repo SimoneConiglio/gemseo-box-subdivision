@@ -9,120 +9,127 @@
 
 # Annex D: the extensions, measured
 
-The four extensions of the method, table by table, and the budget re-runs behind
-the rankings. [The results](benchmark.md#extensions)
-carry the verdicts; this annex carries what they were read off.
+This annex gives the detailed results of the four extensions of the method and
+the repeated runs at larger budgets on which their ranking relies. The main
+findings are summarized in [the results](benchmark.md#extensions).
 
-Five variables, $2500$ equivalent evaluations, three starting points unless a
-table says otherwise. The constructions are derived in
-[the methodology](methodology.md#one-master-several-levels-the-multi-resolution-encoding)
-and the sweeps setting their parameters are in [annex C](tuning.md).
+Unless stated otherwise, the experiments use five variables, $2500$ equivalent
+evaluations and three starting points. The constructions are described in
+[the methodology](methodology.md#multi-resolution-encoding) and the tuning of
+their parameters in [annex C](tuning.md).
 
-## Subdividing some variables only
+## Subdivision of a subset of the variables
 
-Subdividing some variables only wins where the multimodality is concentrated and
-loses where it is not, which is the requirement of the method restated: a
-variable left out keeps all of its basins inside every box. On Styblinski-Tang,
-multimodal in every variable, leaving three of the five out takes a run from two
-starting points out of three to none.
+Subdividing a subset of the variables improves the results when the
+multimodality is concentrated in these variables and degrades them otherwise,
+since a variable that is not subdivided keeps all its basins within every box. On
+Styblinski-Tang, which is multimodal in every variable, leaving three of the five
+variables undivided reduces the number of starting points reaching the optimum
+from two of three to none.
 
-| subdivision of `partly_multimodal` | boxes | binaries | gap | cost | reached |
+| subdivision of `partly_multimodal` | boxes | binaries | distance | cost | reached |
 | ------------------------------------ | ------- | ---------- | ----- | ------ | --------- |
 | all 5 variables, $m=2$ | 32 | 10 | $1.99$ | 540 | 0/3 |
-| **3 variables, $m=4$** | 64 | **12** | **$0.00$** | **773** | **3/3** |
-| 2 variables, $m=10$ | 100 | 20 | **$0.00$** | 858 | **3/3** |
+| 3 variables, $m=4$ | 64 | 12 | $0.00$ | 773 | 3/3 |
+| 2 variables, $m=10$ | 100 | 20 | $0.00$ | 858 | 3/3 |
 | 2 variables, $m=5$ | 25 | 10 | $1.99$ | 620 | 0/3 |
 | 1 variable, $m=10$ | 10 | 10 | $3.98$ | 419 | 0/3 |
 
-The cheapest configuration that works is **not** the one matching the
-multimodality exactly. `partly_multimodal` is Rastrigin in two variables and a
-paraboloid in three, yet splitting *three* variables into four beats splitting
-the two into ten, $773$ evaluations against $858$: twelve binaries against
-twenty, and the extra variable costs nothing to subdivide because it is unimodal
-in every box. The binaries govern here as everywhere else.
+*Table D.1. Subdivision of a subset of the variables of `partly_multimodal`.*
 
-## The multi-resolution encoding
+The least expensive successful configuration does not exactly match the
+multimodality. `partly_multimodal` is the Rastrigin function in two variables
+and a paraboloid in three, yet dividing three variables into four is less
+expensive than dividing two into ten, $773$ evaluations against $858$, with
+twelve binaries against twenty; the additional variable costs nothing to
+subdivide since the objective is unimodal in it within every box. The cost is
+governed by the number of binaries.
 
-One categorical variable per level, with the box index read off as its base-$m$
-digits, is the one construction here that changes how many binaries a resolution
-costs. Five variables, three starting
-points, the same budget of $2500$, median distance to the optimum:
+## Multi-resolution encoding
+
+The multi-resolution encoding, with one categorical variable per level and the
+box index given by its base-$m$ digits, reduces the number of binaries required
+for a given resolution. Table D.2 gives the median distance to the optimum in
+five variables from three starting points with a budget of $2500$.
 
 | encoding | binaries | resolution | Rastrigin | Ackley | Styblinski-Tang |
 | ---------- | ---------- | ------------ | ----------- | -------- | ----------------- |
-| flat, $m=10$ | 50 | 10 | **$0.00$ · 3/3** | $6.30$† | $14.14$ · 1/3 |
-| flat, $m=16$ | 80 | 16 | $1.99$ | $12.63$† | **$0.00$ · 2/3** |
+| flat, $m=10$ | 50 | 10 | $0.00$ · 3/3 | $6.30$† | $14.14$ · 1/3 |
+| flat, $m=16$ | 80 | 16 | $1.99$ | $12.63$† | $0.00$ · 2/3 |
 | levels $m=2$, $L=4$ | 40 | 16 | $2.99$† | $7.08$† | $14.44$ |
 | levels $m=2$, $L=5$ | 50 | 32 | $5.25$ | $14.82$† | $14.70$ |
-| **levels $m=4$, $L=2$** | **40** | **16** | $1.99$ · 1/3 | $7.40$ | **$0.27$ · 1/3** |
-| levels $m=4$, $L=3$ | 60 | 64 | $3.14$ · 1/3 | **$6.28$**† | $5.67$ |
+| levels $m=4$, $L=2$ | 40 | 16 | $1.99$ · 1/3 | $7.40$ | $0.27$ · 1/3 |
+| levels $m=4$, $L=3$ | 60 | 64 | $3.14$ · 1/3 | $6.28$† | $5.67$ |
 | levels $m=2$, $L=4$, positional | 40 | 16 | $7.04$† | $16.81$† | $3.68$ · 1/3 |
 
-† stopped by the budget.
+*Table D.2. Flat and multi-resolution encodings, $n = 5$. † stopped by the
+budget.*
 
 ```{image} ../_static/figures/encodings.svg
 :class: only-light
-:alt: What the multi-resolution encoding buys, and what it costs
+:alt: Binaries and results of the multi-resolution encoding
 ```
 
 ```{image} ../_static/figures/encodings-dark.svg
 :class: only-dark
-:alt: What the multi-resolution encoding buys, and what it costs
+:alt: Binaries and results of the multi-resolution encoding
 ```
 
-**The construction does what it claims.** Two levels of four reach a resolution
-of sixteen on **forty binaries** against the eighty of the flat encoding, and at
-that resolution they are not worse for it: $1.99$ against $1.99$ on Rastrigin,
-with one starting point reaching the optimum where flat $m=16$ reaches none, and
-$0.27$ against $0.00$ on Styblinski-Tang for **fewer evaluations**, $920$ against
-$973$. The saving grows with the resolution: sixty binaries buy sixty-four
-subdivisions per component, which would cost $320$ flat.
+*Figure D.1. Number of binaries and results of the multi-resolution encoding.*
 
-**Styblinski-Tang is where it earns its place.** That problem is the one the
-density sweep breaks on: ten subdivisions per variable, the best density
-elsewhere, returns $14.14$ and reaches the optimum from one starting point out of
-three. Sixteen subdivisions fix it, and the cheapest way to sixteen is two levels
-of four, which gets within $0.27$ of the optimum on half the binaries of the flat
-encoding that matches it. Where the useful density is **above** what the binaries
-can afford, this is the construction that reaches it.
+Two levels of four subdivisions reach a resolution of sixteen with forty binaries
+instead of the eighty of the flat encoding, without degrading the results at this
+resolution: $1.99$ against $1.99$ on Rastrigin, with one starting point reaching
+the optimum against none for the flat encoding with $m=16$, and $0.27$ against
+$0.00$ on Styblinski-Tang with fewer evaluations, $920$ against $973$. The saving
+increases with the resolution: sixty binaries give sixty-four subdivisions per
+component, which would require $320$ binaries with the flat encoding.
 
-**It does not rescue the problems whose difficulty is elsewhere.** On Rastrigin
-nothing beats plain flat $m=10$, whose resolution the encoding was never needed
-for, and on Ackley every configuration is truncated by the budget and none
-reaches the optimum, the difficulty there being a basin too broad for any
-resolution rather than a resolution too expensive.
+The encoding is most useful on Styblinski-Tang, where the density study fails:
+ten subdivisions per variable, the best density for the other problems, give
+$14.14$ and reach the optimum from one starting point of three. Sixteen
+subdivisions correct this, and two levels of four reach a distance of $0.27$ with
+half the binaries of the equivalent flat encoding. The encoding is thus suited to
+problems whose useful density exceeds what the binaries allow.
 
-**Fewer, wider levels beat more, narrower ones.** At the same resolution of
-sixteen and the same forty binaries, $m=4, L=2$ beats $m=2, L=4$ on all three
-problems, by $1.99$ against $2.99$, $7.40$ against $7.08$ near enough, and
-$0.27$ against $14.44$. Adding levels is what makes the cut model's additivity
-bind: it is linear in the one-hot variables, so it can express what a level
-contributes on its own but not that a fine digit's effect depends on the coarse
-digit it sits inside, and each level is another dimension over which that is
-wrong. The five-level row is the worst unit row on two problems out of three.
+It does not improve the results on problems whose difficulty lies elsewhere. On
+Rastrigin no configuration performs better than the flat encoding with $m=10$,
+which does not require a higher resolution, and on Ackley all configurations are
+stopped by the budget without reaching the optimum, the difficulty being a basin
+too broad for any resolution.
 
-**The positional weighting stays the wrong choice**, worst on Rastrigin and
-Ackley by a wide margin, which is the trust-region metric conclusion reappearing
-in a second and independent setting: weighing a subdivision by its own index
-expresses a proximity the problem does not have.
+At the same resolution of sixteen and the same forty binaries, two levels of four
+perform better than four levels of two on Rastrigin and Styblinski-Tang, $1.99$
+against $2.99$ and $0.27$ against $14.44$, and comparably on Ackley, $7.40$
+against $7.08$. The cut model is linear in the one-hot variables and can
+represent the contribution of each level but not the dependence of the effect of
+a fine digit on the coarse digit; each additional level adds a dimension over
+which this assumption is incorrect. The five-level configuration gives the worst
+results of the unweighted configurations on two of the three problems.
 
-## The hierarchies
+The positional weighting gives the worst results on Rastrigin and Ackley by a
+large margin, which confirms, in an independent setting, the conclusion obtained
+for the trust-region metric: weighting an interval by its index expresses a
+proximity that the problem does not have.
 
-A hierarchy was built in three shapes. The deep one reaches the optimum of
-Ackley from four starting points out of six, which nothing else here does; none
-of them beats the flat subdivision elsewhere.
+## Hierarchies
+
+Three shapes of hierarchy were implemented. The deep hierarchy reaches the
+optimum of Ackley from four starting points of six, which no other configuration
+does; none of the shapes performs better than the flat subdivision on the other
+problems.
 
 | method | Rastrigin | Ackley | Styblinski-Tang |
 | -------- | ----------- | -------- | ----------------- |
 | flat $m=2$ | $4.98$ | $14.43$ | $0.00$, 5/6, 486 |
-| flat $m=10$ | **$0.00$, 6/6, 1920** | $6.30$, 2500† | $0.00$, 1/6, 532 |
+| flat $m=10$ | $0.00$, 6/6, 1920 | $6.30$, 2500† | $0.00$, 1/6, 532 |
 | two levels, by value | $4.98$ | $6.30$ | $0.00$, 5/6, 872 |
 | two levels, by cuts | $2.45$ | $8.11$ | $0.00$, 5/6, 987 |
-| deep, 4 levels of 2 | $4.98$ | **$0.00$, 4/6, 2387** | $0.00$, 5/6, 1494 |
-| frontier, best first | $6.70$, 2500† | $9.71$, 2500† | $0.00$, **6/6**, 2500† |
+| deep, 4 levels of 2 | $4.98$ | $0.00$, 4/6, 2387 | $0.00$, 5/6, 1494 |
+| frontier, best first | $6.70$, 2500† | $9.71$, 2500† | $0.00$, 6/6, 2500† |
 
-† stopped by the budget. The frontier is truncated by construction, its loop
-expanding boxes until the budget is spent.
+*Table D.3. Hierarchies and flat subdivisions, $n = 5$, six starting points.
+† stopped by the budget; the frontier expands boxes until the budget is spent.*
 
 ```{image} ../_static/figures/extensions.svg
 :class: only-light
@@ -134,602 +141,601 @@ expanding boxes until the budget is spent.
 :alt: The hierarchies against the flat subdivisions
 ```
 
-Two readings the medians alone hide, and one caveat that undoes part of the
-first.
+*Figure D.2. Hierarchies and flat subdivisions.*
 
-The deep hierarchy **solves Ackley** at five variables, from four starting
-points out of six, and it ends on its own criterion at $2387$ evaluations rather
-than on the budget. The flat subdivision at the same density returns $6.30$ here,
-but four of its six runs were **stopped by the budget**, so this row understates
-it: given twice the budget it reaches the optimum from two starting points out of
-six, and no further with more. The margin is four out of six against two, which
-is [measured below](#does-more-budget-change-the-answer) rather than read off
-this table.
+The deep hierarchy reaches the optimum of Ackley in five variables from four
+starting points of six and terminates on its own criterion after $2387$
+evaluations. The flat subdivision at ten intervals gives $6.30$, but four of its
+six runs were stopped by the budget, so that Table D.3 underestimates it: with
+twice the budget it reaches the optimum from two starting points of six, and no
+more with a larger budget. The difference is therefore four against two, as
+[measured below](#effect-of-the-budget).
 
-On Styblinski-Tang every configuration solves the problem, so that panel is about
-cost alone, and the flat coarse subdivision wins outright, $486$ evaluations
-against $872$ to $2500$ for the hierarchies. The frontier is the only shape
-reaching it from all six starting points, for five times the cost of the cheapest
-that reaches five.
+On Styblinski-Tang all configurations reach the optimum, so that only the cost
+differs; the coarse flat subdivision is the least expensive, $486$ evaluations
+against $872$ to $2500$ for the hierarchies. The frontier is the only shape that
+reaches the optimum from all six starting points, at five times the cost of the
+least expensive configuration reaching it from five.
 
-**The frontier**, which is the only shape able to undo a choice, is the worst of
-the family on Rastrigin, $6.70$ against $4.98$ for doing nothing at all, and the
-reason is not the backtracking it adds but what it costs: every node restarts a
-master and throws its cuts away, so the same budget that fills one model with
-fifty cuts fills ten models with five each, none of them determined enough to
-rank its own children. What the flat method does instead is keep one model over
-the whole subdivision and localize with its trust region, which can also widen
+The frontier, the only shape able to revise a choice, gives the worst result on
+Rastrigin, $6.70$ against $4.98$ for the coarse flat subdivision. This is not due
+to backtracking but to its cost: each node restarts a master and discards its
+cuts, so that the budget that provides fifty cuts to a single model provides five
+cuts to each of ten models, none of which is sufficiently determined to rank its
+children. The flat method instead keeps a single model over the whole subdivision
+and localizes the search with its trust region, which can also be enlarged
 again.
 
-So the hierarchies are not a default and are not a failure either. They are the
-answer to one specific shape of problem, a basin too broad for any affordable
-density, and the flat subdivision remains the answer everywhere else.
+The hierarchies are therefore not a default; they address a specific type of
+problem, a basin too broad for any affordable density, the flat subdivision being
+preferable in the other cases.
 
-## Does more budget change the answer?
+## Effect of the budget
 
-Several comparisons above are between runs the budget stopped, so the obvious
-question is whether the rankings are properties of the method or of the number
-$2500$. On the one comparison where it matters most, Ackley at five variables,
-the answer is measured rather than argued. Six starting points:
+Several comparisons above involve runs stopped by the budget, which raises the
+question of whether the rankings are properties of the method or of the budget
+of $2500$. This was measured on the most sensitive comparison, Ackley in five
+variables, from six starting points (Table D.4).
 
 | budget | flat $m=10$ | deep, 4 levels of 2 |
 | -------- | ------------- | --------------------- |
-| $2500$ | $6.30$ · 2500 · 0/6 · **4 of 6 at the wall** | $0.00$ · 2387 · 4/6 · none at the wall |
-| $5000$ | $5.62$ · 3306 · **2/6** · none at the wall | $0.00$ · 3093 · 4/6 · none at the wall |
-| $10\,000$ | $5.62$ · 3306 · 2/6 · none at the wall | $0.00$ · 3093 · 4/6 · none at the wall |
+| $2500$ | $6.30$ · 2500 · 0/6 · 4 of 6 stopped by the budget | $0.00$ · 2387 · 4/6 · none stopped by the budget |
+| $5000$ | $5.62$ · 3306 · 2/6 · none stopped by the budget | $0.00$ · 3093 · 4/6 · none stopped by the budget |
+| $10\,000$ | $5.62$ · 3306 · 2/6 · none stopped by the budget | $0.00$ · 3093 · 4/6 · none stopped by the budget |
 
-Two things follow, and the first is a correction.
+*Table D.4. Effect of the budget on Ackley, $n = 5$.*
 
-**The budget was hiding part of the flat method's result.** At $2500$ it reaches
-the optimum from no starting point; given twice that, it reaches it from two out
-of six. The comparison that produced "only the hierarchy solves Ackley" was
-between a truncated run and a finished one, and the honest margin is **four out
-of six against two**, not four against none.
+The budget concealed part of the result of the flat method: with a budget of
+$2500$ it reaches the optimum from no starting point, and with twice this budget
+from two of six. The earlier statement that only the hierarchy solves Ackley
+compared a truncated run with a terminated one; the correct comparison is four
+starting points of six against two.
 
-**Past that, more budget buys nothing at all.** The rows at $5000$ and
-$10\,000$ are *identical*, to the evaluation: both configurations stop at $3306$
-and $3093$ evaluations whatever they are allowed. They end on their own caps, the
-trust region shrinking to infeasibility or the stall counter firing, described in
-[annex C](tuning.md#the-two-caps-that-end-a-run). So on this problem the budget
-is not the binding constraint and raising it is not the way; what binds is the
-stopping rule.
+Beyond this, a larger budget has no effect: the results at $5000$ and $10\,000$
+are identical, both configurations terminating after $3306$ and $3093$
+evaluations respectively, on their own limits, the trust region shrinking to
+infeasibility or the stall counter, described in
+[annex C](tuning.md#termination-of-the-runs). On this problem the budget is not
+the binding limit; the stopping rule is.
 
-That is the general answer to the question, and it cuts both ways. Where a cell
-reports a cost below its budget, the budget was never binding and the comparison
-stands as measured, which covers most of this page, including the whole Rastrigin
-column: flat $m=10$ solves it from all six starting points for $1920$ evaluations
-at a budget of $2500$, of $5000$ and of $10\,000$ alike. Where a cell reports a
-cost equal to its budget, the number is an upper bound and the ranking is only
-"within this budget" until it is re-run, as Ackley was here.
+In general, when a cost is below the budget, the budget was not binding and the
+comparison holds as measured; this applies to most of this annex, including all
+Rastrigin results: the flat subdivision with $m=10$ reaches the optimum from all
+six starting points for $1920$ evaluations with budgets of $2500$, $5000$ and
+$10\,000$. When a cost equals the budget, the value is an upper bound and the
+ranking holds only within that budget until the runs are repeated, as for Ackley
+here.
 
-What the results make of all this is [the page these tables support](benchmark.md#extensions).
+## Estimation of the density
 
-## Estimating the density instead of supplying it
+The density of the subdivision is the only setting without a default value, and
+its estimation is one of the directions identified in
+[the conclusion](conclusion.md#further-work). `benchmarks/basin_spacing.py`
+estimates it from the landscape rather than from the dimension.
 
-The density of the subdivision is the one setting with no default, and
-[the conclusion](conclusion.md#where-this-can-go) names estimating it as the next
-step worth taking. `benchmarks/basin_spacing.py` estimates it, from the landscape
-rather than from the dimension.
-
-The estimand is not a wavelength. A general objective has no single wavelength
-per direction, the restriction of $f$ to a line along $e_j$ having a spectrum
-that depends on where the line is. What is well defined for any $C^1$ objective
-is the expected number of minima along such a line,
+The estimated quantity is not a wavelength, since the restriction of $f$ to a
+line along $e_j$ has a spectrum that depends on the position of the line. The
+expected number of minima along such a line is well defined for any $C^1$
+objective,
 
 $$
 N_j = \mathbb{E}_{x_\perp}\big[\#\{t : \partial_j f(x_\perp + t e_j) = 0,\
 \partial_{jj} f > 0\}\big],
 $$
 
-which is exactly what the subdivision has to separate, so $m_j = N_j$ directly.
+and is the number of basins the subdivision must separate, so that $m_j = N_j$.
 
-**This assumes the multimodality is in the objective**, and that assumption is
-the estimator's boundary rather than a detail of it. Where the basins are cut
-instead by **non-convex constraints** — a disconnected feasible set, or a
-minimum pinned wherever the active set changes — a scan of $f$ alone sees none
-of them. It does not see them and says so with confidence: given an objective
-that is monotone along every line, as a mass is, and a constraint whose feasible
-set falls into six intervals along each axis, the estimator returns $m = 1$ per
-component and reports the ladder **converged**, because the objective really
-does have one basin. The one-sided guarantee still holds; it holds about the
-wrong function. Stress-constrained sizing and topology problems are the case
-that matters here, and `estimate_basins` should not be pointed at one. The
-constraint-aware estimand is below.
+This assumes that the multimodality lies in the objective. When the basins are
+due to non-convex constraints, such as a disconnected feasible set or a minimum
+located where the active set changes, a scan of $f$ alone does not detect them.
+For an objective that is monotone along every line, such as a mass, and a
+constraint whose feasible set consists of six intervals along each axis, the
+estimator returns $m = 1$ per component and reports a converged ladder, since the
+objective has a single basin. The one-sided guarantee holds, but for the wrong
+function. `estimate_basins` should therefore not be applied to stress-constrained
+sizing or topology problems; a constraint-aware count is described below.
 
-That expectation is a Monte Carlo integral over **axial line scans**: draw an
-anchor at random, sweep one component across its bounds, count the minima deep
-enough to matter. A space-filling design does not serve here — averaging it over
-the other components estimates the ANOVA main effect $\mathbb{E}[f \mid x_j]$,
-and the multimodality of Griewank, a product over every component, and of Ackley,
-inside a norm, does not survive that average.
+The expectation is estimated by Monte Carlo integration over axial line scans: an
+anchor is drawn at random, the component is swept over its bounds, and the
+sufficiently deep minima are counted. A space-filling design is not suitable:
+averaging over the other components estimates the main effect
+$\mathbb{E}[f \mid x_j]$, and the multimodality of Griewank (a product over all
+components) and Ackley (inside a norm) does not survive this average.
 
-Five variables, five anchors per component, the ladder of scan rates stopping
-when the count stops growing:
+Table D.5 gives the estimates in five variables with five anchors per component,
+the ladder of scan rates stopping when the count no longer increases.
 
-| problem | proposed $m$ | binaries | scan cost | resolved |
+| problem | proposed $m$ | binaries | scan cost | converged |
 | --------- | -------------- | ---------- | ----------- | ---------- |
 | Rastrigin | 10 10 10 10 10 | 50 | 12 525 | yes |
-| Ackley | 62 62 62 63 63 | 312 | 25 350 | **no** |
+| Ackley | 62 62 62 63 63 | 312 | 25 350 | no |
 | Styblinski-Tang | 2 2 2 2 2 | 10 | 1250 | yes |
 | Griewank | 19 13 11 5 8 | 56 | 12 525 | yes |
 | `partly_multimodal` | 10 10 1 1 1 | 23 | 6100 | yes |
 
+*Table D.5. Estimated densities, $n = 5$.*
+
 :::{note}
-The comparisons further down were measured before the prominence of a minimum
-was corrected, so their Griewank rows carry the density 19 13 11 7 9 that the
-estimator proposed then, and their Ackley rows 63 rather than 62. Nothing else
-moved.
+The comparisons below were measured before the correction of the prominence of a
+minimum, so that their Griewank rows use the density 19 13 11 7 9 proposed at the
+time and their Ackley rows 63 instead of 62. No other value changed.
 :::
 
-Every converged row recovers a count that can be checked by hand: Rastrigin's
-minima are a unit apart over a range of ten, Styblinski-Tang is a quartic double
-well, Griewank's $j$-th component has period $2\pi\sqrt{j}$ and the estimate
-falls with $j$ as it should. `partly_multimodal` is the one to notice: the
-amplitude gate proposes a **single** subdivision for the three paraboloid
-components, which is the partial refinement of the section above reached from the
-landscape instead of declared.
+All converged estimates agree with counts that can be verified analytically: the
+minima of Rastrigin are one unit apart over a range of ten, Styblinski-Tang is a
+quartic double well, and the $j$-th component of Griewank has period
+$2\pi\sqrt{j}$, the estimate decreasing with $j$ accordingly. For
+`partly_multimodal`, the amplitude gate assigns a single interval to the three
+paraboloid components, which yields the partial subdivision of the first section
+from the landscape.
 
-### What the proposal is worth
+### Value of the proposed density
 
-Each problem is given four times the budget its own estimate implies, so that
-every run ends on its own criterion rather than at a wall. Three starting points:
+Each problem is given four times the budget implied by its estimate, so that all
+runs terminate on their own criterion; three starting points (Table D.6).
 
-| problem | density | binaries | predicted | gap | cost | reached |
+| problem | density | binaries | predicted | distance | cost | reached |
 | --------- | --------- | ---------- | ----------- | ----- | ------ | --------- |
-| Rastrigin | **proposed**, 10 ×5 | 50 | 2000 | **$0.00$** | 2103 | **3/3** |
+| Rastrigin | proposed, 10 ×5 | 50 | 2000 | $0.00$ | 2103 | 3/3 |
 | Rastrigin | 2 ×5 | 10 | 400 | $4.97$ | 823 | 0/3 |
-| Ackley | **proposed**, 63 ×5 | 314 | 12 560 | $12.75$ | 5372 | 0/3 |
+| Ackley | proposed, 63 ×5 | 314 | 12 560 | $12.75$ | 5372 | 0/3 |
 | Ackley | 2 ×5 | 10 | 400 | $14.43$ | 892 | 0/3 |
-| Ackley | 10 ×5 | 50 | 2000 | **$6.30$** | 3385 | **1/3** |
-| Styblinski-Tang | **proposed**, 2 ×5 | 10 | 400 | **$0.00$** | 458 | **2/3** |
+| Ackley | 10 ×5 | 50 | 2000 | $6.30$ | 3385 | 1/3 |
+| Styblinski-Tang | proposed, 2 ×5 | 10 | 400 | $0.00$ | 458 | 2/3 |
 | Styblinski-Tang | 10 ×5 | 50 | 2000 | $14.14$ | 598 | 1/3 |
-| Griewank | **proposed**, 19 13 11 7 9 | 59 | 2360 | $0.064$ | 3463 | **1/3** |
+| Griewank | proposed, 19 13 11 7 9 | 59 | 2360 | $0.064$ | 3463 | 1/3 |
 | Griewank | 2 ×5 | 10 | 400 | $0.061$ | 1016 | 0/3 |
-| Griewank | 10 ×5 | 50 | 2000 | **$0.027$** | 3166 | 0/3 |
-| `partly_multimodal` | **proposed**, 10 10 1 1 1 | 23 | 920 | **$0.00$** | **858** | **3/3** |
+| Griewank | 10 ×5 | 50 | 2000 | $0.027$ | 3166 | 0/3 |
+| `partly_multimodal` | proposed, 10 10 1 1 1 | 23 | 920 | $0.00$ | 858 | 3/3 |
 | `partly_multimodal` | 2 ×5 | 10 | 400 | $1.99$ | 540 | 0/3 |
-| `partly_multimodal` | 10 ×5 | 50 | 2000 | **$0.00$** | 1554 | **3/3** |
+| `partly_multimodal` | 10 ×5 | 50 | 2000 | $0.00$ | 1554 | 3/3 |
 
-**On every problem the ladder resolved, the proposal picks the better of the two
-fixed densities**, and on one it beats both: `partly_multimodal` reaches the
-optimum from every starting point for $858$ evaluations against $1554$ for a flat
-ten, by leaving its three unimodal components out. The two reversals the
-benchmark is built around both come out right without being told — ten for
-Rastrigin, two for Styblinski-Tang — and no single fixed density gets both.
+*Table D.6. Proposed and fixed densities, $n = 5$.*
 
-**The budget the estimate implies is about right too.** Predicted against
-measured: $2000$ against $2103$ on Rastrigin, $400$ against $458$ on
-Styblinski-Tang, $920$ against $858$ on `partly_multimodal`, $2360$ against
-$3463$ on Griewank. The rule $\sum_j m_j$ sub-problems lands within a third on
-all four, which is what the coefficients-to-cuts ratio of
-[the methodology](methodology.md#what-grows-with-the-dimension) predicts.
+On all problems whose ladder converged, the proposed density coincides with the
+better of the two fixed densities, and on `partly_multimodal` it improves on
+both: the optimum is reached from all starting points for $858$ evaluations
+against $1554$ with ten subdivisions everywhere, the three unimodal components
+being left undivided. The proposal selects ten subdivisions for Rastrigin and two
+for Styblinski-Tang, which no single fixed density achieves.
 
-**And the one row it gets wrong is the one it flags.** Ackley's ladder does not
-converge, and its proposal of sixty-three is worse than a flat ten, $12.75$
-against $6.30$. Its ripples are a unit apart over a range of sixty-four, so
-per-basin boxing is the wrong target entirely: a density that separates them is
-correct as a count and useless as a subdivision, because what has to be resolved
-on Ackley is the funnel and not the texture on it, which is the case
-[the hierarchies](#the-hierarchies) exist for. The estimate says so in advance —
-`converged` is false — and that flag is the part worth keeping: it separates the
-three problems whose proposal to trust from the one whose proposal to discard.
+The budget implied by the estimate is also consistent with the measured cost:
+$2000$ predicted against $2103$ measured on Rastrigin, $400$ against $458$ on
+Styblinski-Tang, $920$ against $858$ on `partly_multimodal` and $2360$ against
+$3463$ on Griewank. The rule of $\sum_j m_j$ sub-problems agrees within about a
+third on the first three problems, in accordance with the ratio of coefficients
+to cuts discussed in [the methodology](methodology.md#growth-with-the-dimension).
 
-Ackley also confirms that the budget is not what binds it. Granted $50\,240$
-evaluations it stops at $5372$, on its own trust region or stall counter, exactly
-as [the budget re-runs](#does-more-budget-change-the-answer) found.
+The estimate fails on the problem for which it reports non-convergence. On
+Ackley the ladder does not converge, and the proposed density of sixty-three
+gives worse results than ten, $12.75$ against $6.30$. Its ripples are one unit
+apart over a range of sixty-four, so that a density separating them is correct as
+a count but not useful as a subdivision: on Ackley the global funnel, not the
+ripples, must be resolved, which is the case addressed by
+[the hierarchies](#hierarchies). The estimate reports this in advance, with
+`converged` false, which distinguishes the three proposals to retain from the one
+to discard.
 
-### Where the constraints cut the basins
+Ackley also confirms that the budget is not the binding limit: with $50\,240$
+evaluations allowed, the run terminates after $5372$ on its trust region or stall
+counter, as in [the budget study](#effect-of-the-budget).
 
-Pass a constraint and what is counted stops being the basins of the objective
-and becomes the basins of the problem: the minima of $f$ **restricted to the
-feasible set**. Along a line that set is a union of intervals, so the count
-decomposes, and `count_minima_over_feasible` is that decomposition — within each
-maximal feasible interval the minima the prominence gate keeps, and for an
-interval holding none the interval itself, whose minimum sits on a boundary.
+### Constraint-aware count
 
-That boundary case is the point rather than a tidy-up. A minimum pinned where an
-interval ends is a minimum pinned where the **active set changes**, and it is a
-basin the subdivision must separate exactly as an interior one is. One rule
-therefore covers both of the ways a constraint makes a problem multimodal: a
-feasible set in pieces, and an optimum held against a constraint active on one
-side of it only.
+When a constraint is given, the count concerns the basins of the problem rather
+than those of the objective: the minima of $f$ restricted to the feasible set.
+Along a line this set is a union of intervals, so that the count decomposes, as
+implemented in `count_minima_over_feasible`: the minima retained by the
+prominence gate within each maximal feasible interval and, for an interval
+without such a minimum, the interval itself, whose minimum lies on a boundary.
 
-On the landscape that defeated the objective-only scan — a mass, monotone along
-every line, under a limit feasible where $\cos(\pi x_j) \le 1/2$, which over a
-range of ten is six intervals per axis:
+A minimum located at the end of an interval is located where the active set
+changes, and is a basin that the subdivision must separate in the same way as an
+interior minimum. A single rule thus covers both ways in which a constraint makes
+a problem multimodal: a disconnected feasible set, and an optimum on a constraint
+active on one side only.
+
+Table D.7 gives the result for an objective that is monotone along every line,
+a mass, under a constraint feasible where $\cos(\pi x_j) \le 1/2$, i.e. six
+intervals per axis over a range of ten.
 
 | | proposed $m$ | ladder |
 | --- | -------------- | -------- |
 | objective only | $(1, 1, 1)$ | converged |
 | with the constraint | $(6, 6, 6)$ | converged |
 
-Two details decide whether this is honest rather than merely different.
+*Table D.7. Objective-only and constraint-aware counts.*
 
-**The gate is read against the line, not against the piece.** A narrow feasible
-sliver at the bottom of a bowl holds ripples that are enormous relative to the
-sliver and negligible relative to the problem; measured against the sliver they
-are ten basins, and against the range of the whole scan, one. So the range is
-passed down to `count_minima` rather than recomputed per interval.
+Two details determine the validity of the count.
 
-**An infeasible line is not one basin.** An anchor drawn at random can put a
-whole line outside the feasible set, and such a line carries no information
-rather than the information that there is a single basin. Those are redrawn, up
-to `FEASIBLE_ANCHOR_ATTEMPTS` per line, and a component that never meets the
-constraint raises `NoFeasibleScanError` instead of returning a count — because
-the count it would return is exactly the confident wrong answer this section
-exists to remove. This is not hypothetical: the first run of the experiment above
-reported zero feasible segments, the off-axis anchor having sat outside the
-constraint.
+The gate is evaluated with respect to the whole line, not to the interval. A
+narrow feasible interval at the bottom of a bowl contains ripples that are large
+relative to the interval and negligible relative to the problem; measured against
+the interval they would give ten basins, against the range of the whole scan one.
+The range is therefore passed to `count_minima` instead of being recomputed for
+each interval.
 
-#### What this still does not reach
+An infeasible line does not count as one basin. A randomly drawn anchor can place
+a whole line outside the feasible set, in which case it carries no information.
+Such anchors are drawn again, up to `FEASIBLE_ANCHOR_ATTEMPTS` per line, and a
+component that never meets the feasible set raises `NoFeasibleScanError` instead
+of returning a count. This case occurred in practice: the first run of the
+experiment above reported no feasible segment, the off-axis anchor lying outside
+the feasible set.
 
-Stress-constrained sizing and topology are the motivating case, and three limits
-are worth stating plainly rather than discovering later.
+#### Limitations
 
-**The parameterisation.** Subdividing a field of $10^4$ to $10^6$ element
-densities is not a thing this method does, and the scan cost is
-$n_\text{lines} \times n_\text{points} \times n$ evaluations, each a solve. This
-transfers to a **reduced** space — component positions, sizing, material or
-layout choices — not to a raw density field.
+Three limitations remain for stress-constrained sizing and topology problems.
 
-**Boundaries that are not axis aligned.** A stress-feasible region is rarely a
-slab normal to a design variable. An axial scan across a diagonal boundary sees
-many short intervals and overcounts, or threads a gap and undercounts. The
-weakness is materially worse here than for an objective, where averaging over
-anchors is a defensible main effect; feasibility along a line depends on the
-anchor far more strongly than a value does.
+Parameterization. Subdividing a field of $10^4$ to $10^6$ element densities is
+outside the scope of this method, and the scan costs
+$n_\text{lines} \times n_\text{points} \times n$ evaluations, each requiring a
+solution of the model. The approach applies to a reduced space, such as component
+positions, sizing, material or layout choices, not to a density field.
 
-**Singular optima.** In stress-constrained topology optimisation the true
-optimum can lie in a degenerate subdomain of the feasible set, reachable only
-under $\varepsilon$- or $qp$-relaxation (Cheng and Guo, 1997; Duysinx and
-Bendsøe, 1998). Those branches carry no volume, so no sampling of feasibility
-will ever land on them. That one is not a matter of spending more points.
+Oblique boundaries. A stress-feasible region is rarely bounded by planes normal
+to the design variables. An axial scan across an oblique boundary detects many
+short intervals and overcounts, or passes through a gap and undercounts. This
+limitation is more severe than for an objective, since feasibility along a line
+depends much more strongly on the anchor than a value does.
 
-### Why the scan is irregular
+Singular optima. In stress-constrained topology optimization the optimum can lie
+in a degenerate subset of the feasible set, reachable only with $\varepsilon$- or
+$qp$-relaxation (Cheng and Guo, 1997; Duysinx and Bendsøe, 1998). These subsets
+have zero volume, so that no sampling of feasibility reaches them, whatever the
+number of points.
 
-The error of the estimator is one sided — a scan reveals the basins it resolves
-and never more — so the only stopping rule available is to refine until the count
-stops growing. That rule is **invalid on an evenly spaced scan**, because a
-uniform grid whose spacing resonates with the landscape aliases, and aliasing is
-silent. The ladder of Ackley, by rung:
+### Irregular scans
 
-| scan | rung 1 | 2 | 3 | 4 | 5 | 6 | stopped on |
+The error of the estimator is one-sided, since a scan reveals the basins it
+resolves and no others, so that the only available stopping rule is to refine
+until the count no longer increases. This rule is invalid for an evenly spaced
+scan, because a uniform grid whose spacing resonates with the landscape produces
+aliasing without any indication. Table D.8 gives the ladder for Ackley.
+
+| scan | rung 1 | 2 | 3 | 4 | 5 | 6 | stopped at |
 |------|--------|---|---|---|---|---|------------|
-| uniform | 1 | 1 | — | — | — | — | **1** |
-| jittered | 4 | 9 | 20 | 36 | 55 | 62 | did not |
+| uniform | 1 | 1 | — | — | — | — | 1 |
+| jittered | 4 | 9 | 20 | 36 | 55 | 62 | not stopped |
 
-The uniform scan agrees with itself twice and terminates on a count wrong by a
-factor of sixty, having given no sign of it. Drawing the abscissae at random
-removes the resonance, and the ladder then climbs without settling, which is the
-correct report. The jitter is therefore not a refinement of the estimator; it is
-what makes its stopping rule mean anything.
+*Table D.8. Uniform and jittered scans on Ackley.*
+
+The uniform scan gives the same count twice and stops at a value wrong by a
+factor of sixty. Random abscissae remove the resonance, and the ladder then
+increases without converging, which is the correct result. The jitter is thus
+required for the stopping rule to be valid.
 
 ```shell
 python -m benchmarks.basin_spacing
 ```
 
-### The trust region that closes, and the patience it needs
+### Trust-region floor and stall counter
 
-The tables above are measured at the catalogue settings, so that what they vary
-is the density. One setting underneath them turns out to matter as much, and it
-is not the one it looks like.
+The tables above use the default settings of the master, so that only the density
+varies. One further setting has a comparable effect.
 
-The master shrinks its step by $0.7$ every `step_decreasing_activation` stalling
-iterations down to `min_step`, and widens it again only on an improvement. The
-catalogue floor is one, so six stalling iterations pin the region at a radius of
-one for good. That also silences the parallel probes, whose radii are
-`geomspace(max(step / 2, min_step), step)`: four points at a step of two probe
-$1$, $1.26$, $1.59$ and $2$, and once the step reaches one all four solve the
-same problem four times over. The exploration does not narrow, it stops.
+The master multiplies its step by $0.7$ every `step_decreasing_activation`
+stalling iterations, down to `min_step`, and increases it only after an
+improvement. The default floor is one, so that six stalling iterations fix the
+trust region at a radius of one. This also makes the parallel probes redundant,
+since their radii are `geomspace(max(step / 2, min_step), step)`: four points at
+a step of two probe $1$, $1.26$, $1.59$ and $2$, and once the step reaches one
+all four solve the same problem. The exploration then stops.
 
-**The stalling counter, which looks like the culprit, is not.** Raised from ten
-to the binaries while the region still collapses, it leaves Ackley at ten
-subdivisions bit for bit where it was, $6.3021$ for $3385$ evaluations at either
-value. At sixty-three subdivisions it moves the gap from $14.31$ to $14.01$ for
-eighteen times the wall clock.
+The stall counter alone does not explain this. Increased from ten to the number
+of binaries while the trust region still shrinks, it leaves Ackley at ten
+subdivisions unchanged, $6.3021$ for $3385$ evaluations with both values. At
+sixty-three subdivisions it changes the distance from $14.31$ to $14.01$ for
+eighteen times the wall-clock time.
 
-**Holding the floor at the tuned radius is what pays, and it needs the patience
-with it.** A region that stays wide stalls more often than one narrowing onto
-whatever it can still improve, so the floor taken alone stops a run earlier
-rather than later: Rastrigin, solved from every starting point at $2103$
-evaluations, falls to $0.99$ and one out of three. Sized together, at
-`min_step` $= 2$ and `upper_bound_stall` $= \sum_j m_j$, five variables, three
-starting points, each problem at its proposed density and Ackley at ten:
+Keeping the floor at the tuned radius improves the results, provided the stall
+counter is increased accordingly. A larger trust region stalls more often than a
+shrinking one, so that the floor alone stops a run earlier: Rastrigin, solved from
+all starting points for $2103$ evaluations, then gives $0.99$ and one of three.
+Table D.9 gives the results with `min_step` $= 2$ and `upper_bound_stall`
+$= \sum_j m_j$, in five variables from three starting points, each problem at its
+proposed density and Ackley at ten.
 
-| problem | settings | gap | cost | reached |
+| problem | settings | distance | cost | reached |
 | --------- | ---------- | ----- | ------ | --------- |
-| Rastrigin | catalogue | $0.0000$ | **2103** | 3/3 |
+| Rastrigin | default | $0.0000$ | 2103 | 3/3 |
 | Rastrigin | both | $0.0000$ | 5673 | 3/3 |
-| Ackley, $m=10$ | catalogue | $6.3021$ | 3385 | 1/3 |
-| Ackley, $m=10$ | **both** | **$4.9449$** | 4570 | 1/3 |
-| Styblinski-Tang | catalogue | $0.0000$ | 458 | 2/3 |
-| Styblinski-Tang | **both** | $0.0000$ | 473 | **3/3** |
-| Griewank | catalogue | $0.0644$ | 3463 | 1/3 |
-| Griewank | **both** | **$0.0348$** | 9440 *(at the wall)* | 1/3 |
-| `partly_multimodal` | catalogue | $0.0000$ | 858 | 3/3 |
-| `partly_multimodal` | **both** | $0.0000$ | **730** | 3/3 |
+| Ackley, $m=10$ | default | $6.3021$ | 3385 | 1/3 |
+| Ackley, $m=10$ | both | $4.9449$ | 4570 | 1/3 |
+| Styblinski-Tang | default | $0.0000$ | 458 | 2/3 |
+| Styblinski-Tang | both | $0.0000$ | 473 | 3/3 |
+| Griewank | default | $0.0644$ | 3463 | 1/3 |
+| Griewank | both | $0.0348$ | 9440 (budget reached) | 1/3 |
+| `partly_multimodal` | default | $0.0000$ | 858 | 3/3 |
+| `partly_multimodal` | both | $0.0000$ | 730 | 3/3 |
 
-$4.95$ on Ackley is the best a flat subdivision reaches anywhere in this
-benchmark, against the $6.30$ of
-[the density sweep](benchmark.md#density-of-the-subdivision), and it
-comes from a setting rather than from a mechanism. **Quality never gets worse
-and improves on three of the five.** What it costs is evaluations, and not
-evenly: `partly_multimodal` gets cheaper, Styblinski-Tang is flat, Ackley is
-$1.35$ times dearer and Rastrigin $2.7$ times. Griewank's row spent its whole
-budget, so its $0.0348$ is an upper bound on a run that had not finished.
+*Table D.9. Default settings and modified trust-region floor and stall counter.*
 
-That is a trade rather than a default, which is why the tables above keep the
-catalogue values and this one stands beside them. What it establishes is
-narrower and firmer than a new setting: **the runs of this benchmark end on a
-trust region that has closed, not on the patience of the master**, and the two
-have to move together because holding the region open is what makes a run stall.
+The distance of $4.95$ on Ackley is the best result of a flat subdivision in this
+study, against $6.30$ in [the density study](benchmark.md#density-of-the-subdivision),
+and is due to a setting rather than a mechanism. The results improve on three of
+the five problems and do not degrade on the others. The cost changes unevenly:
+`partly_multimodal` becomes less expensive, Styblinski-Tang is unchanged, Ackley
+is $1.35$ times and Rastrigin $2.7$ times more expensive. The Griewank run spent
+its whole budget, so that its $0.0348$ is an upper bound.
+
+This is a trade-off rather than a default, and the other tables keep the default
+values. It shows that the runs of this study terminate on a closed trust region
+rather than on the patience of the master, and that both settings must be changed
+together, since keeping the trust region open increases the number of stalls.
 
 ```python
 run_at_density(problem, 5, density, seed, budget,
                stall=stall_counter(density), min_step=MIN_STEP)
 ```
 
-### What was actually losing Ackley: the margin, not the density
+### Convexity margin on Ackley and Griewank
 
-Every table above carries `min_dfk` at the value `configurations.py` calibrated,
-$100$. That value is **absolute, in the units of the objective**, and the five
-problems here do not span comparable ranges:
+All tables above use the value of `min_dfk` calibrated in `configurations.py`,
+$100$. This value is absolute, in the units of the objective, and the ranges of
+the five problems differ widely (Table D.10).
 
-| problem | range | $100$ is | reaches the optimum |
+| problem | range | $100$ as a fraction of the range | optimum reached |
 | --------- | ------- | ---------- | --------------------- |
 | Styblinski-Tang | $549.7$ | 18% | yes |
 | Rastrigin | $186.7$ | 54% | yes |
 | `partly_multimodal` | $164.1$ | 61% | yes |
-| **Ackley** | $14.5$ | **690%** | **no** |
-| **Griewank** | $4.9$ | **2045%** | **no** |
+| Ackley | $14.5$ | 690% | no |
+| Griewank | $4.9$ | 2045% | no |
 
-The two problems the margin dwarfs are exactly the two that never reached the
-optimum, and the mechanism is visible in the repair. It builds
-`rhs = l_df_k - df_k + min_dfk`, the amount a cut over-predicts plus the margin,
-and clips it below at zero. Once the margin is several times the range,
-`l_df_k - df_k` cannot move it: the clip never fires, the least squares is
-driven by a constant instead of by the measurements, and every slope is shifted
-along one fixed direction. The cut model ranks the boxes by the margin rather
-than by the landscape.
+*Table D.10. Calibrated margin relative to the range of each problem.*
 
-Sweeping the margin at $m = 10$ on Ackley, three starting points, nothing else
-touched, shows a window rather than a trend:
+The two problems for which the margin exceeds the range are the two whose optimum
+is never reached. The repair computes `rhs = l_df_k - df_k + min_dfk`, the
+overestimation of a cut plus the margin, and clips it at zero. When the margin is
+several times the range, `l_df_k - df_k` has no effect: the clipping never
+occurs, the least-squares problem is driven by a constant instead of the
+measurements, and all slopes are shifted in the same direction. The cut model
+then ranks the boxes according to the margin rather than the landscape.
 
-| `min_dfk` | % of range | gap | cost | reached |
+Table D.11 gives the results on Ackley with $m = 10$ for several margins, from
+three starting points, all other settings unchanged.
+
+| `min_dfk` | fraction of the range | distance | cost | reached |
 | ----------- | ------------ | ----- | ------ | --------- |
 | $100$ | 690% | $6.3021$ | 3385 | 1/3 |
 | $30$ | 207% | $4.9449$ | 2721 | 1/3 |
-| **$10$** | **69%** | **$0.0000$** | **2450** | **2/3** |
+| $10$ | 69% | $0.0000$ | 2450 | 2/3 |
 | $3$ | 21% | $12.8332$ | 1287 | 0/3 |
 | $1$ | 7% | $8.9861$ | 927 | 0/3 |
 
-### The estimated density with the convexity swept
+*Table D.11. Effect of the convexity margin on Ackley, $m = 10$, $n = 5$.*
 
-Which is what [the sweep](benchmark.md#swept-convexity)
-exists to remove. Run at the estimated densities with **nothing supplied at all**,
-neither a margin nor a density, against the same densities at the calibrated
-margin:
+The margin has a useful range rather than a monotone effect.
+
+### Estimated density with swept convexity
+
+The [sweep](benchmark.md#swept-convexity) removes this dependence on the margin.
+Table D.12 compares runs at the estimated densities without any supplied value,
+neither margin nor density, with runs at the same densities and the calibrated
+margin.
 
 | problem | density | swept | calibrated |
 | --- | --- | --- | --- |
-| Styblinski-Tang | 2⁵ | $0.0000$ · 601 · **3/3** | $0.0000$ · 458 · 2/3 |
-| `partly_multimodal` | 10 10 1 1 1 | $0.0000$ · **729** · 3/3 | $0.0000$ · 858 · 3/3 |
-| **Ackley** | 10⁵ | **$0.0000$** · 2622 · **2/3** | $6.3021$ · 3385 · 1/3 |
-| **Griewank** | 19 13 11 7 9 | **$0.0074$** · 3083 · **2/3** | $0.064$ · 3463 · 1/3 |
-| Ackley | 63⁵ *(estimated)* | $7.6161$ · 3459 · 0/3 | $14.31$ · 2094 · 0/3 |
-| **Rastrigin** | 10⁵ | **$0.9950$** · 1547 · **0/3** | $0.0000$ · 2103 · 3/3 |
+| Styblinski-Tang | 2⁵ | $0.0000$ · 601 · 3/3 | $0.0000$ · 458 · 2/3 |
+| `partly_multimodal` | 10 10 1 1 1 | $0.0000$ · 729 · 3/3 | $0.0000$ · 858 · 3/3 |
+| Ackley | 10⁵ | $0.0000$ · 2622 · 2/3 | $6.3021$ · 3385 · 1/3 |
+| Griewank | 19 13 11 7 9 | $0.0074$ · 3083 · 2/3 | $0.064$ · 3463 · 1/3 |
+| Ackley | 63⁵ (estimated) | $7.6161$ · 3459 · 0/3 | $14.31$ · 2094 · 0/3 |
+| Rastrigin | 10⁵ | $0.9950$ · 1547 · 0/3 | $0.0000$ · 2103 · 3/3 |
 
-**The sweep solves both problems the calibrated margin loses.** Ackley at ten
-subdivisions reaches the optimum from two starting points out of three, which
-nothing else on this page does with a flat subdivision, and Griewank from two
-where the margin reached it from one. Neither needed a convexity value, and
-neither needed a density: the scans proposed those.
+*Table D.12. Swept and calibrated convexity at the estimated densities, $n = 5$.*
 
-**It also loses Rastrigin**, which the calibrated margin solves from every
-starting point. That is worth stating against the claim that the swept
-configuration matches the calibrated one on every row, which was measured at the
-density `baselines.py` defaults to rather than at ten in five variables. The
-calibrated margin is 54% of Rastrigin's range, inside the window above, and it
-was calibrated on Rastrigin: it works there and on the two problems whose ranges
-happen to resemble it. The swept run stops at $1547$ evaluations with a gap of
-$0.9950$, one basin short, so what ends it is worth a look the way the margin
-was.
+The sweep reaches the optimum of the two problems on which the calibrated margin
+fails: Ackley with ten subdivisions from two starting points of three, the best
+result of a flat subdivision in this annex, and Griewank from two instead of one.
+Neither run required a convexity value or a density, the latter being given by
+the scans.
 
-**And it does not rescue the estimated density.** Ackley at sixty-three improves
-from $14.31$ to $7.62$ and still reaches the optimum from nowhere, so the flag
-`estimate_basins` raises on that row was right for a reason that has nothing to
-do with the convexity: sixty-three separates the ripples, and what has to be
-resolved on Ackley is the funnel under them.
+The sweep fails on Rastrigin, which the calibrated margin solves from all starting
+points. This qualifies the statement that the swept configuration performs as
+well as the calibrated one on all problems, which was measured at the default
+density of `baselines.py` rather than at ten subdivisions in five variables. The
+calibrated margin is 54% of the range of Rastrigin, within the useful range of
+Table D.11, and was calibrated on this problem. The swept run terminates after
+$1547$ evaluations at a distance of $0.9950$, one basin away from the optimum;
+the reason for this termination has not been investigated.
+
+The sweep does not make the estimated density useful either: on Ackley with
+sixty-three subdivisions the distance decreases from $14.31$ to $7.62$, but the
+optimum is not reached. The non-convergence reported by `estimate_basins` for this
+case is therefore justified independently of the convexity: sixty-three intervals
+separate the ripples, whereas the funnel must be resolved.
 
 :::{warning}
-This supersedes the reading of
-[the section above](#the-trust-region-that-closes-and-the-patience-it-needs), not
-its measurements. Those runs all carried the margin at 690% of Ackley's range,
-so they describe a method whose cut model ranks nothing, and opening the trust
-region helped because the region was then the only thing steering. The numbers
-stand; the explanation that the runs "end on a trust region that has closed"
-holds only under a margin that has already killed the cuts. Whether holding the
-region open is worth anything **under the sweep** is not measured here.
+This changes the interpretation of
+[the previous section](#trust-region-floor-and-stall-counter), not its
+measurements. These runs used a margin of 690% of the range of Ackley, for which
+the cut model provides no ranking, and keeping the trust region open was
+beneficial because it was then the only mechanism guiding the search. The
+conclusion that the runs terminate on a closed trust region holds only under such
+a margin. The effect of keeping the trust region open with the sweep has not been
+measured.
 :::
 
-### The amplitude gate, corrected, and what it still cannot do
+### Prominence gate
 
-`count_minima` used to measure a dip against the highest point anywhere to each
-side of it. Inside a bowl that is the far wall, so every ripple looked as deep
-as the bowl carrying it and the gate never fired: ripples a hundredth of the
-range deep on a parabola were kept at a threshold of one half. It now measures
-**topographic prominence**, walking out to the first point below the minimum and
-taking the highest point crossed, which is the saddle that actually closes the
-basin. A side reaching the bound without ever dropping lower is open, and the
-basin is worth what the closed side says, which is what keeps the minimum a
-tenth of a unit inside Rastrigin's lower bound in the count.
+`count_minima` initially measured a minimum against the highest point on each
+side. Within a bowl this is the far wall, so that every ripple appeared as deep as
+the bowl and the gate was never effective: ripples of one hundredth of the range
+on a parabola were retained with a threshold of one half. It now measures the
+topographic prominence, moving outwards to the first point below the minimum and
+taking the highest point crossed, i.e. the saddle that closes the basin. A side
+that reaches the bound without decreasing further is open, and the depth is given
+by the closed side, which keeps the minimum located a tenth of a unit inside the
+lower bound of Rastrigin in the count.
 
-The correction barely moves the estimates — Ackley $63 \to 62$, Griewank
-$19\,13\,11\,7\,9 \to 19\,13\,11\,5\,8$, the rest unchanged — and that is
-the finding. Ackley's ripples are not shallow in prominence: each is worth its
-adjacent ridge, $\exp(S/5)\cdot 0.403$ for $S$ the sum of the four
-perpendicular cosines, which is 1% to 5% of the range the scan spans. Sweeping
-the gate shows no threshold separating them from basins that matter:
+The correction hardly changes the estimates (Ackley from $63$ to $62$, Griewank
+from $19\,13\,11\,7\,9$ to $19\,13\,11\,5\,8$, the others unchanged). The ripples
+of Ackley are not shallow in terms of prominence: each has the depth of its
+adjacent ridge, $\exp(S/5)\cdot 0.403$, with $S$ the sum of the four
+perpendicular cosines, i.e. 1% to 5% of the range of the scan. Table D.13 shows
+that no threshold separates them from the relevant basins.
 
 | `depth_ratio` | Rastrigin | Ackley | Styblinski-Tang | Griewank |
 | --- | --- | --- | --- | --- |
 | 0.02 | 10 ×5 | 62 62 62 63 63 | 2 ×5 | 19 13 11 5 8 |
 | 0.10 | 10 ×5 | 60 62 62 62 62 | 2 ×5 | 5 2 9 4 1 |
-| 0.20 | 10 ×5 | 44 61 60 60 60 | **1 1 1 1 2** | **1 1 2 1 1** |
-| 0.30 | 10 ×5 | 1 56 56 53 55 | **1 ×5** | **1 2 1 1 1** |
+| 0.20 | 10 ×5 | 44 61 60 60 60 | 1 1 1 1 2 | 1 1 2 1 1 |
+| 0.30 | 10 ×5 | 1 56 56 53 55 | 1 ×5 | 1 2 1 1 1 |
 
-By the time a gate touches Ackley it has destroyed Styblinski-Tang and Griewank,
-and Ackley is still at fifty-odd. **No amplitude threshold turns 62 into the 10
-that works**, and the reason is not a defect of the gate: sixty-two is the
-honest basin count of an Ackley axis, its ripples being a unit apart over a
-range of sixty-four. Ten is not a count of anything in that landscape. It is the
-box width at which the sub-problem descends the funnel by itself and still
-returns a value that tells its box apart from the next, which is a property of
-the solver inside the box rather than of the objective.
+*Table D.13. Estimated densities against the prominence threshold.*
 
-That is the boundary of this estimator, stated as sharply as the measurements
-allow: **basins per axis is the right target only where a basin is what the
-subdivision must separate.** On a landscape whose fine structure the local solve
-handles unaided, and whose coarse structure carries the optimum, the count is
-correct and useless at the same time, and the `converged` flag catches the case
-for the wrong reason.
+A threshold large enough to affect Ackley already gives incorrect counts for
+Styblinski-Tang and Griewank, while Ackley remains above fifty. No amplitude
+threshold reduces sixty-two to ten, and this is not a defect of the gate: sixty-two
+is the actual number of basins along an axis of Ackley, whose ripples are one unit
+apart over a range of sixty-four. Ten does not correspond to a number of basins
+but to the box width at which the sub-problem descends the funnel by itself while
+still returning values that distinguish neighbouring boxes, a property of the
+local solver rather than of the objective.
 
-### The probes decide, and six of them is a hole
+The number of basins per axis is therefore the appropriate target only when the
+basins are what the subdivision must separate. On a landscape whose fine
+structure is handled by the local solver and whose coarse structure determines
+the optimum, the count is correct but not useful, and the `converged` flag
+identifies this case only indirectly.
 
-A swept run spreads its ladder over the parallel probes of the master, so their
-number is the number of rungs. It is not a smooth knob, and reading it as one
-cost this annex a conclusion.
+### Number of probes
 
-Ackley through the deep hierarchy, the convexity swept, five variables, three
-starting points, a budget of $8000$:
+A swept run distributes its ladder over the parallel probes of the master, so that
+the number of probes is the number of rungs. Table D.14 gives the results on
+Ackley with the deep hierarchy and swept convexity, in five variables, from three
+starting points, with a budget of $8000$.
 
-| depth | probes | gap | cost | reached |
+| depth | probes | distance | cost | reached |
 | --- | --- | --- | --- | --- |
 | 4 | 2 | $9.7137$ | 489 | 0/3 |
 | 4 | 3 | $9.7137$ | 1089 | 0/3 |
-| 4 | **4** | **$0.0001$** | 2263 | **2/3** |
+| 4 | 4 | $0.0001$ | 2263 | 2/3 |
 | 4 | 6 | $9.7137$ | 1196 | 1/3 |
-| 4 | **10** | **$0.0001$** | 2802 | **3/3** |
-| 6 | **4** | **$0.0000$** | 3243 | **2/3** |
+| 4 | 10 | $0.0001$ | 2802 | 3/3 |
+| 6 | 4 | $0.0000$ | 3243 | 2/3 |
 | 6 | 6 | $9.7137$ | 1348 | 1/3 |
-| 6 | **10** | **$0.0000$** | 3244 | **3/3** |
+| 6 | 10 | $0.0000$ | 3244 | 3/3 |
 
-Four rungs solve it, six do not, ten solve it from every starting point. The
-response is **not monotone**, and six sits in a hole between two counts that
-work. The same count cost Rastrigin its result on the flat encoding, $0.9950$
-at six rungs against $0.0000$ at ten, so the hole is not particular to a
-hierarchy.
+*Table D.14. Effect of the number of probes on Ackley with the deep hierarchy,
+$n = 5$.*
 
-**With ten rungs the swept hierarchy beats the calibrated one**, three starting
-points out of three against two, and needs no convexity value. The calibrated
-margin is not what the hierarchy depends on.
+Four rungs reach the optimum, six do not, and ten reach it from all starting
+points: the response is not monotone, and six probes give poor results between two
+values that perform well. The same number of probes degraded Rastrigin with the
+flat encoding, $0.9950$ with six rungs against $0.0000$ with ten, so that this
+behaviour is not specific to the hierarchy.
+
+With ten rungs the swept hierarchy performs better than the calibrated one, three
+starting points of three against two, without any convexity value.
 
 :::{warning}
-An earlier reading of these runs, kept in the history of this branch, reported
-that the convexity policy **inverts** between the encodings: that a flat
-subdivision needs the sweep while a hierarchy needs the absolute margin, the
-sweep starving a level because its scale is read off the boxes solved inside a
-shrinking box. That is wrong, and it is wrong because every swept hierarchy
-behind it ran at six probes while every calibrated one ran at four, which is
-what `ADAPTIVE` sets. The probe count was never held fixed.
+An earlier interpretation of these runs, retained in the history of this branch,
+stated that the convexity policy is reversed between the encodings: a flat
+subdivision would require the sweep and a hierarchy the absolute margin, the sweep
+underestimating the scale within a shrinking box. This interpretation is
+incorrect: all swept hierarchies were run with six probes and all calibrated ones
+with four, the value set by `ADAPTIVE`, so that the number of probes was not kept
+constant.
 
-Two experiments chased that reading and neither moved a digit, which was the
-evidence against it. **Freezing** the ladder's bound at the scale the first
-level observed left every gap unchanged, at a frozen bound of $96$ that already
-bracketed the calibrated hundred. **Raising the ladder's floor**, from two
-decades below its top to a quarter of one, so that every rung lay between $54$
-and $96$, left every gap unchanged again. A convexity that is varied over two
-orders of magnitude without moving the result is not the variable that decides
-it.
+Two experiments based on that interpretation did not change any result, which
+contradicts it. Freezing the upper bound of the ladder at the scale observed at
+the first level, $96$, close to the calibrated value of one hundred, left all
+distances unchanged. Raising the lower end of the ladder from two decades to a
+quarter of a decade below its top, so that all rungs lay between $54$ and $96$,
+also left all distances unchanged. A convexity varied over two orders of magnitude
+without affecting the result is not the decisive variable.
 :::
 
-### Counting a run that has been forked
+### Evaluation counting in parallel runs
 
-Everything above was measured at one process, and the reason was a limitation of
-the benchmark rather than of the master. `BudgetedCounter` wraps the objective
-and tallies the calls **in the process that built it**. The master solves the
-candidate boxes of an iteration over `number_of_processes` workers, and
-`CallableParallelExecution` leaves `use_threading` at its default, so those
-workers are forked: a child gets a copy of the counter, spends against the copy,
-and the copy dies with it. The parent's tally is then a record of whatever the
-parent happened to evaluate itself, which is a small and arbitrary fraction of
-the run.
+All the above results were obtained with a single process, because of a
+limitation of the benchmark rather than of the master. `BudgetedCounter` wraps the
+objective and counts the calls in the process that created it. The master solves
+the candidate boxes of an iteration on `number_of_processes` workers, and
+`CallableParallelExecution` uses its default `use_threading`, so that the workers
+are forked processes: each receives a copy of the counter, which is lost when the
+process terminates. The count of the parent process then covers only the
+evaluations it performed itself, an arbitrary fraction of the run.
 
-That is not a slow degradation but a wrong number, and it is wrong in the
-direction that flatters:
+The resulting values are incorrect and biased (Table D.15).
 
-| problem | counter's best, 1 proc | counter's best, 4 procs | database's best, 1 and 4 |
+| problem | best value of the counter, 1 process | best value of the counter, 4 processes | best value of the database, 1 and 4 processes |
 | --------- | ------------------------ | ------------------------- | -------------------------- |
 | Rastrigin | $0.0000$ | $33.4089$ | $0.0000$ |
 | Ackley | $7.0756$ | $19.4200$ | $7.0756$ |
 | Styblinski-Tang | $-181.6941$ | $-181.6941$ | $-181.6941$ |
 | Griewank | $0.0271$ | $1.6134$ | $0.0271$ |
 
-Every one of those runs reached the same optimum. Only the measurement moved.
-Note the third row: Styblinski-Tang is the cheapest problem here, at two
-subdivisions, and its counter survived four processes intact. A spot check that
-happened to pick it would have found nothing wrong.
+*Table D.15. Best values recorded by the counter and by the database of the
+master.*
 
-#### What the database can return
+All these runs reached the same optimum; only the measurement differs. On
+Styblinski-Tang, the least expensive problem, the counter gives the correct value
+with four processes, so that a check limited to this problem would not have
+revealed the issue.
 
-The master's own database does not have this problem, because its entries are
-written by the parent from what the workers send back. The Benders formulation
-registers `iterations` as an observable of the master problem, and the adapter
-of the sub-scenario fills it with the length of the sub-problem's database — the
-distinct design points that box was solved over. One entry per box, and the
-entry crosses the process boundary by construction.
+#### Database of the master
 
-So the best value, the work, and the boxes are read from there instead, and they
-come back **identical to the digit** at one process and at four, on all four
-problems: $1337$, $2552$, $163$ and $1661$ evaluations over $64$, $84$, $8$ and
-$64$ boxes, the same numbers twice. `RunOutcome` carries them.
+The database of the master does not have this limitation, since its entries are
+written by the parent process from the results returned by the workers. The
+`Benders` formulation registers `iterations` as an observable of the master
+problem, and the adapter of the sub-scenario sets it to the length of the database
+of the sub-problem, i.e. the number of distinct design points at which the box
+was evaluated. There is one entry per box, transferred between processes by
+construction.
 
-#### What it cannot return, and why the cost stays where it is
+The best value, the number of evaluations and the boxes are therefore read from
+this database, and are identical with one and four processes on the four problems:
+$1337$, $2552$, $163$ and $1661$ evaluations over $64$, $84$, $8$ and $64$ boxes.
+`RunOutcome` contains these values.
 
-The cost column of every table in this suite is an *equivalent objective
-evaluation* under the adjoint convention — an objective call plus a gradient
-call — because that is the unit `baselines.py` reports and a cost that cannot be
-set beside the baselines is not worth printing. The database cannot produce that
-unit. `iterations` is a count of **points**; the cost is a count of **calls**.
-A point visited twice counts once, and a gradient taken at a point counts not at
-all:
+#### Cost
 
-| problem | counter's cost | objective calls | database's evaluations | of the cost | of the calls |
+The cost reported in all tables of this study is a number of equivalent objective
+evaluations under the adjoint convention, an objective call plus a gradient call,
+which is the unit used by `baselines.py`. The database cannot provide this unit:
+`iterations` counts points, whereas the cost counts calls; a point visited twice
+is counted once and a gradient evaluation is not counted (Table D.16).
+
+| problem | cost of the counter | objective calls | evaluations of the database | ratio to the cost | ratio to the calls |
 | --------- | ---------------- | ----------------- | ------------------------ | ------------- | -------------- |
 | Rastrigin | 2115 | 1361 | 1337 | $0.63$ | $0.98$ |
 | Ackley | 3685 | 2563 | 2552 | $0.69$ | $1.00$ |
 | Styblinski-Tang | 247 | 163 | 163 | $0.66$ | $1.00$ |
 | Griewank | 2595 | 1667 | 1661 | $0.64$ | $1.00$ |
 
-The right-hand column is the useful reading: **the database's count is very
-nearly the objective calls with the duplicates removed**, within 2% on the
-worst row and exact on two of the four. What it is missing is the gradients, and
-those are not a fixed fraction — the ratio to the cost runs from $0.63$ to
-$0.69$ across four problems on one seed each. There is no conversion to apply,
-so none is applied. The two are reported side by side, in their own units, and
-`RunOutcome.cost` is documented as valid at one process only.
+*Table D.16. Cost recorded by the counter and number of evaluations recorded by
+the database.*
 
-The budget stays parent-side for the same reason, and cannot be fixed the same
-way. It is the counter that raises `BudgetExceededError`, a forked child
-inherits the tally as it stood at the fork and spends against its own copy, so
-no child's spending reaches the guard. **A parallel run is not budgeted**, and
-`RunOutcome.truncated` reads `False` however long it goes on.
+The number of evaluations of the database is close to the number of objective
+calls without duplicates, within 2% in the worst case and exact on two problems.
+The gradients are missing, and their share is not constant, the ratio to the cost
+ranging from $0.63$ to $0.69$ over four problems with one seed each. No conversion
+is therefore applied: both quantities are reported in their own units, and
+`RunOutcome.cost` is documented as valid for a single process only.
 
-None of this is the upstream fault reported as [#7][i7], which was the master
-losing its workers' results outright and returning a converged optimum that
-was wrong. That one is fixed; these measurements were taken with the fix
-installed, which is why the optima agree across process counts at all. What
-remains is a property of counting in a process that is about to be forked away
-from.
+For the same reason the budget is enforced in the parent process only. The
+counter raises `BudgetExceededError`, and a forked process inherits the count at
+the time of the fork and increments its own copy, so that the evaluations of the
+workers do not reach the guard. A parallel run is therefore not budgeted, and
+`RunOutcome.truncated` is `False` whatever its duration.
 
-### Re-timed over processes, now that the work can be counted
+This is distinct from the upstream issue [#7][i7], in which the master lost the
+results of its workers and returned an incorrect converged optimum. That issue is
+fixed, and these measurements were made with the correction installed, which is
+why the optima agree between the numbers of processes.
 
-With the outcome read from the database, the same run can be compared across
-process counts honestly: the work is known to be identical, so the wall clock is
-the only thing left that could move. Five problems, the seed and budget of the
-tables above, the better of two passes on an otherwise idle four-core machine:
+### Parallel speed-up
 
-| problem | evaluations | boxes | $t(1)$ | $t(2)$ | $t(4)$ | at 2 | at 4 |
+With the outcome read from the database, the runs can be compared across numbers
+of processes: the work is identical, and only the wall-clock time can differ.
+Table D.17 gives the results for five problems, with the seeds and budgets of the
+tables above, as the best of two runs on an otherwise idle four-core machine.
+
+| problem | evaluations | boxes | $t(1)$ | $t(2)$ | $t(4)$ | speed-up at 2 | speed-up at 4 |
 | --------- | ------------- | ------- | -------- | -------- | -------- | ------ | ------ |
 | Rastrigin | 1337 | 64 | $12.75$ | $13.47$ | $13.34$ | $0.95$ | $0.96$ |
 | Ackley | 2552 | 84 | $16.91$ | $16.96$ | $17.30$ | $1.00$ | $0.98$ |
@@ -737,77 +743,82 @@ tables above, the better of two passes on an otherwise idle four-core machine:
 | Styblinski-Tang | 163 | 8 | $0.35$ | $0.48$ | $0.45$ | $0.74$ | $0.79$ |
 | `partly_multimodal` | 516 | 24 | $1.46$ | $1.59$ | $1.63$ | $0.91$ | $0.89$ |
 
-Every evaluation count, box count and best value there is identical across the
-three process counts, so these really are the same run measured three times.
-**And not one of them got faster**: the speed-up runs from $0.74$ to $1.00$.
+*Table D.17. Wall-clock time in seconds with one, two and four processes.*
 
-#### Why, and what that means for the settings
+The numbers of evaluations and boxes and the best values are identical for the
+three numbers of processes, and no run is faster in parallel: the speed-up ranges
+from $0.74$ to $1.00$.
 
-The fan-out covers `_execute_doe`, the evaluation of one iteration's
-trust-region probes, and that is about **a tenth of a run** — 9.0% on Rastrigin,
-11.8% on Ackley. Amdahl's law caps the speed-up at $1.12$ over four workers
-before anything else is weighed, and the region does not even scale: its batches
-hold `number_of_parallel_points` designs, four by default, some $74\,$ms of work
-against the $87\,$ms it costs to fork for them.
+The parallel section covers `_execute_doe`, the evaluation of the trust-region
+probes of an iteration, which represents about one tenth of a run, 9.0% on
+Rastrigin and 11.8% on Ackley. Amdahl's law limits the speed-up to $1.12$ with
+four workers, and this section does not scale either: its batches contain
+`number_of_parallel_points` designs, four by default, about $74\,$ms of work
+against $87\,$ms for the fork.
 
-The other nine tenths is the master's own MILP:
+The remaining nine tenths are spent in the mixed-integer problem of the master
+(Table D.18).
 
-| problem | wall | MILP | of which branch and bound | of which built in Python |
+| problem | wall-clock time | MILP | branch and bound | construction in Python |
 | --------- | ------ | ------ | --------------------------- | -------------------------- |
 | Rastrigin | $12.97$ | 78.5% | 65.8% | 12.7% |
 | Ackley | $17.57$ | 72.6% | 58.2% | 14.4% |
 | Styblinski-Tang | $0.61$ | 32.2% | 22.5% | 9.7% |
 
-So the guidance is short. **Leave `number_of_processes` at one**, and do not read
-a cost as a count of sub-problems: the master dominates these runs, and the
-sub-problem count is not the bottleneck it looks like.
+*Table D.18. Share of the mixed-integer problem in the wall-clock time.*
+
+For the analytic problems, `number_of_processes` should therefore be left at one,
+and the cost should not be interpreted as a number of sub-problems: the master
+dominates these runs. For expensive sub-problems, such as the cantilever of the
+results, the parallel evaluation of the probes reduces the wall-clock time.
 
 :::{warning}
-A parallel run is **not budgeted**. The guard lives in the counter, the counter
-lives in the parent, and a forked child inherits a copy of the tally, so no
-child's spending reaches it. Ackley at twenty probes against a budget of $8000$
-shows what that does to a comparison:
+A parallel run is not budgeted: the guard is in the counter of the parent process,
+and a forked process inherits a copy of the count. Table D.19 shows the
+consequence on Ackley with twenty probes and a budget of $8000$.
 
-| | cost | truncated | evaluations | boxes | best |
+| | cost | truncated | evaluations | boxes | best value |
 | --- | ------ | ----------- | ------------- | ------- | ------ |
-| 1 process | 8000 | **yes** | 5520 | 184 | $4.944911$ |
+| 1 process | 8000 | yes | 5520 | 184 | $4.944911$ |
 | 4 processes | 54 | no | 7356 | 260 | $0.000007$ |
 
-The serial run was stopped by its budget; the parallel one was not, took 76 more
-boxes and reached the optimum. That reads as parallelism solving what serial
-execution could not, and it is nothing of the kind.
+*Table D.19. A serial and a parallel run with the same nominal budget.*
+
+The serial run was stopped by its budget, whereas the parallel run was not,
+solved 76 more boxes and reached the optimum. This difference is due to the
+missing budget enforcement, not to the parallel execution.
 :::
 
-### What this benchmark found in the master, and where it went
+### Issues reported upstream
 
-Reading the master closely enough to explain those numbers turned up faults and
-opportunities belonging to [`gemseo-bilevel-outer-approximation`][up] rather than
-here. They were reported there, and fixed there where they could be. This annex
-keeps only what bears on configuring *this* package; the rest lives in the
-tickets.
+The analysis of these results identified issues and improvements concerning
+[`gemseo-bilevel-outer-approximation`][up] rather than this package. They were
+reported upstream and fixed where possible; only their consequences for the
+configuration of this package are discussed here.
 
-| upstream | what was found |
+| upstream | finding |
 | ---------- | ---------------- |
-| [#7][i7] / [!139][m139] | `number_of_processes` returned a converged optimum that was wrong, silently |
-| [#8][i8] / [!140][m140] | the master rebuilt its MILP in Python every iteration; setting the rows on the solver is $11\times$ |
-| [#9][i9] / [!141][m141] | two problem shapes `OrtoolsMILP` could not build at all |
-| [#10][i10] | it normalises its bounds but not its constraint rows — reported, not fixed |
-| [#11][i11] / [!142][m142] | the convexity sweep, ported to the master where it belongs |
+| [#7][i7] / [!139][m139] | `number_of_processes` returned an incorrect converged optimum without warning |
+| [#8][i8] / [!140][m140] | the master rebuilt its MILP in Python at every iteration; setting the rows directly on the solver is $11\times$ faster |
+| [#9][i9] / [!141][m141] | two problem shapes could not be built by `OrtoolsMILP` |
+| [#10][i10] | the bounds are normalized but not the constraint rows; reported, not fixed |
+| [#11][i11] / [!142][m142] | the convexity sweep, ported to the master |
 
-Which master is installed is not cosmetic here.
-`benchmarks/test_basin_spacing.py` asserts that a run's outcome is identical at
-one process and at four, which is **false** without [!139][m139] — it is the
-check that says which upstream tree a run was measured against. And
-`MASTER_SWEEPS_CONVEXITY` is what lets this package's own tests hold against a
-master with or without [!142][m142].
+*Table D.20. Issues reported to gemseo-bilevel-outer-approximation.*
 
-Three further lines of enquiry were measured and dropped. They are recorded in
-those tickets rather than here, because each is a property of the master and not
-of this package: caching its model between iterations is worth nothing, branch
-and bound not warm starting from an added row; one big MILP carrying every
-probe's variables is correct and 11 to 45 times slower; and generating the
-probes in parallel is a wash when done speculatively and a loss of reliability
-when done by partitioning the design space.
+The installed master version affects the results.
+`benchmarks/test_basin_spacing.py` checks that the outcome of a run is identical
+with one and four processes, which is not the case without [!139][m139]; this
+test therefore identifies the upstream version used. `MASTER_SWEEPS_CONVEXITY`
+allows the tests of this package to pass with or without [!142][m142].
+
+Three further approaches were evaluated and abandoned; they are documented in the
+upstream issues since they concern the master: caching its model between
+iterations brings no gain, the branch and bound not being warm-started after the
+addition of a row; a single MILP containing the variables of all probes is correct
+but 11 to 45 times slower; and generating the probes in parallel brings no gain
+when done speculatively and reduces the reliability when done by partitioning the
+design space.
 
 [up]: https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation
 [i7]: https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation/-/work_items/7

@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
+    <script src="../_static/documentation_options.js?v=45165bd2"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -448,11 +448,11 @@
 -->
 <section class="tex2jax_ignore mathjax_ignore" id="the-algorithm">
 <h1>The algorithm<a class="headerlink" href="#the-algorithm" title="Link to this heading">#</a></h1>
-<p>The <strong>box-subdivision outer approximation</strong> is a bi-level method for multimodal
-non-linear problems. A Cartesian subdivision of the design space defines a
-finite set of boxes; a MINLP master decides which box to look into, and a local
-NLP solves the original problem inside it. Exploration and exploitation stay in
-two distinct levels.</p>
+<p>The box-subdivision outer approximation is a bi-level method for multimodal
+nonlinear problems. A Cartesian subdivision of the design space defines a finite
+set of boxes; a mixed-integer master problem selects a box, and a local nonlinear
+solver solves the original problem within it. Exploration and local optimization
+are thus carried out at two distinct levels.</p>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
 <div class="sd-col sd-d-flex-row docutils">
@@ -460,8 +460,8 @@ two distinct levels.</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 Methodology</div>
-<p class="sd-card-text">The motivation, the bi-level formulation and its equations, the two
-formulations, the convexification, the trust region and the hierarchies.</p>
+<p class="sd-card-text">Motivation, bi-level formulation, the two formulations of the sub-problem,
+convexification, trust region and hierarchies.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference internal" href="methodology.html"><span class="doc">Methodology</span></a></div>
 </div>
@@ -470,8 +470,8 @@ formulations, the convexification, the trust region and the hierarchies.</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 Implementation</div>
-<p class="sd-card-text">The building blocks contributed to GEMSEO, the one-hot layout they share, the
-extensions, and the two pitfalls that fail silently.</p>
+<p class="sd-card-text">Components added to GEMSEO, their common one-hot layout, extensions, and two
+errors that produce no warning.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference internal" href="implementation.html"><span class="doc">Implementation</span></a></div>
 </div>
@@ -480,8 +480,8 @@ extensions, and the two pitfalls that fail silently.</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 Usage</div>
-<p class="sd-card-text">Building a GEMSEO scenario with either formulation, the settings that matter,
-and how a box is refined.</p>
+<p class="sd-card-text">Construction of a GEMSEO scenario with either formulation, main settings, and
+refinement of a box.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference internal" href="usage.html"><span class="doc">Usage in GEMSEO scenarios</span></a></div>
 </div>
@@ -490,9 +490,9 @@ and how a box is refined.</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 Results</div>
-<p class="sd-card-text">Against the enumeration of the boxes, against multistart, CMA-ES and DIRECT,
-what the density decides, how it is proposed rather than swept, and what the
-extensions are worth.</p>
+<p class="sd-card-text">Comparison with the enumeration of the boxes and with baselines, effect of the
+subdivision density and of the convexity settings, extensions, and an
+application to topology optimization.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference internal" href="benchmark.html"><span class="doc">Results</span></a></div>
 </div>
@@ -501,8 +501,7 @@ extensions are worth.</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 Conclusion</div>
-<p class="sd-card-text">What the method is once measured, what is established and what is not, and the
-directions that follow.</p>
+<p class="sd-card-text">Summary of the results, their limitations, and directions for further work.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference internal" href="conclusion.html"><span class="doc">Conclusion</span></a></div>
 </div>
@@ -511,8 +510,8 @@ directions that follow.</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 Annexes</div>
-<p class="sd-card-text">The benchmark problems, the baselines and how each is run, the sweeps that set
-the settings of the master, and the extensions table by table.</p>
+<p class="sd-card-text">Test problems, baselines, tuning of the master settings, and detailed results
+of the extensions.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference internal" href="problems.html"><span class="doc">Annex A: the benchmark problems</span></a></div>
 </div>

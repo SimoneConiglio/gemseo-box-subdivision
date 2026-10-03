@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=8e9fcb1f"></script>
+    <script src="../_static/documentation_options.js?v=45165bd2"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -683,7 +683,7 @@ subdivisions per variable, the area is between <span class="math notranslate noh
 number of probes: with two subdivisions per variable no box separates the basins
 of Rastrigin or Ackley, so that the choice among boxes does not matter. The
 values four, eight and sixteen avoid the degradation observed with six probes in
-<a class="reference internal" href="extensions.html#the-probes-decide-and-six-of-them-is-a-hole"><span class="std std-ref">annex D</span></a>.</p>
+<a class="reference internal" href="extensions.html#number-of-probes"><span class="std std-ref">annex D</span></a>.</p>
 <p>The cost of the master is not counted in the budget. Sixteen probes with ten
 subdivisions per variable in five dimensions (fifty binaries) were excluded from
 Table 2: half of the runs had not spent their <span class="math notranslate nohighlight">\(2500\)</span> evaluations after five
@@ -726,7 +726,7 @@ start in both dimensions, <span class="math notranslate nohighlight">\(69\%\)</s
 variables and <span class="math notranslate nohighlight">\(42\%\)</span> after <span class="math notranslate nohighlight">\(250\)</span> in five, and the flattest profile afterwards,
 ending at <span class="math notranslate nohighlight">\(85\%\)</span> and <span class="math notranslate nohighlight">\(44\%\)</span>. With the convexity swept it misses the optimum of
 Styblinski-Tang in five variables from all starting points, whereas the
-calibrated encoding of <a class="reference internal" href="extensions.html#the-multi-resolution-encoding"><span class="std std-ref">annex D</span></a>
+calibrated encoding of <a class="reference internal" href="extensions.html#multi-resolution-encoding"><span class="std std-ref">annex D</span></a>
 reached it from one of three.</p>
 </section>
 <section id="density-of-the-subdivision">
@@ -826,7 +826,7 @@ one starting point of three. Ten subdivisions divide each basin into five boxes,
 and the value and sensitivity returned by a box that contains no minimum carry
 no information on the location of the minimum. The same behaviour is observed
 with the pure convexification and with three of the four trust-region radii of
-<a class="reference internal" href="tuning.html#the-density-and-the-mechanism-are-not-independent"><span class="std std-ref">annex C</span></a>, which
+<a class="reference internal" href="tuning.html#interaction-between-density-and-mechanism"><span class="std std-ref">annex C</span></a>, which
 attributes it to the subdivision rather than to the master.</p>
 <p>The useful density thus lies between the one separating the basins and the one
 limited by the binaries, and no single value suits the four problems: ten is the
@@ -834,11 +834,11 @@ best density for three of them and the worst for the fourth. The default of
 <code class="docutils literal notranslate"><span class="pre">benchmarks/baselines.py</span></code> bounds the enumeration accordingly.</p>
 <section id="proposed-density">
 <h3>Proposed density<a class="headerlink" href="#proposed-density" title="Link to this heading">#</a></h3>
-<p>The density can be proposed by counting the basins along jittered axial scans
-of each component, as described in
-<a class="reference internal" href="methodology.html#where-the-density-comes-from"><span class="std std-ref">the methodology</span></a>. Each problem of
-Table 4 is given four times the budget implied by its proposed density, so that
-every run terminates on its own criterion; three starting points, median
+<p>The density can be proposed by counting the basins along jittered axial scans of
+each component, as described in <a class="reference internal" href="methodology.html#estimation-of-the-subdivision-density"><span class="std std-ref">the
+methodology</span></a>. Each problem
+of Table 4 is given four times the budget implied by its proposed density, so
+that every run terminates on its own criterion; three starting points, median
 distance and median cost.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -923,7 +923,7 @@ be discarded; the same indicator directs such a problem to a hierarchy.</p>
 <p>The estimate is based on the objective only. For a problem whose basins are
 separated by non-convex constraints it returns one subdivision per component and
 reports itself as converged, the objective having a single basin;
-<a class="reference internal" href="extensions.html#where-the-constraints-cut-the-basins"><span class="std std-ref">annex D</span></a> describes the
+<a class="reference internal" href="extensions.html#constraint-aware-count"><span class="std std-ref">annex D</span></a> describes the
 constraint-aware count and its limitations.</p>
 </section>
 </section>
@@ -931,7 +931,7 @@ constraint-aware count and its limitations.</p>
 <h2>Swept convexity<a class="headerlink" href="#swept-convexity" title="Link to this heading">#</a></h2>
 <p>The results of the density study were obtained with a convexity margin chosen
 for each problem, in the units of its objective. The alternative is to
-<a class="reference internal" href="methodology.html#sweeping-it-instead-of-calibrating-it"><span class="std std-ref">sweep the value</span></a>: the
+<a class="reference internal" href="methodology.html#swept-convexity"><span class="std std-ref">sweep the value</span></a>: the
 parallel probes of the master carry a ladder of convexity values, a probe
 proposing a box already solved moves to the next rung, and the upper bound of
 the ladder is derived from the spread of the objective over the boxes already
@@ -985,7 +985,7 @@ chosen; it does not establish a general factor. A broader comparison is given by
 the <a class="reference internal" href="#variants-of-the-method">variants</a>, on four problems in two and five
 dimensions from five starting points, for the adaptive repair only. The full
 table and the derivation of the bound are in
-<a class="reference internal" href="tuning.html#sweeping-the-convexity-instead-of-calibrating-it"><span class="std std-ref">annex C</span></a>.</p>
+<a class="reference internal" href="tuning.html#swept-convexity"><span class="std std-ref">annex C</span></a>.</p>
 </section>
 <section id="extensions">
 <h2>Extensions<a class="headerlink" href="#extensions" title="Link to this heading">#</a></h2>
@@ -1013,7 +1013,7 @@ cuts.</p></li>
 unweighted metric, as for the trust region.</p></li>
 </ul>
 <p>Several of these comparisons involve runs stopped by the budget, so
-<a class="reference internal" href="extensions.html#does-more-budget-change-the-answer"><span class="std std-ref">annex D</span></a> repeats the most
+<a class="reference internal" href="extensions.html#effect-of-the-budget"><span class="std std-ref">annex D</span></a> repeats the most
 sensitive one at two and four times the budget. The flat subdivision then
 reaches Ackley from two starting points of six instead of none, which reduces
 the advantage of the hierarchy to four against two; beyond that, a larger budget
