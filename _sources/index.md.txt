@@ -9,16 +9,15 @@
 
 # gemseo-box-subdivision
 
-A laboratory for exploring optimization algorithms built on
-[GEMSEO](https://gemseo.org).
+gemseo-box-subdivision is a [GEMSEO](https://gemseo.org) plugin for the study of
+optimization algorithms. Its algorithms are registered in the GEMSEO factories
+and can be used wherever a GEMSEO algorithm name is expected, without importing
+the package explicitly.
 
-The package is a **GEMSEO plugin**: the algorithms it defines register
-themselves in the GEMSEO factories and can be used wherever a GEMSEO algorithm
-name is expected, without importing the package explicitly.
-
-It implements the **box-subdivision outer approximation**, a bi-level method for
-multimodal non-linear problems that keeps the exploration of the design space
-and the local exploitation of a region in two distinct levels.
+The package implements the box-subdivision outer approximation, a bi-level
+method for multimodal nonlinear problems in which the exploration of the design
+space and the local optimization within a region are carried out at two
+distinct levels.
 
 ```{code-block} shell
 pip install gemseo-box-subdivision
@@ -31,82 +30,98 @@ pip install gemseo-box-subdivision
 :link: algorithm/methodology
 :link-type: doc
 
-Why separate exploration from exploitation, the bi-level formulation, and what
-the convexification really does.
+The separation of exploration and exploitation, the bi-level formulation and
+the role of the convexification.
 :::
 
 :::{grid-item-card} {octicon}`tools;1.5em;sd-mr-1` Implementation
 :link: algorithm/implementation
 :link-type: doc
 
-The building blocks, the one-hot layout they share, and the two pitfalls that
-fail silently.
+The components, their common one-hot layout, and two errors that produce no
+warning.
 :::
 
 :::{grid-item-card} {octicon}`rocket;1.5em;sd-mr-1` Usage
 :link: algorithm/usage
 :link-type: doc
 
-Building a GEMSEO scenario with either formulation, and the settings that
-matter.
+Construction of a GEMSEO scenario with either formulation, and the main
+settings.
 :::
 
 :::{grid-item-card} {octicon}`graph;1.5em;sd-mr-1` Results
 :link: algorithm/benchmark
 :link-type: doc
 
-Four times cheaper than enumerating the boxes, measured against multistart,
-CMA-ES and DIRECT, and with the convexity swept rather than supplied.
+Comparison with the enumeration of the boxes, with multistart, CMA-ES, DIRECT
+and EGO, and an application to topology optimization.
 :::
 
 :::{grid-item-card} {octicon}`check-circle;1.5em;sd-mr-1` Conclusion
 :link: algorithm/conclusion
 :link-type: doc
 
-What the method is once measured, and the directions that follow from it.
+Summary of the results and directions for further work.
 :::
 
 ::::
 
-## At a glance
+## Overview
 
-On the Rastrigin function in two dimensions, subdivided into 100 boxes, the
-method reaches the global optimum after solving about 20 boxes, roughly five
-times cheaper than solving all of them, with nothing to tune but the
-subdivision.
+The method solves
 
 $$
 \min_\alpha\ u(\alpha)
 \quad \text{where} \quad
-u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \right\}
+u(\alpha) = \min_x \left\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \right\},
 $$
 
-A MINLP master decides the box through the one-hot vector $\alpha$, and a local
-NLP solves the original problem inside it.
+where a mixed-integer master problem selects a box through the one-hot vector
+$\alpha$ and a local nonlinear solver solves the original problem within it.
+
+```{image} _static/figures/solve.gif
+:class: only-light
+:alt: The master selecting boxes of the Rastrigin function, with the path of the local solver in each
+```
+
+```{image} _static/figures/solve-dark.gif
+:class: only-dark
+:alt: The master selecting boxes of the Rastrigin function, with the path of the local solver in each
+```
+
+*Figure 1. Rastrigin function in two dimensions, subdivided into $100$ boxes,
+solved with the default settings. Each frame adds one box: the box selected by
+the master (orange) with the path of the local solver, the boxes already solved
+(blue) and the incumbent (green circle).*
+
+In the run of Figure 1, the global optimum is found in the seventh box, after
+$154$ evaluations; the run terminates on its stopping criterion after twenty
+boxes and $438$ evaluations.
 
 ```{note}
-The method suits a landscape whose **basins a subdivision can separate**, and it
-is the density of that subdivision that decides: it has to be fine enough to put
-the basins in different boxes, and coarse enough that the binaries it costs stay
-within the sub-problems a budget can pay for — around fifty in this benchmark.
-Rastrigin in five dimensions sits inside that window at ten subdivisions per
-variable and is solved from every starting point, which no baseline here achieves
-at any budget tried; Styblinski-Tang at the same density sits outside it, its
-basins cut into five boxes apiece. See
-[the density of the subdivision](algorithm/benchmark.md#the-density-of-the-subdivision-decides).
+The method applies to problems whose basins can be separated by a subdivision of
+the design space. The subdivision must be fine enough to place the basins in
+different boxes, and coarse enough for the number of binaries to remain below the
+number of sub-problems the budget allows, about fifty in the experiments of this
+documentation. With ten subdivisions per variable, the Rastrigin function in five
+dimensions satisfies both conditions and its optimum is reached from all starting
+points; with the same density, each basin of Styblinski-Tang is divided into five
+boxes and the results degrade. See
+[the density of the subdivision](algorithm/benchmark.md#density-of-the-subdivision).
 ```
 
 ```{tip}
-**Do not calibrate the convexity: sweep it.** The cuts of the outer approximation
-are valid only on a convex value function, and the master's own guards are off by
-default, so a run left to them converges after two or three sub-problems and
-reports success far from the optimum. Both guards are numbers in the units of
-your objective, which is the one thing you do not know before the run.
-`SweptBoxSubdivisionSettings()` asks for none of it and spreads a ladder of
-values over the probes the master already runs: measured, it matches the
-calibrated configuration on every problem of the benchmark and is more reliable
-on two of them. See [Usage](algorithm/usage.md#not-choosing-the-convexity-at-all)
-and [the results](algorithm/benchmark.md#sweeping-the-convexity-rather-than-supplying-it).
+The cuts of the outer approximation are valid only for a convex value function.
+The corresponding safeguards of the master are disabled by default, in which case
+a run typically terminates after two or three sub-problems far from the optimum.
+Both safeguards are expressed in the units of the objective, which are generally
+unknown before the run. `SweptBoxSubdivisionSettings()` requires no such value: it
+assigns a ladder of convexity values to the probes of the master. In the
+experiments it performs as well as the calibrated configuration on all problems
+and is more reliable on two of them. See
+[Usage](algorithm/usage.md#swept-convexity) and
+[the results](algorithm/benchmark.md#swept-convexity).
 ```
 
 ```{toctree}
