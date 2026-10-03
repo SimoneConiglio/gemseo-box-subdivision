@@ -40,7 +40,7 @@ from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 USAGE = Path(__file__).parent.parent / "docs" / "algorithm" / "usage.md"
 """The usage chapter, which carries the table of every setting."""
 
-SECTION = "## Every setting, and what it defaults to"
+SECTION = "## Settings and defaults"
 """The heading of that table, whose rows are checked against the class."""
 
 MECHANISM_LABEL = r"^`([a-z_]*(?:convexification|adaptive)[a-z_]*)`$"
@@ -162,7 +162,7 @@ def test_the_swept_entry_point_is_not_offered_what_it_drops() -> None:
     swept run would look for them.
     """
     text = USAGE.read_text(encoding="utf-8")
-    under_swept = text.split("`SweptBoxSubdivisionSettings`, the swept", 1)[1]
+    under_swept = text.split("`SweptBoxSubdivisionSettings` adds one setting", 1)[1]
     under_swept = under_swept.split("\n## ", 1)[0]
     rows = set(re.findall(r"^\| `([a-z_]+)` \|", under_swept, re.MULTILINE))
 
