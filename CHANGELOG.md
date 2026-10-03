@@ -26,80 +26,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Added
-
-- An animation of a run in two dimensions, on the landing page and in the
-  methodology: the master choosing boxes of Rastrigin one after the other, the
-  local solver descending in each, and the best value against the evaluations
-  spent. `python docs/figures.py solve` writes it, and naming figures on that
-  command line now writes only those.
-
-- `benchmarks/data_profiles.py`, the **data profiles** of every method, which
-  finally puts the `gemseo-benchmark` dependency of the `benchmark` group to
-  use: the targets come from its `TargetsGenerator` over the pooled histories,
-  the profiles from its `DataProfile`. The tables report where a method ends;
-  the profiles report how fast it gets there. The benchmark `Counter` records
-  the best value after each call, and a `Result` carries it as `history`, one
-  entry per equivalent evaluation.
-
-- `benchmarks/variants.py`, the **variants of the method** behind the interface
-  of the baselines, each changing one thing from the swept configuration: the
-  probes, the top of the convexity ladder, the density fixed or proposed by the
-  basin count, the multi-resolution encoding and the deep hierarchy. The data
-  profiles now run them beside the baselines on one set of targets, at $500$
-  evaluations per variable, and cache every finished run so an interrupted
-  study resumes. `run_swept_box_subdivision` takes the probes, the top of the
-  ladder and the levels of the encoding.
-
-- `benchmarks/cantilever/`: drivers for the short cantilever of the GGP
-  package (108 variables, volume constraint, adjoint gradients) with the
-  preset `short_cantilever_mna`, which reproduces `GGP_main.m` with the Moving
-  Node Approach. `trivial_start.py` runs the box subdivision, with
-  `--processes` to solve the probes in parallel (requires merge request 139 of
-  gemseo-bilevel-outer-approximation) and `--record` to store every finite
-  element solution; `parallel_multistart.py` runs a multistart of MMA over
-  several processes; `cantilever_parallel_gif.py` animates a recorded run;
-  `global_baselines.py` runs DIRECT, CMA-ES, EGO, GE-SBO and EGO on SMT's
-  GEKPLS. The results page reports MMA, the multistart and the box
-  subdivision with nine probes.
-
-### Changed
-
-- The results page profiles the variants **before** comparing with the
-  baselines, and the comparison keeps only the best variant of each dimension:
-  sixteen probes in two variables, ten subdivisions per variable in five. Its
-  table and figure are rebuilt from the runs of the profiles, five starting
-  points instead of three.
-
-### Fixed
-
-- The table proposing the density no longer passes for its whole cost: the
-  scans deciding the density were never counted, and they cost more than the
-  runs they configure, about $6100$ evaluations on Rastrigin in five variables
-  against $2103$. The page says so, and the profiles charge them.
-
-## 0.3.0 (2026-09-27)
-
-### Fixed
-
-- The constraint formulation no longer fails when only some of the variables
-  are subdivided: the adapter starting a sub-problem inside its box sets the
-  starting point of the subdivided variables one at a time, instead of handing
-  the design space a current value covering part of its variables, which it
-  rejects. The variables that are not subdivided keep the value they have.
-
-- The `markdownlint` pre-commit hook checked nothing at all. Its `--disable`
-  takes a list of rules, so it consumed the file names `pre-commit` appends;
-  `markdownlint` then printed its usage and exited 0, and the hook reported
-  passing. The rule it disables moves into `.markdownlint.yml`, leaving nothing
-  variadic on the command line.
-
-- A table of *Using the method* dropped part of a row when rendered. It writes
-  an absolute value with bars, and Markdown reads those as cell delimiters —
-  five cells against a header of three — so everything after them was missing
-  from the published page. Written `\vert` the row is three cells again.
+## 0.3.0 (2026-10-03)
 
 ### Added
 
@@ -167,6 +94,73 @@ and this project adheres to
 
 - `keep_couplings_internal` and `keep_every_mda_couplings_internal`, which do
   that to an MDA, for a composition built without the scenario.
+
+- An animation of a run in two dimensions, on the landing page and in the
+  methodology: the master choosing boxes of Rastrigin one after the other, the
+  local solver descending in each, and the best value against the evaluations
+  spent. `python docs/figures.py solve` writes it, and naming figures on that
+  command line now writes only those.
+
+- `benchmarks/data_profiles.py`, the **data profiles** of every method, which
+  finally puts the `gemseo-benchmark` dependency of the `benchmark` group to
+  use: the targets come from its `TargetsGenerator` over the pooled histories,
+  the profiles from its `DataProfile`. The tables report where a method ends;
+  the profiles report how fast it gets there. The benchmark `Counter` records
+  the best value after each call, and a `Result` carries it as `history`, one
+  entry per equivalent evaluation.
+
+- `benchmarks/variants.py`, the **variants of the method** behind the interface
+  of the baselines, each changing one thing from the swept configuration: the
+  probes, the top of the convexity ladder, the density fixed or proposed by the
+  basin count, the multi-resolution encoding and the deep hierarchy. The data
+  profiles now run them beside the baselines on one set of targets, at $500$
+  evaluations per variable, and cache every finished run so an interrupted
+  study resumes. `run_swept_box_subdivision` takes the probes, the top of the
+  ladder and the levels of the encoding.
+
+- `benchmarks/cantilever/`: drivers for the short cantilever of the GGP
+  package (108 variables, volume constraint, adjoint gradients) with the
+  preset `short_cantilever_mna`, which reproduces `GGP_main.m` with the Moving
+  Node Approach. `trivial_start.py` runs the box subdivision, with
+  `--processes` to solve the probes in parallel (requires merge request 139 of
+  gemseo-bilevel-outer-approximation) and `--record` to store every finite
+  element solution; `parallel_multistart.py` runs a multistart of MMA over
+  several processes; `cantilever_parallel_gif.py` animates a recorded run;
+  `global_baselines.py` runs DIRECT, CMA-ES, EGO, GE-SBO and EGO on SMT's
+  GEKPLS. The results page reports MMA, the multistart and the box
+  subdivision with nine probes.
+
+### Changed
+
+- The results page profiles the variants **before** comparing with the
+  baselines, and the comparison keeps only the best variant of each dimension:
+  sixteen probes in two variables, ten subdivisions per variable in five. Its
+  table and figure are rebuilt from the runs of the profiles, five starting
+  points instead of three.
+
+### Fixed
+
+- The constraint formulation no longer fails when only some of the variables
+  are subdivided: the adapter starting a sub-problem inside its box sets the
+  starting point of the subdivided variables one at a time, instead of handing
+  the design space a current value covering part of its variables, which it
+  rejects. The variables that are not subdivided keep the value they have.
+
+- The `markdownlint` pre-commit hook checked nothing at all. Its `--disable`
+  takes a list of rules, so it consumed the file names `pre-commit` appends;
+  `markdownlint` then printed its usage and exited 0, and the hook reported
+  passing. The rule it disables moves into `.markdownlint.yml`, leaving nothing
+  variadic on the command line.
+
+- A table of *Using the method* dropped part of a row when rendered. It writes
+  an absolute value with bars, and Markdown reads those as cell delimiters —
+  five cells against a header of three — so everything after them was missing
+  from the published page. Written `\vert` the row is three cells again.
+
+- The table proposing the density no longer passes for its whole cost: the
+  scans deciding the density were never counted, and they cost more than the
+  runs they configure, about $6100$ evaluations on Rastrigin in five variables
+  against $2103$. The page says so, and the profiles charge them.
 
 ### Documentation
 
