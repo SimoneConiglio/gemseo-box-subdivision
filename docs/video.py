@@ -23,8 +23,9 @@ for the formulas:
 ```shell
 pip install -e . manim "pillow<11"
 manim -qh docs/video.py S1Problem S2Subdivision S3Bilevel S4Cuts \\
-    S5TrustRegion S6Run S7Variants S7aFormulations S7bPartial S7cDensity \\
-    S7dHierarchies S7eMultiResolution S8Conclusion
+    S4bAdaptive S4cSweep S5TrustRegion S6Run S7Variants S7aFormulations \\
+    S7bPartial S7cDensity S7dHierarchies S7eMultiResolution S8Cantilever \\
+    S8Conclusion
 ```
 
 The scenes are written to ``media/videos/video/``, in the order of ``SCENES``,
@@ -35,7 +36,8 @@ The captions are read aloud when ``VIDEO_VOICE_DIR`` names a directory holding
 the ``kokoro.onnx`` and ``voices.bin`` files of
 `Kokoro <https://github.com/thewh1teagle/kokoro-onnx/releases>`_, the voice
 being ``VIDEO_VOICE``, ``am_michael`` by default; each scene then waits for its
-sentences to end. Without it, the video is silent:
+sentences to end, and the captions are hidden unless ``VIDEO_CAPTIONS=1``.
+Without it, the video is silent and captioned:
 
 ```shell
 pip install kokoro-onnx soundfile
@@ -79,6 +81,7 @@ from manim import YELLOW
 from manim import Arrow
 from manim import Axes
 from manim import Brace
+from manim import Circle
 from manim import Code
 from manim import Create
 from manim import Cross
@@ -101,6 +104,7 @@ from manim import RoundedRectangle
 from manim import Scene
 from manim import Square
 from manim import Star
+from manim import SurroundingRectangle
 from manim import Text
 from manim import Transform
 from manim import Triangle
@@ -174,6 +178,12 @@ SPOKEN = (
     (r"^\s*,\s*", ""),
 )
 """The rewritings of the captions that a speech synthesizer would misread."""
+
+
+CAPTIONS = os.environ.get(
+    "VIDEO_CAPTIONS", "0" if os.environ.get("VIDEO_VOICE_DIR") else "1"
+) not in {"0", ""}
+"""Whether the narration is shown as captions, by default only without a voice."""
 
 
 def spoken(message):
@@ -261,9 +271,13 @@ class Captioned(Scene):
         return audio[1]
 
     def say(self, message, wait=2.5, size=28, run_time=0.8, voice=None):
+        duration = self.narrate(voice or message)
+        if not CAPTIONS:
+            self.wait(max(wait, duration + 0.4))
+            return
+
         # Long enough to be read, at about fifteen characters per second, or
         # to be heard to the end.
-        duration = self.narrate(voice or message)
         wait = max(wait, 0.065 * len(message), duration - run_time + 0.6)
         words, lines = message.split(), [""]
         for w in words:
@@ -885,24 +899,188 @@ class S4Cuts(Captioned):
             LaggedStart(*[FadeIn(c, shift=0.3 * UP) for c in cards], lag_ratio=0.3),
             run_time=2,
         )
-        adapt = MathTex(
-            r"u(\alpha^{(i)}) + s^{(i)\top}(\alpha^{(j)} - \alpha^{(i)}) \le u(\alpha^{(j)}) - \delta",
-            font_size=30,
-        )
-        adapt.next_to(cards, DOWN, buff=0.3)
-        self.play(Write(adapt))
         self.say("Two mechanisms not to combine: κ or δ, the other set to zero.", 3)
-        self.say(
-            "κ and δ are in the units of f: δ = 100 succeeds on Rastrigin… and fails on Ackley.",
-            3.5,
+        self.clear_all()
+
+
+class S4bAdaptive(Captioned):
+    def construct(self):
+        title = text("Adaptive convexification", 38, GOOD).to_edge(UP, buff=0.4)
+        self.narrate(
+            "How does the adaptive repair work? Instead of tilting every cut by a "
+            "worst-case constant, it uses the values already observed."
+        )
+        self.play(FadeIn(title))
+        ax = Axes(
+            x_range=[0, 6.5, 1],
+            y_range=[-2, 7, 1],
+            x_length=8.0,
+            y_length=5.4,
+            axis_config={"include_tip": False, "color": GREY_B},
+            x_axis_config={"include_ticks": False},
+            y_axis_config={"include_ticks": False},
+        ).shift(2.4 * LEFT + 0.5 * DOWN)
+        xl = text("the boxes, in one dimension for the illustration", 22, GREY_A)
+        xl.next_to(ax, DOWN, buff=0.1)
+        names = ("A", "B", "C")
+        xs = np.array([1.0, 3.0, 5.0])
+        us = np.array([3.5, 1.2, 0.5])
+        slopes = [ValueTracker(1.2), ValueTracker(-0.3), ValueTracker(0.2)]
+        delta = 0.5
+
+        def cut_at(i, x):
+            return us[i] + slopes[i].get_value() * (x - xs[i])
+
+        def valid(i):
+            return all(
+                cut_at(i, xs[j]) <= us[j] - delta + 1e-9 for j in range(3) if j != i
+            )
+
+        def cut(i):
+            # The cut, clipped to the axes.
+            s = slopes[i].get_value()
+            ends = []
+            for x in (0.0, 6.5):
+                y = cut_at(i, x)
+                if y > 7 or y < -2:
+                    y = 7 if y > 7 else -2
+                    x = xs[i] + (y - us[i]) / s
+                ends.append(ax.c2p(x, y))
+            return Line(*ends, color=GOOD if valid(i) else BAD, stroke_width=4)
+
+        dots = VGroup(*[
+            Dot(ax.c2p(x, u), radius=0.09) for x, u in zip(xs, us, strict=True)
+        ])
+        labels = VGroup(*[
+            MathTex(f"u({n})", font_size=30).next_to(d, UP + RIGHT, buff=0.05)
+            for n, d in zip(names, dots, strict=True)
+        ])
+        self.play(Create(ax), FadeIn(xl))
+        self.narrate(
+            "Three boxes have been solved, A, B and C, each with its value and the "
+            "slope returned by its sub-problem."
+        )
+        self.play(LaggedStart(*[FadeIn(d, scale=2) for d in dots], lag_ratio=0.3))
+        self.play(FadeIn(labels))
+        cuts = VGroup(*[always_redraw(lambda i=i: cut(i)) for i in range(3)])
+        self.play(LaggedStart(*[Create(c) for c in cuts], lag_ratio=0.4), run_time=2)
+        rule = MathTex(
+            r"u(\alpha^{(i)}) + s^{(i)\top}(\alpha^{(j)} - \alpha^{(i)})",
+            r"\le u(\alpha^{(j)}) - \delta",
+            font_size=30,
+        ).arrange(DOWN, aligned_edge=LEFT)
+        rule.move_to(4.3 * RIGHT + 1.6 * UP)
+        rule_text = text("for every pair of\nvisited boxes i, j", 24, GREY_A)
+        rule_text.next_to(rule, DOWN, buff=0.3)
+        self.narrate(
+            "The rule: the cut built at one box must pass at least delta below the "
+            "value observed at every other visited box."
+        )
+        self.play(Write(rule), FadeIn(rule_text))
+        margins = VGroup(*[
+            DashedLine(
+                ax.c2p(x - 0.35, u - delta), ax.c2p(x + 0.35, u - delta), color=GREY_B
+            )
+            for x, u in zip(xs, us, strict=True)
+        ])
+        delta_label = MathTex(r"\delta", font_size=28, color=GREY_B).next_to(
+            margins[2], RIGHT, buff=0.1
+        )
+        self.play(Create(margins), FadeIn(delta_label))
+
+        def overshoot(i):
+            # The violations of the cut at i, from the margin up to the cut.
+            return VGroup(*[
+                Line(
+                    ax.c2p(xs[j], us[j] - delta),
+                    ax.c2p(xs[j], min(cut_at(i, xs[j]), 7)),
+                    color=BAD,
+                    stroke_width=6,
+                )
+                for j in range(3)
+                if j != i and cut_at(i, xs[j]) > us[j] - delta
+            ])
+
+        for i, target, message in (
+            (
+                0,
+                -1.5,
+                (
+                    "The cut at A overshoots the values observed at B and C: the data "
+                    "contradict it. The violations are collected, and its slope is "
+                    "corrected by least squares, just enough to pass below them."
+                ),
+            ),
+            (
+                1,
+                -0.75,
+                "The cut at B overshoots C, and is corrected the same way.",
+            ),
+        ):
+            gaps = always_redraw(lambda i=i: overshoot(i))
+            self.add(gaps)
+            self.play(Indicate(dots[i], color=YELLOW))
+            self.narrate(message)
+            self.wait(2)
+            self.play(slopes[i].animate.set_value(target), run_time=2.5)
+            self.remove(gaps)
+        self.play(Indicate(dots[2], color=GOOD))
+        self.say("The cut at C agrees with the history, and is left unchanged.", 1.5)
+        hidden = Circle(radius=0.11, color=YELLOW).move_to(ax.c2p(6, -1.2))
+        hidden_label = MathTex("u(D)", font_size=30, color=YELLOW).next_to(
+            hidden, DOWN, buff=0.1
+        )
+        self.narrate(
+            "But only the visited boxes are checked. An unvisited box, here D, may "
+            "still lie below a corrected cut, and be cut off: the repair carries no "
+            "guarantee."
+        )
+        self.play(FadeIn(hidden, scale=2), FadeIn(hidden_label))
+        self.play(Create(Cross(scale_factor=0.2, stroke_color=BAD).move_to(hidden)))
+        self.hush()
+        comparison = (
+            VGroup(
+                text("fixed κ: every cut, by a worst case", 24, BLUE_B),
+                text("valid by construction, weak lower bound", 22, GREY_A),
+                text("adaptive δ: only the contradicted cuts", 24, GOOD),
+                text("useful lower bound, no guarantee", 22, GREY_A),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.2)
+            .move_to(4.3 * RIGHT + 1.6 * DOWN)
+        )
+        self.narrate(
+            "The fixed constant lowers every cut by the same worst-case amount: valid "
+            "by construction, but the lower bound sinks. The adaptive repair corrects "
+            "only what the data contradict, so the lower bound stays useful, and in the "
+            "experiments it reaches the optimum from every starting point."
         )
         self.play(
-            FadeOut(adapt),
-            FadeOut(warn),
-            cards[0].animate.set_opacity(0.25),
-            cards[1].animate.set_opacity(0.25),
+            LaggedStart(*[FadeIn(c) for c in comparison], lag_ratio=0.5), run_time=3
         )
-        self.play(cards.animate.shift(2.5 * UP).scale(0.6))
+        self.clear_all()
+
+
+class S4cSweep(Captioned):
+    def construct(self):
+        title = text("Swept convexity", 38, ACCENT).to_edge(UP, buff=0.4)
+        self.play(FadeIn(title))
+        units = VGroup(
+            text("κ and δ are in the units of f", 32),
+            text("Rastrigin, range ≈ 80:  δ = 100  ✓", 30, GOOD),
+            text("Ackley, range ≈ 22:  δ = 100  ✗", 30, BAD),
+            text("no single value suits both", 30, GREY_A),
+        ).arrange(DOWN, buff=0.4)
+        self.play(FadeIn(units[0]))
+        self.narrate(
+            "kappa and delta are in the units of f: a margin of one hundred succeeds on "
+            "Rastrigin, whose range is about eighty, and fails on Ackley, whose range is "
+            "about twenty-two. No single value suits both."
+        )
+        self.play(
+            LaggedStart(*[FadeIn(u) for u in units[1:]], lag_ratio=0.8), run_time=4
+        )
+        self.hush()
+        self.play(FadeOut(units))
 
         # The ladder of the swept convexity.
         ladder = VGroup()
@@ -916,7 +1094,7 @@ class S4Cuts(Captioned):
             Line(ladder[0][0].get_left(), ladder[-1][0].get_left()),
             Line(ladder[0][0].get_right(), ladder[-1][0].get_right()),
         ).set_color(GREY_B)
-        VGroup(rails, ladder).shift(3 * LEFT)
+        VGroup(rails, ladder).shift(3 * LEFT + 1.3 * UP)
         self.play(
             Create(rails), LaggedStart(*[FadeIn(r) for r in ladder], lag_ratio=0.15)
         )
@@ -932,7 +1110,7 @@ class S4Cuts(Captioned):
                 text("bound: spread of the observed values × 10", 24, GREY_A),
             )
             .arrange(DOWN, aligned_edge=LEFT, buff=0.25)
-            .move_to(1.8 * RIGHT + 1.2 * DOWN)
+            .move_to(1.8 * RIGHT + 0.1 * UP)
         )
         self.narrate(
             "In the sweep, each parallel probe of the master uses its own rung: a small "
@@ -1648,7 +1826,101 @@ class S7eMultiResolution(Captioned):
 
 
 # ---------------------------------------------------------------------------
-# 8. Results and conclusion
+# 8. Topology optimization
+# ---------------------------------------------------------------------------
+
+
+class S8Cantilever(Captioned):
+    def construct(self):
+        title = text("Application: topology optimization", 40).to_edge(UP, buff=0.4)
+        self.narrate(
+            "Beyond test functions: the topology optimization of the short cantilever "
+            "of the generalized geometry projection package."
+        )
+        self.play(FadeIn(title))
+        facts = (
+            VGroup(
+                text("18 bars, each with a centre, an angle, a length,", 28),
+                text("a thickness and a density: 108 variables", 28),
+                text(
+                    "compliance C minimized, volume fraction ≤ 0.4, adjoint gradients",
+                    28,
+                ),
+                text("the pose of each bar subdivided in 10: 540 binaries", 28, ACCENT),
+                text("9 boxes per round, each solved by MMA, in parallel", 28, ACCENT),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.35)
+            .next_to(title, DOWN, buff=0.8)
+        )
+        self.narrate(
+            "Eighteen bars, each with a centre, an angle, a length, a thickness and a "
+            "density: one hundred and eight variables, and a compliance to minimize "
+            "under a volume constraint, with adjoint gradients."
+        )
+        self.play(FadeIn(facts[:2], shift=0.2 * RIGHT))
+        self.play(FadeIn(facts[2], shift=0.2 * RIGHT))
+        self.narrate(
+            "The pose of every bar is subdivided into ten intervals, which gives five "
+            "hundred and forty binaries. The master proposes nine boxes per round, each "
+            "solved by MMA, in parallel."
+        )
+        self.play(FadeIn(facts[3], shift=0.2 * RIGHT))
+        self.play(FadeIn(facts[4], shift=0.2 * RIGHT))
+        self.clear_all()
+
+        from PIL import Image
+        from PIL import ImageSequence
+
+        gif = Path(__file__).parent / "_static" / "figures" / "cantilever-dark.gif"
+        with Image.open(gif) as animation:
+            frames = [
+                ImageMobject(np.asarray(frame.convert("RGBA")))
+                for frame in ImageSequence.Iterator(animation)
+            ]
+        for frame in frames:
+            frame.scale_to_fit_width(13.6).move_to(0.2 * DOWN)
+        border = SurroundingRectangle(frames[0], color=GREY_D, buff=0.05)
+        self.narrate(
+            "Here is the run, round by round. On the left, the boxes of the current "
+            "round during their local solutions. On the right, the best feasible design "
+            "so far, and its compliance against the designs evaluated, compared with "
+            "MMA from the same initial design."
+        )
+        self.play(FadeIn(frames[0]), Create(border))
+        shown = frames[0]
+        for k, frame in enumerate(frames[1:], 1):
+            if k == 30:
+                self.narrate(
+                    "MMA from the initial design converges to the symmetric design of "
+                    "the paper, at eighty-four. The box subdivision improves on it in its "
+                    "first box, and reaches eighty-two point one in its thirty-second box."
+                )
+            self.remove(shown)
+            self.add(frame)
+            shown = frame
+            self.wait(0.6)
+        self.hush()
+        self.wait(1)
+        self.clear_all()
+        rows = VGroup(
+            text("MMA from the initial design", 30),
+            text("C = 84.0", 30),
+            text("multistart of MMA, 63 initial designs", 30),
+            text("C = 83.0", 30),
+            text("box subdivision, 9 probes, 63 boxes", 30, ACCENT),
+            text("C = 82.1", 30, ACCENT),
+        ).arrange_in_grid(3, 2, buff=(1.2, 0.6), col_alignments="lr")
+        self.narrate(
+            "Against MMA at eighty-four, and a multistart of MMA at eighty-three, the box "
+            "subdivision reaches eighty-two point one, for a comparable number of "
+            "designs, in about half the wall time of the multistart."
+        )
+        self.play(LaggedStart(*[FadeIn(r) for r in rows], lag_ratio=0.3), run_time=3)
+        self.clear_all()
+
+
+# ---------------------------------------------------------------------------
+# 9. Results and conclusion
 # ---------------------------------------------------------------------------
 
 
@@ -1676,10 +1948,6 @@ class S8Conclusion(Captioned):
                     "Styblinski-Tang 5D: 789 evaluations, against 2340 (multistart) and 2505 (DIRECT)",
                     26,
                 ),
-                text(
-                    "GGP short cantilever, 108 variables: 82.1 against 84.0 (MMA) and 83.0 (MMA multistart)",
-                    26,
-                ),
             )
             .arrange(DOWN, aligned_edge=LEFT, buff=0.35)
             .next_to(title, DOWN, buff=0.6)
@@ -1699,11 +1967,6 @@ class S8Conclusion(Captioned):
             (
                 "On Styblinski-Tang in five dimensions, seven hundred and eighty-nine evaluations, "
                 "against more than two thousand for multistart and DIRECT."
-            ),
-            (
-                "And on the short cantilever of the GGP package, with a hundred and eight "
-                "variables, a compliance of eighty-two point one, against eighty-four for MMA, "
-                "and eighty-three for a multistart of MMA."
             ),
         )
         for f, voice in zip(facts, voices, strict=True):
@@ -1769,6 +2032,8 @@ SCENES = [
     "S2Subdivision",
     "S3Bilevel",
     "S4Cuts",
+    "S4bAdaptive",
+    "S4cSweep",
     "S5TrustRegion",
     "S6Run",
     "S7Variants",
@@ -1777,5 +2042,6 @@ SCENES = [
     "S7cDensity",
     "S7dHierarchies",
     "S7eMultiResolution",
+    "S8Cantilever",
     "S8Conclusion",
 ]
