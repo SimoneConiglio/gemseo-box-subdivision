@@ -30,6 +30,17 @@ manim -qh docs/video.py S1Problem S2Subdivision S3Bilevel S4Cuts \\
 The scenes are written to ``media/videos/video/``, in the order of ``SCENES``,
 and are joined with ``ffmpeg -f concat``. Pillow is pinned because Manim 0.22
 fails to draw images with Pillow 13.
+
+The captions are read aloud when ``VIDEO_VOICE_DIR`` names a directory holding
+the ``kokoro.onnx`` and ``voices.bin`` files of
+`Kokoro <https://github.com/thewh1teagle/kokoro-onnx/releases>`_, the voice
+being ``VIDEO_VOICE``, ``am_michael`` by default; each scene then waits for its
+sentences to end. Without it, the video is silent:
+
+```shell
+pip install kokoro-onnx soundfile
+VIDEO_VOICE_DIR=path/to/kokoro manim -qh docs/video.py S1Problem
+```
 """
 
 # The text on screen is mathematical, with Greek letters and signs.
@@ -37,6 +48,9 @@ fails to draw images with Pillow 13.
 
 from __future__ import annotations
 
+import hashlib
+import os
+import re
 import sys
 from itertools import starmap
 from pathlib import Path
@@ -112,6 +126,97 @@ BAD = "#ff5c5c"
 LO, HI = -4.1, 5.9
 
 
+VOICE = os.environ.get("VIDEO_VOICE", "am_michael")
+"""The Kokoro voice of the narration."""
+
+SPOKEN = (
+    (
+        r"radius 2 → optimum from every start; no trust region → failure",
+        (
+            "a radius of 2 reaches the optimum from every start, and without a trust "
+            "region the method fails"
+        ),
+    ),
+    (
+        r"normalized → optimum from every start; constraint → from all but one",
+        (
+            "the normalized formulation reaches the optimum from every start, the "
+            "constraint formulation from all but one"
+        ),
+    ),
+    (r"not appropriate → hierarchies", "not appropriate, and hierarchies are needed"),
+    (r"\b2L\b", "2 L"),
+    (r"\bu\(B\)", "u of B"),
+    (
+        r"∇f · ∂x/∂α",
+        "the gradient of f times the derivative of x with respect to alpha",
+    ),
+    (r"\[0,1\]ⁿ", "the unit hypercube"),
+    (r"10 × 10 = 100", "ten by ten, so one hundred"),
+    (r"100 000", "one hundred thousand"),
+    (r"\((\d),(\d)\)", r"box \1 \2"),
+    (r"Σ mⱼ", "the sum of the m j"),
+    (r"(\d)D\b", r"\1 D"),
+    (r"∈ \{0, 1\}", "is zero or one"),
+    (r"\bf = ", "f equals "),
+    (r" = ", " equals "),
+    (r"7th", "seventh"),
+    (r"−", "minus "),
+    (r"≥", "at least"),
+    (r"→", ","),
+    (r"[—…;]", ","),
+    (r"κ", "kappa"),
+    (r"δ", "delta"),
+    (r"α", "alpha"),
+    (r"gemseo-bilevel-outer-approximation", "gemseo bilevel outer approximation"),
+    (r"\s+,", ","),
+    (r",+", ","),
+    (r"^\s*,\s*", ""),
+)
+"""The rewritings of the captions that a speech synthesizer would misread."""
+
+
+def spoken(message):
+    """Return a caption as it is to be read aloud."""
+    for pattern, replacement in SPOKEN:
+        message = re.sub(pattern, replacement, message)
+    return message
+
+
+def speech(message):
+    """Return the audio file of a sentence read aloud, if a voice is configured.
+
+    The narration is synthesized by
+    `Kokoro <https://github.com/thewh1teagle/kokoro-onnx>`_ when
+    ``VIDEO_VOICE_DIR`` names the directory of its ``kokoro.onnx`` and
+    ``voices.bin``, and each sentence is cached there.
+
+    Returns:
+        The path of the audio file and its duration in seconds, or ``None``.
+    """
+    directory = os.environ.get("VIDEO_VOICE_DIR")
+    if not directory:
+        return None
+
+    import soundfile
+
+    directory = Path(directory)
+    key = hashlib.sha1(f"{VOICE}:{message}".encode()).hexdigest()[:16]
+    path = directory / "cache" / f"{key}.wav"
+    if not path.exists():
+        from kokoro_onnx import Kokoro
+
+        if not hasattr(speech, "model"):
+            speech.model = Kokoro(
+                str(directory / "kokoro.onnx"), str(directory / "voices.bin")
+            )
+        samples, rate = speech.model.create(message, voice=VOICE, lang="en-us")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        soundfile.write(path, samples, rate)
+
+    return path, soundfile.info(path).duration
+
+
 def text(string, size=32, color=WHITE, **kwargs):
     return Text(string, font=FONT, font_size=size, color=color, **kwargs)
 
@@ -132,10 +237,34 @@ class Captioned(Scene):
     """A scene with a caption at the bottom, replaced as the story goes."""
 
     caption = None
+    voice_end = 0.0
 
-    def say(self, message, wait=2.5, size=28, run_time=0.8):
-        # Long enough to be read, at about fifteen characters per second.
-        wait = max(wait, 0.065 * len(message))
+    def hush(self):
+        """Wait for the sentence being read to end."""
+        remaining = self.voice_end - self.renderer.time
+        if remaining > 0:
+            self.wait(remaining + 0.2)
+
+    def narrate(self, message):
+        """Read a sentence aloud, without a caption, once the previous one ends.
+
+        Returns:
+            The duration of the sentence, zero without a voice.
+        """
+        audio = speech(spoken(message))
+        if audio is None:
+            return 0.0
+
+        self.hush()
+        self.add_sound(str(audio[0]))
+        self.voice_end = self.renderer.time + audio[1]
+        return audio[1]
+
+    def say(self, message, wait=2.5, size=28, run_time=0.8, voice=None):
+        # Long enough to be read, at about fifteen characters per second, or
+        # to be heard to the end.
+        duration = self.narrate(voice or message)
+        wait = max(wait, 0.065 * len(message), duration - run_time + 0.6)
         words, lines = message.split(), [""]
         for w in words:
             if len(lines[-1]) + len(w) > 72:
@@ -162,6 +291,7 @@ class Captioned(Scene):
             self.caption = None
 
     def clear_all(self, run_time=0.8):
+        self.hush()
         self.play(*[FadeOut(m) for m in self.mobjects], run_time=run_time)
         self.caption = None
 
@@ -284,6 +414,9 @@ class S1Problem(Captioned):
             "exploring a multimodal landscape with a mixed-integer master", 30, GREY_B
         )
         VGroup(title, sub).arrange(DOWN, buff=0.4)
+        self.narrate(
+            "Box subdivision: exploring a multimodal landscape with a mixed-integer master."
+        )
         self.play(Write(title), run_time=1.5)
         self.play(FadeIn(sub, shift=0.2 * UP))
         self.wait(2)
@@ -293,6 +426,9 @@ class S1Problem(Captioned):
             MathTex(r"\min_{x \in [L, U]} f(x) \quad \text{s.t.} \quad g(x) \le 0")
             .scale(1.1)
             .to_edge(UP)
+        )
+        self.narrate(
+            "We want to minimize a function f over a box, subject to constraints g."
         )
         self.play(Write(problem))
         ax = Axes(
@@ -347,6 +483,10 @@ class S1Problem(Captioned):
             text("exploitation — local descent within that region", 30, ACCENT),
         ).arrange(DOWN, buff=0.3)
         self.clear_all()
+        self.narrate(
+            "The idea is to separate two tasks. Exploration: which region should we search? "
+            "And exploitation: a local descent within that region."
+        )
         self.play(FadeIn(idea[0]))
         self.play(FadeIn(idea[1], shift=0.2 * RIGHT))
         self.play(FadeIn(idea[2], shift=0.2 * RIGHT))
@@ -469,6 +609,10 @@ class S2Subdivision(Captioned):
                 cell.move_to(np.array([[-3.5, 0, 3.5][c], 2.4 - 0.85 * r, 0]))
             table.add(row)
         line = Line(5 * LEFT, 5 * RIGHT, color=GREY_B).move_to(2.0 * UP)
+        self.narrate(
+            "How large does this get? Compare the number of boxes with the number of "
+            "binary variables the master actually handles."
+        )
         self.play(FadeIn(head), Create(line))
         for row in rows[1:]:
             row[1].set_color(BAD)
@@ -499,6 +643,10 @@ class S3Bilevel(Captioned):
             r"u(\alpha) = \min_x \{\, f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \,\}",
             font_size=38,
         ).to_edge(UP, buff=0.6)
+        self.narrate(
+            "The problem becomes bi-level: an outer choice of the box alpha, and an inner "
+            "local optimization within that box."
+        )
         self.play(Write(eq), run_time=2)
         master = VGroup(
             RoundedRectangle(
@@ -728,6 +876,11 @@ class S4Cuts(Captioned):
             card[2].next_to(card[1], DOWN, buff=0.4)
             cards.add(card)
         cards.arrange(RIGHT, buff=0.3).shift(0.2 * UP)
+        self.narrate(
+            "Three safeguards are available: a fixed convexification constant kappa, "
+            "an adaptive repair of the slopes with a margin delta, and a sweep over a ladder "
+            "of kappa values."
+        )
         self.play(
             LaggedStart(*[FadeIn(c, shift=0.3 * UP) for c in cards], lag_ratio=0.3),
             run_time=2,
@@ -781,6 +934,12 @@ class S4Cuts(Captioned):
             .arrange(DOWN, aligned_edge=LEFT, buff=0.25)
             .move_to(1.8 * RIGHT + 1.2 * DOWN)
         )
+        self.narrate(
+            "In the sweep, each parallel probe of the master uses its own rung: a small "
+            "kappa proposes a neighbouring box, a large one a distant box. A probe that "
+            "proposes a box already solved climbs a rung, and the top of the ladder is ten "
+            "times the spread of the values observed so far."
+        )
         self.play(FadeIn(expl[:2]))
         self.play(
             probes[1].animate.move_to(ladder[2][0].get_center()),
@@ -804,6 +963,9 @@ class S4Cuts(Captioned):
 class S5TrustRegion(Captioned):
     def construct(self):
         title = text("Trust region of the master", 40).to_edge(UP, buff=0.4)
+        self.narrate(
+            "The master also restricts each step to a trust region around the incumbent box: a candidate may change only a few of its components. But how should a change be counted?"
+        )
         self.play(FadeIn(title))
         s = 0.42
 
@@ -878,6 +1040,9 @@ class S6Run(Captioned):
         self.play(FadeIn(land.image), Create(land.frame), Create(grid))
         title = text("A real run: Rastrigin 2D, 100 boxes", 28).move_to(
             3.4 * RIGHT + 3.2 * UP
+        )
+        self.narrate(
+            "Let's watch a real run of the method, on the Rastrigin function in two dimensions, with one hundred boxes."
         )
         self.play(FadeIn(title))
         legend = (
@@ -1015,6 +1180,9 @@ class S7Variants(Captioned):
             .next_to(title, DOWN, buff=0.6)
         )
         items[1].set_color(GREY_C)
+        self.narrate(
+            "The method comes in several variants, each addressing a case where the basic version falls short. Let's go through them."
+        )
         self.play(Write(title))
         self.play(
             LaggedStart(*[FadeIn(i, shift=0.2 * RIGHT) for i in items], lag_ratio=0.2),
@@ -1029,6 +1197,7 @@ class S7aFormulations(Captioned):
         title = text("1 · Two formulations of the sub-problem", 38).to_edge(
             UP, buff=0.4
         )
+        self.narrate("First, the box can enter the sub-problem in two ways.")
         self.play(FadeIn(title))
         lt = text("Box as a constraint", 30, BLUE_B).move_to(3.5 * LEFT + 2.4 * UP)
         rt = text("Box as normalized variables", 30, ACCENT).move_to(
@@ -1117,6 +1286,7 @@ class S7bPartial(Captioned):
         title = text("3 · Subdividing only the multimodal variables", 38).to_edge(
             UP, buff=0.4
         )
+        self.narrate("Next, not every variable needs to be subdivided.")
         self.play(FadeIn(title))
         land = Landscape(partly_multimodal, side=5.0, center=3.6 * LEFT + 0.1 * DOWN)
         self.play(FadeIn(land.image), Create(land.frame))
@@ -1168,6 +1338,9 @@ class S7cDensity(Captioned):
     def construct(self):
         title = text("4 · Estimating the density: counting the basins", 38).to_edge(
             UP, buff=0.4
+        )
+        self.narrate(
+            "How many intervals per variable? The subdivision must separate the basins, so we can estimate the density by counting them."
         )
         self.play(FadeIn(title))
         land = Landscape(rastrigin, side=5.0, center=4.0 * LEFT + 0.5 * DOWN)
@@ -1261,6 +1434,9 @@ class S7cDensity(Captioned):
 class S7dHierarchies(Captioned):
     def construct(self):
         title = text("5 · Hierarchies of subdivisions", 38).to_edge(UP, buff=0.4)
+        self.narrate(
+            "A fine subdivision spends its budget everywhere. A hierarchy concentrates it: subdivide coarsely, rank the boxes, and refine the promising ones."
+        )
         self.play(FadeIn(title))
         side = 3.4
         centers = [4.5 * LEFT + 0.3 * DOWN, 0.3 * DOWN, 4.5 * RIGHT + 0.3 * DOWN]
@@ -1363,6 +1539,9 @@ class S7dHierarchies(Captioned):
 class S7eMultiResolution(Captioned):
     def construct(self):
         title = text("6 · Multi-resolution encoding", 38).to_edge(UP, buff=0.4)
+        self.narrate(
+            "Finally, the levels of a hierarchy can live in a single master, as the digits of the box index."
+        )
         self.play(FadeIn(title))
         bar = Rectangle(width=11, height=0.5, color=GREY_B).shift(1.6 * UP)
         lo_l = MathTex("L_j", font_size=30).next_to(bar, LEFT)
@@ -1451,6 +1630,11 @@ class S7eMultiResolution(Captioned):
         self.play(FadeIn(head), Create(rule))
         for row in rows[1:]:
             self.play(FadeIn(row, shift=0.2 * UP), run_time=0.6)
+        self.narrate(
+            "The flat encoding needs n times m to the L binaries; the levels need only n "
+            "times m times L. A resolution of a thousand per variable costs one hundred "
+            "binaries instead of five thousand."
+        )
         self.play(Write(bin_eq))
         self.say(
             "A single master keeps every cut, and can change a coarse and a fine digit at once.",
@@ -1471,6 +1655,7 @@ class S7eMultiResolution(Captioned):
 class S8Conclusion(Captioned):
     def construct(self):
         title = text("What the experiments show", 44).to_edge(UP, buff=0.5)
+        self.narrate("So, what do the experiments show?")
         self.play(FadeIn(title))
         facts = (
             VGroup(
@@ -1500,7 +1685,30 @@ class S8Conclusion(Captioned):
             .next_to(title, DOWN, buff=0.6)
         )
         facts.scale_to_fit_width(min(facts.width, 12.5)).set_x(0)
-        for f in facts:
+        voices = (
+            (
+                "On Rastrigin in two dimensions, the optimum is reached after twenty to "
+                "thirty-six percent of the boxes, at about a third of the cost of enumerating them."
+            ),
+            (
+                "In five dimensions, with one hundred thousand boxes and only fifty binaries, "
+                "the optimum is reached from every starting point, in nineteen hundred and twenty "
+                "evaluations, which none of the baselines achieves."
+            ),
+            "",
+            (
+                "On Styblinski-Tang in five dimensions, seven hundred and eighty-nine evaluations, "
+                "against more than two thousand for multistart and DIRECT."
+            ),
+            (
+                "And on the short cantilever of the GGP package, with a hundred and eight "
+                "variables, a compliance of eighty-two point one, against eighty-four for MMA, "
+                "and eighty-three for a multistart of MMA."
+            ),
+        )
+        for f, voice in zip(facts, voices, strict=True):
+            if voice:
+                self.narrate(voice)
             self.play(FadeIn(f, shift=0.2 * RIGHT), run_time=0.7)
             self.wait(1.2)
         self.wait(2)
@@ -1520,6 +1728,12 @@ class S8Conclusion(Captioned):
             ),
         ).arrange(DOWN, buff=0.3)
         VGroup(key, lims).arrange(DOWN, buff=0.6)
+        self.narrate(
+            "The key condition: the subdivision must separate the basins. Too coarse, and a "
+            "box holds several minima. Too fine, and there are more binaries than the budget "
+            "can identify. Otherwise, other methods do better, such as Bayesian optimization "
+            "at small budgets."
+        )
         self.play(Write(key))
         self.play(LaggedStart(*[FadeIn(line) for line in lims], lag_ratio=0.4))
         self.wait(4)
@@ -1540,6 +1754,10 @@ class S8Conclusion(Captioned):
         url = text(
             "simoneconiglio.github.io/gemseo-box-subdivision", 28, BLUE_B
         ).next_to(code, DOWN, buff=0.5)
+        self.narrate(
+            "The method is available on PyPI, as the GEMSEO plugin gemseo box subdivision. "
+            "Thanks for watching."
+        )
         self.play(FadeIn(name), FadeIn(code, shift=0.2 * UP))
         self.play(FadeIn(url))
         self.wait(4)

@@ -32,7 +32,7 @@ and this project adheres to
 
 - A video explains the method and its variants, drawn with Manim by
   `docs/video.py`, one scene per section; its run is the one of the animation of
-  the methodology.
+  the methodology. The captions can be read aloud by a synthesized voice.
 
 ## 0.3.0 (2026-10-03)
 
