@@ -26,6 +26,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- A video in French explains the method and its variants, drawn with Manim by
+  `docs/video.py`, one scene per section; its run is the one of the animation of
+  the methodology.
+
 ## 0.3.0 (2026-10-03)
 
 ### Added
