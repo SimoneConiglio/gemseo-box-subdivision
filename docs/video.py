@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-"""Render a video explaining the method and its variants, in French.
+"""Render a video explaining the method and its variants.
 
 The video is drawn with `Manim <https://www.manim.community>`_ in the style of
 3Blue1Brown, one scene per section, the run of the sixth scene being the one of
@@ -22,8 +22,8 @@ for the formulas:
 
 ```shell
 pip install -e . manim "pillow<11"
-manim -qh docs/video.py S1Probleme S2Subdivision S3BiNiveau S4Coupes \\
-    S5Confiance S6Run S7Variantes S7aFormulations S7bPartielle S7cDensite \\
+manim -qh docs/video.py S1Problem S2Subdivision S3Bilevel S4Cuts \\
+    S5TrustRegion S6Run S7Variants S7aFormulations S7bPartial S7cDensity \\
     S7dHierarchies S7eMultiResolution S8Conclusion
 ```
 
@@ -32,7 +32,7 @@ and are joined with ``ffmpeg -f concat``. Pillow is pinned because Manim 0.22
 fails to draw images with Pillow 13.
 """
 
-# The text on screen is French and mathematical, with Greek letters and signs.
+# The text on screen is mathematical, with Greek letters and signs.
 # ruff: noqa: RUF001
 
 from __future__ import annotations
@@ -105,9 +105,9 @@ from scipy.signal import find_peaks
 config.background_color = "#0e1116"
 
 FONT = "Latin Modern Roman"
-ACCENT = "#ff9a3c"  # boîte sélectionnée
-SOLVED = BLUE_C  # boîtes résolues
-GOOD = "#5fd38d"  # incumbent / valide
+ACCENT = "#ff9a3c"  # the box being solved
+SOLVED = BLUE_C  # the boxes already solved
+GOOD = "#5fd38d"  # the incumbent, a valid cut
 BAD = "#ff5c5c"
 LO, HI = -4.1, 5.9
 
@@ -277,11 +277,11 @@ def one_hot(n, k, size=0.32, color=ACCENT):
 # ---------------------------------------------------------------------------
 
 
-class S1Probleme(Captioned):
+class S1Problem(Captioned):
     def construct(self):
-        title = text("La subdivision en boîtes", 64)
+        title = text("Box subdivision", 64)
         sub = text(
-            "explorer un paysage multimodal avec un maître mixte-entier", 30, GREY_B
+            "exploring a multimodal landscape with a mixed-integer master", 30, GREY_B
         )
         VGroup(title, sub).arrange(DOWN, buff=0.4)
         self.play(Write(title), run_time=1.5)
@@ -290,7 +290,7 @@ class S1Probleme(Captioned):
         self.play(FadeOut(title), FadeOut(sub))
 
         problem = (
-            MathTex(r"\min_{x \in [L, U]} f(x) \quad \text{s.c.} \quad g(x) \le 0")
+            MathTex(r"\min_{x \in [L, U]} f(x) \quad \text{s.t.} \quad g(x) \le 0")
             .scale(1.1)
             .to_edge(UP)
         )
@@ -312,7 +312,7 @@ class S1Probleme(Captioned):
             .to_edge(RIGHT)
         )
         self.play(Create(ax), Create(graph), FadeIn(label), run_time=2)
-        self.say("f est non convexe : elle a beaucoup de minima locaux.", 1.5)
+        self.say("f is non-convex: it has many local minima.", 1.5)
 
         def roll(x0, color=YELLOW, run_time=2.0):
             xs = descent(rastrigin_1d_prime, x0)
@@ -333,18 +333,18 @@ class S1Probleme(Captioned):
             rf"f = {rastrigin_1d(xend):.2f}", font_size=30, color=YELLOW
         ).next_to(dot, UP)
         self.play(FadeIn(val))
-        self.say("Un solveur local renvoie le minimum du bassin où il démarre.", 2)
+        self.say("A local solver returns the minimum of the basin it starts in.", 2)
         dots = [dot]
         for x0, c in ((-2.6, GREY_A), (1.65, GREY_A), (4.4, GREY_A)):
             d, _ = roll(x0, c, 1.0)
             dots.append(d)
         star = Star(color=GOOD, fill_opacity=1, outer_radius=0.18).move_to(ax.c2p(0, 0))
         self.play(FadeIn(star, scale=2))
-        self.say("Le minimum global n'est atteint que si l'on part du bon bassin.", 2)
+        self.say("The global minimum is reached only from the right basin.", 2)
         idea = VGroup(
-            text("Idée : séparer deux tâches", 36),
-            text("exploration — quelle région chercher ?", 30, BLUE_B),
-            text("exploitation — descente locale dans cette région", 30, ACCENT),
+            text("Idea: separate two tasks", 36),
+            text("exploration — which region to search?", 30, BLUE_B),
+            text("exploitation — local descent within that region", 30, ACCENT),
         ).arrange(DOWN, buff=0.3)
         self.clear_all()
         self.play(FadeIn(idea[0]))
@@ -395,14 +395,14 @@ class S2Subdivision(Captioned):
         ])
         self.play(FadeIn(braces), FadeIn(ks))
         self.say(
-            "On découpe chaque variable en m intervalles contigus — ici m = 10.", 2
+            "Each variable is divided into m contiguous intervals — here m = 10.", 2
         )
         mins = VGroup(*[
             Dot(ax.c2p(k, rastrigin_1d(k)), color=YELLOW, radius=0.07)
             for k in range(-4, 6)
         ])
         self.play(LaggedStart(*[FadeIn(d, scale=2) for d in mins], lag_ratio=0.1))
-        self.say("Bien choisi, chaque intervalle contient un seul bassin.", 2)
+        self.say("Well chosen, each interval contains a single basin.", 2)
         self.clear_all()
 
         land = Landscape(rastrigin, side=6.2, center=3.1 * LEFT + 0.35 * UP)
@@ -414,7 +414,7 @@ class S2Subdivision(Captioned):
             LaggedStart(*[Create(line) for line in grid], lag_ratio=0.05), run_time=1.5
         )
         self.say(
-            "En deux dimensions : le produit cartésien donne 10 × 10 = 100 boîtes.", 1.5
+            "In two dimensions, the Cartesian product gives 10 × 10 = 100 boxes.", 1.5
         )
 
         def selection(i, j):
@@ -426,12 +426,12 @@ class S2Subdivision(Captioned):
             return VGroup(box, a1, a2, l1, l2)
 
         heading = text(
-            "Choisir une boîte = une variable\ncatégorielle par composante", 30
+            "Choosing a box = one categorical\nvariable per component", 30
         ).move_to(3.6 * RIGHT + 2.9 * UP)
         sel = selection(6, 3)
         self.play(FadeIn(heading), Create(sel[0]), FadeIn(sel[1:]))
         self.say(
-            "Chaque choix est codé en « one-hot » : α ∈ {0, 1}, une seule case à 1.",
+            "Each choice is one-hot encoded: α ∈ {0, 1}, a single cell set to 1.",
             1.5,
         )
         for i, j in ((2, 7), (8, 1), (4, 4)):
@@ -449,13 +449,11 @@ class S2Subdivision(Captioned):
             .scale(0.9)
         )
         self.play(Write(bounds))
-        self.say("Les bornes de la boîte choisie sont des fonctions affines de α.", 2.5)
+        self.say("The bounds of the selected box are affine functions of α.", 2.5)
         self.clear_all()
 
         # What grows with the dimension.
-        head = VGroup(
-            MathTex("n"), text("boîtes  ∏ mⱼ", 30), text("binaires  Σ mⱼ", 30)
-        )
+        head = VGroup(MathTex("n"), text("boxes  ∏ mⱼ", 30), text("binaries  Σ mⱼ", 30))
         rows = [head]
         for n in range(1, 6):
             rows.append(
@@ -478,11 +476,11 @@ class S2Subdivision(Captioned):
             self.play(FadeIn(row, shift=0.2 * UP), run_time=0.6)
         self.play(Indicate(rows[-1][1], color=BAD), Indicate(rows[-1][2], color=GOOD))
         self.say(
-            "Le maître manipule Σ mⱼ binaires : linéaire en n. Le produit cartésien n'est jamais énuméré.",
+            "The master handles Σ mⱼ binaries, linear in n. The Cartesian product is never enumerated.",
             3.5,
         )
         self.say(
-            "Cinq variables, dix intervalles chacune : 100 000 boîtes, mais seulement 50 binaires.",
+            "Five variables, ten intervals each: 100 000 boxes, but only 50 binaries.",
             3,
         )
         self.clear_all()
@@ -493,11 +491,11 @@ class S2Subdivision(Captioned):
 # ---------------------------------------------------------------------------
 
 
-class S3BiNiveau(Captioned):
+class S3Bilevel(Captioned):
     def construct(self):
         eq = MathTex(
             r"\min_\alpha\ u(\alpha)",
-            r"\quad\text{où}\quad",
+            r"\quad\text{where}\quad",
             r"u(\alpha) = \min_x \{\, f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \,\}",
             font_size=38,
         ).to_edge(UP, buff=0.6)
@@ -506,8 +504,8 @@ class S3BiNiveau(Captioned):
             RoundedRectangle(
                 corner_radius=0.3, width=4.6, height=2.4, color=BLUE, fill_opacity=0.12
             ),
-            text("Maître", 40, BLUE_B),
-            text("mixte-entier · exploration", 24, GREY_A),
+            text("Master", 40, BLUE_B),
+            text("mixed-integer · exploration", 24, GREY_A),
         )
         master[1].move_to(master[0]).shift(0.35 * UP)
         master[2].next_to(master[1], DOWN, buff=0.25)
@@ -520,8 +518,8 @@ class S3BiNiveau(Captioned):
                 color=ACCENT,
                 fill_opacity=0.12,
             ),
-            text("Sous-problème", 40, ACCENT),
-            text("solveur local · exploitation", 24, GREY_A),
+            text("Sub-problem", 40, ACCENT),
+            text("local solver · exploitation", 24, GREY_A),
         )
         sub[1].move_to(sub[0]).shift(0.35 * UP)
         sub[2].next_to(sub[1], DOWN, buff=0.25)
@@ -539,7 +537,7 @@ class S3BiNiveau(Captioned):
             angle=-PI / 3,
             color=GREY_A,
         )
-        tl = text("boîte α", 28).next_to(top, UP, buff=0.1)
+        tl = text("box α", 28).next_to(top, UP, buff=0.1)
         bl = MathTex(
             r"u(\alpha^{(i)}),\ \ s^{(i)} = \frac{\mathrm{d}u}{\mathrm{d}\alpha}",
             font_size=34,
@@ -553,15 +551,15 @@ class S3BiNiveau(Captioned):
             self.play(MoveAlongPath(d, bot), run_time=1)
             self.remove(d)
         self.say(
-            "Le maître propose une boîte ; le solveur local y résout le problème et renvoie valeur et pente.",
+            "The master proposes a box; the local solver solves the problem within it and returns its value and slope.",
             3,
         )
         self.say(
-            "La pente vient gratuitement de l'analyse post-optimale (multiplicateurs de Lagrange).",
+            "The slope comes for free from the post-optimal analysis (Lagrange multipliers).",
             3,
         )
         self.say(
-            "C'est la formulation « Benders » de gemseo-bilevel-outer-approximation.",
+            "This is the Benders formulation of gemseo-bilevel-outer-approximation.",
             2.5,
         )
         self.clear_all()
@@ -572,7 +570,7 @@ class S3BiNiveau(Captioned):
 # ---------------------------------------------------------------------------
 
 
-class S4Coupes(Captioned):
+class S4Cuts(Captioned):
     def construct(self):
         cut_eq = MathTex(
             r"\eta \ \ge\ u(\alpha^{(i)}) + s^{(i)\top}(\alpha - \alpha^{(i)})",
@@ -580,7 +578,7 @@ class S4Coupes(Captioned):
         ).to_edge(UP, buff=0.4)
         self.play(Write(cut_eq))
         self.say(
-            "Le maître construit une sous-estimation linéaire par morceaux : une coupe par boîte résolue.",
+            "The master builds a piecewise-linear underestimator: one cut per solved box.",
             2.5,
         )
 
@@ -591,7 +589,9 @@ class S4Coupes(Captioned):
             y_length=4.2,
             axis_config={"include_tip": False, "color": GREY_B},
         ).shift(2.5 * LEFT + 0.15 * UP)
-        xl = text("α relaxé entre deux boîtes", 24, GREY_A).next_to(ax, DOWN, buff=0.15)
+        xl = text("α, relaxed between two boxes", 24, GREY_A).next_to(
+            ax, DOWN, buff=0.15
+        )
 
         def u(a):
             return 3 - 6 * a + 8 * a * (1 - a)
@@ -602,8 +602,8 @@ class S4Coupes(Captioned):
         )
         b0 = Dot(ax.c2p(0, 3), color=WHITE, radius=0.09)
         b1 = Dot(ax.c2p(1, -3), color=GOOD, radius=0.11)
-        l0 = text("boîte A", 24).next_to(b0, UP + RIGHT, buff=0.1)
-        l1 = text("boîte B (optimum)", 24, GOOD).next_to(b1, DOWN + LEFT, buff=0.1)
+        l0 = text("box A", 24).next_to(b0, UP + RIGHT, buff=0.1)
+        l1 = text("box B (optimum)", 24, GOOD).next_to(b1, DOWN + LEFT, buff=0.1)
         self.play(Create(ax), FadeIn(xl), Create(graph), FadeIn(ul))
         self.play(FadeIn(b0), FadeIn(b1), FadeIn(l0), FadeIn(l1))
 
@@ -632,11 +632,11 @@ class S4Coupes(Captioned):
             lambda: DashedLine(ax.c2p(1, 3 + slope()), ax.c2p(1, -3), color=GREY_B)
         )
         self.play(FadeIn(tip), Create(gap))
-        self.say("La coupe en A affirme : u(B) ≥ 5. Faux — la vraie valeur est −3.", 2)
+        self.say("The cut at A claims u(B) ≥ 5. Wrong — the true value is −3.", 2)
         cross = Cross(scale_factor=0.25, stroke_color=BAD).move_to(b1)
         self.play(Create(cross))
         self.say(
-            "u n'est pas convexe : la coupe exclut l'optimum, et le maître converge… sans signaler d'erreur.",
+            "u is not convex: the cut excludes the optimum, and the master converges… without reporting an error.",
             3,
         )
         self.play(FadeOut(cross))
@@ -667,7 +667,7 @@ class S4Coupes(Captioned):
         ).next_to(conv, DOWN)
         self.play(Write(conv))
         self.say(
-            "Terme convexe, nul en chaque boîte : le problème discret ne change pas.",
+            "A convex term, zero at every box: the discrete problem is unchanged.",
             2.5,
         )
         self.play(Write(corr))
@@ -678,35 +678,35 @@ class S4Coupes(Captioned):
         )
         self.play(FadeIn(kl))
         self.play(kappa.animate.set_value(9), run_time=4, rate_func=smooth)
-        check = text("✓ valide", 28, GOOD).next_to(tip, RIGHT, buff=0.15)
+        check = text("✓ valid", 28, GOOD).next_to(tip, RIGHT, buff=0.15)
         self.play(FadeIn(check))
         self.say(
-            "On n'évalue pas le terme : on incline la pente. La coupe repasse sous la valeur en B.",
+            "The term is never evaluated: the slope is tilted, and the cut falls back below the value at B.",
             3,
         )
         self.clear_all()
 
         # The three safeguards.
         warn = text(
-            "Le réglage le plus important — désactivé par défaut", 34, ACCENT
+            "The most important setting — disabled by default", 34, ACCENT
         ).to_edge(UP, buff=0.5)
         self.play(FadeIn(warn))
         cards = VGroup()
         specs = [
             (
-                "κ fixe",
+                "Fixed κ",
                 BLUE,
-                "valide par construction\ngarantie de convergence\nmais abaisse la borne inférieure",
+                "valid by construction\nconvergence guarantee\nbut lowers the lower bound",
             ),
             (
-                "Réparation adaptative δ",
+                "Adaptive repair δ",
                 GOOD,
-                "corrige les pentes par moindres\ncarrés sur l'historique des boîtes\npas de garantie, très efficace",
+                "least-squares correction of\nthe slopes over the history\nno guarantee, very effective",
             ),
             (
-                "Balayage de convexité",
+                "Swept convexity",
                 ACCENT,
-                "une échelle κ₁ < … < κₘₐₓ\nun barreau par sonde parallèle\naucune valeur à fournir",
+                "a ladder κ₁ < … < κₘₐₓ\none rung per parallel probe\nno value to supply",
             ),
         ]
         for name, color, body in specs:
@@ -738,9 +738,9 @@ class S4Coupes(Captioned):
         )
         adapt.next_to(cards, DOWN, buff=0.3)
         self.play(Write(adapt))
-        self.say("Deux mécanismes à ne pas combiner : κ ou δ, l'autre à zéro.", 3)
+        self.say("Two mechanisms not to combine: κ or δ, the other set to zero.", 3)
         self.say(
-            "κ et δ sont dans les unités de f : δ = 100 réussit sur Rastrigin… et échoue sur Ackley.",
+            "κ and δ are in the units of f: δ = 100 succeeds on Rastrigin… and fails on Ackley.",
             3.5,
         )
         self.play(
@@ -773,10 +773,10 @@ class S4Coupes(Captioned):
         self.play(FadeIn(probes))
         expl = (
             VGroup(
-                text("sonde k ↔ barreau k : petit κ = boîte voisine,", 24),
-                text("grand κ = boîte lointaine", 24),
-                text("boîte déjà résolue → la sonde monte d'un barreau", 24, GREY_A),
-                text("borne : écart des valeurs observées × 10", 24, GREY_A),
+                text("probe k ↔ rung k: small κ = neighbouring box,", 24),
+                text("large κ = distant box", 24),
+                text("box already solved → the probe climbs a rung", 24, GREY_A),
+                text("bound: spread of the observed values × 10", 24, GREY_A),
             )
             .arrange(DOWN, aligned_edge=LEFT, buff=0.25)
             .move_to(1.8 * RIGHT + 1.2 * DOWN)
@@ -790,7 +790,7 @@ class S4Coupes(Captioned):
         self.play(probes[2].animate.move_to(ladder[4][0].get_center()))
         self.play(FadeIn(expl[3]))
         self.say(
-            "Sans aucun réglage, le balayage atteint l'optimum sur Rastrigin et sur Ackley — aucune marge fixe n'y arrive.",
+            "Without any tuning, the sweep reaches the optimum on both Rastrigin and Ackley — no fixed margin does.",
             4,
         )
         self.clear_all()
@@ -801,9 +801,9 @@ class S4Coupes(Captioned):
 # ---------------------------------------------------------------------------
 
 
-class S5Confiance(Captioned):
+class S5TrustRegion(Captioned):
     def construct(self):
-        title = text("Région de confiance du maître", 40).to_edge(UP, buff=0.4)
+        title = text("Trust region of the master", 40).to_edge(UP, buff=0.4)
         self.play(FadeIn(title))
         s = 0.42
 
@@ -817,8 +817,8 @@ class S5Confiance(Captioned):
             return g[(10 - j) * 10 + (i - 1)]
 
         left, right = grid(3.3 * LEFT + 0.2 * DOWN), grid(3.3 * RIGHT + 0.2 * DOWN)
-        lt = text("poids unitaires (distance de Hamming)", 26, GOOD).next_to(left, UP)
-        rt = text("poids par indice", 26, BAD).next_to(right, UP)
+        lt = text("unit weights (Hamming distance)", 26, GOOD).next_to(left, UP)
+        rt = text("index weights", 26, BAD).next_to(right, UP)
         self.play(FadeIn(left), FadeIn(right), FadeIn(lt), FadeIn(rt))
         eq = MathTex(
             r"\textstyle\sum_{j:\,\alpha'_j = \alpha_j} w_j(\alpha) \ \ge\ \sum_j w_j(\alpha) - \texttt{max\_step}",
@@ -848,21 +848,19 @@ class S5Confiance(Captioned):
             ).next_to(VGroup(left, right), DOWN, buff=0.15)
             self.play(FadeIn(hl), FadeIn(mark), FadeIn(lab))
             if inc == (1, 1):
-                self.say(
-                    "Depuis (1,1), les poids par indice ouvrent tout l'espace…", 2.5
-                )
+                self.say("From (1,1), index weights open the whole space…", 2.5)
             else:
                 self.say(
-                    "… depuis (7,6), seulement l'incumbent. Les poids unitaires : 19 boîtes dans les deux cas.",
+                    "… from (7,6), only the incumbent. Unit weights: 19 boxes in both cases.",
                     3,
                 )
             self.play(FadeOut(hl), FadeOut(mark), FadeOut(lab))
         self.say(
-            "On compte donc le nombre de composantes changées, avec un petit rayon : environ 2.",
+            "So the distance counts the components changed, with a small radius: about 2.",
             3,
         )
         self.say(
-            "Rastrigin 5D : rayon 2 → optimum depuis tous les départs ; sans région de confiance → échec.",
+            "Rastrigin 5D: radius 2 → optimum from every start; no trust region → failure.",
             3.5,
         )
         self.clear_all()
@@ -878,7 +876,7 @@ class S6Run(Captioned):
         land = Landscape(rastrigin, side=5.9, center=3.4 * LEFT + 0.65 * UP)
         grid = land.grid(10)
         self.play(FadeIn(land.image), Create(land.frame), Create(grid))
-        title = text("Un vrai run : Rastrigin 2D, 100 boîtes", 28).move_to(
+        title = text("A real run: Rastrigin 2D, 100 boxes", 28).move_to(
             3.4 * RIGHT + 3.2 * UP
         )
         self.play(FadeIn(title))
@@ -886,15 +884,15 @@ class S6Run(Captioned):
             VGroup(
                 VGroup(
                     Square(0.3, color=ACCENT, stroke_width=4),
-                    text("choisie par le maître", 24),
+                    text("chosen by the master", 24),
                 ).arrange(RIGHT),
                 VGroup(
                     Square(0.3, color=SOLVED, fill_opacity=0.5, stroke_width=0),
-                    text("déjà résolue (coupe)", 24),
+                    text("already solved (cut)", 24),
                 ).arrange(RIGHT),
                 VGroup(
                     Star(color=GOOD, fill_opacity=1, outer_radius=0.15),
-                    text("meilleure solution", 24),
+                    text("best solution", 24),
                 ).arrange(RIGHT),
             )
             .arrange(DOWN, aligned_edge=LEFT)
@@ -908,10 +906,10 @@ class S6Run(Captioned):
             b = best.get_value()
             g = (
                 VGroup(
-                    text(f"boîtes résolues : {int(n_box.get_value())} / 100", 28),
-                    text(f"évaluations : {int(n_eval.get_value())}", 28),
+                    text(f"boxes solved: {int(n_box.get_value())} / 100", 28),
+                    text(f"evaluations: {int(n_eval.get_value())}", 28),
                     text(
-                        "meilleure valeur : " + ("—" if np.isnan(b) else f"{b:.2f}"),
+                        "best value: " + ("—" if np.isnan(b) else f"{b:.2f}"),
                         28,
                         GOOD,
                     ),
@@ -968,28 +966,26 @@ class S6Run(Captioned):
             prev = (outline, path)
             if k == 0:
                 self.say(
-                    "Première boîte : le solveur local trouve un minimum local, f = 8,95.",
+                    "First box: the local solver finds a local minimum, f = 8.95.",
                     2,
                 )
             if k == 2:
                 self.say(
-                    "Le maître choisit chaque boîte suivante à partir des coupes des boîtes déjà résolues.",
+                    "The master chooses each next box from the cuts of the boxes already solved.",
                     2,
                 )
             if k == 6:
-                self.say(
-                    "7ᵉ boîte : le minimum global f = 0, après 154 évaluations.", 3
-                )
+                self.say("7th box: the global minimum f = 0, after 154 evaluations.", 3)
             if k == 8:
                 self.say(
-                    "Les boîtes suivantes ne font que confirmer… jusqu'au critère d'arrêt.",
+                    "The following boxes only confirm it… until the stopping criterion.",
                     0.5,
                 )
         self.play(
             prev[0].animate.set_stroke(width=0).set_fill(SOLVED, 0.45), FadeOut(prev[1])
         )
         self.say(
-            "20 boîtes résolues sur 100 : l'exploration est informée, pas exhaustive.",
+            "20 boxes solved out of 100: the exploration is informed, not exhaustive.",
             3,
         )
         self.clear_all()
@@ -1000,19 +996,19 @@ class S6Run(Captioned):
 # ---------------------------------------------------------------------------
 
 
-class S7Variantes(Captioned):
+class S7Variants(Captioned):
     def construct(self):
-        title = text("Les variantes", 56).to_edge(UP, buff=0.5)
+        title = text("The variants", 56).to_edge(UP, buff=0.5)
         items = (
             VGroup(*[
                 text(t, 32)
                 for t in (
-                    "1.  Deux formulations du sous-problème",
-                    "2.  Trois garde-fous contre la non-convexité  (vu)",
-                    "3.  Subdivision d'une partie des variables",
-                    "4.  Estimation de la densité de subdivision",
-                    "5.  Hiérarchies de subdivisions",
-                    "6.  Encodage multi-résolution",
+                    "1.  Two formulations of the sub-problem",
+                    "2.  Three safeguards against non-convexity  (seen)",
+                    "3.  Subdividing some of the variables",
+                    "4.  Estimating the density of the subdivision",
+                    "5.  Hierarchies of subdivisions",
+                    "6.  Multi-resolution encoding",
                 )
             ])
             .arrange(DOWN, aligned_edge=LEFT, buff=0.35)
@@ -1030,10 +1026,12 @@ class S7Variantes(Captioned):
 
 class S7aFormulations(Captioned):
     def construct(self):
-        title = text("1 · Deux formulations du sous-problème", 38).to_edge(UP, buff=0.4)
+        title = text("1 · Two formulations of the sub-problem", 38).to_edge(
+            UP, buff=0.4
+        )
         self.play(FadeIn(title))
-        lt = text("Boîte comme contrainte", 30, BLUE_B).move_to(3.5 * LEFT + 2.4 * UP)
-        rt = text("Boîte comme variables normalisées", 30, ACCENT).move_to(
+        lt = text("Box as a constraint", 30, BLUE_B).move_to(3.5 * LEFT + 2.4 * UP)
+        rt = text("Box as normalized variables", 30, ACCENT).move_to(
             3.5 * RIGHT + 2.4 * UP
         )
         l1 = MathTex(
@@ -1044,7 +1042,7 @@ class S7aFormulations(Captioned):
             r"\frac{\mathrm{d}u}{\mathrm{d}\alpha_{j,k}} = -\lambda^u_j\,u_{j,k} + \lambda^\ell_j\,l_{j,k}",
             font_size=34,
         )
-        l3 = text("linéaire en x, affine en α :\nconjointement convexe", 22, GREY_A)
+        l3 = text("linear in x, affine in α:\njointly convex", 22, GREY_A)
         VGroup(l1, l2, l3).arrange(DOWN, buff=0.45).next_to(lt, DOWN, buff=0.4)
         r1 = MathTex(
             r"x(\xi,\alpha) = \ell(\alpha) + \xi \odot (u(\alpha) - \ell(\alpha))",
@@ -1058,7 +1056,7 @@ class S7aFormulations(Captioned):
         self.play(Write(l2))
         self.play(FadeIn(l3))
         self.say(
-            "La pente est exacte, donnée par les multiplicateurs des faces de la boîte.",
+            "The slope is exact, given by the multipliers of the faces of the box.",
             2.5,
         )
         self.play(Write(r1), Write(r2))
@@ -1105,18 +1103,18 @@ class S7aFormulations(Captioned):
             cellk.set_value(k)
             self.wait(0.5)
         self.say(
-            "Le sous-problème vit toujours dans [0,1]ⁿ ; la pente est ∇f · ∂x/∂α.", 2.5
+            "The sub-problem always lives in [0,1]ⁿ; the slope is ∇f · ∂x/∂α.", 2.5
         )
         self.say(
-            "En pratique : normalisée → optimum depuis tous les départs ; contrainte → tous sauf un.",
+            "In practice: normalized → optimum from every start; constraint → from all but one.",
             3.5,
         )
         self.clear_all()
 
 
-class S7bPartielle(Captioned):
+class S7bPartial(Captioned):
     def construct(self):
-        title = text("3 · Subdiviser seulement les variables multimodales", 38).to_edge(
+        title = text("3 · Subdividing only the multimodal variables", 38).to_edge(
             UP, buff=0.4
         )
         self.play(FadeIn(title))
@@ -1133,11 +1131,9 @@ class S7bPartielle(Captioned):
             for k in range(1, 10)
         ])
         self.play(LaggedStart(*[Create(line) for line in lines], lag_ratio=0.08))
-        x1 = text("x₁ : subdivisée (multimodale)", 22).next_to(
-            land.frame, DOWN, buff=0.1
-        )
+        x1 = text("x₁: subdivided (multimodal)", 22).next_to(land.frame, DOWN, buff=0.1)
         x2 = (
-            text("x₂ : laissée au solveur local", 22)
+            text("x₂: left to the local solver", 22)
             .rotate(PI / 2)
             .next_to(land.frame, LEFT, buff=0.1)
         )
@@ -1158,19 +1154,19 @@ class S7bPartielle(Captioned):
         )
         self.play(Write(f))
         self.say(
-            "10 boîtes au lieu de 100 : la variable unimodale reste continue dans chaque boîte.",
+            "10 boxes instead of 100: the unimodal variable stays continuous within each box.",
             3,
         )
         self.say(
-            "Utile seulement si la multimodalité est concentrée dans quelques variables.",
+            "Useful only when the multimodality is concentrated in a few variables.",
             3,
         )
         self.clear_all()
 
 
-class S7cDensite(Captioned):
+class S7cDensity(Captioned):
     def construct(self):
-        title = text("4 · Estimer la densité : compter les bassins", 38).to_edge(
+        title = text("4 · Estimating the density: counting the basins", 38).to_edge(
             UP, buff=0.4
         )
         self.play(FadeIn(title))
@@ -1187,7 +1183,7 @@ class S7cDensite(Captioned):
         ).move_to(3.0 * RIGHT + 0.6 * UP)
         self.play(Create(ax))
         formula = MathTex(
-            r"N_j = \mathbb{E}_{x_\perp}\big[\#\{\text{minima de } t \mapsto f(x_\perp + t\,e_j)\}\big]",
+            r"N_j = \mathbb{E}_{x_\perp}\big[\#\{\text{minima of } t \mapsto f(x_\perp + t\,e_j)\}\big]",
             r"\qquad m_j = N_j",
             font_size=32,
         ).move_to(2.9 * RIGHT + 1.6 * DOWN)
@@ -1222,7 +1218,7 @@ class S7cDensite(Captioned):
                     *[FadeIn(m, shift=0.1 * DOWN) for m in marks], lag_ratio=0.05
                 )
             )
-            new_label = text(f"bassins retenus : {len(peaks)}", 28, GOOD).next_to(
+            new_label = text(f"basins kept: {len(peaks)}", 28, GOOD).next_to(
                 ax, UP, buff=0.1
             )
             self.play(
@@ -1235,12 +1231,12 @@ class S7cDensite(Captioned):
             if scan == 0:
                 self.play(Write(formula))
                 self.say(
-                    "Balayage axial depuis une ancre aléatoire ; on compte les minima assez profonds (proéminence).",
+                    "Axial scan from a random anchor; the minima deep enough (by prominence) are counted.",
                     3,
                 )
             elif scan == 1:
                 self.say(
-                    "Abscisses aléatoires : un pas régulier entre en résonance avec un paysage régulier.",
+                    "Random abscissae: an even step resonates with a regular landscape.",
                     3,
                 )
             self.play(
@@ -1252,11 +1248,11 @@ class S7cDensite(Captioned):
                 run_time=0.5,
             )
         self.say(
-            "L'erreur est d'un seul côté : une échelle de résolutions ne donne qu'une borne inférieure.",
+            "The error is one-sided: a ladder of scan rates only gives a lower bound.",
             3,
         )
         self.say(
-            "Si elle ne converge pas, une boîte par bassin ne convient pas → hiérarchies.",
+            "If it does not converge, one box per basin is not appropriate → hierarchies.",
             3,
         )
         self.clear_all()
@@ -1264,11 +1260,11 @@ class S7cDensite(Captioned):
 
 class S7dHierarchies(Captioned):
     def construct(self):
-        title = text("5 · Hiérarchies de subdivisions", 38).to_edge(UP, buff=0.4)
+        title = text("5 · Hierarchies of subdivisions", 38).to_edge(UP, buff=0.4)
         self.play(FadeIn(title))
         side = 3.4
         centers = [4.5 * LEFT + 0.3 * DOWN, 0.3 * DOWN, 4.5 * RIGHT + 0.3 * DOWN]
-        names = ["deux niveaux", "profonde", "frontière"]
+        names = ["two levels", "deep", "frontier"]
         frames = VGroup(*[Square(side, color=GREY_B).move_to(c) for c in centers])
         labels = VGroup(*[
             text(n, 28, BLUE_B).next_to(f, UP, buff=0.15)
@@ -1315,7 +1311,7 @@ class S7dHierarchies(Captioned):
         )
         self.play(*[Create(subgrid(b, 4, ACCENT, 1)) for b in best])
         self.say(
-            "Deux niveaux : résoudre une subdivision grossière, puis raffiner les k meilleures boîtes.",
+            "Two levels: solve a coarse subdivision, then refine the k best boxes.",
             2.5,
         )
 
@@ -1328,12 +1324,12 @@ class S7dHierarchies(Captioned):
             self.play(Create(nxt), run_time=0.5)
             sq = nxt
         res = MathTex(
-            r"2^4 = 16 \text{ par variable,}\ 2n \text{ binaires par niveau}",
+            r"2^4 = 16 \text{ per variable,}\ 2n \text{ binaries per level}",
             font_size=26,
         ).next_to(frames[1], DOWN, buff=0.15)
         self.play(FadeIn(res))
         self.say(
-            "Profonde : couper en deux à chaque niveau et garder la meilleure boîte.",
+            "Deep: halve each variable at each level and keep the best box.",
             2.5,
         )
 
@@ -1344,21 +1340,21 @@ class S7dHierarchies(Captioned):
         self.play(Create(a))
         self.play(Create(subgrid(a, 2, ACCENT, 1)))
         b = child(f2, 2, 1, 0).set_stroke(GOOD, 3)
-        back = text("retour en arrière", 22, GOOD).next_to(f2, DOWN, buff=0.15)
+        back = text("backtracking", 22, GOOD).next_to(f2, DOWN, buff=0.15)
         self.play(Create(b), FadeIn(back))
         self.play(Create(subgrid(b, 2, GOOD, 1)))
         bb = child(b, 2, 1, 1).set_stroke(GOOD, 3)
         self.play(Create(bb), Create(subgrid(bb, 2, GOOD, 1)))
         self.say(
-            "Frontière : une file de priorité sur les boîtes ouvertes — un branch-and-bound spatial.",
+            "Frontier: a priority queue of open boxes — a spatial branch-and-bound.",
             3,
         )
         self.say(
-            "Prix : chaque nœud a son propre maître, et les coupes du parent sont jetées.",
+            "The price: each node has its own master, and the cuts of the parent are discarded.",
             3,
         )
         self.say(
-            "Gagnant quand un bassin est trop large : Ackley, 4 départs sur 6 contre 2 pour la subdivision plate.",
+            "A win when a basin is too broad: Ackley, 4 starts out of 6 against 2 for the flat subdivision.",
             3.5,
         )
         self.clear_all()
@@ -1366,7 +1362,7 @@ class S7dHierarchies(Captioned):
 
 class S7eMultiResolution(Captioned):
     def construct(self):
-        title = text("6 · Encodage multi-résolution", 38).to_edge(UP, buff=0.4)
+        title = text("6 · Multi-resolution encoding", 38).to_edge(UP, buff=0.4)
         self.play(FadeIn(title))
         bar = Rectangle(width=11, height=0.5, color=GREY_B).shift(1.6 * UP)
         lo_l = MathTex("L_j", font_size=30).next_to(bar, LEFT)
@@ -1418,7 +1414,7 @@ class S7eMultiResolution(Captioned):
         ).move_to(zoom.get_left() + (d2 + 0.5) * w * RIGHT)
         self.play(FadeIn(sel2))
         idx = MathTex(
-            r"\text{indice} = (", "2", r"\,", "1", r")_4 = 9", font_size=36
+            r"\text{index} = (", "2", r"\,", "1", r")_4 = 9", font_size=36
         ).shift(1.3 * DOWN)
         idx[1].set_color(BLUE)
         idx[3].set_color(ACCENT)
@@ -1429,15 +1425,15 @@ class S7eMultiResolution(Captioned):
         ).next_to(idx, DOWN, buff=0.4)
         self.play(Write(formula))
         self.say(
-            "Une variable catégorielle par niveau : les niveaux sont les chiffres de l'indice en base m.",
+            "One categorical variable per level: the levels are the digits of the box index in base m.",
             3,
         )
         self.clear_all()
 
         head = VGroup(
-            text("résolution", 28),
-            text("plat, n = 5", 28, BAD),
-            text("niveaux, n = 5", 28, GOOD),
+            text("resolution", 28),
+            text("flat, n = 5", 28, BAD),
+            text("levels, n = 5", 28, GOOD),
         )
         rows = [
             head,
@@ -1450,18 +1446,18 @@ class S7eMultiResolution(Captioned):
                 cell.move_to(np.array([[-4.0, -0.5, 3.5][c], 2.3 - 0.9 * r, 0]))
         rule = Line(6 * LEFT, 6 * RIGHT, color=GREY_B).move_to(1.85 * UP)
         bin_eq = MathTex(
-            r"n\,m^L \quad\text{contre}\quad n\,m\,L \ \text{binaires}", font_size=36
+            r"n\,m^L \quad\text{versus}\quad n\,m\,L \ \text{binaries}", font_size=36
         ).move_to(1.3 * DOWN)
         self.play(FadeIn(head), Create(rule))
         for row in rows[1:]:
             self.play(FadeIn(row, shift=0.2 * UP), run_time=0.6)
         self.play(Write(bin_eq))
         self.say(
-            "Un seul maître garde toutes les coupes, et peut changer un chiffre grossier et un fin à la fois.",
+            "A single master keeps every cut, and can change a coarse and a fine digit at once.",
             3,
         )
         self.say(
-            "Limite : le modèle de coupes est additif sur les chiffres. Le rayon de confiance passe à 2L.",
+            "Limitation: the cut model is additive over the digits. The trust radius becomes 2L.",
             3.5,
         )
         self.clear_all()
@@ -1474,50 +1470,51 @@ class S7eMultiResolution(Captioned):
 
 class S8Conclusion(Captioned):
     def construct(self):
-        title = text("Ce que montrent les expériences", 44).to_edge(UP, buff=0.5)
+        title = text("What the experiments show", 44).to_edge(UP, buff=0.5)
         self.play(FadeIn(title))
         facts = (
             VGroup(
                 text(
-                    "Rastrigin 2D : optimum après 20 à 36 % des boîtes, ~⅓ du coût de l'énumération",
+                    "Rastrigin 2D: optimum after 20 to 36 % of the boxes, ~⅓ of the cost of enumerating them",
                     26,
                 ),
                 text(
-                    "Rastrigin 5D : 100 000 boîtes, 50 binaires — optimum depuis tous les départs",
+                    "Rastrigin 5D: 100 000 boxes, 50 binaries — optimum from every start",
                     26,
                 ),
                 text(
-                    "     en 1920 évaluations ; aucune méthode de référence ne l'atteint",
+                    "     in 1920 evaluations; none of the baselines reaches it",
                     26,
                     GREY_A,
                 ),
                 text(
-                    "Styblinski-Tang 5D : 789 évaluations, contre 2340 (multistart) et 2505 (DIRECT)",
+                    "Styblinski-Tang 5D: 789 evaluations, against 2340 (multistart) and 2505 (DIRECT)",
                     26,
                 ),
                 text(
-                    "Console courte GGP, 108 variables : 82,1 contre 84,0 (MMA) et 83,0 (multistart MMA)",
+                    "GGP short cantilever, 108 variables: 82.1 against 84.0 (MMA) and 83.0 (MMA multistart)",
                     26,
                 ),
             )
             .arrange(DOWN, aligned_edge=LEFT, buff=0.35)
             .next_to(title, DOWN, buff=0.6)
         )
+        facts.scale_to_fit_width(min(facts.width, 12.5)).set_x(0)
         for f in facts:
             self.play(FadeIn(f, shift=0.2 * RIGHT), run_time=0.7)
             self.wait(1.2)
         self.wait(2)
         self.play(FadeOut(facts), FadeOut(title))
-        key = text("La subdivision doit séparer les bassins.", 44, ACCENT)
+        key = text("The subdivision must separate the basins.", 44, ACCENT)
         lims = VGroup(
-            text("trop grossière : plusieurs minima par boîte", 28, GREY_A),
+            text("too coarse: several minima per box", 28, GREY_A),
             text(
-                "trop fine : plus de binaires que le budget ne peut en identifier",
+                "too fine: more binaries than the budget can identify",
                 28,
                 GREY_A,
             ),
             text(
-                "sinon, d'autres méthodes font mieux (optimisation bayésienne aux petits budgets)",
+                "otherwise, other methods do better (Bayesian optimization at small budgets)",
                 28,
                 GREY_A,
             ),
@@ -1550,16 +1547,16 @@ class S8Conclusion(Captioned):
 
 
 SCENES = [
-    "S1Probleme",
+    "S1Problem",
     "S2Subdivision",
-    "S3BiNiveau",
-    "S4Coupes",
-    "S5Confiance",
+    "S3Bilevel",
+    "S4Cuts",
+    "S5TrustRegion",
     "S6Run",
-    "S7Variantes",
+    "S7Variants",
     "S7aFormulations",
-    "S7bPartielle",
-    "S7cDensite",
+    "S7bPartial",
+    "S7cDensity",
     "S7dHierarchies",
     "S7eMultiResolution",
     "S8Conclusion",

@@ -30,7 +30,7 @@ and this project adheres to
 
 ### Added
 
-- A video in French explains the method and its variants, drawn with Manim by
+- A video explains the method and its variants, drawn with Manim by
   `docs/video.py`, one scene per section; its run is the one of the animation of
   the methodology.
 
