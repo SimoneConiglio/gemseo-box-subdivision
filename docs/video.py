@@ -706,7 +706,7 @@ class S4Coupes(Captioned):
             (
                 "Balayage de convexité",
                 ACCENT,
-                "une échelle κ₁ < … < κ_N\nun barreau par sonde parallèle\naucune valeur à fournir",
+                "une échelle κ₁ < … < κₘₐₓ\nun barreau par sonde parallèle\naucune valeur à fournir",
             ),
         ]
         for name, color, body in specs:
