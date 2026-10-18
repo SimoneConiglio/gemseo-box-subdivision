@@ -1895,6 +1895,15 @@ class S11TrustRegion(Captioned):
 
 class S12Run(Captioned):
     def construct(self):
+        from gemseo_box_subdivision.settings import N_PARALLEL_POINTS
+
+        solves = record_run()
+        # The initial design has as many boxes as the master has probes, and each
+        # iteration then proposes one box per probe.
+        rounds = [
+            solves[k : k + N_PARALLEL_POINTS]
+            for k in range(0, len(solves), N_PARALLEL_POINTS)
+        ]
         land = Landscape(rastrigin, side=5.9, center=3.4 * LEFT + 0.65 * UP)
         grid = land.grid(10)
         self.play(FadeIn(land.image), Create(land.frame), Create(grid))
@@ -1902,14 +1911,17 @@ class S12Run(Captioned):
             3.4 * RIGHT + 3.2 * UP
         )
         self.narrate(
-            "Let's put it all together, and watch the real method on two-dimensional Rastrigin. Orange is the box the master just picked, with the path of the local solver inside it. Blue boxes are solved, and each contributes a cut. The green star is the best point so far."
+            "Let's put it all together, and watch the real method on two-dimensional "
+            "Rastrigin, with the settings a user gets by default: the adaptive repair, a "
+            "trust region of two, and four probes. That last one matters: each round, "
+            "the master proposes four boxes at once, to be solved in parallel."
         )
         self.play(FadeIn(title))
         legend = (
             VGroup(
                 VGroup(
                     Square(0.3, color=ACCENT, stroke_width=4),
-                    text("chosen by the master", 24),
+                    text("proposed this round", 24),
                 ).arrange(RIGHT),
                 VGroup(
                     Square(0.3, color=SOLVED, fill_opacity=0.5, stroke_width=0),
@@ -1924,13 +1936,19 @@ class S12Run(Captioned):
             .move_to(3.4 * RIGHT + 2.0 * UP)
         )
         self.play(FadeIn(legend))
-
-        n_box, n_eval, best = ValueTracker(0), ValueTracker(0), ValueTracker(np.nan)
+        n_round, n_box = ValueTracker(0), ValueTracker(0)
+        n_eval, best = ValueTracker(0), ValueTracker(np.nan)
 
         def counters():
             b = best.get_value()
-            g = (
+            label = (
+                "initial design"
+                if n_round.get_value() == 0
+                else (f"round {int(n_round.get_value())}")
+            )
+            return (
                 VGroup(
+                    text(label, 28, ACCENT),
                     text(f"boxes solved: {int(n_box.get_value())} / 100", 28),
                     text(f"evaluations: {int(n_eval.get_value())}", 28),
                     text(
@@ -1940,82 +1958,99 @@ class S12Run(Captioned):
                     ),
                 )
                 .arrange(DOWN, aligned_edge=LEFT)
-                .move_to(3.4 * RIGHT + 0.4 * DOWN)
+                .move_to(3.4 * RIGHT + 0.6 * DOWN)
             )
-            return g
 
-        cnt = always_redraw(counters)
-        self.add(cnt)
+        self.add(always_redraw(counters))
+        self.hush()
+        before = {
+            0: "Round zero is special. There are no cuts yet, so there's nothing to "
+            "reason with. The first four boxes are an initial design: the box of the "
+            "starting point, plus three boxes spread out by a Latin hypercube. That's "
+            "why they go off in every direction.",
+            1: "Now the cuts kick in. Each of the four probes solves the master with its "
+            "own trust region. Three of them may change only one of the two interval "
+            "choices, so they stay on the row or the column of the best box. The fourth "
+            "may change both, and jumps.",
+            2: "The best box is now in the middle. Watch the pattern: each round, three "
+            "probes scan its row and column, and one jumps further out.",
+        }
+        after = {
+            0: "The best of them, the starting box, sits in a local valley: eight point "
+            "nine five.",
+            1: "And the third probe of this round lands on the global minimum: zero, "
+            "after a hundred and fifty-four evaluations.",
+        }
         star = None
-        prev = None
         best_value = np.inf
-        for k, s in enumerate(record_run()):
-            i, j = s["box"]
-            fast = k >= 8
-            rt = 0.35 if fast else 1.0
-            outline = land.box(i, j, stroke_color=ACCENT, stroke_width=5)
-            pts = list(starmap(land.p, s["points"]))
-            path = VMobject(
-                stroke_color=ACCENT, stroke_width=2.5
-            ).set_points_as_corners(pts)
-            anims = [Create(outline)]
-            if prev is not None:
-                anims.extend((
-                    prev[0].animate.set_stroke(width=0).set_fill(SOLVED, 0.45),
-                    FadeOut(prev[1]),
-                ))
-            self.play(*anims, run_time=rt)
+        incumbent = None
+        for r, group in enumerate(rounds):
+            if r in before:
+                self.narrate(before[r])
+            cross = VGroup()
+            if r >= 1:
+                i0, j0 = incumbent
+                cross = VGroup(*[
+                    land.box(i, j, stroke_width=0, fill_color=YELLOW, fill_opacity=0.18)
+                    for i in range(10)
+                    for j in range(10)
+                    if (i == i0) != (j == j0)
+                ])
+                self.play(FadeIn(cross), run_time=0.8)
+            outlines = VGroup(*[
+                land.box(*s["box"], stroke_color=ACCENT, stroke_width=5) for s in group
+            ])
+            paths = VGroup(*[
+                VMobject(stroke_color=ACCENT, stroke_width=2.5).set_points_as_corners(
+                    list(starmap(land.p, s["points"]))
+                )
+                for s in group
+            ])
+            n_round.set_value(r)
+            self.play(LaggedStart(*[Create(o) for o in outlines], lag_ratio=0.3))
             self.play(
-                Create(path), n_eval.animate.set_value(s["cost"]), run_time=rt * 1.3
+                *[Create(p) for p in paths],
+                n_eval.animate.set_value(group[-1]["cost"]),
+                run_time=2,
             )
-            local = s["points"][int(np.argmin(s["values"]))]
-            dot = Dot(land.p(*local), radius=0.05, color=SOLVED)
-            self.add(dot)
-            n_box.set_value(k + 1)
-            if s["best"] < best_value - 1e-9:
-                best_value = s["best"]
-                best.set_value(best_value)
-                new_star = Star(color=GOOD, fill_opacity=1, outer_radius=0.17).move_to(
-                    land.p(*local)
-                )
-                if star is None:
-                    self.play(FadeIn(new_star, scale=2), run_time=0.5)
-                else:
-                    self.play(
-                        Transform(star, new_star),
-                        Flash(new_star, color=GOOD),
-                        run_time=0.8,
-                    )
-                    new_star = star
-                star = new_star
-            prev = (outline, path)
-            if k == 0:
-                self.say(
-                    "The first box lands in a local valley: eight point nine five.",
-                    2,
-                )
-            if k == 2:
-                self.say(
-                    "None of the next five boxes does better.",
-                    2,
-                )
-            if k == 6:
-                self.say(
-                    "Then, on the seventh box: the global minimum, zero, after a hundred and fifty-four evaluations.",
-                    3,
-                )
-            if k == 8:
-                self.say(
-                    "From here on, the master is checking the remaining candidates before it's willing to stop.",
-                    0.5,
-                )
-        self.play(
-            prev[0].animate.set_stroke(width=0).set_fill(SOLVED, 0.45), FadeOut(prev[1])
+            for s in group:
+                local = s["points"][int(np.argmin(s["values"]))]
+                self.add(Dot(land.p(*local), radius=0.05, color=SOLVED))
+                if s["best"] < best_value - 1e-9:
+                    best_value = s["best"]
+                    incumbent = s["box"]
+                    best.set_value(best_value)
+                    new_star = Star(
+                        color=GOOD, fill_opacity=1, outer_radius=0.17
+                    ).move_to(land.p(*local))
+                    if star is None:
+                        star = new_star
+                        self.play(FadeIn(star, scale=2), run_time=0.5)
+                    else:
+                        self.play(
+                            Transform(star, new_star),
+                            Flash(new_star, color=GOOD),
+                            run_time=0.8,
+                        )
+            n_box.set_value(n_box.get_value() + len(group))
+            best.set_value(best_value)
+            if r in after:
+                self.narrate(after[r])
+            self.hush()
+            self.play(
+                *[
+                    o.animate.set_stroke(width=0).set_fill(SOLVED, 0.45)
+                    for o in outlines
+                ],
+                FadeOut(paths),
+                FadeOut(cross),
+            )
+        self.narrate(
+            "In the next round, no probe finds a box the cuts still consider promising, "
+            "and the run stops: twenty boxes out of a hundred. Solving all hundred would "
+            "have cost three to four times as much."
         )
-        self.say(
-            "Twenty boxes out of a hundred. Solving all hundred would have cost three to four times as much.",
-            3,
-        )
+        self.wait(1)
         self.clear_all()
 
 
