@@ -496,6 +496,8 @@ class Toy:
         bounds = {
             k: self.bound(solved, k, kappa) for k in range(self.M) if k not in solved
         }
+        if not bounds:
+            return None
         k = min(bounds, key=bounds.get)
         return k if bounds[k] < min(self.u[i] for i in solved) - 1e-6 else None
 
@@ -1521,11 +1523,82 @@ class S08Lies(Captioned):
         )
         self.play(FadeIn(found))
         self.hush()
+        self.clear_all()
+
+        # How many boxes the master solves, as kappa grows.
         self.narrate(
-            "Take kappa large enough and every cut is valid again, which gives a "
-            "convergence guarantee. The price: by lowering every cut by a worst-case "
-            "amount, the lower bound sinks, and can no longer certify that the answer "
-            "is optimal."
+            "So is a bigger kappa always safer? Count the boxes the master solves before "
+            "it stops."
+        )
+        rows = VGroup()
+        for row, (value, verdict, color) in enumerate((
+            (0, "stops early: wrong answer", BAD),
+            (60, "finds −39.17", GOOD),
+            (100, "visits every box", ACCENT),
+        )):
+            cells = VGroup(*[
+                Square(0.5, stroke_width=2, color=GREY_B) for _ in range(toy.M)
+            ]).arrange(RIGHT, buff=0.08)
+            cells.move_to(0.9 * LEFT + (1.6 - 1.6 * row) * UP)
+            numbers = VGroup(*[
+                text(str(k + 1), 18, GREY_B).move_to(c) for k, c in enumerate(cells)
+            ])
+            label = MathTex(rf"\kappa = {value}", font_size=36).next_to(
+                cells, LEFT, buff=0.5
+            )
+            note = text(verdict, 26, color).next_to(cells, RIGHT, buff=0.5)
+            group = VGroup(label, cells, numbers, note)
+            rows.add(group)
+        stories = (
+            "With kappa at zero: four boxes, and the wrong answer.",
+            "At sixty: eight boxes, and the right one.",
+            "At a hundred: all ten.",
+        )
+        for (value, *_), group, story in zip(
+            ((0,), (60,), (100,)), rows, stories, strict=True
+        ):
+            label, cells, numbers, note = group
+            solved = [5]
+            while (k := toy.next_box(solved, value)) is not None:
+                solved.append(k)
+            self.narrate(story)
+            self.play(FadeIn(label), Create(cells), FadeIn(numbers), run_time=0.8)
+            self.play(
+                LaggedStart(
+                    *[cells[k].animate.set_fill(YELLOW, 0.8) for k in solved],
+                    lag_ratio=0.4,
+                ),
+                run_time=0.4 * len(solved),
+            )
+            self.play(FadeIn(note))
+            self.hush()
+        self.narrate(
+            "A large kappa makes every box nobody has visited look promising, so the "
+            "master keeps visiting them, until it has visited every single one. That's "
+            "not a search any more. It's enumeration."
+        )
+        self.play(Indicate(rows[2], color=ACCENT))
+        self.hush()
+        scale = (
+            VGroup(
+                text("1 variable, 10 boxes: 10 local solves", 30),
+                text("5 variables, 100 000 boxes: a budget of about 50", 30, BAD),
+            )
+            .arrange(DOWN, buff=0.3)
+            .to_edge(DOWN, buff=0.5)
+        )
+        self.narrate(
+            "Here, that costs ten local solves. With five variables and ten intervals "
+            "each, it would mean a hundred thousand, against a budget of about fifty. "
+            "The exploration never gets anywhere near finishing: the run is cut short, "
+            "or breaks down, long before."
+        )
+        self.play(FadeIn(scale[0]))
+        self.play(FadeIn(scale[1]))
+        self.hush()
+        self.narrate(
+            "Too small, and the cuts lie. Too large, and they stop saying anything. And "
+            "where the useful range lies depends on the problem."
         )
         self.wait(1)
         self.clear_all()
@@ -1535,7 +1608,7 @@ class S09Adaptive(Captioned):
     def construct(self):
         title = text("Adaptive convexification", 38, GOOD).to_edge(UP, buff=0.4)
         self.narrate(
-            "Lowering every cut by a worst-case amount is a blunt instrument. The second fix is more surgical: it only corrects a cut when the data prove it wrong."
+            "Lowering every cut by the same amount is a blunt instrument. The second fix is more surgical: it only corrects a cut when the data prove it wrong."
         )
         self.play(FadeIn(title))
         ax = Axes(
@@ -1664,8 +1737,8 @@ class S09Adaptive(Captioned):
         self.hush()
         comparison = (
             VGroup(
-                text("fixed κ: every cut, by a worst case", 24, BLUE_B),
-                text("valid by construction, weak lower bound", 22, GREY_A),
+                text("fixed κ: every cut, by the same amount", 24, BLUE_B),
+                text("too small: lies; too large: enumeration", 22, GREY_A),
                 text("adaptive δ: only the contradicted cuts", 24, GOOD),
                 text("useful lower bound, no guarantee", 22, GREY_A),
             )
@@ -1673,7 +1746,7 @@ class S09Adaptive(Captioned):
             .move_to(4.3 * RIGHT + 1.6 * DOWN)
         )
         self.narrate(
-            "So, the trade-off. A fixed kappa is valid by construction, but blunt, and the lower bound sinks. The adaptive repair keeps the bound sharp, without a guarantee. In the benchmarks, together with a trust region, it reached the optimum from every starting point."
+            "So, the trade-off. A fixed kappa is blunt: too small and the cuts lie, too large and the master enumerates. The adaptive repair lowers only the cuts the data contradict, so the others keep their full sharpness, without a guarantee. In the benchmarks, together with a trust region, it reached the optimum from every starting point."
         )
         self.play(
             LaggedStart(*[FadeIn(c) for c in comparison], lag_ratio=0.5), run_time=3
@@ -1732,7 +1805,7 @@ class S10Sweep(Captioned):
             .move_to(1.8 * RIGHT + 0.1 * UP)
         )
         self.narrate(
-            "The third fix avoids choosing. Think of kappa as a skepticism dial. Turned down, the master trusts its cuts and proposes boxes near what already looks good. Turned up, it distrusts them and reaches for boxes far away. The master already proposes several boxes per iteration, to be solved in parallel. So give each proposal a different setting of the dial: a ladder, from trusting to skeptical. A setting that proposes a box already solved climbs a rung. And the top of the ladder comes from the data: ten times the spread of the values seen so far."
+            "The third fix avoids choosing. Think of kappa as a skepticism dial. Turned down, the master trusts its cuts and proposes boxes near what already looks good. Turned up, it distrusts them and reaches for boxes far away; turned all the way up, as we saw, it would visit everything. The master already proposes several boxes per iteration, to be solved in parallel. So give each proposal a different setting of the dial: a ladder, from trusting to skeptical. A setting that proposes a box already solved climbs a rung. The top of the ladder comes from the data, ten times the spread of the values seen so far, so the dial never reaches enumeration. And when every rung proposes only boxes already solved, the search stops."
         )
         self.play(FadeIn(expl[:2]))
         self.play(
