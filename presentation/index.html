@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Box subdivision</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&display=swap">
+<style>
+html, body { margin: 0; height: 100%; background: #07090c; overflow: hidden; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
+section { position: absolute; inset: 0; box-sizing: border-box; width: 1920px; height: 1080px; opacity: 0; pointer-events: none; transition: opacity .4s; }
+section.active { opacity: 1; pointer-events: auto; }
+section * { margin: 0; box-sizing: border-box; }
+section table { border-collapse: collapse; }
+section th, section td { padding: .35em .6em; border-bottom: 1px solid #2A313B; }
+section aside { display: none; }
+#notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 30%; overflow: auto; background: rgba(14,17,22,.95); color: #E8E6E1; font: 18px/1.5 'Public Sans', Arial, sans-serif; padding: 16px 24px; display: none; }
+#counter { position: fixed; right: 16px; top: 12px; color: #7F8994; font: 14px Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<p style="font-size:28px;color:#FF9A3C;letter-spacing:4px;text-transform:uppercase">gemseo-box-subdivision</p>
+<h1 style="font-family:'EB Garamond', Georgia, serif;font-size:140px;font-weight:500;line-height:1.05;color:#E8E6E1">Box subdivision</h1>
+<p style="font-size:44px;color:#A9B1BB;line-height:1.3;width:1300px">Choosing where to look in a multimodal landscape, one local solve at a time</p>
+<p style="position:absolute;left:128px;bottom:96px;width:900px;font-size:28px;color:#7F8994">[Presenter name] · [Event, date]</p>
+<aside>Ten minutes. One idea: let each local solve tell the optimizer where to look next. Open with the bracket on the next slide.</aside>
+</section>
+<section id="hook" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">A bracket, and a valley it did not leave</h2>
+<div style="display:flex;gap:64px;align-items:center">
+<img src="media/hook.png" alt="Best design of the cantilever and the best compliance against designs evaluated: MMA plateaus at 84.0, the box subdivision reaches 82.1" style="width:860px;height:680px;object-fit:contain;background:#14181E;border-radius:12px">
+<div style="flex:1;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:120px;line-height:1;color:#7FC4E8">84.0</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">gradient-based optimizer (MMA) from a sensible start: walks downhill, then stops</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:120px;line-height:1;color:#FF9A3C">82.1</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">box subdivision on the same problem (compliance, lower is stiffer)</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">2 / 14 · short cantilever of the GGP package, 18 bars, 108 variables</p>
+<aside>A bracket designed by a computer: eighteen bars, as stiff as possible for a fixed amount of material. The blue run is a standard gradient-based optimizer from a sensible start: it improves fast and stops at 84. Nothing went wrong: it did what it is built to do, walk downhill until nothing nearby is lower. The landscape has many valleys, and downhill only finds the one you started in. The method of this talk reaches 82.1.</aside>
+</section>
+<section id="local" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">A local solver finds the valley it starts in</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/local.mp4" poster="media/local.jpg" aria-label="Balls rolling down a one-dimensional Rastrigin function into different valleys; only the middle one reaches the global minimum" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Released at 3.35, the ball settles at <span style="color:#F2D06B">8.95</span>.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Only a start in the middle valley reaches <span style="color:#5FD38D">0</span>.</p>
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.2;color:#E8E6E1">Going downhill is easy. Choosing where to start is not.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">3 / 14 · Rastrigin in one variable</p>
+<aside>Shrink the problem to one variable. A gradient-based local solver is a ball released on this curve: it rolls to the bottom of its valley, very efficiently. Release it elsewhere, it settles elsewhere. Only from the middle valley does it find zero. So the hard part is not going downhill, it is choosing where to start.</aside>
+</section>
+<section id="baselines" data-transition="fade" style="background:#161B22;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">Where the usual methods spend their evaluations</h2>
+<img src="media/baselines3.png" alt="Points evaluated on Rastrigin in two dimensions by multistart (273), CMA-ES (403) and DIRECT (401)" style="width:1664px;height:586px;object-fit:contain;background:#14181E;border-radius:12px">
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.2">A local solve with gradients is rich information. <span style="color:#FF9A3C">Can it tell us where to solve next?</span></p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">4 / 14 · Rastrigin 2D, budget of 400 equivalent evaluations</p>
+<aside>Same function, same budget. Multistart: random starts, a local solve from each; robust, but every start is independent, the 50th learns nothing from the first 49. CMA-ES: a Gaussian cloud moved and reshaped toward the better half, no gradients; it commits to one region. DIRECT: keeps splitting the rectangles that could hold the minimum; thorough in 2D, explodes with dimension. Not shown: Bayesian optimization, which models every point and is very economical with evaluations, at the cost of an expensive model. The question for the rest of the talk: can each local solve tell us where the next one should go?</aside>
+</section>
+<section id="boxes" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">From “where to start?” to “which box?”</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/boxes.mp4" poster="media/boxes.jpg" aria-label="Styblinski-Tang in one variable cut into ten boxes; the solver runs inside each box and each box becomes one value" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Cut each axis into intervals. Solve only inside one box at a time.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">A box is named by one row of switches per axis.</p>
+<div style="display:flex;flex-direction:column;gap:4px">
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:72px;line-height:1;color:#FF7A6B">100 000</p>
+<p style="font-size:24px;color:#A9B1BB">boxes in 5 variables</p>
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:72px;line-height:1;color:#5FD38D">50</p>
+<p style="font-size:24px;color:#A9B1BB">switches: they add, boxes multiply</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">5 / 14 · ten intervals per variable</p>
+<aside>The key move. Chop the range into boxes; the local solver may only run inside one box. Whatever it ends on is the best value of that box, u of the box. The curve becomes a list of ten numbers: “where should I start?” becomes “which box?”, the smallest entry of a list where reading an entry costs one local solve. To name a box, one question per axis: which interval, one row of switches with one switch on. Boxes multiply with the dimension, switches add up: 100 000 boxes but only 50 switches in five dimensions. The method never lists boxes; it works with switches.</aside>
+</section>
+<section id="multipliers" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">Each solve also says which way is downhill</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/multipliers.mp4" poster="media/multipliers.jpg" aria-label="Box 6: the solution presses on its right wall with multiplier 12.4; sliding the wall lowers the value. Box 8: interior solution, multiplier zero" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Pressed on a wall: the ground keeps going down beyond it. <span style="color:#FF7A6B">λ = 12.4</span></p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">At a valley bottom: walls don’t matter. <span style="color:#5FD38D">λ = 0</span></p>
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.2">A value and a slope, for free.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">6 / 14 · du/d(wall) = −λ, from the post-optimal analysis</p>
+<aside>The ingredient that makes it work. In box six the lowest reachable point is pressed against the right wall: the ground keeps going down beyond it, and the Lagrange multiplier of that wall says how fast the value would drop if the wall moved. Slide the wall and the value drops at that rate. In box eight the solution sits at a valley bottom: moving a wall changes nothing, multiplier zero. So each solve gives a value and a slope, as a by-product of solving the box.</aside>
+</section>
+<section id="cuts" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">Cuts: a master that reasons with every solve</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/cuts.mp4" poster="media/cuts.jpg" aria-label="Ten boxes along an axis; each solved box draws a cut line, the master picks the box with the lowest bound: boxes 6, 10, 9, 8, then stops at minus 25.03" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Value + slope = a line of predictions: a <span style="color:#7FC4E8">cut</span>.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Bound of a box = its highest prediction. Solve the box with the lowest <span style="color:#F2D06B">bound</span>.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Boxes 6, 10, 9, 8, then stop at −25.03.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">7 / 14 · outer approximation (Duran &amp; Grossmann, 1986)</p>
+<aside>Put the ten boxes side by side. A value and a slope draw a line through the other boxes: a guess of what each is worth, called a cut. It is meant as a lower bound. The master takes, for each unsolved box, the highest prediction, and solves the box whose bound is lowest. Box 6 slopes down to the right, so box 10: seventeen, worse than predicted, but its cut says the left is better. Then 9, then 8: minus 25.03, a valley bottom with a flat cut. Every remaining bound is above minus 25: the master stops. This is outer approximation; for a convex problem a cut never overestimates, so this is exact.</aside>
+</section>
+<section id="lies" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">On a non-convex landscape, cuts lie</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/kappa.mp4" poster="media/kappa.jpg" aria-label="The unvisited boxes revealed: box 2 holds minus 39.17; lowering every cut by kappa equals 60 lets the master continue and find minus 39.17" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Box 2 held <span style="color:#FF7A6B">−39.17</span>. Box 6’s cut claimed at least 43.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Converged, no error, wrong.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Fix: lower every cut by <span style="color:#7FC4E8">κ</span> away from its own box. κ = 60 finds <span style="color:#5FD38D">−39.17</span>.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">8 / 14 · convexification term κ α(α − 1): zero at every real box</p>
+<aside>Our landscape is far from convex. Reveal what the master never looked at: box 2 holds minus 39.17, the global minimum. It was ruled out because box 6’s cut, extrapolated left, claimed at least 43, and box 8’s flat cut said nothing could beat minus 25. Confidently wrong, no error. Not contrived: with the default settings no benchmark run found the optimum, and all reported success. First fix: lower each cut by kappa away from its own box. It is a convex term, kappa times alpha times alpha minus one per switch, zero at every real box, so only the cuts change. At kappa equals 60 the master continues: boxes 7, 5, 4, 3, and minus 39.17.</aside>
+</section>
+<section id="dilemma" data-transition="fade" style="background:#161B22;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">Fixed κ: too small lies, too large enumerates</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/dilemma.mp4" poster="media/dilemma.jpg" aria-label="Boxes solved before stopping: kappa 0, four boxes and the wrong answer; kappa 60, eight boxes and the optimum; kappa 100, all ten boxes" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">κ = 0: 4 boxes, <span style="color:#FF7A6B">wrong</span>.<br>κ = 60: 8 boxes, <span style="color:#5FD38D">right</span>.<br>κ = 100: <span style="color:#FF9A3C">all 10</span>.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">In 5D: 100 000 boxes for a budget of about 50 solves.</p>
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.2">The run ends long before the exploration does.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">9 / 14 · and the useful range of κ depends on the problem</p>
+<aside>Is a bigger kappa always safer? Count the boxes the master solves before it stops. At zero: four boxes, wrong answer. At sixty: eight, right answer. At a hundred: all ten. A large kappa makes every unvisited box look promising, so the master visits them all: that is enumeration, not search. Here it costs ten solves; in five variables with ten intervals each it would be a hundred thousand against a budget of about fifty, so the run is cut short, or breaks down, long before the exploration finishes. Too small and the cuts lie, too large and they say nothing, and where the useful range lies depends on the problem.</aside>
+</section>
+<section id="fixes" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">Correct only what the data contradict</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/adaptive.mp4" poster="media/adaptive.jpg" aria-label="Adaptive repair: the cuts from A and B overshoot observed values and their slopes are pulled back; the cut from C is kept; an unvisited box D can still be cut off" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#5FD38D">Adaptive repair</h3>
+<p style="font-size:28px;color:#A9B1BB;line-height:1.35">Each cut must pass δ below every observed value; violated slopes are fixed by least squares. Sharp bound, no guarantee.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#FF9A3C">Swept convexity</h3>
+<p style="font-size:28px;color:#A9B1BB;line-height:1.35">One κ per parallel probe, a ladder from trusting to skeptical, its top set by the data. Nothing to tune.</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">10 / 14 · the sweep reached the optimum on Rastrigin and Ackley from every start</p>
+<aside>A fixed kappa is blunt. The adaptive repair only corrects a cut when the data prove it wrong: a cut is a lower bound, so if the cut from A predicts more than we measured at B, it is wrong. Every cut must pass a margin delta below every observed value; violated slopes are pulled back by least squares, the others keep their sharpness. Its limit: it only checks visited boxes, so an unvisited box like D can still be cut off. Both kappa and delta are in the units of f: 100 works on Rastrigin (range about 80) and is the worst value on Ackley (about 22). The sweep avoids choosing: one kappa per parallel probe, a ladder from trusting to skeptical, bounded by ten times the spread of the values seen, so it never reaches enumeration. With no tuning it reached the optimum from every start on both.</aside>
+</section>
+<section id="run" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">A real run: four probes per round</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/run.mp4" poster="media/run.jpg" aria-label="Rastrigin 2D, 100 boxes: an initial design of four boxes, then rounds of four probes along the row and column of the best box plus one jump; 20 boxes solved" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#0E1116;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Round 0: no cuts yet, an initial design of 4 boxes.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35">Then 3 probes on the row or column of the best box, 1 jump.</p>
+<p style="font-size:32px;color:#A9B1BB;line-height:1.35"><span style="color:#5FD38D">0</span> after 154 evaluations; 20 of 100 boxes.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">11 / 14 · default settings: adaptive repair, trust region of 2, 4 parallel probes</p>
+<aside>The real method on Rastrigin 2D with default settings: adaptive repair, a trust region of two, and four probes, so each round the master proposes four boxes solved in parallel. Round zero has no cuts: the starting box plus three boxes from a Latin hypercube, which is why they go everywhere; the best is the starting box at 8.95. Then each probe solves the master with its own trust region: three may change only one coordinate and stay on the row or column of the best box, the fourth may change both and jumps. The third probe of round one finds zero after 154 evaluations. In the next round no probe finds a promising box and the run stops: 20 boxes out of 100, three to four times cheaper than solving them all.</aside>
+</section>
+<section id="scorecard" data-transition="fade" style="background:#161B22;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">Five variables, 2500 evaluations, five starts</h2>
+<table style="font-family:'Public Sans', Arial, sans-serif;font-size:32px;color:#A9B1BB">
+<tr><th style="width:24%;text-align:left;color:#E8E6E1">runs reaching the optimum</th><th style="width:19%;text-align:center;color:#FF9A3C">box subdivision</th><th style="width:19%;text-align:center;color:#7FC4E8">multistart</th><th style="width:19%;text-align:center;color:#5FD38D">CMA-ES</th><th style="width:19%;text-align:center;color:#E8E6E1">DIRECT</th></tr>
+<tr><td style="color:#E8E6E1">Styblinski-Tang</td><td style="color:#5FD38D">5/5 · 789</td><td>5/5 · 2340</td><td>3/5 · 1401</td><td>5/5 · 2505</td></tr>
+<tr><td style="color:#E8E6E1">Rastrigin</td><td style="color:#5FD38D">all*</td><td>0/5</td><td>0/5</td><td>0/5</td></tr>
+<tr><td style="color:#E8E6E1">Ackley</td><td>3/5</td><td>0/5</td><td style="color:#5FD38D">5/5 · 2001</td><td>0/5</td></tr>
+<tr><td style="color:#E8E6E1">Griewank</td><td>0/5</td><td>0/5</td><td>0/5</td><td>0/5</td></tr>
+</table>
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.2">It wins when the grid separates the valleys, and loses when it doesn’t.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">12 / 14 · cell: runs reaching the optimum · evaluations · * ten intervals per axis (README); the comparison table’s variant: 2/5</p>
+<aside>Five variables, 2500 evaluations, a gradient counted as one evaluation (an adjoint), five starts per problem. Styblinski-Tang, well-separated valleys, is home turf: every run, 789 evaluations, about three times fewer than multistart or DIRECT. On Rastrigin no baseline reaches the optimum; the box subdivision does with ten intervals per axis, the 100 000-box grid that costs 50 switches. Ackley turns the tables: its single valley is wider than any box, and CMA-ES, which follows the overall shape, wins. Griewank defeats everyone. With only 500 evaluations in total, Bayesian optimization does better on the hardest problems, at about a hundred times the computing time.</aside>
+</section>
+<section id="cantilever" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">Back to the bracket</h2>
+<div style="display:flex;gap:48px;align-items:center">
+<video src="media/cantilever.mp4" poster="media/cantilever.jpg" aria-label="The cantilever run round by round: nine boxes per round during their local solutions, the best feasible design so far, and its compliance against designs evaluated, compared with MMA" muted loop playsinline style="width:1184px;height:666px;object-fit:contain;background:#14181E;border:1px solid #2A313B;border-radius:12px"></video>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:28px;color:#A9B1BB;line-height:1.35">108 variables; each bar’s pose cut in 10: 540 switches. 9 boxes per round, MMA inside each.</p>
+<table style="font-size:28px;color:#A9B1BB">
+<tr><th style="width:62%;text-align:left">method</th><th style="width:38%;text-align:right">C</th></tr>
+<tr><td>MMA</td><td style="color:#7FC4E8">84.0</td></tr>
+<tr><td>multistart of MMA, 63</td><td>83.0</td></tr>
+<tr><td style="color:#FF9A3C">box subdivision</td><td style="color:#FF9A3C">82.1</td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">13 / 14 · comparable number of designs; about half the wall time of the multistart</p>
+<aside>Back to the bracket: eighteen bars with a position, an angle, a length, a thickness and a density, 108 variables, with an adjoint gradient. Only where each bar sits and how it is turned is subdivided, ten intervals each: 540 switches. Length, thickness and density stay continuous and are optimized by MMA inside each box. Nine boxes per round in parallel. MMA from the initial design reaches 84, the symmetric design of the paper. The box subdivision improves on it in its first box and reaches 82.1 in its 32nd box. A multistart of MMA from 63 designs reaches 83, in about twice the wall time.</aside>
+</section>
+<section id="takeaways" data-transition="fade" style="background:#0E1116;color:#E8E6E1;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'EB Garamond', Georgia, serif;font-size:72px;font-weight:500;line-height:1.1">The idea in three lines</h2>
+<div style="display:flex;flex-direction:column;gap:28px">
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.25"><span style="color:#FF9A3C">1.</span> Turn “where should I look?” into a discrete choice of box.</p>
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.25"><span style="color:#FF9A3C">2.</span> Let each local solve vote, through its multipliers, on where to look next.</p>
+<p style="font-family:'EB Garamond', Georgia, serif;font-size:44px;line-height:1.25"><span style="color:#FF9A3C">3.</span> Keep the votes honest: repair or sweep, never a fixed κ.</p>
+</div>
+<div style="display:flex;gap:24px">
+<p style="flex:1;font-size:26px;color:#A9B1BB;line-height:1.35;background:#161B22;padding:24px;border-radius:12px">Only some variables bumpy: subdivide those.</p>
+<p style="flex:1;font-size:26px;color:#A9B1BB;line-height:1.35;background:#161B22;padding:24px;border-radius:12px">Grid density: count valleys on random line scans.</p>
+<p style="flex:1;font-size:26px;color:#A9B1BB;line-height:1.35;background:#161B22;padding:24px;border-radius:12px">One valley too wide: zoom with hierarchies.</p>
+<p style="flex:1;font-size:26px;color:#A9B1BB;line-height:1.35;background:#161B22;padding:24px;border-radius:12px">Zoom without forgetting: digits in one master.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F8994">14 / 14 · pip install gemseo-box-subdivision · simoneconiglio.github.io/gemseo-box-subdivision</p>
+<aside>So: turn the question of where to look into a discrete choice; let each local solve vote, through its multipliers, on where to look next; and protect those votes from the non-convexity that would make them lie. When the grid matches the valleys, it beats starting at random. When it does not, the variants answer the usual failures: subdivide only the bumpy variables, set the density by counting valleys, zoom when one valley is too wide, and keep the zoom in one master with multi-resolution digits. It is available as a GEMSEO plugin.</aside>
+</section>
+</div>
+<div id="notes"></div>
+<div id="counter"></div>
+<script>
+// Arrows, space or a click move between slides; N shows the speaker notes,
+// F toggles full screen. The clip of the current slide plays, looping.
+const slides = [...document.querySelectorAll("#stage > section")];
+const stage = document.getElementById("stage");
+const notes = document.getElementById("notes");
+const counter = document.getElementById("counter");
+let current = Math.max(0, Math.min(slides.length - 1, parseInt(location.hash.slice(1) || "1") - 1));
+function fit() {
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
+}
+function show(i) {
+  current = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((slide, k) => {
+    slide.classList.toggle("active", k === current);
+    slide.querySelectorAll("video").forEach(v => {
+      if (k === current) { v.currentTime = 0; v.play().catch(() => {}); } else v.pause();
+    });
+  });
+  const aside = slides[current].querySelector("aside");
+  notes.textContent = aside ? aside.textContent : "";
+  counter.textContent = `${current + 1} / ${slides.length}`;
+  history.replaceState(null, "", "#" + (current + 1));
+}
+addEventListener("resize", fit);
+addEventListener("keydown", e => {
+  if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) show(current + 1);
+  else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key)) show(current - 1);
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(slides.length - 1);
+  else if (e.key === "n" || e.key === "N") notes.style.display = notes.style.display === "block" ? "none" : "block";
+  else if (e.key === "f" || e.key === "F") document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+});
+addEventListener("click", e => { if (e.target.tagName !== "VIDEO") show(current + (e.clientX < innerWidth / 3 ? -1 : 1)); });
+fit();
+show(current);
+</script>
+</body>
+</html>
