@@ -140,7 +140,7 @@ expensive objective, for which the cost of fitting a surrogate is negligible and
 a few hundred evaluations make up the whole budget. A comparison at equal
 numbers of evaluations on analytic problems does not account for the cost of the
 method itself, which dominates on these problems: a run of $500$ evaluations
-takes about two and a half minutes, against three seconds for the box
+takes one to four minutes on most problems, against about a second for the box
 subdivision. For an expensive objective this ratio is reversed; the benchmark
 does not measure this case.
 
@@ -153,11 +153,11 @@ optimized for its centered discrepancy and kept below half the budget. The rest
 of the budget enriches it one point per iteration, so that the surrogate model
 drives most of the search.
 
-EGO has its own stopping criterion, which is reached in practice: on
-Styblinski-Tang the expected improvement vanishes once the Gaussian process
-models the landscape, and the run terminates after $29$ of the $500$ allowed
-evaluations, at a distance of $0.286$ from the optimum. A cost below the budget
-therefore indicates termination on this criterion.
+SEGO also has its own stopping criterion, a vanishing expected improvement. It
+was reached on Styblinski-Tang with the larger initial design of five points per
+variable drawn by `egobox` itself, after $29$ evaluations at a distance of
+$0.286$ from the optimum; from the space-filling design of four points per
+variable, every run spends its whole budget and reaches that optimum.
 
 ## Summary of the methods
 

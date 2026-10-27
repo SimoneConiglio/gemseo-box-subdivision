@@ -26,6 +26,22 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- The Bayesian-optimization baseline is named **SEGO**, the super efficient
+  global optimization of Sasena (2002) that `egobox` implements, rather than
+  EGO, which it extends to constraints modeled by surrogates.
+- SEGO starts from a **space-filling initial design of four points per
+  variable**, a Latin hypercube optimized for its centered discrepancy, and
+  spends the rest of its budget on enrichment iterations; it was given five
+  points per variable drawn by `egobox` itself. Its data profiles, the
+  comparison at $500$ evaluations and the text drawn from them are rerun: it
+  now reaches the optimum of Styblinski-Tang from every start in two and five
+  variables, and of Griewank in two from one, but is behind DIRECT on Rastrigin
+  in five variables, $5.97$ against $4.98$.
+
 ## 0.3.0 (2026-10-03)
 
 ### Added

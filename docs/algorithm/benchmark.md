@@ -504,9 +504,9 @@ python docs/figures.py variant_profiles data_profiles results
 
 The comparison above gives each method $500$ equivalent evaluations per
 variable, which is large for industrial applications, and excludes Bayesian
-optimization, whose cost per iteration is cubic in the number of points: an EGO
-run of $500$ evaluations takes about two and a half minutes on the test machine,
-against three seconds for the box subdivision. At larger budgets the comparison
+optimization, whose cost per iteration is cubic in the number of points: a SEGO
+run of $500$ evaluations takes one to four minutes on most problems on the test
+machine, against about a second for the box subdivision. At larger budgets the comparison
 would measure the overhead of the surrogate rather than the quality of the
 method.
 
@@ -520,21 +520,21 @@ setting. The calibrated configuration gives the same distances on all rows and
 differs only in the number of starting points: $2/3$ instead of $3/3$ on Ackley
 in two dimensions and on Styblinski-Tang in five.
 
-| problem | $n$ | box subdivision, swept | multistart | CMA-ES | DIRECT | EGO |
+| problem | $n$ | box subdivision, swept | multistart | CMA-ES | DIRECT | SEGO |
 |---------|-----|------------------------|------------|--------|--------|-----|
 | Rastrigin | 2 | $0.00$ · 3/3 · 457 | $0.00$ · 2/3 | $1.00$ | $0.00$ · 3/3 | $0.00$ · 2/3 |
-| Ackley | 2 | $0.00$ · 3/3 | $9.58$ | $0.00$ · 3/3 | $0.00$ · 3/3 | $0.32$ |
-| Styblinski-Tang | 2 | $0.00$ · 3/3 · 334 | $0.00$ · 3/3 | $0.00$ · 2/3 | $0.00$ · 3/3 | $0.29$ · 29‡ |
-| Griewank | 2 | $0.007$ | $0.067$ | $0.048$ | $0.009$ | $0.008$ |
-| Rastrigin | 5 | $8.57$ | $9.95$ | $11.20$ | $4.98$ | $1.99$ |
-| Ackley | 5 | $14.43$ | $17.06$ | $0.05$ | $0.11$ | $2.90$ |
-| Styblinski-Tang | 5 | $0.00$ · 3/3 | $14.14$ · 1/3 | $0.003$ | $0.00$ · 3/3 | $0.14$ · 219‡ |
-| Griewank | 5 | $0.061$ | $0.096$ | $0.381$ | $0.011$ | $0.104$ |
+| Ackley | 2 | $0.00$ · 3/3 | $9.58$ | $0.00$ · 3/3 | $0.00$ · 3/3 | $0.44$ |
+| Styblinski-Tang | 2 | $0.00$ · 3/3 · 334 | $0.00$ · 3/3 | $0.00$ · 2/3 | $0.00$ · 3/3 | $0.00$ · 3/3 |
+| Griewank | 2 | $0.007$ | $0.067$ | $0.020$ | $0.009$ | $0.002$ · 1/3 |
+| Rastrigin | 5 | $8.57$ | $9.95$ | $11.20$ | $4.98$ | $5.97$ |
+| Ackley | 5 | $14.43$ | $17.06$ | $0.05$ | $0.11$ | $4.96$ |
+| Styblinski-Tang | 5 | $0.00$ · 3/3 | $14.14$ · 1/3 | $0.003$ | $0.00$ · 3/3 | $0.00$ · 3/3 |
+| Griewank | 5 | $0.061$ | $0.096$ | $0.381$ | $0.011$ | $0.111$ |
 
 *Table 8. Median distance to the optimum and number of starting points reaching
 it at a budget of $500$ evaluations; a third number is the cost of a run that
-terminated before the budget. ‡ EGO terminated on its own criterion after $29$
-and $219$ evaluations, its expected improvement having vanished.*
+terminated before the budget. SEGO starts from a Latin hypercube of four points
+per variable and spends the rest of the budget on enrichment iterations.*
 
 ```{image} ../_static/figures/small_budget.svg
 :class: only-light
@@ -552,14 +552,16 @@ time depends on the machine, so that a configuration timed elsewhere cannot be
 added. The two configurations differ in the top row only in the two cells
 mentioned above.*
 
-At this budget EGO obtains the smallest distance on the hardest multimodal
-case, Rastrigin in five dimensions, $1.99$ against $4.98$ for DIRECT and $8.57$
-for the box subdivision, and on Griewank in two dimensions. With few
-evaluations and many basins, a surrogate model built on the whole history is
-more effective than the methods that do not reuse it. Its own computation time
-is, however, about a hundred times larger, $444$ seconds against $3$ for the box
-subdivision on the same problem, and is not counted in Table 8; it becomes
-negligible only for an objective that is expensive to evaluate.
+At this budget SEGO obtains the smallest distance on Griewank in two dimensions,
+$0.002$ against $0.007$ for the box subdivision, reaching the optimum from one
+starting point, and reaches the optimum of Styblinski-Tang from all starting
+points in both dimensions. On the hardest multimodal case, Rastrigin in five
+dimensions, it obtains $5.97$, behind DIRECT ($4.98$) and ahead of the box
+subdivision ($8.57$); on Ackley in five dimensions it is behind CMA-ES and
+DIRECT. Its own computation time is two orders of magnitude larger, $144$
+seconds per run against $0.5$ for the box subdivision on Rastrigin in five
+dimensions, and is not counted in Table 8; it becomes negligible only for an
+objective that is expensive to evaluate.
 
 The box subdivision reaches the optimum of Styblinski-Tang in two dimensions
 after $334$ evaluations, terminating on its own criterion. In five dimensions it
