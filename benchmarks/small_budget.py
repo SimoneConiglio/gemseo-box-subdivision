@@ -15,7 +15,7 @@
 """The five methods at a budget every one of them can afford.
 
 The benchmark's budgets, 500 equivalent evaluations per variable, are far outside
-the regime Bayesian optimization is built for: EGO refits a Gaussian process at
+the regime Bayesian optimization is built for: SEGO refits a Gaussian process at
 every iteration, at a cost cubic in the number of points. One run of five
 hundred evaluations
 takes some two and a half minutes against three seconds for the box

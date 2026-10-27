@@ -14,7 +14,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """Check the histories the data profiles read, and the profiles themselves.
 
-The full study is :mod:`benchmarks.data_profiles`, which takes hours for EGO;
+The full study is :mod:`benchmarks.data_profiles`, which takes hours for SEGO;
 these run the fast methods on two problems, which is enough to check that a
 history counts what the budget counts, that a profile is a fraction of the
 targets, and that a variant charges what it spends.

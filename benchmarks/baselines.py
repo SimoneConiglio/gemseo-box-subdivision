@@ -115,8 +115,8 @@ METHODS = (
 """The methods compared."""
 
 
-N_DOE_PER_VARIABLE = 5
-"""The size of the initial design of experiments of EGO, per design variable."""
+N_DOE_PER_VARIABLE = 4
+"""The size of the initial design of experiments of SEGO, per design variable."""
 
 
 class BudgetExceededError(Exception):
@@ -495,30 +495,37 @@ def run_direct(
 def run_egobox(
     problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
 ) -> Result:
-    """Run EGO, the Bayesian optimization of `egobox`.
+    """Run SEGO, the Bayesian optimization of `egobox`.
 
-    This is the baseline of the regime the method targets: a surrogate is fitted
-    to every point evaluated so far and the next point is chosen by maximizing an
-    expected improvement over it, which is worth its own cost only when an
-    evaluation is expensive. It is therefore the one baseline whose comparison at
-    equal *evaluations* flatters it least on these analytic problems and most on
-    the industrial case the method is built for.
+    `egobox` implements the super efficient global optimization of Sasena (2002),
+    an extension of EGO to constraints modeled by surrogates; the problems here
+    being unconstrained, it reduces to EGO with a logarithmic expected
+    improvement. This is the baseline of the regime the method targets: a
+    surrogate is fitted to every point evaluated so far and the next point is
+    chosen by maximizing an expected improvement over it, which is worth its own
+    cost only when an evaluation is expensive. It is therefore the one baseline
+    whose comparison at equal *evaluations* flatters it least on these analytic
+    problems and most on the industrial case the method is built for.
 
-    Its budget is enforced natively and exactly: the number of calls is
-    ``n_doe + max_iters``, since the batch size is one. Raising from its objective
-    is not an option, the optimizer being a Rust extension.
+    The run starts from a small space-filling design, a Latin hypercube of
+    :data:`.N_DOE_PER_VARIABLE` points per variable optimized for its centered
+    discrepancy, and spends the rest of the budget on enrichment iterations of
+    one point each, so that its budget is enforced natively and exactly: the
+    number of calls is ``n_doe + max_iters``. Raising from its objective is not
+    an option, the optimizer being a Rust extension.
 
     Args:
         problem: The problem.
         dimension: The number of design variables.
         seed: The seed of the initial design of experiments.
         budget: The budget in objective evaluations.
-        adjoint: Unused, EGO using no gradient.
+        adjoint: Unused, SEGO using no gradient.
 
     Returns:
         The outcome of the run.
     """
     import egobox as egx  # noqa: PLC0415
+    from scipy.stats.qmc import LatinHypercube  # noqa: PLC0415
 
     counter = Counter(problem)
 
@@ -526,14 +533,18 @@ def run_egobox(
         """Return the objective at each row, as `egobox` expects it."""
         return array([counter.objective(row) for row in x]).reshape(-1, 1)
 
-    # The usual rule of thumb for the initial design, kept below half the budget
-    # so that the surrogate is actually used rather than merely fitted.
+    # A small initial design, kept below half the budget so that most of it goes
+    # to the enrichment by the surrogate rather than to the sampling.
     n_doe = max(2, min(N_DOE_PER_VARIABLE * dimension, budget // 2))
+    unit_doe = LatinHypercube(d=dimension, optimization="random-cd", seed=seed).random(
+        n_doe
+    )
+    x_doe = problem.lower_bound + (problem.upper_bound - problem.lower_bound) * unit_doe
     specs = [
         egx.XSpec(egx.XType.FLOAT, [problem.lower_bound, problem.upper_bound])
     ] * dimension
     with suppress(BudgetExceededError):
-        egx.Egor(specs, n_doe=n_doe).minimize(
+        egx.Egor(specs, x_doe=x_doe).minimize(
             objective, max_iters=max(1, budget - n_doe), seed=seed
         )
 

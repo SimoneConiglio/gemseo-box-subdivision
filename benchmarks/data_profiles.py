@@ -30,7 +30,7 @@ swept configuration, and then the **best of them** against the baselines of
 histories of every run of a dimension, so a curve means the same thing in both.
 
 The budget is that of the main comparison, $500$ equivalent evaluations per
-variable, except for EGO, whose surrogate makes a run of that length cost hours:
+variable, except for SEGO, whose surrogate makes a run of that length cost hours:
 it is given the $500$ evaluations of :mod:`benchmarks.small_budget` and its
 curve ends there.
 
@@ -41,7 +41,7 @@ since it runs the algorithms of a GEMSEO optimization library on a GEMSEO
 problem, and neither the method, which is a scenario, nor the baselines run
 outside GEMSEO are such algorithms.
 
-The study takes a few hours, EGO accounting for nearly all of it. It spreads the
+The study takes a few hours, SEGO accounting for nearly all of it. It spreads the
 runs over the processors, keeps each finished run in :data:`.CACHE` so that an
 interrupted study resumes where it stopped, and writes the profiles next to the
 figures, which ``docs/figures.py`` then draws:
@@ -81,7 +81,7 @@ BUDGET_PER_VARIABLE = 500
 """The budget in equivalent evaluations per variable, that of the main table."""
 
 EGO_BUDGET = 500
-"""The budget of EGO, that of :mod:`benchmarks.small_budget`."""
+"""The budget of SEGO, that of :mod:`benchmarks.small_budget`."""
 
 DIMENSIONS = (2, 5)
 """The numbers of design variables, one set of profiles each."""
@@ -157,7 +157,7 @@ def budget_of(method: str, dimension: int) -> int:
 def _single_threaded() -> None:
     """Keep a worker process to one thread.
 
-    EGO fits its surrogate over a thread pool of its own, so that one pool per
+    SEGO fits its surrogate over a thread pool of its own, so that one pool per
     process oversubscribes the processors the runs are already spread over.
     """
     for name in ("RAYON_NUM_THREADS", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
