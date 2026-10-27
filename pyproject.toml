@@ -32,7 +32,7 @@ dependencies = [
 benchmark = [
     # CMA-ES, one of the baselines; DIRECT comes with SciPy.
     "cma >=4,<5",
-    # EGO, the Bayesian-optimization baseline.
+    # SEGO, the Bayesian-optimization baseline.
     "egobox >=0.37,<1",
     "gemseo-benchmark >=4,<5",
 ]

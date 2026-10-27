@@ -28,7 +28,7 @@ conda-forge. None of this runs in the test suite.
     the box-subdivision and MMA runs from a trivial start: the preset's bar
     poses, the length, the thickness and the density at mid-range.
 ``global_baselines.py``
-    DIRECT, CMA-ES, EGO and a multistart of MMA from the same start, each
+    DIRECT, CMA-ES, SEGO and a multistart of MMA from the same start, each
     solve logged so that a run cut short resumes.
 ``record_box.py``
     the box-subdivision run again, keeping every design, for the animation.

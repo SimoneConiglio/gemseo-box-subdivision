@@ -131,7 +131,7 @@ METHOD_LABELS = (
     "multistart",
     "CMA-ES",
     "DIRECT",
-    "EGO",
+    "SEGO",
 )
 """The methods, in the order their hues are assigned."""
 
@@ -1274,7 +1274,7 @@ BASELINE_LABELS = {
     "multistart": "multistart",
     "cmaes": "CMA-ES",
     "direct": "DIRECT",
-    "egobox": "EGO",
+    "egobox": "SEGO",
 }
 """The label of each baseline of the data profiles."""
 
@@ -1428,7 +1428,7 @@ def draw_data_profiles(foreground: str):
         )
         for hue, (name, label) in zip(hues[1:], BASELINE_LABELS.items(), strict=True):
             _plot_profile(axes, profiles[name], color=hue, label=label)
-            # EGO's budget is shorter, so its curve is marked where it was
+            # SEGO's budget is shorter, so its curve is marked where it was
             # stopped rather than extended as if it had finished.
             end, ratio = profiles[name][-1]
             if end < entry["budget"]:

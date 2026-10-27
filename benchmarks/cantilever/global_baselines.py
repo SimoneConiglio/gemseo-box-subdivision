@@ -21,7 +21,7 @@ the length, the thickness and the density at the middle of their ranges.
     python global_baselines.py direct|cmaes|egobox|multistart [--budget N]
 
 Every FE solve is recorded, and the best *feasible* compliance is reported, as
-the box runs do. DIRECT, CMA-ES and EGO take no gradient, so a design is one
+the box runs do. DIRECT, CMA-ES and SEGO take no gradient, so a design is one
 solve; the multistart runs MMA, which solves twice per design.
 """
 
@@ -187,7 +187,7 @@ def initial_design(x0: np.ndarray, seed: int) -> np.ndarray:
 
 
 def run_egobox(problem: Problem, seed: int) -> str:
-    """Run EGO with a KPLS surrogate, the volume as a modeled constraint."""
+    """Run SEGO with a KPLS surrogate, the volume as a modeled constraint."""
     max_iters = problem.budget
     import egobox as egx
 
@@ -211,7 +211,7 @@ def run_egobox(problem: Problem, seed: int) -> str:
             outdir=str(OUT / "egobox_checkpoint"),
             hot_start=0,
         )
-    return f"EGO (KPLS 3), {max_iters} iterations"
+    return f"SEGO (KPLS 3), {max_iters} iterations"
 
 
 def run_multistart(problem: Problem, seed: int, max_iter: int = 1800) -> str:
@@ -459,13 +459,13 @@ def main() -> None:
         "--budget",
         type=int,
         default=12325,
-        help="designs; for EGO, its iterations (600 in the study)",
+        help="designs; for SEGO, its iterations (600 in the study)",
     )
     parser.add_argument("--seed", type=int, default=1)
     args = parser.parse_args()
 
     # The derivative-free methods are stopped at the budget in solves, which is
-    # a design each; EGO by its iterations and MMA by its designs, so for those
+    # a design each; SEGO by its iterations and MMA by its designs, so for those
     # two the cap only guards against a runaway.
     guard = args.budget if args.method in ("direct", "cmaes") else 10**7
     problem = Problem(guard)

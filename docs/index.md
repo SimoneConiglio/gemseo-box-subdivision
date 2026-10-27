@@ -55,7 +55,7 @@ settings.
 :link-type: doc
 
 Comparison with the enumeration of the boxes, with multistart, CMA-ES, DIRECT
-and EGO, and an application to topology optimization.
+and SEGO, and an application to topology optimization.
 :::
 
 :::{grid-item-card} {octicon}`check-circle;1.5em;sd-mr-1` Conclusion
