@@ -423,9 +423,10 @@ variable.*
 *Figure 3. Cost and number of optima reached for each method and problem.*
 
 Figure 4 shows the same runs as data profiles, with the targets of the variants.
-EGO is added with the $500$ evaluations its surrogate model can afford; the end
-of its budget is marked on its curve, and all methods are compared at this
-budget in the [next section](#comparison-at-a-budget-of-500-evaluations).
+SEGO is added with the $500$ evaluations its surrogate model can afford, from
+an initial design of four points per variable; the end of its budget is marked
+on its curve, and all methods are compared at this budget in the
+[next section](#comparison-at-a-budget-of-500-evaluations).
 
 ```{image} ../_static/figures/data_profiles.svg
 :class: only-light
@@ -445,17 +446,17 @@ budget in the [next section](#comparison-at-a-budget-of-500-evaluations).
 | 2 | multistart | $0.73$ | 46% | 64% | 78% | 92% |
 | 2 | CMA-ES | $0.73$ | 60% | 70% | 78% | 78% |
 | 2 | DIRECT | $0.90$ | 69% | 84% | 99% | 99% |
-| 2 | EGO, 500 evaluations | — | 74% | 84% | 86% | 86%‡ |
+| 2 | SEGO, 500 evaluations | — | 78% | 84% | 86% | 86%‡ |
 | 5 | box subdivision, 10 per variable | $0.64$ | 30% | 62% | 73% | 84% |
 | 5 | multistart | $0.51$ | 37% | 50% | 54% | 60% |
 | 5 | CMA-ES | $0.68$ | 54% | 67% | 76% | 78% |
 | 5 | DIRECT | $0.76$ | 75% | 79% | 79% | 79% |
-| 5 | EGO, 500 evaluations | — | 59% | — | — | 64%‡ |
+| 5 | SEGO, 500 evaluations | — | 56% | — | — | 64%‡ |
 
 *Table 7. Area under the data profile and fraction of targets reached at a
-tenth, a quarter, a half and the whole budget. ‡ At the EGO budget of $500$,
+tenth, a quarter, a half and the whole budget. ‡ At the SEGO budget of $500$,
 which in five variables is less than a quarter of the budget of the other
-methods; no area is given for EGO.*
+methods; no area is given for SEGO.*
 
 In two variables, the method with sixteen probes reaches $99\%$ of the targets
 within a quarter of the budget ($250$ evaluations), against $84\%$ for DIRECT,
@@ -491,7 +492,7 @@ the general performance of the method requires a separate set of test problems
 and a protocol fixed in advance.
 :::
 
-The study takes a few hours, mostly for EGO, and resumes from its last state
+The study takes a few hours, mostly for SEGO, and resumes from its last state
 when interrupted:
 
 ```shell
