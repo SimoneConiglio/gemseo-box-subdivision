@@ -17,9 +17,8 @@
 The benchmark's budgets, 500 equivalent evaluations per variable, are far outside
 the regime Bayesian optimization is built for: SEGO refits a Gaussian process at
 every iteration, at a cost cubic in the number of points. One run of five
-hundred evaluations
-takes some two and a half minutes against three seconds for the box
-subdivision, and the budgets of the main comparison are two to five times
+hundred evaluations takes one to four minutes on most problems against about a
+second for the box subdivision, and the budgets of the main comparison are two to five times
 larger again, so comparing it there would measure wall time rather than method
 quality.
 

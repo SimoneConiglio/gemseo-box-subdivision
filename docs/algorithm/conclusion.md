@@ -137,10 +137,10 @@ The following points are not established:
   constraint.
 - Expensive objectives. The method is intended for sub-problems costing minutes,
   whereas the analytic problems cost microseconds per evaluation. At a budget of
-  $500$ evaluations, EGO obtains better results on the hardest multimodal cases,
-  $1.99$ on Rastrigin in five variables against $8.57$ for this method, at about
-  a hundred times the computation time of the method, a cost that becomes
-  negligible only for expensive objectives. A comparison on such an objective is
+  $500$ evaluations, SEGO obtains better results on the hardest multimodal cases,
+  $5.97$ on Rastrigin in five variables against $8.57$ for this method, though
+  behind DIRECT at $4.98$, at about a hundred times the computation time of the
+  method, a cost that becomes negligible only for expensive objectives. A comparison on such an objective is
   required to conclude.
 
 ## Further work
