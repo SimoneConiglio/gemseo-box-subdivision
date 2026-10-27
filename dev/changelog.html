@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -35,12 +35,12 @@
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=87860dd6" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=d69655a1"></script>
+    <script src="_static/documentation_options.js?v=63a0f4e5"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -54,6 +54,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="gemseo_box_subdivision.disciplines.scenario_adapters.box_start" href="_autosummary/gemseo_box_subdivision.disciplines.scenario_adapters.box_start.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
   
@@ -439,6 +440,25 @@ Changelog titles are:
 <a class="reference external" href="https://keepachangelog.com/en/1.0.0">Keep a Changelog</a>
 and this project adheres to
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<section id="unreleased">
+<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The Bayesian-optimization baseline is named <strong>SEGO</strong>, the super efficient
+global optimization of Sasena (2002) that <code class="docutils literal notranslate"><span class="pre">egobox</span></code> implements, rather than
+EGO, which it extends to constraints modeled by surrogates.</p></li>
+<li><p>SEGO starts from a <strong>space-filling initial design of four points per
+variable</strong>, a Latin hypercube optimized for its centered discrepancy, and
+spends the rest of its budget on enrichment iterations; it was given five
+points per variable drawn by <code class="docutils literal notranslate"><span class="pre">egobox</span></code> itself. Its data profiles, the
+comparison at <span class="math notranslate nohighlight">\(500\)</span> evaluations and the text drawn from them are rerun: it
+now reaches the optimum of Styblinski-Tang from every start in two and five
+variables, and of Griewank in two from one, but is behind DIRECT on Rastrigin
+in five variables, <span class="math notranslate nohighlight">\(5.97\)</span> against <span class="math notranslate nohighlight">\(4.98\)</span>.</p></li>
+</ul>
+</section>
+</section>
 <section id="id1">
 <h2>0.3.0 (2026-10-03)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <section id="added">
@@ -535,8 +555,8 @@ GEKPLS. The results page reports MMA, the multistart and the box
 subdivision with nine probes.</p></li>
 </ul>
 </section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The results page profiles the variants <strong>before</strong> comparing with the
 baselines, and the comparison keeps only the best variant of each dimension:
@@ -651,8 +671,8 @@ gets a feed-forward evaluation and no warning.</p></li>
 </ul>
 </section>
 </section>
-<section id="id2">
-<h2>0.2.0 (2026-09-19)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<section id="id3">
+<h2>0.2.0 (2026-09-19)<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
 <p>The settings, in two entry points: the general construction, which names the
 master and the solver running inside a box, and the swept one, which asks the
 master to sweep the convexity rather than asking its user for a margin in the
@@ -665,8 +685,8 @@ calibrated one on every problem of the benchmark, and reaches it from more
 starting points on two of them. The numbers this release reports are therefore
 the ones a user gets without first tuning the method to the problem they are
 about to solve.</p>
-<section id="id3">
-<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul>
 <li><p>The algorithm of each of the two levels is a setting, with its own settings:
 <code class="docutils literal notranslate"><span class="pre">BoxSubdivisionSettings.master_algo_name</span></code> and <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> for the
@@ -717,8 +737,8 @@ sweep.</p>
 </li>
 </ul>
 </section>
-<section id="id4">
-<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h3>Changed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Every setting is given by name.</strong> The three settings classes are keyword-only,
 since which one holds which setting follows what applies to what rather than an
@@ -776,8 +796,8 @@ published. See <code class="docutils literal notranslate"><span class="pre">CONT
 old name still works, and warns; given both, <code class="docutils literal notranslate"><span class="pre">master_algo_settings</span></code> wins.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Fixed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id6">
+<h3>Fixed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A variable of size <span class="math notranslate nohighlight">\(s\)</span> subdivided into <span class="math notranslate nohighlight">\(m\)</span> was always <span class="math notranslate nohighlight">\(s\)</span> independent choices
 of one subdivision out of <span class="math notranslate nohighlight">\(m\)</span>, one one-hot group per component, and it still
@@ -790,15 +810,15 @@ the same master.</p></li>
 </ul>
 </section>
 </section>
-<section id="id6">
-<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<section id="id7">
+<h2>0.1.0 (2026-09-15)<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
 <p>First public release.</p>
 <p>The method, its four constructions and the benchmark that measures them. The
 results are measurements on the problems reported, not a claim of generalization:
 the settings were tuned on those very problems, and the convexity margin is in
 the units of the objective, so it does not transfer between them unchanged.</p>
-<section id="id7">
-<h3>Added<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>Added<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>EGO, the Bayesian optimization of <code class="docutils literal notranslate"><span class="pre">egobox</span></code>, is a fifth baseline, and with it a
 comparison at one budget of five hundred evaluations that every method can
@@ -867,8 +887,8 @@ formulation solving the sub-problem in the normalized variables of the box.</p><
 formulations, and the convexification tuned for each of them.</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3>Changed<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<section id="id9">
+<h3>Changed<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The multi-resolution encoding, one categorical variable per level, is part of
 the package rather than of the benchmarks: <code class="docutils literal notranslate"><span class="pre">MultiResolution</span></code> and
@@ -922,8 +942,8 @@ GitHub Pages by a dedicated workflow.</p></li>
 navigation, a page outline and cards on the landing pages.</p></li>
 </ul>
 </section>
-<section id="id9">
-<h3>Fixed<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<section id="id10">
+<h3>Fixed<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The trust region of the master measures a distance. The design spaces of this
 package now weigh every subdivision alike, so that the distance between two
@@ -1007,24 +1027,28 @@ CDNs, or a local build, left unreachable.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.3.0 (2026-10-03)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Changed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">0.2.0 (2026-09-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Fixed</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Fixed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">0.1.0 (2026-09-15)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Fixed</a></li>
 </ul>
 </li>
 </ul>
@@ -1059,8 +1083,8 @@ CDNs, or a local build, left unreachable.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1086,7 +1110,7 @@ CDNs, or a local build, left unreachable.</p></li>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

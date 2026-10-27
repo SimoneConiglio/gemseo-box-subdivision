@@ -123,20 +123,24 @@ dimensions and its weaker performance in five.
 **Implementation.** `scipy.optimize.direct`, which is deterministic and does not
 use the starting point, with `maxfun` and `maxiter` set to the budget.
 
-## EGO
+## SEGO
 
-Efficient global optimization (Jones, Schonlau and Welch, 1998) is used through
-`egobox` (Lafage, 2022), a Rust implementation. A Gaussian process is fitted to
-all evaluated points, and the next point maximizes the expected improvement,
-which balances the refinement of known basins and the exploration of new
-regions; the surrogate model retains the whole history of the run.
+The Bayesian optimization of `egobox` (Lafage, 2022), a Rust implementation, is
+the super efficient global optimization (SEGO) of Sasena (2002), which extends
+the efficient global optimization (EGO) of Jones, Schonlau and Welch (1998) to
+constraints modeled by their own surrogates. A Gaussian process is fitted to
+all evaluated points, and the next point maximizes the expected improvement, in
+its logarithmic form, which balances the refinement of known basins and the
+exploration of new regions; the surrogate model retains the whole history of
+the run. The analytic problems being bound-constrained only, SEGO reduces on
+them to EGO with this criterion.
 
 Bayesian optimization targets the same situation as the box subdivision: an
 expensive objective, for which the cost of fitting a surrogate is negligible and
 a few hundred evaluations make up the whole budget. A comparison at equal
 numbers of evaluations on analytic problems does not account for the cost of the
 method itself, which dominates on these problems: a run of $500$ evaluations
-takes about two and a half minutes, against three seconds for the box
+takes one to four minutes on most problems, against about a second for the box
 subdivision. For an expensive objective this ratio is reversed; the benchmark
 does not measure this case.
 
@@ -144,18 +148,20 @@ The budget is enforced exactly by the number of calls, `n_doe + max_iters` with
 batches of one. It is not enforced by the counter because an exception raised in
 the objective of the Rust extension results in an opaque panic instead of being
 propagated, as for the C extension of DIRECT. The initial design of experiments
-has five points per variable and is kept below half the budget, so that the
-surrogate model is used for the search.
+is small and well spread: a Latin hypercube of four points per variable,
+optimized for its centered discrepancy and kept below half the budget. The rest
+of the budget enriches it one point per iteration, so that the surrogate model
+drives most of the search.
 
-EGO has its own stopping criterion, which is reached in practice: on
-Styblinski-Tang the expected improvement vanishes once the Gaussian process
-models the landscape, and the run terminates after $29$ of the $500$ allowed
-evaluations, at a distance of $0.286$ from the optimum. A cost below the budget
-therefore indicates termination on this criterion.
+SEGO also has its own stopping criterion, a vanishing expected improvement. It
+was reached on Styblinski-Tang with the larger initial design of five points per
+variable drawn by `egobox` itself, after $29$ evaluations at a distance of
+$0.286$ from the optimum; from the space-filling design of four points per
+variable, every run spends its whole budget and reaches that optimum.
 
 ## Summary of the methods
 
-| | multistart | CMA-ES | DIRECT | EGO | box subdivision |
+| | multistart | CMA-ES | DIRECT | SEGO | box subdivision |
 |---|---|---|---|---|---|
 | gradient | yes, in each local solution | no | no | no | yes, in each sub-problem |
 | stochastic | starting points | yes | no | initial design | no |
@@ -167,7 +173,7 @@ therefore indicates termination on this criterion.
 
 *Table B.1. Characteristics of the compared methods.*
 
-EGO and the box subdivision are designed for the same situation, which makes
+SEGO and the box subdivision are designed for the same situation, which makes
 their comparison the most informative, subject to the difference in their own
 computational cost.
 
@@ -230,6 +236,9 @@ searches, and are not expected to change the comparison.
 - Jones, D. R., Schonlau, M., & Welch, W. J. (1998). *Efficient global
   optimization of expensive black-box functions.* Journal of Global Optimization,
   13(4), 455-492.
+- Sasena, M. J. (2002). *Flexibility and efficiency enhancements for constrained
+  global design optimization with kriging approximations.* PhD thesis,
+  University of Michigan.
 - Lafage, R. (2022). *egobox, a Rust toolbox for efficient global optimization.*
   Journal of Open Source Software, 7(78), 4737.
 - Jones, D. R., Perttunen, C. D., & Stuckey, B. E. (1993). *Lipschitzian
