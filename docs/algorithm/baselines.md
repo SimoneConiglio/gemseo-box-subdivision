@@ -148,8 +148,10 @@ The budget is enforced exactly by the number of calls, `n_doe + max_iters` with
 batches of one. It is not enforced by the counter because an exception raised in
 the objective of the Rust extension results in an opaque panic instead of being
 propagated, as for the C extension of DIRECT. The initial design of experiments
-has five points per variable and is kept below half the budget, so that the
-surrogate model is used for the search.
+is small and well spread: a Latin hypercube of four points per variable,
+optimized for its centered discrepancy and kept below half the budget. The rest
+of the budget enriches it one point per iteration, so that the surrogate model
+drives most of the search.
 
 EGO has its own stopping criterion, which is reached in practice: on
 Styblinski-Tang the expected improvement vanishes once the Gaussian process
