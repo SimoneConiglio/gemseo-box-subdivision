@@ -78,6 +78,7 @@ from gemseo_box_subdivision.scenario import create_box_subdivision_scenario
 from gemseo_box_subdivision.settings import BaseBoxSubdivisionSettings
 from gemseo_box_subdivision.settings import BoxSubdivisionSettings
 from gemseo_box_subdivision.settings import SweptBoxSubdivisionSettings
+from gemseo_box_subdivision.subdivisions.base import BaseSubdivision
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
 
@@ -87,6 +88,7 @@ __all__ = [
     "RENAMING_SHAPES",
     "SHAPES",
     "BaseBoxSubdivisionSettings",
+    "BaseSubdivision",
     "BoxConstraint",
     "BoxMapping",
     "BoxSubdivision",

@@ -35,6 +35,8 @@ from numpy import float64
 from numpy import ones
 from numpy import zeros
 
+from gemseo_box_subdivision.subdivisions.base import BaseSubdivision
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
@@ -42,7 +44,7 @@ if TYPE_CHECKING:
     from numpy import ndarray
 
 
-class MultiResolution:
+class MultiResolution(BaseSubdivision):
     r"""A subdivision of a design space into :math:`m^L` boxes per component.
 
     The lower bound of a component is the sum of the fractions of the design

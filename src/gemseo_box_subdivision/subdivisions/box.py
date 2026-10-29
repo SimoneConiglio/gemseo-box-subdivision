@@ -29,6 +29,8 @@ from numpy import linspace
 from numpy import ndarray
 from numpy import searchsorted
 
+from gemseo_box_subdivision.subdivisions.base import BaseSubdivision
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from collections.abc import Mapping
@@ -36,7 +38,7 @@ if TYPE_CHECKING:
     from gemseo.algos.design_space import DesignSpace
 
 
-class BoxSubdivision:
+class BoxSubdivision(BaseSubdivision):
     r"""A Cartesian subdivision of a design space.
 
     Each scalar component of each design variable is split into contiguous

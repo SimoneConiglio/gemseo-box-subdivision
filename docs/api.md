@@ -31,6 +31,7 @@ namespace, from which they should be imported.
    :toctree: _autosummary
    :recursive:
 
+   gemseo_box_subdivision.subdivisions.base
    gemseo_box_subdivision.subdivisions.box
    gemseo_box_subdivision.subdivisions.multi_resolution
    gemseo_box_subdivision.design_spaces

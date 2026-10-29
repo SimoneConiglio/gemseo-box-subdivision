@@ -68,6 +68,8 @@ if TYPE_CHECKING:
     )
     from numpy import ndarray
 
+    from gemseo_box_subdivision.subdivisions.base import BaseSubdivision
+
 FORMULATIONS: tuple[str, ...] = ("normalized", "constraint")
 """The two ways of confining a sub-problem to its box."""
 
@@ -106,7 +108,7 @@ class BoxSubdivisionScenario(MDOScenario):
       asking for the ``"constraint"`` formulation.
     """
 
-    subdivision: BoxSubdivision | MultiResolution
+    subdivision: BaseSubdivision
     """The subdivision of the design space the scenario explores."""
 
     box_settings: BaseBoxSubdivisionSettings

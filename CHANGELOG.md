@@ -26,6 +26,16 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `BaseSubdivision`, the interface shared by `BoxSubdivision` and
+  `MultiResolution`: the subdivided variables and their sizes, the numbers of
+  boxes and of binaries, the radius at which the trust region stops
+  constraining the master, and how a box is located and bounded.
+  `BoxSubdivisionScenario.subdivision` is typed with it.
+
 ## 0.3.0 (2026-10-03)
 
 ### Added
