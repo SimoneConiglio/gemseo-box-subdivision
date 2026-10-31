@@ -26,6 +26,16 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- Migrate to GEMSEO 7: depend on `gemseo[all] >=7.0.0rc0,<8`.
+- Depend on the `bump-gemseo-7` branch of `gemseo-bilevel-outer-approximation`,
+  until a GEMSEO 7 compatible release is on PyPI.
+- Use `BILEVEL_MASTER_OUTER_APPROXIMATION_Settings` in the tests and benchmarks,
+  as `BiLevelMasterOuterApproximation_Settings` is removed upstream.
+
 ## 0.3.0 (2026-10-03)
 
 ### Added

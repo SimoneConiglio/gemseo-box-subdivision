@@ -72,7 +72,7 @@ from gemseo_bilevel_outer_approximation.algos.design_space.catalogue_design_spac
     CatalogueDesignSpace,
 )
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
+    BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
 from numpy import arange
 from numpy import array
@@ -392,7 +392,7 @@ def run(
     )
     with suppress(BudgetExceededError, KeyError):
         scenario.execute(
-            BiLevelMasterOuterApproximation_Settings(
+            BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(
                 max_iter=10000, ub_tol=1e-4, **settings
             )
         )

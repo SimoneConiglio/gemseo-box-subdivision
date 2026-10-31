@@ -46,7 +46,7 @@ from gemseo.algos.opt.factory import OptimizationLibraryFactory
 from gemseo.algos.optimization_problem import OptimizationProblem
 from gemseo.core.mdo_functions.mdo_function import MDOFunction
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
+    BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
 from numpy import array
 from numpy import full
@@ -296,7 +296,7 @@ def run_box_subdivision(
     # budget error raised underneath it.
     with suppress(BudgetExceededError, KeyError):
         scenario.execute(
-            BiLevelMasterOuterApproximation_Settings(
+            BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(
                 max_iter=10000, ub_tol=1e-4, **settings
             )
         )

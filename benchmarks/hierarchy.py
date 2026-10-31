@@ -54,7 +54,7 @@ from gemseo.core.chains.chain import MDOChain
 from gemseo.settings.formulations import DisciplinaryOpt_Settings
 from gemseo.settings.opt import SLSQP_Settings
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
+    BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
 from numpy import full
 from numpy.random import default_rng
@@ -227,7 +227,7 @@ def _solve_level(
         settings["max_step"] = TRUST_REGION_RADIUS
         with suppress(BudgetExceededError, KeyError):
             scenario.execute(
-                BiLevelMasterOuterApproximation_Settings(
+                BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(
                     max_iter=10000, ub_tol=1e-4, **settings
                 )
             )

@@ -28,7 +28,7 @@ from gemseo.core.discipline import Discipline
 from gemseo.settings.formulations import DisciplinaryOpt_Settings
 from gemseo.settings.opt import SLSQP_Settings
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
+    BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
 from numpy import array
 from numpy import cos
@@ -102,7 +102,7 @@ def test_global_optimum_is_found(initial_value) -> None:
     which a local solver alone would not escape.
     """
     scenario, _ = _create_scenario(initial_value)
-    scenario.execute(BiLevelMasterOuterApproximation_Settings(max_iter=12))
+    scenario.execute(BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(max_iter=12))
     result = scenario.optimization_result
     assert result.f_opt == pytest.approx(F_OPT, abs=1e-4)
     # The last box is the one containing the global minimizer.
@@ -117,7 +117,7 @@ def test_fewer_sub_problems_than_boxes() -> None:
     sub-problem of every box.
     """
     scenario, subdivision = _create_scenario(0.1)
-    scenario.execute(BiLevelMasterOuterApproximation_Settings(max_iter=12))
+    scenario.execute(BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(max_iter=12))
     n_sub_problems = len(scenario.formulation.optimization_problem.database)
     assert n_sub_problems < subdivision.n_boxes
 
@@ -125,7 +125,7 @@ def test_fewer_sub_problems_than_boxes() -> None:
 def test_sub_problem_optimum_is_in_the_selected_box() -> None:
     """Check that the sub-problem optimum lies in the box chosen by the main one."""
     scenario, subdivision = _create_scenario(0.1)
-    scenario.execute(BiLevelMasterOuterApproximation_Settings(max_iter=12))
+    scenario.execute(BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(max_iter=12))
     index = list(scenario.optimization_result.x_opt).index(1.0)
     lower_bound = subdivision.get_lower_bounds("x")[0, index]
     upper_bound = subdivision.get_upper_bounds("x")[0, index]

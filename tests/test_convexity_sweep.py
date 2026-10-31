@@ -452,7 +452,7 @@ def test_a_swept_scenario_will_not_run_a_master_it_cannot_sweep(monkeypatch) -> 
     from gemseo import create_design_space
     from gemseo import create_discipline
     from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-        BiLevelMasterOuterApproximation_Settings,
+        BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
     )
     from numpy import array
 
@@ -481,7 +481,7 @@ def test_a_swept_scenario_will_not_run_a_master_it_cannot_sweep(monkeypatch) -> 
         **{
             name: (field.annotation, field.default)
             for name, field in (
-                BiLevelMasterOuterApproximation_Settings.model_fields.items()
+                BILEVEL_MASTER_OUTER_APPROXIMATION_Settings.model_fields.items()
             )
             if not name.startswith("convexity_sweep")
         },

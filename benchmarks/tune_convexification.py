@@ -33,7 +33,7 @@ from __future__ import annotations
 import logging
 
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
+    BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
 from numpy import median
 from numpy.random import default_rng
@@ -91,7 +91,7 @@ def measure(
     for starting_point in starting_points:
         scenario, _, objective = _create_scenario(starting_point, formulation)
         scenario.execute(
-            BiLevelMasterOuterApproximation_Settings(
+            BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(
                 max_iter=200, ub_tol=1e-4, **settings
             )
         )

@@ -251,7 +251,7 @@ def test_the_master_is_driven_whichever_way_the_scenario_is_executed(
     from gemseo import create_design_space
     from gemseo import create_discipline
     from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-        BiLevelMasterOuterApproximation_Settings,
+        BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
     )
     from numpy import array
 
@@ -289,7 +289,7 @@ def test_the_master_is_driven_whichever_way_the_scenario_is_executed(
     core.OuterApproximationOptimizer._solve_milp = spy
     try:
         # The path a caller takes when it configures the master itself.
-        scenario.execute(BiLevelMasterOuterApproximation_Settings(max_iter=4))
+        scenario.execute(BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(max_iter=4))
     finally:
         core.OuterApproximationOptimizer._solve_milp = original
 

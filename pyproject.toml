@@ -22,8 +22,9 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.10, <3.14"
 dependencies = [
-    "gemseo[all] >=6.3,<7",
-    "gemseo-bilevel-outer-approximation >=0.1.1",
+    "gemseo[all] >=7.0.0rc0,<8",
+    # TODO: switch back to a PyPI release once one supports GEMSEO 7.
+    "gemseo-bilevel-outer-approximation @ git+https://gitlab.com/gemseo/dev/gemseo-bilevel-outer-approximation.git@bump-gemseo-7",
 ]
 
 [dependency-groups]

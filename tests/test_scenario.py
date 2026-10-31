@@ -24,7 +24,7 @@ from gemseo.core.discipline import Discipline
 from gemseo.settings.opt import NLOPT_COBYLA_Settings
 from gemseo.settings.opt import SLSQP_Settings
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
-    BiLevelMasterOuterApproximation_Settings,
+    BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
 from gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders import (  # noqa: E501
     MDOScenarioAdapterBenders,
@@ -246,7 +246,7 @@ def test_explicit_settings_override_the_defaults() -> None:
         [Rastrigin()], "f", design_space(), n_subdivisions=4
     )
     scenario.execute(
-        BiLevelMasterOuterApproximation_Settings(
+        BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(
             max_iter=2, ub_tol=1e-4, adapt=True, min_dfk=100.0, max_step=1
         )
     )
@@ -343,7 +343,7 @@ def test_the_defaults_are_the_measured_pair() -> None:
     assert settings.sub_problem_algo_name == "SLSQP"
     assert isinstance(settings.create_sub_problem_settings_model(), SLSQP_Settings)
     assert set(settings.to_master_settings()).issubset(
-        BiLevelMasterOuterApproximation_Settings.model_fields
+        BILEVEL_MASTER_OUTER_APPROXIMATION_Settings.model_fields
     )
 
 
