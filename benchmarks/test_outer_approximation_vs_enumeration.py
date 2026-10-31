@@ -41,11 +41,12 @@ import logging
 
 import pytest
 from gemseo import create_scenario
-from gemseo.algos.design_space import DesignSpace
-from gemseo.algos.doe.factory import DOELibraryFactory
-from gemseo.core.chains.chain import MDOChain
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.discipline import DisciplineChain
+from gemseo.doe import CustomDOE_Settings
+from gemseo.doe.factory import DOELibraryFactory
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.optimization import SLSQP_Settings
+from gemseo.space import DesignSpace
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
@@ -119,7 +120,7 @@ def _create_scenario(starting_point, formulation: str):
     }
     if formulation == "normalized":
         scenario = create_scenario(
-            [MDOChain([BoxMapping(subdivision), objective])],
+            [DisciplineChain([BoxMapping(subdivision), objective])],
             "f",
             create_normalized_box_design_space(subdivision, design_space),
             **settings,
@@ -132,7 +133,9 @@ def _create_scenario(starting_point, formulation: str):
             scenario_adapter_cls=create_box_start_adapter_class(subdivision),
             **settings,
         )
-        scenario.formulation.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME)
+        scenario.add_constraint(
+            BoxConstraint.DEFAULT_OUTPUT_NAME, constraint_type="ineq"
+        )
 
     return scenario, subdivision, objective
 
@@ -148,9 +151,9 @@ def _run_enumeration(starting_point, formulation: str):
         The best objective value, the number of sub-problems and of executions.
     """
     scenario, subdivision, objective = _create_scenario(starting_point, formulation)
-    problem = scenario.formulation.optimization_problem
+    problem = scenario.formulation.problem
     DOELibraryFactory().execute(
-        problem, algo_name="CustomDOE", samples=create_box_samples(subdivision)
+        problem, CustomDOE_Settings(samples=create_box_samples(subdivision))
     )
     values = problem.database.get_function_history(problem.objective.name)
     return float(min(values)), len(problem.database), objective.n_executions
@@ -177,7 +180,7 @@ def _run_outer_approximation(starting_point, formulation: str):
     )
     return (
         float(scenario.optimization_result.f_opt),
-        len(scenario.formulation.optimization_problem.database),
+        len(scenario.formulation.problem.database),
         objective.n_executions,
     )
 

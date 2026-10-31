@@ -72,8 +72,8 @@ from contextlib import suppress
 from statistics import median
 from typing import TYPE_CHECKING
 
-from gemseo.core.mdo_functions.mdo_function import MDOFunction
-from gemseo.core.mdo_functions.mdo_linear_function import MDOLinearFunction
+from gemseo.core.function.array_function import ArrayFunction
+from gemseo.core.function.linear_function import LinearFunction
 from gemseo_bilevel_outer_approximation.algos.opt.core import (
     outer_approximation_optimizer as core,
 )
@@ -123,14 +123,14 @@ def _add_proximity_constraints(optimizer, problem, retained_alpha, step) -> None
             selected = float(values @ retained_alpha[offset : offset + n_catalogues])
             for sign, bound in ((1.0, selected + step), (-1.0, step - selected)):
                 problem.add_constraint(
-                    MDOLinearFunction(
+                    LinearFunction(
                         sign * coefficients,
                         f"proximity {name} {member} {'up' if sign > 0 else 'down'}",
                         input_names=names,
                         expr="",
                     ),
                     value=bound,
-                    constraint_type=MDOFunction.ConstraintType.INEQ,
+                    constraint_type=ArrayFunction.ConstraintType.INEQ,
                 )
 
             offset += n_catalogues

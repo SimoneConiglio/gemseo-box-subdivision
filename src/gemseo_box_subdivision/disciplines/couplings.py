@@ -15,7 +15,7 @@
 """Keeping the couplings of an MDA internal to the chain it sits in.
 
 The disciplines of a :class:`.BoxSubdivisionScenario` are collapsed into a single
-:class:`~gemseo.core.chains.chain.MDOChain`, so a **coupled** problem is posed by
+:class:`~gemseo.core.chains.chain.DisciplineChain`, so a **coupled** problem is posed by
 building the MDA explicitly and handing it over among the disciplines. That is
 the only route: the sub-problem's formulation is
 :class:`~gemseo.formulations.disciplinary_opt.DisciplinaryOpt`, so the
@@ -45,7 +45,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import Final
 
-from gemseo.mda.base_mda import BaseMDA
+from gemseo.mda.core.base import BaseMDA
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

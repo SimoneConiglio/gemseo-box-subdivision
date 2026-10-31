@@ -19,9 +19,9 @@ from __future__ import annotations
 import re
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
 from gemseo.core.discipline import Discipline
-from gemseo.disciplines.linear_combination import LinearCombination
+from gemseo.discipline import LinearCombination
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import zeros
 
@@ -76,7 +76,7 @@ def scenario(disciplines=None) -> BoxSubdivisionScenario:  # noqa: ANN001
 def sub_problem_problem(a_scenario):  # noqa: ANN001, ANN201
     """Return the optimization problem of the sub-problem of a scenario."""
     adapter = a_scenario.formulation.sub_problem_scenario_adapter
-    return adapter.scenario.formulation.optimization_problem
+    return adapter.scenario.formulation.problem
 
 
 def sub_problem_constraints(a_scenario) -> list[str]:  # noqa: ANN001
@@ -87,7 +87,7 @@ def sub_problem_constraints(a_scenario) -> list[str]:  # noqa: ANN001
 def test_a_constraint_named_after_its_output_is_accepted() -> None:
     """Check that the ordinary case is untouched."""
     a_scenario = scenario()
-    a_scenario.formulation.add_constraint("g", constraint_type="ineq", main_level=True)
+    a_scenario.add_constraint("g", constraint_type="ineq", main_level=True)
     assert sub_problem_constraints(a_scenario) == ["g"]
     a_scenario.execute()
 
@@ -109,7 +109,7 @@ def test_a_renamed_constraint_is_refused_where_it_is_written(kwargs, expected) -
     a_scenario = scenario()
     message = re.escape(f"{expected!r}, built from ['g']")
     with pytest.raises(ValueError, match=message):
-        a_scenario.formulation.add_constraint(
+        a_scenario.add_constraint(
             "g", constraint_type="ineq", main_level=True, **kwargs
         )
 
@@ -118,7 +118,7 @@ def test_the_message_names_the_way_around_it() -> None:
     """Check that the refusal says what to write instead."""
     a_scenario = scenario()
     with pytest.raises(ValueError, match="LinearCombination"):
-        a_scenario.formulation.add_constraint(
+        a_scenario.add_constraint(
             "g", constraint_type="ineq", constraint_name="g_upper"
         )
 
@@ -131,13 +131,13 @@ def test_a_refused_constraint_is_not_added() -> None:
     """
     a_scenario = scenario()
     with pytest.raises(ValueError, match="named after no output"):
-        a_scenario.formulation.add_constraint(
+        a_scenario.add_constraint(
             "g", constraint_type="ineq", constraint_name="g_upper"
         )
 
     assert sub_problem_constraints(a_scenario) == []
     # And the scenario still takes an ordinary constraint afterwards.
-    a_scenario.formulation.add_constraint("g", constraint_type="ineq")
+    a_scenario.add_constraint("g", constraint_type="ineq")
     assert sub_problem_constraints(a_scenario) == ["g"]
 
 
@@ -155,9 +155,7 @@ def test_the_band_written_as_two_outputs_runs() -> None:
         ),
     ])
     for name in ("g_upper", "g_lower"):
-        a_scenario.formulation.add_constraint(
-            name, constraint_type="ineq", main_level=True
-        )
+        a_scenario.add_constraint(name, constraint_type="ineq", main_level=True)
 
     assert sub_problem_constraints(a_scenario) == ["g_upper", "g_lower"]
     a_scenario.execute()
@@ -187,9 +185,7 @@ def test_the_multi_resolution_encoding_is_guarded_too() -> None:
         settings=BoxSubdivisionSettings(convexity_margin=10.0, max_iter=4),
     )
     with pytest.raises(ValueError, match="named after no output"):
-        a_scenario.formulation.add_constraint(
-            "g", constraint_type="ineq", positive=True
-        )
+        a_scenario.add_constraint("g", constraint_type="ineq", positive=True)
 
 
 def test_find_renamed_constraints_reads_the_problem() -> None:
@@ -198,5 +194,5 @@ def test_find_renamed_constraints_reads_the_problem() -> None:
     problem = sub_problem_problem(a_scenario)
     assert find_renamed_constraints(problem) == ()
 
-    a_scenario.formulation.add_constraint("g", constraint_type="ineq")
+    a_scenario.add_constraint("g", constraint_type="ineq")
     assert find_renamed_constraints(problem) == ()

@@ -24,11 +24,12 @@ from __future__ import annotations
 from copy import deepcopy
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
-from gemseo.algos.lagrange_multipliers import LagrangeMultipliers
-from gemseo.algos.opt.factory import OptimizationLibraryFactory
-from gemseo.algos.optimization_problem import OptimizationProblem
-from gemseo.core.mdo_functions.mdo_function import MDOFunction
+from gemseo.core.function.array_function import ArrayFunction
+from gemseo.optimization import OptimizationProblem
+from gemseo.optimization import SLSQP_Settings
+from gemseo.optimization.factory import OptimizationLibraryFactory
+from gemseo.optimization.lagrange_multipliers import LagrangeMultipliers
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import cos
 from numpy import sin
@@ -80,12 +81,12 @@ def _solve_box(subdivision, sub_design_space, index):
     design_space = deepcopy(sub_design_space)
     design_space.set_current_value({"x": array([(lower_bound + upper_bound) / 2.0])})
     problem = OptimizationProblem(design_space)
-    problem.objective = MDOFunction(OBJECTIVE, "f", jac=GRADIENT)
+    problem.objective = ArrayFunction(OBJECTIVE, "f", jac=GRADIENT)
     problem.add_constraint(
-        MDOFunction(
+        ArrayFunction(
             lambda x: discipline.execute({"x": x, "x_box": one_hot})["g_box"],
             "g_box",
-            f_type=MDOFunction.ConstraintType.INEQ,
+            f_type=ArrayFunction.ConstraintType.INEQ,
             jac=lambda x: discipline.linearize(
                 {"x": x, "x_box": one_hot},
                 execute=True,
@@ -93,7 +94,7 @@ def _solve_box(subdivision, sub_design_space, index):
             )["g_box"]["x"],
         )
     )
-    OptimizationLibraryFactory().execute(problem, algo_name="SLSQP", max_iter=60)
+    OptimizationLibraryFactory().execute(problem, SLSQP_Settings(max_iter=60))
     multipliers = LagrangeMultipliers(problem).compute(problem.solution.x_opt)
     inequality = multipliers.get(LagrangeMultipliers.INEQUALITY)
     multiplier = float(inequality[1][0]) if inequality else 0.0

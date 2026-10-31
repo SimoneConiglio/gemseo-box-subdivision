@@ -21,8 +21,8 @@ import pkgutil
 from importlib.metadata import entry_points
 
 import pytest
-from gemseo.algos.opt.factory import OptimizationLibraryFactory
 from gemseo.core.base_factory import BaseFactory
+from gemseo.optimization.factory import OptimizationLibraryFactory
 
 import gemseo_box_subdivision
 from gemseo_box_subdivision import disciplines

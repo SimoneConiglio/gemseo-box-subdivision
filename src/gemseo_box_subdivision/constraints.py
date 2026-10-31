@@ -53,7 +53,7 @@ from typing import Any
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from gemseo.algos.optimization_problem import OptimizationProblem
+    from gemseo.optimization import OptimizationProblem
 
 RENAMING_SHAPES: tuple[str, ...] = (
     "constraint_name=",
@@ -139,13 +139,13 @@ def guard_renamed_constraints(formulation: Any) -> None:
     Args:
         formulation: The ``Benders`` formulation of the scenario.
     """
-    add_constraint = formulation.add_constraint
-    problem = formulation.sub_problem_scenario_adapter.scenario.formulation.optimization_problem  # noqa: E501
+    create_constraint = formulation.create_constraint
+    problem = formulation.sub_problem_scenario_adapter.scenario.formulation.problem
 
-    @wraps(add_constraint)
-    def guarded(*args: Any, **kwargs: Any) -> None:
+    @wraps(create_constraint)
+    def guarded(*args: Any, **kwargs: Any) -> Any:
         n_constraints = len(problem.constraints)
-        add_constraint(*args, **kwargs)
+        constraint = create_constraint(*args, **kwargs)
         try:
             check_constraint_names(problem)
         except ValueError:
@@ -156,4 +156,8 @@ def guard_renamed_constraints(formulation: Any) -> None:
 
             raise
 
-    formulation.add_constraint = guarded
+        return constraint
+
+    # The scenario adds a constraint through the formulation, which declares the
+    # constraint of a ``Benders`` sub-problem on that sub-problem.
+    formulation.create_constraint = guarded

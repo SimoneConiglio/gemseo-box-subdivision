@@ -24,10 +24,10 @@ from __future__ import annotations
 import logging
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
-from gemseo.algos.optimization_problem import OptimizationProblem
 from gemseo.core.discipline import Discipline
-from gemseo.core.mdo_functions.mdo_function import MDOFunction
+from gemseo.core.function.array_function import ArrayFunction
+from gemseo.optimization import OptimizationProblem
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import cos
 from numpy import pi
@@ -61,7 +61,7 @@ def master_problem(*boxes: tuple[float, float | None]) -> OptimizationProblem:
     space = DesignSpace()
     space.add_variable("alpha", lower_bound=0.0, upper_bound=1.0, value=0.0)
     problem = OptimizationProblem(space)
-    problem.objective = MDOFunction(lambda x: x, "f")
+    problem.objective = ArrayFunction(lambda x: x, "f")
     for index, (value, flag) in enumerate(boxes):
         entry = {"f": array([value])}
         if flag is not None:
@@ -264,11 +264,11 @@ def test_a_real_run_reports_on_itself(caplog) -> None:  # noqa: ANN001
             sub_problem_max_iter=15,
         ),
     )
-    scenario.formulation.add_constraint("g", constraint_type="ineq", main_level=True)
+    scenario.add_constraint("g", constraint_type="ineq", main_level=True)
     with caplog.at_level(logging.INFO, LOGGER_NAME):
         scenario.execute()
 
-    report = read_margin_report(scenario.formulation.optimization_problem)
+    report = read_margin_report(scenario.formulation.problem)
     assert report.n_solved > 0
     assert report.n_solved == report.n_feasible + report.n_infeasible
     # The landscape is feasible near two points only, so a subdivision of six

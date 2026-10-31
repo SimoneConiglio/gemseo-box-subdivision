@@ -17,7 +17,8 @@
 from __future__ import annotations
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
+from gemseo import check_jacobian
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import zeros
 from numpy.random import default_rng
@@ -112,16 +113,18 @@ def test_jacobian(discipline, approximation, step, threshold) -> None:
     because the master problem relaxes them.
     """
     rng = default_rng(0)
-    assert discipline.check_jacobian(
-        input_data={
+    assert check_jacobian(
+        discipline,
+        input_value={
             "x_normalized": rng.random(2),
             "y_normalized": rng.random(1),
             "x_box": rng.random(4),
             "y_box": rng.random(4),
         },
-        derr_approx=approximation,
+        approximation_mode=approximation,
         step=step,
-        threshold=threshold,
+        atol=threshold,
+        rtol=threshold,
     )
 
 

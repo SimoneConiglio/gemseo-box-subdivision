@@ -64,6 +64,8 @@ def solve(task: tuple[int, np.ndarray, str, int]) -> dict:
     from gemseo import create_design_space
     from gemseo import create_scenario
 
+    from gemseo_box_subdivision.settings import _get_settings_class
+
     index, x0, preset, max_iter = task
     sc2d.select_preset(preset)
     spec = sc2d.load_spec()
@@ -81,10 +83,9 @@ def solve(task: tuple[int, np.ndarray, str, int]) -> dict:
     )
     scenario.add_constraint("volume", constraint_type="ineq", positive=False, value=0.0)
     options = dict(spec.solver.options)
-    options["algo_name"] = spec.solver.algorithm
     options["max_iter"] = max_iter
     start = time.time()
-    scenario.execute(**options)
+    scenario.execute(_get_settings_class(spec.solver.algorithm)(**options))
     try:
         compliance, x_best, _ = history.best()
     except RuntimeError:

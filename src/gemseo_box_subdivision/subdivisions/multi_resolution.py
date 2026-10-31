@@ -38,7 +38,7 @@ from numpy import zeros
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from gemseo.algos.design_space import DesignSpace
+    from gemseo.space import DesignSpace
     from numpy import ndarray
 
 

@@ -49,10 +49,10 @@ from statistics import median
 from typing import TYPE_CHECKING
 
 from gemseo import create_scenario
-from gemseo.algos.design_space import DesignSpace
-from gemseo.core.chains.chain import MDOChain
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.discipline import DisciplineChain
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.optimization import SLSQP_Settings
+from gemseo.space import DesignSpace
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
@@ -71,6 +71,7 @@ from gemseo_box_subdivision.disciplines.box_mapping import BoxMapping
 from gemseo_box_subdivision.hierarchy import RANKINGS
 from gemseo_box_subdivision.hierarchy import compute_cut_model
 from gemseo_box_subdivision.hierarchy import read_solved_boxes
+from gemseo_box_subdivision.settings import _get_settings_class
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 
 if TYPE_CHECKING:
@@ -212,7 +213,7 @@ def _solve_level(
     """
     subdivision = BoxSubdivision.from_design_space(design_space, n_subdivisions)
     scenario = create_scenario(
-        [MDOChain([BoxMapping(subdivision), Objective(counter, dimension)])],
+        [DisciplineChain([BoxMapping(subdivision), Objective(counter, dimension)])],
         "f",
         create_normalized_box_design_space(subdivision, design_space),
         formulation_name="Benders",
@@ -240,11 +241,12 @@ def _solve_level(
             suppress(BudgetExceededError, KeyError),
         ):
             scenario.execute(
-                algo_name=box_settings.master_algo_name,
-                **box_settings.to_master_settings(None),
+                _get_settings_class(box_settings.master_algo_name)(
+                    **box_settings.to_master_settings(None)
+                )
             )
 
-    return subdivision, read_solved_boxes(scenario.formulation.optimization_problem)
+    return subdivision, read_solved_boxes(scenario.formulation.problem)
 
 
 def run_hierarchical(

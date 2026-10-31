@@ -53,7 +53,7 @@ from typing import TYPE_CHECKING
 from numpy import ravel
 
 if TYPE_CHECKING:
-    from gemseo.algos.optimization_problem import OptimizationProblem
+    from gemseo.optimization import OptimizationProblem
 
 LOGGER = logging.getLogger(__name__)
 

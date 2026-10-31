@@ -32,9 +32,12 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 from typing import Any
 
-from gemseo.core.chains.chain import MDOChain
-from gemseo.scenarios.mdo_scenario import MDOScenario
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
+from gemseo.discipline import DisciplineChain
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.scenario import MDOScenario
+from gemseo_bilevel_outer_approximation.formulations.benders_settings import (
+    Benders_Settings,
+)
 
 from gemseo_box_subdivision.constraints import guard_renamed_constraints
 from gemseo_box_subdivision.design_spaces import create_box_design_space
@@ -53,6 +56,7 @@ from gemseo_box_subdivision.disciplines.scenario_adapters.box_start import (
 )
 from gemseo_box_subdivision.settings import BaseBoxSubdivisionSettings
 from gemseo_box_subdivision.settings import BoxSubdivisionSettings
+from gemseo_box_subdivision.settings import _get_settings_class
 from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
 
@@ -61,8 +65,8 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from collections.abc import Sequence
 
-    from gemseo.algos.design_space import DesignSpace
     from gemseo.core.discipline import Discipline
+    from gemseo.space import DesignSpace
     from gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenario_adapter_benders import (  # noqa: E501
         MDOScenarioAdapterBenders,
     )
@@ -225,7 +229,6 @@ class BoxSubdivisionScenario(MDOScenario):
         # The names the master optimizes over are the one-hot variables of the
         # subdivision, never a literal: they follow the design space.
         settings_of_formulation: dict[str, Any] = {
-            "formulation_name": "Benders",
             "main_problem_design_variables": list(
                 self.subdivision.get_one_hot_names({}).values()
             ),
@@ -242,32 +245,32 @@ class BoxSubdivisionScenario(MDOScenario):
             # solves for the normalized variables while the disciplines keep
             # receiving the design variables.
             super().__init__(
-                [MDOChain([BoxMapping(self.subdivision), *disciplines])],
-                objective_name,
+                [DisciplineChain([BoxMapping(self.subdivision), *disciplines])],
                 create_normalized_box_design_space(
                     self.subdivision, design_space, weights=weights
                 ),
                 name=name,
-                **settings_of_formulation,
+                formulation_settings=Benders_Settings(**settings_of_formulation),
             )
+            self.add_objective(objective_name)
         else:
             super().__init__(
                 [*disciplines, BoxConstraint(self.subdivision)],
-                objective_name,
                 create_box_design_space(
                     self.subdivision, design_space, weights=weights
                 ),
                 name=name,
-                **{
+                formulation_settings=Benders_Settings(**{
                     "scenario_adapter_cls": create_box_start_adapter_class(
                         self.subdivision
                     ),
                     **settings_of_formulation,
-                },
+                }),
             )
+            self.add_objective(objective_name)
             # The box is enforced by a constraint of the sub-problem, which the
             # formulation only knows about once it is declared.
-            self.formulation.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME)
+            self.formulation.create_constraint([BoxConstraint.DEFAULT_OUTPUT_NAME])
 
         # A constraint the sub-problem adapter cannot linearize is refused where
         # it is written, rather than as a KeyError several master iterations in.
@@ -319,26 +322,27 @@ class BoxSubdivisionScenario(MDOScenario):
             levels,
         )
         super().__init__(
-            [MDOChain([MultiResolutionMapping(self.subdivision), *disciplines])],
-            objective_name,
+            [DisciplineChain([MultiResolutionMapping(self.subdivision), *disciplines])],
             self.subdivision.create_design_space(),
             name=name,
-            formulation_name="Benders",
-            main_problem_design_variables=[
-                self.subdivision.get_one_hot_name(variable_name, level)
-                for variable_name in names
-                for level in range(1, levels + 1)
-            ],
-            sub_problem_algo_settings=(
-                self.box_settings.create_sub_problem_settings_model()
-            ),
-            sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
-            **(
-                {}
-                if scenario_adapter_cls is None
-                else {"scenario_adapter_cls": scenario_adapter_cls}
+            formulation_settings=Benders_Settings(
+                main_problem_design_variables=[
+                    self.subdivision.get_one_hot_name(variable_name, level)
+                    for variable_name in names
+                    for level in range(1, levels + 1)
+                ],
+                sub_problem_algo_settings=(
+                    self.box_settings.create_sub_problem_settings_model()
+                ),
+                sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
+                **(
+                    {}
+                    if scenario_adapter_cls is None
+                    else {"scenario_adapter_cls": scenario_adapter_cls}
+                ),
             ),
         )
+        self.add_objective(objective_name)
 
     def execute(self, algo_settings_model: Any = None, **algo_settings: Any) -> None:
         """Execute the scenario.
@@ -363,7 +367,7 @@ class BoxSubdivisionScenario(MDOScenario):
             # What a margin was doing is only knowable once the run is over,
             # and a run it could not govern is indistinguishable from one it
             # governed well -- which is the whole reason for saying so.
-            log_margin_report(self.formulation.optimization_problem)
+            log_margin_report(self.formulation.problem)
 
     def __execute(self, algo_settings_model: Any, **algo_settings: Any) -> None:
         """Execute the scenario, without reporting on the margin.
@@ -386,13 +390,10 @@ class BoxSubdivisionScenario(MDOScenario):
                         self.box_settings.trust_region_radius * self.subdivision.levels
                     )
 
-                # The master is selected by its name rather than by a settings
-                # model: a model names the algorithm to execute itself, and the
-                # settings of ``OUTER_APPROXIMATION`` name one no library
-                # provides, so a model would not run ``master_algo_name``.
                 return super().execute(
-                    algo_name=self.box_settings.master_algo_name,
-                    **self.box_settings.to_master_settings(radius),
+                    _get_settings_class(self.box_settings.master_algo_name)(
+                        **self.box_settings.to_master_settings(radius)
+                    )
                 )
 
             # What the run needs of its master is not among the settings a
@@ -400,11 +401,23 @@ class BoxSubdivisionScenario(MDOScenario):
             # sweep solves at the master's own convexity, which is zero.
             needed = self.box_settings.master_settings_the_run_needs()
             if algo_settings_model is None:
-                return super().execute(None, **algo_settings, **needed)
+                # GEMSEO executes a settings model only, the model naming the
+                # algorithm; the keywords name it with ``algo_name``, the master
+                # of the settings by default.
+                algo_settings = dict(algo_settings)
+                algo_name = algo_settings.pop(
+                    "algo_name", self.box_settings.master_algo_name
+                )
+                return super().execute(
+                    _get_settings_class(algo_name)(**algo_settings, **needed)
+                )
 
-            return super().execute(
-                _keeping(algo_settings_model, needed), **algo_settings
-            )
+            if algo_settings:
+                algo_settings_model = algo_settings_model.model_copy(
+                    update=algo_settings
+                )
+
+            return super().execute(_keeping(algo_settings_model, needed))
 
 
 def _keeping(algo_settings_model: Any, settings: Mapping[str, Any]) -> Any:
@@ -464,14 +477,14 @@ def _subdivided_names(
             the design space.
     """
     if isinstance(n_subdivisions, int):
-        return tuple(variable_names) or tuple(design_space.variable_names)
+        return tuple(variable_names) or tuple(design_space.variables)
 
     names = tuple(n_subdivisions)
     if not names:
         msg = "The mapping of the numbers of subdivisions is empty."
         raise ValueError(msg)
 
-    if unknown := set(names) - set(design_space.variable_names):
+    if unknown := set(names) - set(design_space.variables):
         msg = f"The following variables are not in the design space: {sorted(unknown)}."
         raise ValueError(msg)
 

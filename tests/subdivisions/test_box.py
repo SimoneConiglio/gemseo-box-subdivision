@@ -17,7 +17,7 @@
 from __future__ import annotations
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import inf
 from numpy import zeros

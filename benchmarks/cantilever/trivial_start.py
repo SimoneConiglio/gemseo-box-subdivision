@@ -152,7 +152,7 @@ finally:
         import json
 
         values, evaluations = [], 0
-        database = scenarios[0].formulation.optimization_problem.database
+        database = scenarios[0].formulation.problem.database
         for entry in database.values():
             if entry.get("compliance") is not None:
                 values.append(float(np.ravel(entry["compliance"])[0]))

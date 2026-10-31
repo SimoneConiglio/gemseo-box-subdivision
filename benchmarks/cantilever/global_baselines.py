@@ -41,7 +41,10 @@ import contextlib
 from typing import TYPE_CHECKING
 
 import sc2d_box_subdivision as sc2d  # noqa: E402
-from gemseo.core.chains.chain import MDOChain  # noqa: E402
+from gemseo.discipline import DisciplineChain  # noqa: E402
+from gemseo.optimization import SLSQP_Settings  # noqa: E402
+
+from gemseo_box_subdivision.settings import _get_settings_class  # noqa: E402
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -77,7 +80,7 @@ class Problem:
         self.geometry, self.physics = geometry, physics
         self.x0 = trivial_start(x_init)
         self.history = sc2d._History(geometry, physics)
-        self.chain = MDOChain([geometry, physics])
+        self.chain = DisciplineChain([geometry, physics])
         self.guard = guard
         self.budget = guard
         self.log = None
@@ -221,7 +224,7 @@ def run_multistart(problem: Problem, seed: int, max_iter: int = 1800) -> str:
 
     rng = np.random.default_rng(seed)
     options = dict(problem.spec.solver.options)
-    options["algo_name"] = problem.spec.solver.algorithm
+    algo_name = problem.spec.solver.algorithm
     # The solves at the end of each finished start: a run cut short resumes
     # after the last of them, the start it was in being solved again.
     ends_path = OUT / "multistart_ends.json"
@@ -248,7 +251,12 @@ def run_multistart(problem: Problem, seed: int, max_iter: int = 1800) -> str:
         scenario.add_constraint(
             "volume", constraint_type="ineq", positive=False, value=0.0
         )
-        scenario.execute(**{**options, "max_iter": min(max_iter, remaining)})
+        scenario.execute(
+            _get_settings_class(algo_name)(**{
+                **options,
+                "max_iter": min(max_iter, remaining),
+            })
+        )
         starts += 1
         ends.append(len(problem.history))
         ends_path.write_text(json.dumps(ends))
@@ -435,8 +443,8 @@ def run_slsqp(problem: Problem, seed: int) -> str:  # noqa: ARG001
         formulation_name="MDF",
     )
     scenario.add_constraint("volume", constraint_type="ineq", positive=False, value=0.0)
-    scenario.execute(algo_name="SLSQP", max_iter=problem.budget)
-    iterations = len(scenario.formulation.optimization_problem.database)
+    scenario.execute(SLSQP_Settings(max_iter=problem.budget))
+    iterations = len(scenario.formulation.problem.database)
     return f"SLSQP, {iterations} iterations of at most {problem.budget}"
 
 

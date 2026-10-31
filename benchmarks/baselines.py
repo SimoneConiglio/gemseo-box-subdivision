@@ -41,10 +41,13 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 from typing import Any
 
-from gemseo.algos.design_space import DesignSpace
-from gemseo.algos.opt.factory import OptimizationLibraryFactory
-from gemseo.algos.optimization_problem import OptimizationProblem
-from gemseo.core.mdo_functions.mdo_function import MDOFunction
+from gemseo.core.function.array_function import ArrayFunction
+from gemseo.doe import LHS_Settings
+from gemseo.optimization import MultiStart_Settings
+from gemseo.optimization import OptimizationProblem
+from gemseo.optimization import SLSQP_Settings
+from gemseo.optimization.factory import OptimizationLibraryFactory
+from gemseo.space import DesignSpace
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
@@ -401,19 +404,20 @@ def run_multistart(
         problem, dimension, _starting_point(problem, dimension, seed)
     )
     optimization_problem = OptimizationProblem(design_space)
-    optimization_problem.objective = MDOFunction(
+    optimization_problem.objective = ArrayFunction(
         counter.objective, "f", jac=counter.gradient
     )
     with suppress(BudgetExceededError):
         OptimizationLibraryFactory().execute(
             optimization_problem,
-            algo_name="MultiStart",
-            n_start=n_start,
-            # MultiStart apportions its own max_iter across the starts, so the
-            # settings of the sub-optimization must not carry one.
-            opt_algo_settings={},
-            doe_algo_settings={"seed": seed},
-            max_iter=10000,
+            MultiStart_Settings(
+                # MultiStart apportions its own max_iter across the starts, so
+                # the settings of the sub-optimization must not carry one.
+                # SLSQP and LHS are the defaults of GEMSEO 6, kept as they were.
+                opt_algo_settings=SLSQP_Settings(),
+                doe_algo_settings=LHS_Settings(n_samples=n_start, seed=seed),
+                max_iter=10000,
+            ),
         )
 
     return _result("multistart", problem, dimension, seed, counter, adjoint)

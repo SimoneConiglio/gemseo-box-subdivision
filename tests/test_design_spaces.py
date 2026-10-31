@@ -19,7 +19,7 @@ from __future__ import annotations
 from copy import deepcopy
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
+from gemseo.space import DesignSpace
 from numpy import allclose
 from numpy import array
 from numpy.testing import assert_allclose
@@ -57,15 +57,15 @@ def box_design_space(subdivision, design_space):
 
 def test_variables(box_design_space) -> None:
     """Check that both levels are gathered in the design space."""
-    assert set(box_design_space.variable_names) == {"x", "y", "z", "x_box", "y_box"}
+    assert set(box_design_space.variables) == {"x", "y", "z", "x_box", "y_box"}
     assert box_design_space.categorical_variables == ["x_box", "y_box"]
 
 
 def test_one_hot_sizes(box_design_space) -> None:
     """Check the size of the one-hot variables."""
     # x has 2 components with 4 subdivisions, y has 1 component with 2.
-    assert box_design_space.variable_sizes["x_box"] == 2 * 4
-    assert box_design_space.variable_sizes["y_box"] == 1 * 2
+    assert box_design_space.variables["x_box"].size == 2 * 4
+    assert box_design_space.variables["y_box"].size == 1 * 2
 
 
 def test_n_members_derivation(box_design_space) -> None:
@@ -76,7 +76,7 @@ def test_n_members_derivation(box_design_space) -> None:
     sum-to-one constraint per component.
     """
     n_members = {
-        name: int(box_design_space.variable_sizes[name] / n_catalogues)
+        name: int(box_design_space.variables[name].size / n_catalogues)
         for name, n_catalogues in box_design_space.n_catalogues.items()
     }
     assert n_members == {"x_box": 2, "y_box": 1}
@@ -155,7 +155,7 @@ def test_custom_one_hot_names(subdivision, design_space) -> None:
 def test_main_problem_variables(box_design_space) -> None:
     """Check the variables that the Benders formulation keeps in the main problem."""
     main_design_space = deepcopy(box_design_space).filter_non_categorical()
-    assert set(main_design_space.variable_names) == {"x_box", "y_box"}
+    assert set(main_design_space.variables) == {"x_box", "y_box"}
 
 
 def test_unknown_variable(subdivision) -> None:
@@ -183,8 +183,7 @@ def test_box_samples_match_the_design_space(subdivision, box_design_space) -> No
     """Check that the samples have the layout of the main problem design space."""
     main_design_space = deepcopy(box_design_space).filter_non_categorical()
     size = sum(
-        main_design_space.variable_sizes[name]
-        for name in main_design_space.variable_names
+        main_design_space.variables[name].size for name in main_design_space.variables
     )
     assert create_box_samples(subdivision).shape[1] == size
 
@@ -203,7 +202,7 @@ def normalized_design_space(subdivision, design_space):
 
 def test_normalized_variables(normalized_design_space) -> None:
     """Check that the subdivided variables are replaced by normalized ones."""
-    assert set(normalized_design_space.variable_names) == {
+    assert set(normalized_design_space.variables) == {
         "z",
         "x_normalized",
         "y_normalized",
@@ -249,7 +248,7 @@ def test_normalized_without_other_variables(design_space) -> None:
     """Check the design space when every variable is subdivided."""
     subdivision = BoxSubdivision.from_design_space(design_space, 2)
     normalized = create_normalized_box_design_space(subdivision, design_space)
-    assert set(normalized.variable_names) == {
+    assert set(normalized.variables) == {
         "x_normalized",
         "y_normalized",
         "z_normalized",

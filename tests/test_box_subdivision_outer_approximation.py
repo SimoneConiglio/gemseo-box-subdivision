@@ -23,10 +23,10 @@ from __future__ import annotations
 
 import pytest
 from gemseo import create_scenario
-from gemseo.algos.design_space import DesignSpace
 from gemseo.core.discipline import Discipline
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.optimization import SLSQP_Settings
+from gemseo.space import DesignSpace
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
@@ -90,7 +90,7 @@ def _create_scenario(initial_value: float):
         sub_problem_algo_settings=SLSQP_Settings(max_iter=50),
         sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
     )
-    scenario.formulation.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME)
+    scenario.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME, constraint_type="ineq")
     return scenario, subdivision
 
 
@@ -118,7 +118,7 @@ def test_fewer_sub_problems_than_boxes() -> None:
     """
     scenario, subdivision = _create_scenario(0.1)
     scenario.execute(BILEVEL_MASTER_OUTER_APPROXIMATION_Settings(max_iter=12))
-    n_sub_problems = len(scenario.formulation.optimization_problem.database)
+    n_sub_problems = len(scenario.formulation.problem.database)
     assert n_sub_problems < subdivision.n_boxes
 
 

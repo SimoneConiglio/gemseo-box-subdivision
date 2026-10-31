@@ -17,10 +17,10 @@
 from __future__ import annotations
 
 from gemseo import create_mda
-from gemseo.algos.design_space import DesignSpace
-from gemseo.core.chains.chain import MDOChain
 from gemseo.core.discipline import Discipline
-from gemseo.mda.base_mda import BaseMDA
+from gemseo.discipline import DisciplineChain
+from gemseo.mda.core.base import BaseMDA
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import zeros
 from numpy.testing import assert_allclose
@@ -141,7 +141,7 @@ def test_the_mda_still_converges_and_differentiates_correctly() -> None:
     guess it started from, which is zero.
     """
     disciplines = keep_every_mda_couplings_internal([mda(), Objective()])
-    chain = MDOChain(list(disciplines))
+    chain = DisciplineChain(list(disciplines))
     x = 1.0
     chain.execute({"x": array([x])})
     y1 = (x + 0.2) / 0.9
@@ -169,7 +169,7 @@ def test_a_constrained_coupled_scenario_runs() -> None:
             convexity_margin=10.0, max_iter=12, sub_problem_max_iter=8
         ),
     )
-    scenario.formulation.add_constraint("g", constraint_type="ineq", main_level=True)
+    scenario.add_constraint("g", constraint_type="ineq", main_level=True)
     scenario.execute()
-    database = scenario.formulation.optimization_problem.database
+    database = scenario.formulation.problem.database
     assert len(database) > 1

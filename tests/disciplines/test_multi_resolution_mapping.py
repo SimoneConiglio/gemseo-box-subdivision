@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import pytest
+from gemseo import check_jacobian
 from numpy import array
 from numpy.random import default_rng
 from numpy.testing import assert_allclose
@@ -79,4 +80,4 @@ def test_jacobian_at_relaxed_one_hots(subdivision, seed) -> None:
         ).ravel()
 
     data[subdivision.get_normalized_name("x")] = generator.uniform(0.0, 1.0, 2)
-    assert discipline.check_jacobian(input_data=data, threshold=1e-6, step=1e-7)
+    assert check_jacobian(discipline, input_value=data, atol=1e-6, rtol=1e-6, step=1e-7)

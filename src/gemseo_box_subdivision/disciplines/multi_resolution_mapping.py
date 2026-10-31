@@ -26,7 +26,7 @@ from numpy import zeros
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from gemseo.typing import StrKeyMapping
+    from gemseo.util.typing import StrKeyMapping
 
     from gemseo_box_subdivision.subdivisions.multi_resolution import MultiResolution
 

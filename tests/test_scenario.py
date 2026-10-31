@@ -19,10 +19,10 @@ from __future__ import annotations
 from typing import ClassVar
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
 from gemseo.core.discipline import Discipline
-from gemseo.settings.opt import NLOPT_COBYLA_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.optimization import NLOPT_COBYLA_Settings
+from gemseo.optimization import SLSQP_Settings
+from gemseo.space import DesignSpace
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
@@ -41,6 +41,7 @@ from gemseo_box_subdivision import BoxSubdivisionScenario
 from gemseo_box_subdivision import BoxSubdivisionSettings
 from gemseo_box_subdivision import MultiResolution
 from gemseo_box_subdivision import create_box_subdivision_scenario
+from gemseo_box_subdivision import settings as settings_module
 
 
 class Rastrigin(Discipline):
@@ -77,7 +78,7 @@ def design_space(name: str = "x", size: int = 2) -> DesignSpace:
 
 def best(scenario) -> float:  # noqa: ANN001
     """Return the best objective value in the database of a scenario."""
-    database = scenario.formulation.optimization_problem.database
+    database = scenario.formulation.problem.database
     return min(float(v["f"]) for v in database.values() if "f" in v)
 
 
@@ -121,7 +122,7 @@ def test_the_constraint_formulation_declares_its_constraint() -> None:
     )
     adapter = scenario.formulation.sub_problem_scenario_adapter
     assert type(adapter).__name__ == "BoxStartScenarioAdapter"
-    problem = adapter.scenario.formulation.optimization_problem
+    problem = adapter.scenario.formulation.problem
     assert problem.constraints.get_names() == ["g_box"]
 
 
@@ -132,7 +133,7 @@ def test_the_normalized_formulation_needs_neither() -> None:
     )
     adapter = scenario.formulation.sub_problem_scenario_adapter
     assert type(adapter).__name__ == "MDOScenarioAdapterBenders"
-    problem = adapter.scenario.formulation.optimization_problem
+    problem = adapter.scenario.formulation.problem
     assert problem.constraints.get_names() == []
 
 
@@ -250,7 +251,7 @@ def test_explicit_settings_override_the_defaults() -> None:
             max_iter=2, ub_tol=1e-4, adapt=True, min_dfk=100.0, max_step=1
         )
     )
-    assert scenario.formulation.optimization_problem.database
+    assert scenario.formulation.problem.database
 
 
 def sub_problem_settings(scenario):  # noqa: ANN001, ANN201
@@ -261,7 +262,7 @@ def sub_problem_settings(scenario):  # noqa: ANN001, ANN201
     sub-problem reach the scenario the ``Benders`` formulation builds.
     """
     sub_scenario = scenario.formulation.sub_problem_scenario_adapter.scenario
-    return sub_scenario._settings.algo_settings["settings_model"]  # noqa: SLF001
+    return sub_scenario._algorithm_settings  # noqa: SLF001
 
 
 @pytest.mark.parametrize("formulation", ["normalized", "constraint"])
@@ -482,10 +483,19 @@ def test_a_gradient_free_sub_problem_solver_solves_rastrigin() -> None:
     assert best(scenario) < 5.0
 
 
-def test_an_algorithm_whose_settings_select_another_one_is_refused() -> None:
+def test_an_algorithm_whose_settings_select_another_one_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """The name the settings select is the one executed, so it must be the one asked."""
-    with pytest.raises(ValueError, match="select 'OrtoolsMILP' instead"):
-        BoxSubdivisionSettings(sub_problem_algo_name="ORTOOLS_MILP")
+
+    class OTHER_ALGO_Settings(SLSQP_Settings):  # noqa: N801
+        """Settings that a plugin would have declared for another algorithm."""
+
+    monkeypatch.setattr(
+        settings_module, "_get_settings_class", lambda algo_name: OTHER_ALGO_Settings
+    )
+    with pytest.raises(ValueError, match="select 'OTHER_ALGO' instead"):
+        BoxSubdivisionSettings(sub_problem_algo_name="SLSQP")
 
 
 def test_the_settings_are_given_by_name() -> None:
@@ -628,7 +638,7 @@ def test_the_caller_adapter_wins_over_the_box_start_one() -> None:
     adapter = scenario.formulation.sub_problem_scenario_adapter
     assert type(adapter).__name__ == "RecordingAdapter"
     # The box is still enforced by the constraint the formulation declares.
-    problem = adapter.scenario.formulation.optimization_problem
+    problem = adapter.scenario.formulation.problem
     assert problem.constraints.get_names() == ["g_box"]
 
 

@@ -68,7 +68,7 @@ def create_box_start_adapter_class(
 
         def _pre_run(self) -> None:
             super()._pre_run()
-            design_space = self.scenario.formulation.optimization_problem.design_space
+            design_space = self.scenario.formulation.problem.design_space
             data = self.io.data
             for variable_name, one_hot_name in names.items():
                 if variable_name not in design_space or one_hot_name not in data:

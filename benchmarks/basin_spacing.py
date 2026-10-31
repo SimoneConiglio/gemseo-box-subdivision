@@ -83,11 +83,11 @@ from typing import Final
 from typing import NamedTuple
 
 from gemseo import create_scenario
-from gemseo.algos.design_space import DesignSpace
-from gemseo.core.chains.chain import MDOChain
 from gemseo.core.discipline import Discipline
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.discipline import DisciplineChain
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.optimization import SLSQP_Settings
+from gemseo.space import DesignSpace
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
@@ -114,7 +114,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Sequence
 
-    from gemseo.algos.optimization_problem import OptimizationProblem
+    from gemseo.optimization import OptimizationProblem
     from numpy import ndarray
 
     from benchmarks.problems import Problem
@@ -823,7 +823,7 @@ def run_at_density(
     )
     scenario = create_scenario(
         [
-            MDOChain([
+            DisciplineChain([
                 BoxMapping(subdivision),
                 GroupedObjective(counter, groups, dimension),
             ])
@@ -853,7 +853,7 @@ def run_at_density(
         )
 
     cost = counter.cost(dimension, adjoint=True)
-    best, evaluations, boxes = read_master(scenario.formulation.optimization_problem)
+    best, evaluations, boxes = read_master(scenario.formulation.problem)
     # A budget spent before the first box was solved leaves the database with
     # nothing to read, and the counter's best value is then the only one there
     # is. It is the parent's, so this is a serial answer, but a parallel run
@@ -949,7 +949,7 @@ def run_at_density_swept(
         scenario.execute()
 
     cost = counter.cost(dimension, adjoint=True)
-    best, evaluations, boxes = read_master(scenario.formulation.optimization_problem)
+    best, evaluations, boxes = read_master(scenario.formulation.problem)
     # A budget spent before the first box was solved leaves the database with
     # nothing to read, and the counter's best value is then the only one there
     # is. It is the parent's, so this is a serial answer, but a parallel run

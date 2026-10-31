@@ -34,7 +34,7 @@ from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from gemseo.algos.design_space import DesignSpace
+    from gemseo.space import DesignSpace
     from numpy import ndarray
 
 DEFAULT_MAX_BOXES: Final[int] = 100_000
@@ -91,7 +91,7 @@ def create_box_design_space(
     Raises:
         ValueError: If a subdivided variable is not in the design space.
     """
-    if unknown := set(subdivision.variable_names) - set(design_space.variable_names):
+    if unknown := set(subdivision.variable_names) - set(design_space.variables):
         msg = f"The following variables are not in the design space: {sorted(unknown)}."
         raise ValueError(msg)
 
@@ -183,14 +183,14 @@ def create_normalized_box_design_space(
     Raises:
         ValueError: If a subdivided variable is not in the design space.
     """
-    if unknown := set(subdivision.variable_names) - set(design_space.variable_names):
+    if unknown := set(subdivision.variable_names) - set(design_space.variables):
         msg = f"The following variables are not in the design space: {sorted(unknown)}."
         raise ValueError(msg)
 
     box_design_space = CatalogueDesignSpace(name=design_space.name)
     kept_names = [
         name
-        for name in design_space.variable_names
+        for name in design_space.variables
         if name not in subdivision.variable_names
     ]
     if kept_names:

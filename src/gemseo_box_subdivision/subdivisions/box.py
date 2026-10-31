@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from collections.abc import Mapping
 
-    from gemseo.algos.design_space import DesignSpace
+    from gemseo.space import DesignSpace
 
 
 class BoxSubdivision:
@@ -171,8 +171,8 @@ class BoxSubdivision:
             ValueError: If a variable is unknown, has a non-finite bound,
                 or has a non-positive number of subdivisions.
         """
-        names = tuple(variable_names) or tuple(design_space.variable_names)
-        if unknown := set(names) - set(design_space.variable_names):
+        names = tuple(variable_names) or tuple(design_space.variables)
+        if unknown := set(names) - set(design_space.variables):
             msg = (
                 "The following variables are not in the design space: "
                 f"{sorted(unknown)}."

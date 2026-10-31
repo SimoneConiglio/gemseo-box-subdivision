@@ -19,7 +19,7 @@ settings, see [Algorithms of the two levels](#algorithms-of-the-two-levels).
 The scenario is built and executed as follows:
 
 ```python
-from gemseo.algos.design_space import DesignSpace
+from gemseo.space import DesignSpace
 
 from gemseo_box_subdivision import BoxSubdivisionScenario
 
@@ -339,7 +339,7 @@ the boxes it solved, which leaves the scenario and the budget accounting to the
 caller.
 
 ```python
-from gemseo.algos.design_space import DesignSpace
+from gemseo.space import DesignSpace
 
 from gemseo_box_subdivision import (
     BoxSubdivisionScenario,
@@ -363,7 +363,7 @@ def solve(lower_bound, upper_bound, n_subdivisions):
     )
     scenario.execute()
     return scenario.subdivision, read_solved_boxes(
-        scenario.formulation.optimization_problem
+        scenario.formulation.problem
     )
 
 
@@ -401,7 +401,7 @@ Such a constraint is declared with `main_level=True`, so that an infeasible
 sub-problem produces a feasibility cut instead of stalling the master:
 
 ```python
-scenario.formulation.add_constraint("g", main_level=True)
+scenario.add_constraint("g", constraint_type="ineq", main_level=True)
 ```
 
 ### Naming of the constraints
@@ -439,7 +439,7 @@ scenario = BoxSubdivisionScenario(
     n_subdivisions=10,
 )
 for name in ("r_upper", "r_lower"):
-    scenario.formulation.add_constraint(name, main_level=True)
+    scenario.add_constraint(name, constraint_type="ineq", main_level=True)
 ```
 
 A constraint with `positive=True` is written as a negated constraint, `<= 0` like
@@ -490,7 +490,7 @@ The run can be inspected as follows:
 from gemseo_box_subdivision import read_margin_report
 
 scenario.execute()
-report = read_margin_report(scenario.formulation.optimization_problem)
+report = read_margin_report(scenario.formulation.problem)
 print(report.describe())
 # 6 boxes solved, 3 admitted and 3 cut on feasibility; the objective spreads
 # over 2.3 across them, which is the scale to calibrate the convexity margin in.
@@ -536,7 +536,7 @@ mda = create_mda("MDAGaussSeidel", [first, second], tolerance=1e-10)
 scenario = BoxSubdivisionScenario(
     [mda, objective_discipline], "f", design_space, n_subdivisions=4
 )
-scenario.formulation.add_constraint("g", constraint_type="ineq", main_level=True)
+scenario.add_constraint("g", constraint_type="ineq", main_level=True)
 ```
 
 An MDA both consumes and produces its couplings, and a chain treats every input
@@ -565,14 +565,14 @@ The same scenario can be driven exhaustively, which gives the reference for the
 comparison:
 
 ```python
-from gemseo.algos.doe.factory import DOELibraryFactory
+from gemseo.doe import CustomDOE_Settings
+from gemseo.doe.factory import DOELibraryFactory
 
 from gemseo_box_subdivision.design_spaces import create_box_samples
 
 DOELibraryFactory().execute(
-    scenario.formulation.optimization_problem,
-    algo_name="CustomDOE",
-    samples=create_box_samples(subdivision),
+    scenario.formulation.problem,
+    CustomDOE_Settings(samples=create_box_samples(subdivision)),
 )
 ```
 
@@ -600,7 +600,7 @@ from gemseo_bilevel_outer_approximation.disciplines.scenario_adapters.mdo_scenar
 class RestoringAdapter(MDOScenarioAdapterBenders):
     def _pre_run(self) -> None:
         super()._pre_run()
-        problem = self.scenario.formulation.optimization_problem
+        problem = self.scenario.formulation.problem
         problem.design_space.set_current_value(a_startable_point_in(self.io.data))
 
 

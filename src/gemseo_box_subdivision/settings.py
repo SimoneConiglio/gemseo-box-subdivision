@@ -49,7 +49,7 @@ from typing import Any
 from typing import ClassVar
 from warnings import warn
 
-from gemseo.algos.opt.factory import OptimizationLibraryFactory
+from gemseo.optimization.factory import OptimizationLibraryFactory
 
 from gemseo_box_subdivision import convexity_sweep as _policy
 from gemseo_box_subdivision.convexity_sweep import MASTER_SWEEPS_CONVEXITY
@@ -60,7 +60,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from collections.abc import Mapping
 
-    from gemseo.algos.base_algorithm_settings import BaseAlgorithmSettings
+    from gemseo.util.pydantic import BaseSettings
 
 TRUST_REGION_RADIUS: int = 2
 """The default radius of the trust region, in components changed.
@@ -348,7 +348,7 @@ class BaseBoxSubdivisionSettings(ABC):
         settings.update(self.sub_problem_algo_settings)
         return settings
 
-    def create_sub_problem_settings_model(self) -> BaseAlgorithmSettings:
+    def create_sub_problem_settings_model(self) -> BaseSettings:
         """Return the settings of a sub-problem, as a Pydantic model.
 
         This is what the ``Benders`` formulation takes as its
@@ -763,7 +763,7 @@ def _check_the_master_can_solve_it(algo_name: str) -> None:
         raise ValueError(msg)
 
 
-def _get_settings_class(algo_name: str) -> type[BaseAlgorithmSettings]:
+def _get_settings_class(algo_name: str) -> type[BaseSettings]:
     """Return the class of the settings of an optimization algorithm.
 
     Args:
@@ -826,7 +826,9 @@ def _check_sub_problem_settings_model(algo_name: str) -> None:
     Raises:
         ValueError: When the settings of the algorithm select another one.
     """
-    selected = _get_settings_class(algo_name)._TARGET_CLASS_NAME
+    # GEMSEO derives the name of the class a settings class targets from its name,
+    # ``X_Settings`` targeting ``X``.
+    selected = _get_settings_class(algo_name).__name__.removesuffix("_Settings")
     if selected != algo_name:
         msg = (
             f"The settings of the algorithm {algo_name!r} select {selected!r} "

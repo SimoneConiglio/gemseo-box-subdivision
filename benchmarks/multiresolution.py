@@ -64,10 +64,10 @@ from statistics import median
 from typing import TYPE_CHECKING
 
 from gemseo import create_scenario
-from gemseo.core.chains.chain import MDOChain
 from gemseo.core.discipline import Discipline
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.discipline import DisciplineChain
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.optimization import SLSQP_Settings
 from gemseo_bilevel_outer_approximation.algos.design_space.catalogue_design_space import (  # noqa: E501
     CatalogueDesignSpace,
 )
@@ -380,7 +380,11 @@ def run(
         else max_step(dimension, branching, levels, weighting)
     )
     scenario = create_scenario(
-        [MDOChain([MultiResolutionMapping(lower, upper, branching, levels, counter)])],
+        [
+            DisciplineChain([
+                MultiResolutionMapping(lower, upper, branching, levels, counter)
+            ])
+        ],
         "f",
         design_space,
         formulation_name="Benders",

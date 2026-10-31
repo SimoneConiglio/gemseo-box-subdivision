@@ -19,7 +19,7 @@ from __future__ import annotations
 import itertools
 
 import pytest
-from gemseo.algos.design_space import DesignSpace
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import full
 from numpy import zeros

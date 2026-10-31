@@ -18,10 +18,10 @@ from __future__ import annotations
 
 import pytest
 from gemseo import create_scenario
-from gemseo.algos.design_space import DesignSpace
 from gemseo.core.discipline import Discipline
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.optimization import SLSQP_Settings
+from gemseo.space import DesignSpace
 from numpy import array
 from numpy import concatenate
 from numpy import cos
@@ -86,7 +86,7 @@ def _create_scenario(initial_value: float, box_start: bool):
         sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
         **settings,
     )
-    scenario.formulation.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME)
+    scenario.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME, constraint_type="ineq")
     return scenario, subdivision
 
 
@@ -102,7 +102,7 @@ def _evaluate_box(scenario, index: int) -> float:
     """
     one_hot = zeros(N_SUBDIVISIONS)
     one_hot[index] = 1.0
-    problem = scenario.formulation.optimization_problem
+    problem = scenario.formulation.problem
     return float(problem.objective.evaluate(one_hot).ravel()[0])
 
 
@@ -175,7 +175,7 @@ def test_subdivided_variable_outside_the_sub_problem() -> None:
     assert "x" not in sub_design_space
     one_hot = zeros(N_SUBDIVISIONS)
     one_hot[0] = 1.0
-    value = scenario.formulation.optimization_problem.objective.evaluate(
+    value = scenario.formulation.problem.objective.evaluate(
         concatenate([one_hot, array([0.1])])
     )
     assert value is not None
@@ -204,16 +204,14 @@ def test_sub_problem_keeps_the_variables_that_are_not_subdivided() -> None:
         sub_problem_formulation_settings=DisciplinaryOpt_Settings(),
         scenario_adapter_cls=create_box_start_adapter_class(subdivision),
     )
-    scenario.formulation.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME)
+    scenario.add_constraint(BoxConstraint.DEFAULT_OUTPUT_NAME, constraint_type="ineq")
     sub_design_space = scenario.formulation.sub_problem_design_space
     assert set(sub_design_space) == {"x", "y"}
 
     index = 2
     one_hot = zeros(N_SUBDIVISIONS)
     one_hot[index] = 1.0
-    value = float(
-        scenario.formulation.optimization_problem.objective.evaluate(one_hot).ravel()[0]
-    )
+    value = float(scenario.formulation.problem.objective.evaluate(one_hot).ravel()[0])
     # The minimum of x + y over the box of x and the whole range of y.
     assert value == pytest.approx(subdivision.get_lower_bounds("x")[0, index], abs=1e-6)
 

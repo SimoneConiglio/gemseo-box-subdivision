@@ -26,7 +26,7 @@ The plugin is registered through the `gemseo_plugins` entry point, so that its
 algorithms are available in the GEMSEO factories:
 
 ```python
-from gemseo.algos.opt.factory import OptimizationLibraryFactory
+from gemseo.optimization.factory import OptimizationLibraryFactory
 
 print(OptimizationLibraryFactory().algorithms)
 ```

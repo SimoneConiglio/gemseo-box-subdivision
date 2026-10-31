@@ -30,9 +30,18 @@ and this project adheres to
 
 ### Changed
 
-- Migrate to GEMSEO 7: depend on `gemseo[all] >=7.0.0rc0,<8`.
+- Migrate to GEMSEO 7: depend on `gemseo[all] >=7.0.0rc0,<8`, with the imports
+  moved to the new GEMSEO modules.
 - Depend on the `bump-gemseo-7` branch of `gemseo-bilevel-outer-approximation`,
   until a GEMSEO 7 compatible release is on PyPI.
+- `BoxSubdivisionScenario` passes its `Benders` settings as a
+  `Benders_Settings` model and executes its master with a settings model, as
+  GEMSEO 7 requires; `execute(**settings)` still takes `algo_name`, the master of
+  the settings by default.
+- A constraint is added with `scenario.add_constraint`, which forwards
+  `main_level` to the formulation. Its default type is an equality, where
+  `scenario.formulation.add_constraint` defaulted to an inequality: pass
+  `constraint_type="ineq"`.
 - Use `BILEVEL_MASTER_OUTER_APPROXIMATION_Settings` in the tests and benchmarks,
   as `BiLevelMasterOuterApproximation_Settings` is removed upstream.
 

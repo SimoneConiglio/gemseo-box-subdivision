@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from collections.abc import Mapping
 
-    from gemseo.typing import StrKeyMapping
+    from gemseo.util.typing import StrKeyMapping
 
     from gemseo_box_subdivision.subdivisions.box import BoxSubdivision
 

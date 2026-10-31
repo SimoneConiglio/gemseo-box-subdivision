@@ -96,7 +96,7 @@ def measure(
             )
         )
         values.append(float(scenario.optimization_result.f_opt))
-        boxes.append(len(scenario.formulation.optimization_problem.database))
+        boxes.append(len(scenario.formulation.problem.database))
         evaluations.append(objective.n_executions)
 
     return (

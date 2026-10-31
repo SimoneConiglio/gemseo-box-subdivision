@@ -38,11 +38,11 @@ from statistics import median
 from typing import TYPE_CHECKING
 
 from gemseo import create_scenario
-from gemseo.algos.design_space import DesignSpace
-from gemseo.core.chains.chain import MDOChain
 from gemseo.core.discipline import Discipline
-from gemseo.settings.formulations import DisciplinaryOpt_Settings
-from gemseo.settings.opt import SLSQP_Settings
+from gemseo.discipline import DisciplineChain
+from gemseo.formulation import DisciplinaryOpt_Settings
+from gemseo.optimization import SLSQP_Settings
+from gemseo.space import DesignSpace
 from gemseo_bilevel_outer_approximation.algos.opt.bilevel_master_outer_approximation.bilevel_master_outer_approximation_settings import (  # noqa: E501
     BILEVEL_MASTER_OUTER_APPROXIMATION_Settings,
 )
@@ -165,7 +165,12 @@ def run(
         design_space, n_subdivisions, [SPLIT]
     )
     scenario = create_scenario(
-        [MDOChain([BoxMapping(subdivision), SplitObjective(counter, n_split, n_free)])],
+        [
+            DisciplineChain([
+                BoxMapping(subdivision),
+                SplitObjective(counter, n_split, n_free),
+            ])
+        ],
         "f",
         create_normalized_box_design_space(subdivision, design_space),
         formulation_name="Benders",
