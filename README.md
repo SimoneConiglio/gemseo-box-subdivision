@@ -8,6 +8,7 @@ the code lives on the other branches.
 | path | contents |
 |------|----------|
 | `presentation/index.html` | a 14-slide deck for a ten-minute talk, with its animations |
+| `presentation/one-pager.html` | the method on a single slide, its animations as looping GIFs |
 | `video/box_subdivision.mp4` | the narrated video, 25 minutes, 1080p |
 
 ## Presenting
