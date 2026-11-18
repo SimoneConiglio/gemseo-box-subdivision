@@ -1,0 +1,21 @@
+Gradient-based optimizers return the minimum of the basin that contains their
+starting point. This paper studies a bi-level method that delegates the choice
+of the basin to a mixed-integer master problem. The design space is divided
+into a Cartesian grid of boxes, which turns the choice of a region into one
+one-hot categorical variable per design component; the master selects a box from
+outer-approximation cuts built on the boxes already solved, and a local solver
+solves the original problem within the selected box. The cut slopes are exact
+post-optimal sensitivities with respect to the box selection, and the master
+grows with the sum, not the product, of the subdivisions: $10^5$ boxes in five
+dimensions require $50$ binaries. Because the value function is not convex in
+the box selection, the cuts must be corrected; we compare a convexification
+constant with an adaptive repair, and propose a parameter-free sweep of the
+convexity over the parallel probes of the master. We show that the trust region
+of the master must count changed components, and that the usable subdivision
+density is bounded above by the number of binaries a budget can identify and
+below by the spacing of the basins. On analytic benchmarks the method reaches the
+optimum at a third of the cost of enumerating the boxes, and, when the
+subdivision separates the basins, with fewer evaluations than multistart,
+CMA-ES and DIRECT; otherwise it is among the worst, and Bayesian optimization
+is better at small budgets. On a 108-variable feature-based topology
+optimization problem it improves the reference compliance from $84.0$ to $82.1$.
