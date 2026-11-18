@@ -89,7 +89,31 @@ sampling or by perturbation of the current minimum, and evolution strategies
 such as CMA-ES \citep{hansen2001} adapt a search distribution from the ranking
 of the sampled points. In these methods, the location of the next local search
 is not derived from a model of the problem, and the information provided by the
-local solutions already obtained is exploited only partially. Partitioning
+local solutions already obtained is exploited only partially.
+Tunneling methods \citep{levy1985,levygomez1985} are deterministic alternatives
+based on the same local optimizers. A minimization phase, which provides a local
+minimum $x^\ast$, alternates with a tunneling phase, in which a point
+$x \ne x^\ast$ such that $f(x) \le f(x^\ast)$ is sought as a zero of the
+tunneling function
+\begin{equation}\label{eq:tunneling}
+  T(x) = \frac{f(x) - f(x^\ast)}{\bigl[(x - x^\ast)^\top (x - x^\ast)\bigr]^{\lambda}},
+\end{equation}
+and is then used as the starting point of the next minimization phase. The pole
+placed at $x^\ast$, of strength $\lambda$, prevents the convergence to the
+minimum already found, and additional mobile poles are introduced at the
+stationary points of $T$ encountered during the tunneling phase. The method was
+extended to constrained problems with non-connected feasible regions
+\citep{gomez1982}, and filled function methods rely on a similar modification of
+the objective function around the current minimum \citep{ge1990}. The deflation
+technique applied to topology optimization by \citet{papadopoulos2021} is based
+on the same principle, the known solutions being removed by deflation
+operators. These methods are the closest competitors of the method proposed
+here, since they also rely on gradient-based local optimizations and generate a
+sequence of local minima of decreasing value. They differ in the way the next
+starting point is chosen: in tunneling and deflation methods it is obtained by
+solving an auxiliary problem around the last minimum, whereas in the present
+method it is selected by a master problem from the cuts of all the regions
+already explored. Partitioning
 methods divide the design space into boxes and refine the most promising ones.
 DIRECT \citep{jones1993} selects the boxes from an implicit Lipschitz bound,
 multilevel coordinate search \citep{huyer1999} combines a partitioning along the
@@ -1337,14 +1361,19 @@ the method is intended for sub-problems whose solution takes minutes; neither
 the cost of the master problem nor that of the surrogate model of efficient
 global optimization is included in the budget. A comparison on an expensive
 objective function is required to compare the method with Bayesian optimization.
+(vi) Tunneling, filled function and deflation methods, which are the closest
+competitors of the method, were not included in the comparison, so that its
+performance relative to these methods remains to be assessed.
 
-\paragraph{Future work.} Four directions of research follow from these results:
+\paragraph{Future work.} Five directions of research follow from these results:
 a master problem defined over a growing set of boxes, in which the cuts are kept
 when a box is refined, so that the hierarchies become a lazy branch and bound
 procedure; the computation of a lower bound without the convexification term,
 which would provide a meaningful optimality gap; a basin count accounting for
-non-convex constraints such as stress constraints; and the validation of the
-swept convexity on an independent set of test problems.
+non-convex constraints such as stress constraints; the validation of the
+swept convexity on an independent set of test problems; and a comparison with
+tunneling and deflation methods on the same problems, including the topology
+optimization problem.
 
 %% ---------------------------------------------------------------------------
 \section{Conclusions}\label{sec:conclusion}
