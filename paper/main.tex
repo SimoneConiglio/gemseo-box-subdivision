@@ -61,91 +61,95 @@
 %% ---------------------------------------------------------------------------
 \section{Introduction}\label{sec:intro}
 
-Gradient-based local optimizers are the workhorse of structural and
-multidisciplinary design optimization: they scale to many variables, exploit
-adjoint sensitivities, and handle constraints. They return, however, the
-minimum of the basin that contains their starting point. When the objective or
-the constraints are non-convex, as in feature-based topology optimization, the
-quality of the design depends on the initial guess, and the designer is left
-with the question of where to start.
+Gradient-based local optimizers are widely used in structural and
+multidisciplinary design optimization, since they scale to large numbers of
+design variables, exploit adjoint sensitivities and handle constraints
+efficiently. However, they converge to the local minimum of the basin of
+attraction containing the initial design. When the objective function or the
+constraints are non-convex, as is the case in feature-based topology
+optimization, the final design depends on the initial guess.
 
-The usual answers trade evaluations for coverage. A multistart
-\citep{rinnooykan1987} solves the problem from many initial designs drawn
-independently of one another; it is embarrassingly parallel but learns nothing
-from the solutions it has already obtained. Partitioning methods such as DIRECT
-\citep{jones1993} and multilevel coordinate search \citep{huyer1999} divide the
-design space into boxes and refine the most promising ones, but they sample
-rather than locally optimize, and the number of boxes they create grows
-quickly with the dimension. Bayesian optimization \citep{jones1998} reuses the
-whole history through a surrogate model, at a computational overhead that is
-cubic in the number of points. Deterministic spatial branch and bound with
-convex underestimators such as $\alpha$BB \citep{adjiman1998,horst1996}
-provides certificates of global optimality but needs bounds on the curvature of
-the functions, which are rarely available for simulation-based models.
+Several classes of methods have been proposed to address this issue. In a
+multistart approach \citep{rinnooykan1987}, the problem is solved from a set of
+initial designs chosen independently of each other, so that the information
+provided by the local solutions already obtained is not exploited. Partitioning
+methods such as DIRECT \citep{jones1993} and multilevel coordinate search
+\citep{huyer1999} divide the design space into boxes and refine the most
+promising ones; these methods rely on sampling rather than on local
+optimization, and the number of boxes increases rapidly with the dimension. In
+Bayesian optimization \citep{jones1998}, the whole history is exploited through
+a surrogate model, at a computational cost that grows cubically with the number
+of samples. Deterministic spatial branch and bound methods with convex
+underestimators, such as $\alpha$BB \citep{adjiman1998,horst1996}, provide
+certificates of global optimality, but require bounds on the curvature of the
+functions, which are seldom available for simulation-based models.
 
-This paper studies a different decomposition. The design space is divided into
-a Cartesian grid of boxes, which turns the choice of a region into a
-categorical variable. A mixed-integer master problem selects a box, a local
-gradient-based solver solves the original problem within it, and the optimal
-value and its post-optimal sensitivity with respect to the box selection are
-returned to the master as an outer-approximation cut
-\citep{duran1986,fletcher1994}, in the spirit of generalized Benders
-decomposition \citep{benders1962,geoffrion1972}. Exploration is thus delegated
-to the master, which ranks the boxes from the cuts of the boxes already solved,
-and exploitation to the local solver, which keeps its gradients, constraints and
-scaling.
+In the present work, a different decomposition is investigated. The design
+space is divided into a Cartesian grid of boxes, so that the selection of a
+region becomes a categorical variable. A box is selected by a mixed-integer
+master problem, and the original problem is solved within this box by a local
+gradient-based optimizer. The optimal value and its post-optimal sensitivity
+with respect to the box selection are then returned to the master problem as an
+outer-approximation cut \citep{duran1986,fletcher1994}, following the principle
+of generalized Benders decomposition \citep{benders1962,geoffrion1972}. The
+exploration of the design space is thus performed by the master problem, which
+ranks the boxes on the basis of the cuts of the boxes already solved, while the
+exploitation is performed by the local optimizer, which retains the use of
+gradients and constraints.
 
-Two observations make the approach tractable. First, with one one-hot
-categorical variable per design component, the master has $\sum_j m_j$
-binaries for $\prod_j m_j$ boxes, so that five variables divided into ten
-intervals give $10^5$ boxes but only $50$ binaries: the Cartesian product is
-never enumerated. Second, the slope of the cut can be obtained from the
-Lagrange multipliers of the box, or from a reparameterization of the design
-variables, without any additional evaluation.
+The approach is tractable for two reasons. With one one-hot categorical variable
+per design component, the master problem has $\sum_j m_j$ binary variables for
+$\prod_j m_j$ boxes, so that five variables divided into ten intervals each
+correspond to $10^5$ boxes and only $50$ binary variables, and the boxes are
+never enumerated. Moreover, the slope of each cut is obtained from the Lagrange
+multipliers of the box constraints, or from a reparameterization of the design
+variables, without additional function evaluations.
 
-The value function of a multimodal problem is not convex in the box selection,
-so that outer-approximation cuts are not valid supporting hyperplanes, and a
-naive implementation converges quickly to a wrong box while reporting success.
-Much of this paper is therefore concerned with what makes the method work in
-practice and with where it fails.
+The value function of a multimodal problem is, however, not convex with respect
+to the box selection. The outer-approximation cuts are therefore not valid
+supporting hyperplanes, and a direct implementation converges to a wrong box
+while reporting a successful termination. A large part of the paper is
+consequently devoted to the conditions under which the method can be applied
+reliably, and to the cases in which it fails.
 
-The contributions are the following.
+The main contributions of the paper are the following:
 \begin{itemize}
-  \item A formulation of multimodal continuous optimization as a bi-level
-    mixed-integer problem over a Cartesian subdivision, with a master whose size
-    grows with the sum and not the product of the subdivisions
-    (Section~\ref{sec:method}).
-  \item Two formulations of the sub-problem that yield exact cut slopes from
-    post-optimal analysis, the box as a constraint and the box as a
-    normalization of the variables (Section~\ref{sec:formulations}).
-  \item An analysis of the safeguards against non-convexity and of the
-    trust region of the master, including a \emph{swept} convexification that removes the only setting
-    expressed in the units of the objective, and a list of the ways in which
-    the method fails silently
-    (Sections~\ref{sec:convexification}--\ref{sec:implementation}).
-  \item An empirical characterization of the admissible subdivision density,
-    bounded above by the number of binaries a budget can identify and below by
-    the spacing of the basins, and an estimator of the density by counting basins
-    along randomized axial scans (Section~\ref{sec:density}).
-  \item A benchmark against the enumeration of the boxes, multistart, CMA-ES,
-    DIRECT and EGO on four analytic problems in two and five dimensions, and an
-    application to a 108-variable topology optimization problem with the
-    generalized geometry projection \citep{coniglio2020}
-    (Section~\ref{sec:results}).
+  \item the formulation of a multimodal continuous optimization problem as a
+    bi-level mixed-integer problem over a Cartesian subdivision, with a master
+    problem whose size grows with the sum of the subdivisions
+    (Section~\ref{sec:method});
+  \item two formulations of the sub-problem providing exact cut slopes by
+    post-optimal analysis, with the box defined either as a constraint or as a
+    normalization of the design variables (Section~\ref{sec:formulations});
+  \item an analysis of the safeguards against non-convexity and of the trust
+    region of the master problem, including a swept convexification which
+    avoids the calibration of a parameter expressed in the units of the
+    objective, together with a description of the implementation errors which
+    lead to wrong results without any warning
+    (Sections~\ref{sec:convexification} to~\ref{sec:implementation});
+  \item an empirical characterization of the admissible subdivision density,
+    which is bounded from above by the number of binary variables that can be
+    identified within the budget and from below by the spacing of the basins of
+    attraction, and an estimator of this density based on randomized axial
+    scans (Section~\ref{sec:density});
+  \item a comparison with the enumeration of the boxes, multistart, CMA-ES,
+    DIRECT and efficient global optimization on analytic test functions in two
+    and five dimensions, and an application to a topology optimization problem
+    with 108 design variables based on the generalized geometry projection
+    \citep{coniglio2020} (Section~\ref{sec:results}).
 \end{itemize}
 
 The method is implemented as an open-source plugin of the GEMSEO library
-\citep{gallard2018,boxsubdivision}, on top of an existing bi-level outer
-approximation \citep{gemseobilevel}. Limitations are stated explicitly
-throughout, and the experimental protocol, including its biases, is described
-in Section~\ref{sec:protocol}.
+\citep{gallard2018,boxsubdivision}, based on an existing bi-level outer
+approximation \citep{gemseobilevel}. The experimental protocol and its
+limitations are described in Section~\ref{sec:protocol}.
 
 %% ---------------------------------------------------------------------------
 \section{Method}\label{sec:method}
 
 \subsection{Problem and subdivision}
 
-We consider
+The following problem is considered:
 \begin{equation}\label{eq:problem}
   \min_{x \in [L, U] \subset \R^n} f(x)
   \quad \text{subject to} \quad g(x) \le 0,
@@ -207,8 +211,8 @@ and minimizes $\eta$ over the one-hot polytope, subject to a trust region
 around the incumbent (Section~\ref{sec:trust}). The lower envelope of the cuts,
 $\hat v(\alpha) = \max_i [v(\alpha^{(i)}) + s^{(i)\top}(\alpha-\alpha^{(i)})]$, is
 defined for every box, solved or not, and is the score by which the master ranks
-the unsolved boxes. The cuts make the exploration informed rather than
-exhaustive, so that the slope $s^{(i)}$ is the central quantity of the method.
+the unsolved boxes. Since the boxes are ranked by means of the cuts, the accuracy of the slopes
+$s^{(i)}$ determines the efficiency of the exploration.
 Algorithm~\ref{alg:bsoa} summarizes one run.
 
 \begin{figure}[t]
@@ -287,8 +291,8 @@ the paper.
 Cuts~\eqref{eq:cuts} are supporting hyperplanes only if $v$ is convex in the
 relaxed $\alpha$. For a multimodal problem it is not: a cut built in one box
 can lie above $v$ elsewhere and exclude the global optimum, and the master then
-converges rapidly to an incorrect box without reporting an error. In our
-experiments, with both safeguards below disabled, no starting point of the
+converges rapidly to an incorrect box without reporting an error. In the
+experiments of this work, with both safeguards described below disabled, no starting point of the
 benchmark reached the global optimum, while every run reported success.
 
 \paragraph{Convexification constant.} A term convex in the relaxed one-hot
@@ -323,13 +327,12 @@ The gap therefore never closes, and runs terminate on the trust region, when it
 shrinks until the master is infeasible, or on a counter of iterations without
 improvement, never on the optimality test. Increasing $\kappa$ beyond the value
 that dominates the non-convexity also makes every unexplored box rank before the
-incumbent, so that the method tends towards enumeration: the constant has a
-useful range bounded on both sides, which narrows with the dimension
-(Appendix~\ref{app:tuning}). The adaptive repair keeps the lower bound informative and was
-more reliable in our experiments, but it enforces convexity only with respect to
-the visited boxes and carries no guarantee. Its margin $\delta$ has a threshold
-below which the cuts remain invalid, and an excess is not harmless either: when
-$\delta$ exceeds the range of the objective, the right-hand side of the
+incumbent, and the method then approaches an enumeration of the boxes. The
+constant therefore has a useful range bounded on both sides, and this range
+becomes narrower as the dimension increases (Appendix~\ref{app:tuning}). The adaptive repair keeps the lower bound informative and was
+found to be more reliable in the experiments, but it enforces convexity only with respect to
+the visited boxes and carries no guarantee. Below a threshold value of the margin $\delta$, the cuts remain invalid.
+Conversely, when $\delta$ exceeds the range of the objective, the right-hand side of the
 least-squares problem is driven by the constant rather than by the observed
 values, all slopes are shifted in the same direction, and the cut model ranks
 the boxes by the margin instead of the landscape. With $\delta = 100$, the two
@@ -348,8 +351,8 @@ problems whose range is smaller than the margin, Ackley ($14.5$) and Griewank
 in the units of the objective, to be supplied before anything is known about
 it. A margin of $100$ reaches the optimum from all starting points on Rastrigin,
 whose range is about $80$, and is among the worst tested values on Ackley, whose
-range is about $22$. We remove this setting by exploiting the parallel probes of
-the master, which already sweep trust-region radii. The probes carry a ladder of
+range is about $22$. This parameter is removed here by means of the parallel probes
+of the master, which already sweep trust-region radii. The probes carry a ladder of
 convexity values $\kappa_1 < \dots < \kappa_p$, geometric below an upper bound,
 one rung per probe, paired so that small radii go with raw cuts and large radii
 with dominated cuts; each iteration thus proposes both exploitative and
@@ -362,9 +365,9 @@ headroom, the observed spread underestimates the spread over the design space
 when the first boxes are few and similar, as on the broad basin of Ackley, and
 the sweep then does not produce the exploration that would correct it. The
 factor is dimensionless and therefore transfers between problems, unlike an
-absolute margin, but it was chosen on two problems. The sweep replaces the
-calibration, not the certificate: the master keeps the smallest lower bound among
-its probes, which a high rung degrades, so that the gap still does not close.
+absolute margin, but it was chosen on two problems. It should be noted that the sweep does not restore the optimality test, since
+the master retains the smallest lower bound among its probes, which is degraded
+by the highest rungs, so that the gap still does not close.
 
 \subsection{Trust region of the master}\label{sec:trust}
 
@@ -380,17 +383,18 @@ expresses no proximity between categories. A subdivided variable looks ordinal,
 which suggests weighting each interval by its index; this, however, produces an
 asymmetric region instead of a local one (Fig.~\ref{fig:trust}): leaving the
 first interval costs nothing and leaving the last one costs $m_j - 1$, wherever
-the candidate goes. We therefore use unit weights, so that $\Delta$ bounds the
+the candidate goes. Unit weights are therefore used, so that $\Delta$ bounds the
 Hamming distance between the one-hot encodings, i.e. the number of components
 changed. The index weighting, which is the default of the upstream design space
 for numeric catalogues, degraded the results of the method until it was
 identified. An ordinal variant,
 $|v^\top\alpha - v^\top\bar\alpha| \le \Delta$ on the interval values $v$, was
-as reliable as counting components and about 50\% more expensive: neighbouring
-boxes are no more alike than distant ones on these landscapes, and the
-multimodality behaves as a categorical choice.
+found to be as reliable as the Hamming distance and about 50\% more expensive.
+For the landscapes considered, neighbouring boxes are not more similar than
+distant ones, so that the box selection is better treated as a categorical
+choice than as an ordinal one.
 
-The radius must be small. On Rastrigin in five variables with ten subdivisions,
+A small radius is required. On Rastrigin in five variables with ten subdivisions,
 a radius of two components reaches the optimum from all six starting points, a
 radius equal to the diameter $n$ of the design space from two, and no trust
 region from one; on Ackley the distance to the optimum increases monotonically
@@ -434,7 +438,7 @@ boundary, whose value and sensitivity carry no information on the location of th
 minimum, so that the ranking of the boxes deteriorates.
 
 \paragraph{Estimating the density.} Since the density must follow the spacing of
-the basins, we estimate the expected number of minima along an axial line,
+the basins, the expected number of minima along an axial line is estimated,
 \begin{equation}\label{eq:basins}
   N_j = \mathbb{E}_{x_\perp}\Bigl[\#\bigl\{t : \partial_j f(x_\perp + t e_j) = 0,\ \partial_{jj} f > 0\bigr\}\Bigr],
 \end{equation}
@@ -479,7 +483,7 @@ interval may change up to $L$ digits.
 \paragraph{Hierarchies of subdivisions.} A coarse subdivision is solved, a
 promising box is refined with its own subdivision, and so on. Two levels of
 $m^{(1)}$ and $m^{(2)}$ intervals give a resolution of $m^{(1)}m^{(2)}$, and no
-master has more than $\sum_j m_j^{(k)}$ binaries. We consider a two-level
+master has more than $\sum_j m_j^{(k)}$ binaries. Three shapes are considered: a two-level
 hierarchy, a deep hierarchy that halves every variable at each of $d$ levels
 ($2n$ binaries per level), and a best-first frontier that keeps the open boxes of
 all levels in a priority queue, akin to a spatial branch and bound in which the
@@ -701,7 +705,7 @@ only for expensive objectives.
 
 \emph{Ladder.} A low upper bound gives the fastest start but converges near the
 starting region, missing the optimum of Ackley from all starting points in two
-variables: speed is obtained at the expense of reliability.
+variables. A faster convergence is thus obtained at the expense of reliability.
 
 \emph{Calibrated margin.} The swept configuration, which is given no convexity
 value, has a higher area than the calibrated one in both dimensions and reaches
@@ -775,15 +779,17 @@ subdivisions everywhere. The implied budget, $\sum_j m_j$ sub-problems, agrees
 with the measured cost within a third. On Ackley the count does not converge;
 the ripples are indeed one unit apart over a range of sixty-four, but it is the
 funnel, not the ripples, that must be resolved, and the estimator correctly flags
-itself as unresolved before the run. The randomization of the abscissae is necessary: on Ackley a uniform scan
-returns one basin at two consecutive rates and stops, wrong by a factor of
-sixty, whereas the jittered ladder grows $4, 9, 20, 36, 55, 62$ without
-converging, which is the correct answer. No prominence threshold reduces the
-count of Ackley to the density of ten that works: a threshold large enough to
-affect it already miscounts Styblinski--Tang and Griewank. Ten is not a number of
-basins but the box width at which the local solver descends the funnel by itself
-while the values still distinguish neighbouring boxes, a property of the local
-solver rather than of the objective. The scans themselves are expensive
+itself as unresolved before the run. The randomization of the abscissae is necessary. On Ackley, a uniform scan
+returns a single basin at two consecutive sampling rates and is therefore
+stopped, with a count that is wrong by a factor of sixty, whereas the counts of
+the randomized scans increase as $4, 9, 20, 36, 55, 62$ without converging,
+which is the expected behaviour. Moreover, no prominence threshold reduces the
+count of Ackley to the density of ten, which gives the best results, since a
+threshold large enough to affect this count already leads to wrong counts for
+Styblinski--Tang and Griewank. The density of ten corresponds to the box size
+for which the local optimizer descends the global funnel while the values of
+neighbouring boxes can still be distinguished, which depends on the local
+optimizer as well as on the objective. The scans themselves are expensive
 ($1250$ to $12\,525$ evaluations on the problems whose count converged, about
 $25\,000$ on Ackley), which is not included in Table~\ref{tab:proposed}: the estimator
 measures the right quantity but is affordable only when an evaluation is cheap
@@ -828,7 +834,7 @@ subdivisions and of Griewank from two starting points of three, where the
 calibrated margin, which exceeds the range of both objectives, reaches it from
 one. It fails, however, on Rastrigin, which the calibrated margin solves from all
 starting points: the swept runs terminate after about $1550$ evaluations one basin
-away from the optimum, for a reason we have not identified. The margin of $100$
+away from the optimum, for a reason which has not been identified. The margin of $100$
 is $54\%$ of the range of Rastrigin and was calibrated on it.
 
 \begin{table}[t]
@@ -902,8 +908,8 @@ flat subdivision on Rastrigin and Styblinski--Tang (Table~\ref{tab:hierarchies})
 The frontier, the only shape able to revise a choice, performs worst, and more
 expansions make it worse: a budget that provides fifty cuts to one model provides
 five to each of ten models, none of which is determined enough to rank its
-children. A hierarchy lacks a model on which to base a revision rather than the
-ability to revise.
+children. The poor performance of the frontier is therefore due to the
+weakness of the cut models rather than to the search strategy.
 
 \emph{Effect of the budget.} Several of these comparisons involve runs stopped by
 the budget, and the most sensitive one was repeated at two and four times the
@@ -1109,80 +1115,93 @@ of each method.
 %% ---------------------------------------------------------------------------
 \section{Discussion}\label{sec:discussion}
 
-\paragraph{When the method is useful.} The method is suited to landscapes with a
-moderate number of well separated basins, for which a subdivision exists that
-separates the basins with fewer binaries than the budget has sub-problems. In
-that regime it reaches the optimum with fewer evaluations than the baselines,
-and at a quarter to a third of the cost of enumerating the boxes. The size of the
-master is governed by the binaries and not by the boxes, so that $10^5$ boxes are
-tractable in five dimensions. When no such subdivision exists, its results are
-among the worst of the methods compared, and no setting was found to compensate.
+\paragraph{Range of application.} The method is suited to landscapes with a
+moderate number of well separated basins of attraction, for which a subdivision
+can be found that separates the basins with fewer binary variables than the
+number of sub-problems allowed by the budget. Under this condition, the optimum
+is reached with fewer evaluations than with the baselines, and at a quarter to a
+third of the cost of the enumeration of the boxes. Since the size of the master
+problem depends on the number of binary variables and not on the number of
+boxes, $10^5$ boxes can be handled in five dimensions. When no such subdivision
+exists, the results are among the worst of the methods compared, and no setting
+was found to compensate for this.
 
-\paragraph{Silent failures.} The most consequential lesson of this study is
-that a bi-level outer approximation fails quietly. Each of the following
-produced runs that terminated and reported success with a wrong answer: no
-safeguard against non-convexity, a margin larger than the range of the objective,
-a trust region weighted by the interval indices, a starting point outside the
-box, a multiplier assigned to a coincident bound of the design space, a
-mismatched one-hot layout, and parallel probes in an unpatched master. The
-benchmarks themselves were affected: an evaluation counter wrapped around the
-objective loses the evaluations of forked workers, which under-reported the best
-value of parallel runs and left them unbudgeted. Each was identified by a
-targeted check rather than by the results looking wrong, and each is now guarded
-by a test. A practitioner adopting the method should expect to verify the
-sensitivity of the sub-problem and the validity of the cuts on the problem at
-hand.
+\paragraph{Undetected failures.} Several configuration and implementation errors
+were found to produce runs which terminate normally and report a wrong
+solution: the absence of a safeguard against non-convexity, a convexity margin
+larger than the range of the objective, a trust region weighted by the interval
+indices, a starting point located outside the box, a Lagrange multiplier
+assigned to a bound of the design space coinciding with a face of the box, an
+inconsistent ordering of the one-hot variables, and the parallel evaluation of
+the probes in an uncorrected version of the master problem. The benchmark itself
+was affected, since an evaluation counter wrapped around the objective function
+does not account for the evaluations performed by forked processes. These errors
+were identified by dedicated checks rather than by inspection of the results,
+and each of them is now covered by a regression test. The verification of the
+sub-problem sensitivities and of the validity of the cuts is therefore
+recommended when the method is applied to a new problem.
 
-\paragraph{Settings.} The swept convexity removes the only setting expressed in
-the units of the objective and performed at least as well as the calibrated
-margin on the variants, but not on Rastrigin in five dimensions at ten
-subdivisions (Table~\ref{tab:sweep-density}). The trust region is fixed to a
-Hamming radius of two, a good average on these problems rather than a rule. The
-density remains to be chosen; the basin count proposes it reliably where it
-converges and flags itself where it does not, but costs more than a run.
+\paragraph{Settings.} With the swept convexity, no parameter expressed in the
+units of the objective has to be supplied. The swept configuration performed at
+least as well as the calibrated one for the variants of the method, with the
+exception of the Rastrigin function in five dimensions with ten subdivisions
+(Table~\ref{tab:sweep-density}). The trust-region radius is set to two changed
+components, which is a suitable compromise for the problems studied but cannot
+be regarded as a general rule. The subdivision density still has to be chosen.
+The estimator based on basin counting provides a suitable density when its
+estimate converges, and indicates when it does not, but its cost exceeds that of
+a run.
 
-\paragraph{Limitations.} (i) \emph{Generalization}: the density, the number of
-probes, the radius and the headroom of the sweep were chosen on the problems on
-which they are reported. (ii) \emph{Truncation}: several cells rest on runs
-stopped by the budget; on Ackley in five variables a larger budget changed the
-outcome from no starting point reaching the optimum to two of six, and then no
-longer. (iii) \emph{Convergence}: runs terminate on the trust region or a stall
-counter, never on an optimality test, so that the theoretical guarantee of a
-large $\kappa$ is not attained in practice. (iv) \emph{Constraints}: the analytic
-problems have bounds only, and the cantilever has a single volume constraint.
-(v) \emph{Cost model}: the analytic problems cost microseconds per evaluation,
-whereas the method targets sub-problems costing minutes; the master overhead is
-not charged, and EGO's overhead is not either. A comparison on an objective whose
-cost makes these overheads negligible is needed to decide between the method and
-Bayesian optimization.
+\paragraph{Limitations.} The following limitations apply to the results
+presented.
+(i) The density, the number of probes, the trust-region radius and the headroom
+factor of the sweep were selected on the problems on which they are evaluated.
+(ii) Several results correspond to runs stopped by the budget; for the Ackley
+function in five dimensions, doubling the budget changed the number of starting
+points reaching the optimum from zero to two out of six, and further increases
+had no effect.
+(iii) The runs terminate on the trust region or on the stall criterion and never
+on the optimality test, so that the convergence guarantee associated with a
+large convexification constant is not attained in practice.
+(iv) The analytic problems are only bound constrained, and the topology
+optimization problem has a single volume constraint.
+(v) The evaluation of the analytic functions takes a few microseconds, whereas
+the method is intended for sub-problems whose solution takes minutes; neither
+the cost of the master problem nor that of the surrogate model of efficient
+global optimization is included in the budget. A comparison on an expensive
+objective function is required to compare the method with Bayesian optimization.
 
-\paragraph{Further work.} Four directions follow from these results: a master
-over a growing set of leaves that keeps its cuts when a box is split, which would
-make the hierarchies a lazy branch and bound; a lower bound reported without the
-convexification term, giving a meaningful gap and termination on an optimality
-certificate; a constraint-aware basin count for problems whose multimodality
-stems from non-convex constraints such as stress; and a validation of the swept
-convexity on a separate set of problems.
+\paragraph{Future work.} Four directions of research follow from these results:
+a master problem defined over a growing set of boxes, in which the cuts are kept
+when a box is refined, so that the hierarchies become a lazy branch and bound
+procedure; the computation of a lower bound without the convexification term,
+which would provide a meaningful optimality gap; a basin count accounting for
+non-convex constraints such as stress constraints; and the validation of the
+swept convexity on an independent set of test problems.
 
 %% ---------------------------------------------------------------------------
 \section{Conclusions}\label{sec:conclusion}
 
-The box-subdivision outer approximation separates the exploration of the design
-space, delegated to a mixed-integer master over one-hot box selections, from its
-exploitation, delegated to a local gradient-based solver within each box. The
-master grows with the sum and not the product of the subdivisions, and the cut
-slopes are obtained from post-optimal analysis at no additional cost. The method
-works when the subdivision separates the basins and the number of binaries stays
-below the number of affordable sub-problems; in that regime it reached optima
-that the baselines did not, such as Rastrigin in five dimensions, and improved
-the compliance of the GGP short cantilever obtained from the reference initial
-design from $84.0$ to $82.1$. Its reliability depends on a safeguard against
-non-convexity and on a small Hamming trust region, both of which fail silently
-when misconfigured; sweeping the convexity over the parallel probes removes the
-only setting expressed in the units of the objective, and matched or improved on
-the calibrated margin in all but one of the configurations compared. The admissible density remains problem dependent, and
-the basin-count estimator, while it measures the right quantity and flags its own
-failures, is affordable only for cheap objectives.
+A box-subdivision outer approximation method has been presented, in which the
+exploration of the design space is performed by a mixed-integer master problem
+over one-hot box selections and the exploitation by a local gradient-based
+optimizer within each box. The size of the master problem grows with the sum of
+the subdivisions, and the cut slopes are obtained by post-optimal analysis
+without additional evaluations. The method is effective when the subdivision
+separates the basins of attraction and the number of binary variables remains
+lower than the number of sub-problems allowed by the budget. Under these
+conditions, the global optimum of the Rastrigin function in five dimensions,
+which none of the baselines reached, was found, and the compliance of the short
+cantilever problem of the generalized geometry projection was reduced from
+$84.0$, obtained from the reference initial design, to $82.1$. The reliability of
+the method depends on the safeguard against non-convexity and on a small
+trust region measured in number of changed components; both lead to wrong
+results without any warning when they are not set properly. The swept
+convexity avoids the calibration of the only parameter expressed in the units of
+the objective, and gave results equal to or better than the calibrated margin in
+all but one of the configurations compared. The admissible subdivision density
+remains problem dependent, and its estimation by basin counting is affordable
+only when the objective function is inexpensive.
 
 %% ---------------------------------------------------------------------------
 \backmatter
