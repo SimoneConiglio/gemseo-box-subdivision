@@ -64,29 +64,77 @@
 Gradient-based local optimizers are widely used in structural and
 multidisciplinary design optimization, since they scale to large numbers of
 design variables, exploit adjoint sensitivities and handle constraints
-efficiently. However, they converge to the local minimum of the basin of
-attraction containing the initial design. When the objective function or the
-constraints are non-convex, as is the case in feature-based topology
-optimization, the final design depends on the initial guess.
+efficiently. However, they converge to a local minimum of the basin of
+attraction containing the initial design. In topology optimization, the
+non-convexity of the problem is usually mitigated by continuation on the
+penalization or filter parameters, and the dependence of the final design on the
+initial guess is addressed by multistart strategies. Non-gradient approaches
+have been applied to topology optimization, but their cost is several orders of
+magnitude larger for designs of very low resolution \citep{sigmund2011}. More
+recently, deflation techniques have been proposed to compute several distinct
+local minima of a topology optimization problem from a single initial guess
+\citep{papadopoulos2021}. Feature-based methods, such as the generalized
+geometry projection \citep{coniglio2020}, reduce the number of design variables
+but increase the non-convexity of the problem, since the geometric parameters of
+the features enter the density field in a highly nonlinear way. Global
+optimality can be certified only for specific classes of structural problems,
+such as truss design problems with discrete variables, for which a review is
+given by \citet{stolpe2016}.
 
-Several classes of methods have been proposed to address this issue. In a
-multistart approach \citep{rinnooykan1987}, the problem is solved from a set of
-initial designs chosen independently of each other, so that the information
-provided by the local solutions already obtained is not exploited. Partitioning
-methods such as DIRECT \citep{jones1993} and multilevel coordinate search
-\citep{huyer1999} divide the design space into boxes and refine the most
-promising ones; these methods rely on sampling rather than on local
-optimization, and the number of boxes increases rapidly with the dimension. In
+For general continuous non-convex problems, several classes of global
+optimization methods have been proposed. Stochastic methods based on local
+searches, such as multilevel single linkage \citep{rinnooykan1987} and basin
+hopping \citep{wales1997}, start local optimizations from points selected by
+sampling or by perturbation of the current minimum, and evolution strategies
+such as CMA-ES \citep{hansen2001} adapt a search distribution from the ranking
+of the sampled points. In these methods, the location of the next local search
+is not derived from a model of the problem, and the information provided by the
+local solutions already obtained is exploited only partially. Partitioning
+methods divide the design space into boxes and refine the most promising ones.
+DIRECT \citep{jones1993} selects the boxes from an implicit Lipschitz bound,
+multilevel coordinate search \citep{huyer1999} combines a partitioning along the
+coordinates with local searches, and optimistic optimization \citep{munos2011}
+explores a hierarchical partition without knowledge of the smoothness of the
+function. These methods are mostly based on sampling, and the number of boxes
+they generate grows rapidly with the dimension. Deterministic spatial branch and
+bound methods, such as $\alpha$BB \citep{androulakis1995,adjiman1998}, provide
+certificates of global optimality by means of convex underestimators of the
+form $f(x) + \alpha \sum_i (x_i - L_i)(x_i - U_i)$, but require bounds on the
+eigenvalues of the Hessian of the functions over each box
+\citep{horst1996}, which are seldom available for simulation-based models. In
 Bayesian optimization \citep{jones1998}, the whole history is exploited through
 a surrogate model, at a computational cost that grows cubically with the number
-of samples. Deterministic spatial branch and bound methods with convex
-underestimators, such as $\alpha$BB \citep{adjiman1998,horst1996}, provide
-certificates of global optimality, but require bounds on the curvature of the
-functions, which are seldom available for simulation-based models.
+of samples. Local trust regions \citep{eriksson2019} and learned partitions of
+the design space \citep{wang2020} have been introduced to extend Bayesian
+optimization to larger dimensions and budgets, the partition being used, as in
+the present work, to restrict the search to promising regions.
 
-In the present work, a different decomposition is investigated. The design
-space is divided into a Cartesian grid of boxes, so that the selection of a
-region becomes a categorical variable. A box is selected by a mixed-integer
+The method proposed in this work relies on the decomposition techniques
+developed for mixed-integer nonlinear programming (MINLP)
+\citep{belotti2013}. In outer approximation \citep{duran1986,fletcher1994} and
+generalized Benders decomposition \citep{benders1962,geoffrion1972}, a
+mixed-integer linear master problem is built from linearizations of the
+nonlinear sub-problems obtained for fixed values of the integer variables. Both
+methods are exact for convex problems. For non-convex problems, the
+linearizations may cut off the global optimum, and heuristic extensions, such as
+the augmented penalty approach of \citet{viswanathan1990}, or rigorous extensions
+for separable problems \citep{kesavan2004}, have been proposed. In local
+branching \citep{fischetti2003}, the search of the master problem is restricted to
+a neighbourhood of the incumbent defined by a Hamming distance on the binary
+variables. In structural optimization, bi-level outer approximation has been
+applied to problems with categorical variables, such as the selection of
+materials and cross-section types, encoded by one-hot vectors
+\citep{barjhoux2020,barjhoux2022}; the continuous variables are optimized in the
+sub-problem by a gradient-based optimizer, and the categorical choices are
+driven by the master problem. Mixed-variable problems have also been addressed
+by Bayesian optimization with dedicated kernels for categorical variables
+\citep{pelamatti2019}. In these works, however, the categorical variables
+describe genuine design choices of the problem.
+
+In the present work, this bi-level framework is applied to continuous
+multimodal problems, for which no categorical variable exists in the original
+formulation. The design space is divided into a Cartesian grid of boxes, so that
+the selection of a region becomes a categorical variable. A box is selected by a mixed-integer
 master problem, and the original problem is solved within this box by a local
 gradient-based optimizer. The optimal value and its post-optimal sensitivity
 with respect to the box selection are then returned to the master problem as an
@@ -140,8 +188,8 @@ The main contributions of the paper are the following:
 \end{itemize}
 
 The method is implemented as an open-source plugin of the GEMSEO library
-\citep{gallard2018,boxsubdivision}, based on an existing bi-level outer
-approximation \citep{gemseobilevel}. The experimental protocol and its
+\citep{gallard2018,boxsubdivision}, based on the bi-level outer
+approximation of \citet{barjhoux2022} \citep{gemseobilevel}. The experimental protocol and its
 limitations are described in Section~\ref{sec:protocol}.
 
 %% ---------------------------------------------------------------------------
@@ -316,11 +364,14 @@ where $n_c$ is the number of categorical components
 discrete problem is unchanged, while for a sufficiently large value of $\kappa$
 the non-convexity of $v$ over the relaxed polytope is compensated. In practice,
 only the slopes are modified, according to
-$s^{(i)} \gets s^{(i)} + (\kappa/n_c)(2\alpha^{(i)} - 1)$. Contrary to the
-$\alpha$BB method \citep{adjiman1998}, this convexification is applied in the
-space of the box selection and not in that of $x$. It therefore requires no
-bound on the Hessian, and it does not become tighter as the boxes become
-smaller.
+$s^{(i)} \gets s^{(i)} + (\kappa/n_c)(2\alpha^{(i)} - 1)$. % TODO: check whether this term is introduced in Barjhoux et al. (2022); if so, cite it here.
+This term, which is implemented in the master problem of
+\code{gemseo-bilevel-outer-approximation} \citep{gemseobilevel}, has the form of the underestimator of the $\alpha$BB method
+\citep{androulakis1995,adjiman1998} applied to the relaxed binary variables,
+whose bounds are $0$ and $1$. It is therefore applied in the space of the box
+selection and not in that of the design variables $x$. As a consequence, no
+bound on the Hessian of $f$ is available to determine $\kappa$, and the term does
+not become tighter as the boxes become smaller.
 
 \paragraph{Adaptive repair.} In the second approach, the slopes are corrected on
 the basis of the values already computed. For every pair of solved boxes, the
@@ -412,7 +463,8 @@ incumbent (Fig.~\ref{fig:trust}), since leaving the first interval of a
 component has no cost, whereas leaving the last one costs $m_j - 1$, whatever
 the interval reached. Unit weights are therefore used, so that $\Delta$ bounds
 the Hamming distance between the one-hot encodings, i.e. the number of modified
-components. The weighting by the interval indices, which is the default choice
+components, and constraint~\eqref{eq:trust} becomes a local branching
+constraint \citep{fischetti2003}. The weighting by the interval indices, which is the default choice
 of the host library for numerical catalogues, degraded the results of the method
 until it was identified. An ordinal variant,
 $|v^\top\alpha - v^\top\bar\alpha| \le \Delta$, where $v$ denotes the interval
@@ -539,7 +591,8 @@ node.
 The method is implemented in the open-source package
 \code{gemseo-box-subdivision} \citep{boxsubdivision}, a plugin of the GEMSEO
 library \citep{gallard2018} based on the \code{Benders} formulation of
-\code{gemseo-bilevel-outer-approximation} \citep{gemseobilevel}. Both levels are
+\code{gemseo-bilevel-outer-approximation} \citep{gemseobilevel}, which implements
+the bi-level outer approximation of \citet{barjhoux2022}. Both levels are
 defined in a single catalogue design space, which is split by the formulation,
 the categorical variables describing the box selection being assigned to the
 master problem. A mapping discipline computes $x(\xi,\alpha)$, or a constraint
