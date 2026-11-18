@@ -625,7 +625,10 @@ broad basin with a superimposed oscillation for the Ackley function, and closely
 spaced minima of similar values on a shallow paraboloid for the Griewank
 function.
 
-All runs are given a fixed budget of equivalent evaluations, the computation of a
+The global minimum of each of these functions is known analytically, and the
+distance to the optimum reported in the tables is the difference between the best
+objective value found and this minimum. All runs are given a fixed budget of
+equivalent evaluations, the computation of a
 gradient being counted as one evaluation. When the cost of a run is equal to the
 budget, the run was stopped by the budget and not by its own stopping criterion.
 The distance to the optimum is then an upper bound of the distance that would be
@@ -1218,7 +1221,10 @@ crossing each other. The compliances of the ten best boxes lie between $82.1$ an
 $82.4$, and the median value over the $63$ boxes is $83.8$, so that the best value
 is not an isolated result. The improvement with respect to the multistart
 approach, about 1\%, is nevertheless modest, and is based on a single run of each
-method.
+method. Moreover, the global optimum of this problem is unknown, and no
+optimality certificate is provided by the method, so that the design with
+$C = 82.1$ can only be regarded as the best design found among those evaluated,
+without any claim of global optimality.
 
 %% ---------------------------------------------------------------------------
 \section{Discussion}\label{sec:discussion}
@@ -1298,10 +1304,11 @@ the subdivisions, and the cut slopes are obtained by post-optimal analysis
 without additional evaluations. The method is effective when the subdivision
 separates the basins of attraction and the number of binary variables remains
 lower than the number of sub-problems allowed by the budget. Under these
-conditions, the global optimum of the Rastrigin function in five dimensions,
-which none of the baselines reached, was found, and the compliance of the short
-cantilever problem of the generalized geometry projection was reduced from
-$84.0$, obtained from the reference initial design, to $82.1$. The reliability of
+conditions, the known global minimum of the Rastrigin function in five
+dimensions, which none of the baselines reached, was found. For the short
+cantilever problem of the generalized geometry projection, whose global optimum
+is unknown, the best design found has a compliance of $82.1$, against $84.0$ for
+the design obtained from the reference initial design. The reliability of
 the method depends on the safeguard against non-convexity and on a small
 trust region measured in number of changed components; both lead to wrong
 results without any warning when they are not set properly. The swept

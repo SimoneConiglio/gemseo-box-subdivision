@@ -15,8 +15,10 @@ trust region of the master and of the subdivision density is also studied. The
 method is assessed on four analytic test functions in two and five dimensions
 against the enumeration of the boxes, multistart, CMA-ES, DIRECT and efficient
 global optimization, and is applied to a feature-based topology optimization
-problem with 108 design variables. The global optimum is reached at about one
-third of the cost of the enumeration, and with fewer evaluations than the
-baselines when the subdivision separates the basins of attraction. For the
-topology optimization problem, the compliance is reduced from 84.0 to 82.1 with
-respect to the solution obtained from the reference initial design.
+problem with 108 design variables. For the analytic functions, whose global
+minimum is known, this minimum is reached at about one third of the cost of the
+enumeration, and with fewer evaluations than the baselines when the subdivision
+separates the basins of attraction. For the topology optimization problem, whose
+global optimum is unknown, the best design found has a compliance of 82.1,
+against 84.0 for the solution obtained from the reference initial design and
+83.0 for a multistart approach with the same number of local optimizations.
