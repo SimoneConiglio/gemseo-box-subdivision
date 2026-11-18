@@ -155,72 +155,74 @@ The following problem is considered:
   \quad \text{subject to} \quad g(x) \le 0,
 \end{equation}
 where $f$ and $g$ are continuously differentiable and non-convex, so that the
-problem has several local minima. Each component $x_j$ is divided into $m_j$
-contiguous intervals $[l_{j,k}, u_{j,k}]$, $k = 1, \dots, m_j$, whose Cartesian
-product defines $\prod_j m_j$ boxes (Fig.~\ref{fig:subdivision}). Not every
-component has to be subdivided: a component with $m_j = 1$ remains a continuous
-variable of every sub-problem.
+problem has several local minima. Each component $x_j$ of the design vector is
+divided into $m_j$ contiguous intervals $[l_{j,k}, u_{j,k}]$, $k = 1, \dots, m_j$,
+and the Cartesian product of these intervals defines $\prod_j m_j$ boxes
+(Fig.~\ref{fig:subdivision}). It is not necessary to subdivide every component.
+A component with $m_j = 1$ is treated as a continuous variable of every
+sub-problem.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.48\linewidth]{figures/subdivision.png}\hfill
   \includegraphics[width=0.48\linewidth]{figures/complexity.pdf}
   \caption{Left: Cartesian subdivision of a two-dimensional design space.
-    Right: the number of boxes $\prod_j m_j$ grows exponentially with the
-    number of variables, the number of binaries of the master $\sum_j m_j$
-    linearly.}
+    Right: number of boxes $\prod_j m_j$ and number of binary variables of the
+    master problem $\sum_j m_j$ as functions of the number of design
+    variables.}
   \label{fig:subdivision}
 \end{figure}
 
 \subsection{Encoding of the box selection}
 
-One categorical variable is associated with each component and encoded as a
-one-hot vector $\alpha_j \in \{0,1\}^{m_j}$, $\sum_k \alpha_{j,k} = 1$. The
-bounds of the selected box are affine in $\alpha$:
+A categorical variable is associated with each component and encoded as a
+one-hot vector $\alpha_j \in \{0,1\}^{m_j}$ with $\sum_k \alpha_{j,k} = 1$. The
+bounds of the selected box are affine functions of $\alpha$:
 \begin{equation}\label{eq:bounds}
   \ell_j(\alpha) = \sum_{k} l_{j,k}\,\alpha_{j,k},
   \qquad
   u_j(\alpha) = \sum_{k} u_{j,k}\,\alpha_{j,k}.
 \end{equation}
-The master therefore has $\sum_j m_j$ binary variables, whereas the number of
-boxes is $\prod_j m_j$ (Fig.~\ref{fig:subdivision}, right).
+The master problem thus involves $\sum_j m_j$ binary variables, whereas the
+number of boxes is $\prod_j m_j$ (Fig.~\ref{fig:subdivision}, right).
 
 \subsection{Bi-level problem and outer approximation}
 
-Problem~\eqref{eq:problem} is rewritten as
+Problem~\eqref{eq:problem} is reformulated as
 \begin{equation}\label{eq:bilevel}
   \min_{\alpha}\ v(\alpha),
   \qquad
-  v(\alpha) = \min_{x} \bigl\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \bigr\},
+  v(\alpha) = \min_{x} \bigl\{ f(x) : g(x) \le 0,\ \ell(\alpha) \le x \le u(\alpha) \bigr\}.
 \end{equation}
-where the lower level is solved by a local gradient-based solver started at the
-centre of the box, and the upper level by a mixed-integer master
-(Fig.~\ref{fig:bilevel}). A box may contain no point satisfying $g \le 0$; its
-sub-problem then returns a feasibility cut, which removes the box from the
-master, in addition to the objective cut. The value $v(\alpha^{(i)})$ returned by a local solver
-is an upper bound on the true optimum of the box.
+The lower-level problem is solved by a local gradient-based optimizer started at
+the centre of the box, and the upper-level problem by a mixed-integer master
+problem (Fig.~\ref{fig:bilevel}). The value $v(\alpha^{(i)})$ returned by the
+local optimizer is an upper bound of the optimum within the box. When a box
+contains no point satisfying $g \le 0$, a feasibility cut is returned in addition
+to the objective cut, and the box is excluded from the master problem.
 
-After $N$ sub-problems the master holds the cuts
+After the solution of $N$ sub-problems, the master problem contains the cuts
 \begin{equation}\label{eq:cuts}
   \eta \ \ge\ v(\alpha^{(i)}) + s^{(i)\top}\bigl(\alpha - \alpha^{(i)}\bigr),
   \qquad
   s^{(i)} = \left.\frac{\mathrm{d}v}{\mathrm{d}\alpha}\right|_{\alpha^{(i)}},
   \qquad i = 1, \dots, N,
 \end{equation}
-and minimizes $\eta$ over the one-hot polytope, subject to a trust region
-around the incumbent (Section~\ref{sec:trust}). The lower envelope of the cuts,
+and $\eta$ is minimized over the one-hot polytope, subject to a trust region
+around the incumbent box (Section~\ref{sec:trust}). The lower envelope of the
+cuts,
 $\hat v(\alpha) = \max_i [v(\alpha^{(i)}) + s^{(i)\top}(\alpha-\alpha^{(i)})]$, is
-defined for every box, solved or not, and is the score by which the master ranks
-the unsolved boxes. Since the boxes are ranked by means of the cuts, the accuracy of the slopes
-$s^{(i)}$ determines the efficiency of the exploration.
-Algorithm~\ref{alg:bsoa} summarizes one run.
+defined for every box, whether it has been solved or not, and is used by the
+master problem to rank the boxes not yet solved. The efficiency of the
+exploration therefore depends on the accuracy of the slopes $s^{(i)}$. The
+procedure is summarized in Algorithm~\ref{alg:bsoa}.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.6\linewidth]{figures/bilevel.pdf}
-  \caption{Exchanges between the master, which selects a box $\alpha$, and the
-    sub-problem, which returns the local optimum $v(\alpha)$ and its sensitivity
-    $s = \mathrm{d}v/\mathrm{d}\alpha$.}
+  \caption{Exchanges between the master problem, which selects a box $\alpha$,
+    and the sub-problem, which returns the local optimum $v(\alpha)$ and its
+    sensitivity $s = \mathrm{d}v/\mathrm{d}\alpha$.}
   \label{fig:bilevel}
 \end{figure}
 
@@ -235,11 +237,11 @@ Algorithm~\ref{alg:bsoa} summarizes one run.
       \State correct the slopes $s^{(i)}$ against non-convexity
         (Section~\ref{sec:convexification})
       \For{each probe $q = 1, \dots, p$ \textbf{in parallel}}
-        \State solve the master with cuts~\eqref{eq:cuts} and trust region
-          of radius $\Delta_q \in [\Delta/2, \Delta]$ around $\bar\alpha$
+        \State solve the master problem with cuts~\eqref{eq:cuts} and a trust
+          region of radius $\Delta_q \in [\Delta/2, \Delta]$ around $\bar\alpha$
         \State solve the sub-problem in the proposed box; store $(v, s)$
       \EndFor
-      \State update the incumbent $\bar\alpha$; shrink $\Delta$ if no improvement
+      \State update the incumbent $\bar\alpha$; reduce $\Delta$ if no improvement
     \EndWhile
     \State \Return the best local solution found
   \end{algorithmic}
@@ -248,358 +250,413 @@ Algorithm~\ref{alg:bsoa} summarizes one run.
 \subsection{Formulations of the sub-problem}\label{sec:formulations}
 
 The sensitivity of the optimal value with respect to a parameter $p$ is given by
-post-optimal analysis,
+post-optimal analysis as
 \begin{equation}\label{eq:postopt}
   \frac{\mathrm{d} f(x^\ast(p), p)}{\mathrm{d}p}
   = \frac{\partial f}{\partial p} + \lambda^\top \frac{\partial g}{\partial p},
 \end{equation}
-where $\lambda$ are the multipliers of the constraints. Formula~\eqref{eq:postopt}
-treats the simple bounds of the optimizer as independent of $p$, whereas in
-\eqref{eq:bilevel} they are precisely what depends on $\alpha$. Two
-reformulations satisfy this assumption.
+where $\lambda$ denotes the Lagrange multipliers of the constraints. In
+Eq.~\eqref{eq:postopt}, the bounds of the design variables are assumed to be
+independent of $p$, whereas in problem~\eqref{eq:bilevel} the bounds are
+precisely the quantities that depend on $\alpha$. Two formulations of the
+sub-problem are therefore proposed, for which this assumption is satisfied.
 
-\paragraph{Box as a constraint.} The sub-problem keeps the original bounds
-$[L,U]$ and the box becomes the constraint
-$g_{\mathrm{box}}(x,\alpha) = [x - u(\alpha);\ \ell(\alpha) - x] \le 0$ of dimension
-$2n$. The slope is then exact and analytic,
+\paragraph{Box as a constraint.} In the first formulation, the original bounds
+$[L,U]$ are kept and the box is expressed as the constraint
+$g_{\mathrm{box}}(x,\alpha) = [x - u(\alpha);\ \ell(\alpha) - x] \le 0$ of
+dimension $2n$. The slope is then given analytically by
 \begin{equation}\label{eq:slope-constraint}
   \frac{\partial v}{\partial \alpha_{j,k}}
   = -\lambda^{u}_j\, u_{j,k} + \lambda^{\ell}_j\, l_{j,k},
 \end{equation}
-with $\lambda^u_j, \lambda^\ell_j \ge 0$ the multipliers of the upper and lower
-faces. The constraint is linear in $x$ and affine in $\alpha$, so that the
-non-convexity remains confined to $f$ and $g$.
+where $\lambda^u_j, \lambda^\ell_j \ge 0$ are the multipliers associated with the
+upper and lower faces of the box. Since this constraint is linear in $x$ and
+affine in $\alpha$, the non-convexity of the sub-problem is limited to that of
+$f$ and $g$.
 
-\paragraph{Box as normalized variables.} The sub-problem is solved for
-$\xi \in [0,1]^n$ with $x(\xi,\alpha) = \ell(\alpha) + \xi \odot (u(\alpha) - \ell(\alpha))$.
-The bounds are then the unit interval for every box, and the slope is the
-partial derivative
+\paragraph{Box as normalized variables.} In the second formulation, the
+sub-problem is solved with respect to the normalized variables
+$\xi \in [0,1]^n$, with
+$x(\xi,\alpha) = \ell(\alpha) + \xi \odot (u(\alpha) - \ell(\alpha))$. The bounds
+of the sub-problem are then the unit interval for every box, and the slope is
+given by the partial derivative
 \begin{equation}\label{eq:slope-normalized}
   \frac{\partial v}{\partial \alpha_{j,k}}
-  = \frac{\partial f}{\partial x_j}\,\bigl[(1-\xi_j)\,l_{j,k} + \xi_j\,u_{j,k}\bigr],
+  = \frac{\partial f}{\partial x_j}\,\bigl[(1-\xi_j)\,l_{j,k} + \xi_j\,u_{j,k}\bigr].
 \end{equation}
-which is correct both at an interior optimum, where the gradient vanishes, and
-on a face, where $\xi_j$ is fixed at a bound. The box selection enters the
-nonlinearity of the objective through a bilinear map; in the experiments this
-has no adverse effect, and this formulation is about 11\% cheaper than the
-constraint formulation (Section~\ref{sec:enum}) because its sub-problems never
-have to restore feasibility with respect to the box. It is used in the rest of
-the paper.
+This expression is valid both at an interior optimum, where the gradient
+vanishes, and on a face of the box, where $\xi_j$ is fixed at one of its bounds.
+In this formulation, the box selection enters the objective function through a
+bilinear mapping. No adverse effect of this nonlinearity was observed in the
+experiments, and the normalized formulation was found to be about 11\% less
+expensive than the constraint formulation (Section~\ref{sec:enum}), since
+feasibility with respect to the box is satisfied by construction. The normalized
+formulation is used in the remainder of the paper.
 
 \subsection{Safeguards against non-convexity}\label{sec:convexification}
 
-Cuts~\eqref{eq:cuts} are supporting hyperplanes only if $v$ is convex in the
-relaxed $\alpha$. For a multimodal problem it is not: a cut built in one box
-can lie above $v$ elsewhere and exclude the global optimum, and the master then
-converges rapidly to an incorrect box without reporting an error. In the
-experiments of this work, with both safeguards described below disabled, no starting point of the
-benchmark reached the global optimum, while every run reported success.
+The cuts~\eqref{eq:cuts} are supporting hyperplanes only if $v$ is convex with
+respect to the relaxed variables $\alpha$. This condition is not satisfied for a
+multimodal problem. A cut built at one box may then lie above $v$ at another box
+and exclude the global optimum, in which case the master problem converges
+rapidly to a wrong box without any error being reported. In the experiments, no
+starting point reached the global optimum when both safeguards described below
+were disabled, although all runs terminated successfully.
 
-\paragraph{Convexification constant.} A term convex in the relaxed one-hot
-variables and vanishing at every integer point is added to the value function,
+\paragraph{Convexification constant.} In the first approach, a term which is
+convex with respect to the relaxed one-hot variables and vanishes at every
+integer point is added to the value function:
 \begin{equation}\label{eq:convexification}
   \tilde v(\alpha) = v(\alpha) + \kappa\, C(\alpha),
   \qquad
   C(\alpha) = \frac{1}{n_c}\sum_{j}\sum_{k} \alpha_{j,k}(\alpha_{j,k}-1),
 \end{equation}
-with $n_c$ the number of categorical components (Fig.~\ref{fig:convexification}).
-Since $C = 0$ on every feasible one-hot vector, the discrete problem is unchanged,
-while a sufficiently large $\kappa$ dominates the non-convexity of $v$ over the
-relaxed polytope. In practice only the slopes are corrected,
-$s^{(i)} \gets s^{(i)} + (\kappa/n_c)(2\alpha^{(i)} - 1)$. Unlike $\alpha$BB
-\citep{adjiman1998}, this convexification acts in the space of the box
-selection, not of $x$: it requires no Hessian bound and does not tighten as the
-boxes shrink.
+where $n_c$ is the number of categorical components
+(Fig.~\ref{fig:convexification}). Since $C = 0$ for every one-hot vector, the
+discrete problem is unchanged, while for a sufficiently large value of $\kappa$
+the non-convexity of $v$ over the relaxed polytope is compensated. In practice,
+only the slopes are modified, according to
+$s^{(i)} \gets s^{(i)} + (\kappa/n_c)(2\alpha^{(i)} - 1)$. Contrary to the
+$\alpha$BB method \citep{adjiman1998}, this convexification is applied in the
+space of the box selection and not in that of $x$. It therefore requires no
+bound on the Hessian, and it does not become tighter as the boxes become
+smaller.
 
-\paragraph{Adaptive repair.} Alternatively, the slopes are corrected from the
-values already observed: for every pair of visited boxes, the cut at
-$\alpha^{(i)}$ must not overestimate the value observed at $\alpha^{(j)}$,
+\paragraph{Adaptive repair.} In the second approach, the slopes are corrected on
+the basis of the values already computed. For every pair of solved boxes, the
+cut built at $\alpha^{(i)}$ is required not to overestimate the value observed at
+$\alpha^{(j)}$:
 \begin{equation}\label{eq:adaptive}
   v(\alpha^{(i)}) + s^{(i)\top}\bigl(\alpha^{(j)} - \alpha^{(i)}\bigr)
   \le v(\alpha^{(j)}) - \delta,
 \end{equation}
-with a convexity margin $\delta$, and a least-squares correction of the slopes
-removes the violations. The two mechanisms replace rather than complement each
-other. A large $\kappa$ makes the cuts valid by construction but lowers the
-lower bound of the master by nearly $\kappa$: instrumenting the master gives
-$\eta \approx -996$ for $\kappa = 10^3$ and $\eta \approx -9991$ for $\kappa = 10^4$.
-The gap therefore never closes, and runs terminate on the trust region, when it
-shrinks until the master is infeasible, or on a counter of iterations without
-improvement, never on the optimality test. Increasing $\kappa$ beyond the value
-that dominates the non-convexity also makes every unexplored box rank before the
-incumbent, and the method then approaches an enumeration of the boxes. The
-constant therefore has a useful range bounded on both sides, and this range
-becomes narrower as the dimension increases (Appendix~\ref{app:tuning}). The adaptive repair keeps the lower bound informative and was
-found to be more reliable in the experiments, but it enforces convexity only with respect to
-the visited boxes and carries no guarantee. Below a threshold value of the margin $\delta$, the cuts remain invalid.
-Conversely, when $\delta$ exceeds the range of the objective, the right-hand side of the
-least-squares problem is driven by the constant rather than by the observed
-values, all slopes are shifted in the same direction, and the cut model ranks
-the boxes by the margin instead of the landscape. With $\delta = 100$, the two
-problems whose range is smaller than the margin, Ackley ($14.5$) and Griewank
-($4.9$), are the two whose optimum is never reached in five dimensions.
+where $\delta$ is a convexity margin, and the violations of these conditions are
+removed by a least-squares correction of the slopes.
+
+The two approaches are alternatives and are not combined. With a large value of
+$\kappa$, the cuts are valid by construction, but the lower bound of the master
+problem is decreased by approximately $\kappa$; values of $\eta \approx -996$ and
+$\eta \approx -9991$ were obtained for $\kappa = 10^3$ and $\kappa = 10^4$
+respectively. The optimality gap therefore never closes, and the runs terminate
+either when the trust region has been reduced until the master problem becomes
+infeasible, or when the number of iterations without improvement reaches its
+limit, but never on the optimality test. Moreover, when $\kappa$ exceeds the
+value required to compensate the non-convexity, every box not yet solved is
+ranked before the incumbent, and the method tends towards an enumeration of the
+boxes. The constant therefore has a useful range bounded on both sides, and this
+range becomes narrower as the dimension increases (Appendix~\ref{app:tuning}).
+
+With the adaptive repair, the lower bound remains informative, and this approach
+was found to be more reliable in the experiments. Convexity is, however,
+enforced only with respect to the boxes already solved, and no convergence
+guarantee is obtained. For values of $\delta$ below a threshold, the cuts remain
+invalid. Conversely, when $\delta$ exceeds the range of the objective function,
+the right-hand side of the least-squares problem is dominated by the margin
+rather than by the observed values, all slopes are shifted in the same
+direction, and the ranking of the boxes no longer reflects the landscape. With
+$\delta = 100$, the optimum was never reached in five dimensions for the two
+problems whose range is smaller than the margin, namely Ackley ($14.5$) and
+Griewank ($4.9$).
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.55\linewidth]{figures/convexification.pdf}
-  \caption{Convexification term $C(\alpha)$ over a relaxed box selection: zero
-    at every vertex of the one-hot polytope, negative in between.}
+  \caption{Convexification term $C(\alpha)$ for a relaxed box selection. The
+    term vanishes at the vertices of the one-hot polytope and is negative
+    between them.}
   \label{fig:convexification}
 \end{figure}
 
-\paragraph{Swept convexity.} Both $\kappa$ and $\delta$ are absolute quantities
-in the units of the objective, to be supplied before anything is known about
-it. A margin of $100$ reaches the optimum from all starting points on Rastrigin,
-whose range is about $80$, and is among the worst tested values on Ackley, whose
-range is about $22$. This parameter is removed here by means of the parallel probes
-of the master, which already sweep trust-region radii. The probes carry a ladder of
-convexity values $\kappa_1 < \dots < \kappa_p$, geometric below an upper bound,
-one rung per probe, paired so that small radii go with raw cuts and large radii
-with dominated cuts; each iteration thus proposes both exploitative and
-exploratory boxes. A probe that proposes a box already solved moves to the next
-rung, at the cost of one mixed-integer solve and no evaluation of the objective,
-and the exhaustion of the ladder by all probes is a stopping criterion. The
-upper bound of the ladder is set to ten times the spread of the values observed
-over the boxes already solved, infeasible ones included. Used without this
-headroom, the observed spread underestimates the spread over the design space
-when the first boxes are few and similar, as on the broad basin of Ackley, and
-the sweep then does not produce the exploration that would correct it. The
-factor is dimensionless and therefore transfers between problems, unlike an
-absolute margin, but it was chosen on two problems. It should be noted that the sweep does not restore the optimality test, since
-the master retains the smallest lower bound among its probes, which is degraded
-by the highest rungs, so that the gap still does not close.
+\paragraph{Swept convexity.} Both $\kappa$ and $\delta$ are expressed in the
+units of the objective function, and have to be specified before any information
+on this function is available. For instance, a margin of $100$ leads to the
+optimum from all starting points on the Rastrigin function, whose range is about
+$80$, but is among the worst values tested on the Ackley function, whose range is
+about $22$. To avoid this calibration, the parallel probes of the master problem,
+which are already used to sweep the trust-region radius, are also used to sweep
+the convexity value. A sequence of values $\kappa_1 < \dots < \kappa_p$, referred
+to as a ladder and distributed geometrically below an upper bound, is defined,
+and one value is assigned to each probe. The values are paired with the radii so
+that the smallest radii are associated with the least corrected cuts and the
+largest radii with the most corrected ones, and each iteration therefore
+proposes both boxes close to the incumbent and distant boxes. When a probe
+proposes a box which has already been solved, the next value of the ladder is
+assigned to it, at the cost of one additional mixed-integer solution and without
+any evaluation of the objective function. The run is terminated when the ladder
+is exhausted for all probes.
 
-\subsection{Trust region of the master}\label{sec:trust}
+The upper bound of the ladder is set to ten times the spread of the objective
+values over the boxes already solved, including the infeasible ones. Without this
+factor, the spread is underestimated when the first boxes are few and similar, as
+on the broad basin of the Ackley function, and the exploration required to
+correct this estimate does not take place. The factor is dimensionless and can
+therefore be applied to other problems, contrary to an absolute margin, but its
+value was selected on two problems only. It should be noted that the sweep does
+not restore the optimality test, since the master problem retains the smallest
+lower bound among the probes, which is degraded by the largest convexity values.
 
-The master restricts its search to a neighbourhood of the incumbent
-$\bar\alpha$,
+\subsection{Trust region of the master problem}\label{sec:trust}
+
+The search of the master problem is restricted to a neighbourhood of the
+incumbent box $\bar\alpha$:
 \begin{equation}\label{eq:trust}
   \sum_{j\,:\,\alpha_j = \bar\alpha_j} w_j(\bar\alpha)
   \ \ge\ \sum_j w_j(\bar\alpha) - \Delta,
 \end{equation}
-where the weight $w_j(\bar\alpha)$ is charged for each component that a candidate
-changes. Because the weight depends on the incumbent only, the constraint
-expresses no proximity between categories. A subdivided variable looks ordinal,
-which suggests weighting each interval by its index; this, however, produces an
-asymmetric region instead of a local one (Fig.~\ref{fig:trust}): leaving the
-first interval costs nothing and leaving the last one costs $m_j - 1$, wherever
-the candidate goes. Unit weights are therefore used, so that $\Delta$ bounds the
-Hamming distance between the one-hot encodings, i.e. the number of components
-changed. The index weighting, which is the default of the upstream design space
-for numeric catalogues, degraded the results of the method until it was
-identified. An ordinal variant,
-$|v^\top\alpha - v^\top\bar\alpha| \le \Delta$ on the interval values $v$, was
-found to be as reliable as the Hamming distance and about 50\% more expensive.
-For the landscapes considered, neighbouring boxes are not more similar than
-distant ones, so that the box selection is better treated as a categorical
-choice than as an ordinal one.
+where the weight $w_j(\bar\alpha)$ is counted for each component modified by the
+candidate. Since the weight depends only on the incumbent, this constraint does
+not express any proximity between categories. As a subdivided variable is
+ordinal, weighting each interval by its index may appear natural. However, this
+choice produces an asymmetric region rather than a neighbourhood of the
+incumbent (Fig.~\ref{fig:trust}), since leaving the first interval of a
+component has no cost, whereas leaving the last one costs $m_j - 1$, whatever
+the interval reached. Unit weights are therefore used, so that $\Delta$ bounds
+the Hamming distance between the one-hot encodings, i.e. the number of modified
+components. The weighting by the interval indices, which is the default choice
+of the host library for numerical catalogues, degraded the results of the method
+until it was identified. An ordinal variant,
+$|v^\top\alpha - v^\top\bar\alpha| \le \Delta$, where $v$ denotes the interval
+indices, was also tested; it was found to be as reliable as the Hamming distance
+and about 50\% more expensive. For the landscapes considered, neighbouring boxes
+are not more similar than distant ones, so that the box selection is better
+treated as a categorical choice than as an ordinal one.
 
-A small radius is required. On Rastrigin in five variables with ten subdivisions,
-a radius of two components reaches the optimum from all six starting points, a
-radius equal to the diameter $n$ of the design space from two, and no trust
-region from one; on Ackley the distance to the optimum increases monotonically
-with the radius. The radius of two is a good average over these problems rather
-than a rule: on Styblinski--Tang at the same density it is the worst of the four
-radii tested (Appendix~\ref{app:tuning}, Table~\ref{tab:radius}). The radius is
-shrunk by a factor $0.7$ after a number of iterations without improvement, down to
-a floor of one; once there, the parallel probes, whose radii span
-$[\Delta/2, \Delta]$, all solve the same master and the exploration stops.
+A small radius was found to be necessary. For the Rastrigin function in five
+dimensions with ten subdivisions per variable, the optimum is reached from all
+six starting points with a radius of two components, from two starting points
+with a radius equal to the diameter $n$ of the design space, and from one
+starting point without trust region. For the Ackley function, the distance to
+the optimum increases monotonically with the radius. The radius of two is a
+suitable compromise for the problems studied rather than a general rule, since
+for the Styblinski--Tang function with the same density it gives the worst
+result among the four radii tested (Appendix~\ref{app:tuning},
+Table~\ref{tab:radius}). The radius is multiplied by $0.7$ after a given number
+of iterations without improvement, down to a minimum value of one. Once this
+value is reached, the radii of the probes, which lie in $[\Delta/2, \Delta]$,
+coincide, all probes solve the same master problem, and the exploration stops.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{figures/trust_region.pdf}
-  \caption{Trust regions of the same radii seen from two incumbents, with index
-    weights (asymmetric: the whole space from $(1,1)$, the incumbent alone from
-    $(7,6)$) and with unit weights (the same nineteen boxes in both cases).}
+  \caption{Trust regions of the same radii around two incumbents, with weights
+    equal to the interval indices (the whole design space around $(1,1)$ and the
+    incumbent alone around $(7,6)$) and with unit weights (nineteen boxes in both
+    cases).}
   \label{fig:trust}
 \end{figure}
 
 \subsection{Density of the subdivision}\label{sec:density}
 
-The subdivision density $m_j$ is the setting that governs success, and it is
-bounded on both sides.
+The subdivision density $m_j$ has the largest influence on the results, and its
+admissible values are bounded from above and from below.
 
-\paragraph{Upper limit: binaries versus cuts.} A budget of a few thousand
-evaluations pays for a few dozen sub-problems, hence a few dozen cuts, to
-identify a cut model with $\sum_j m_j$ coefficients. The usable density is
-therefore limited by the ratio of binaries to affordable cuts, not by the number
-of boxes: in five variables with about fifty sub-problems, ten subdivisions per
-variable ($50$ binaries, $10^5$ boxes) gave the best results and sixteen
-($80$ binaries) markedly worse ones (Section~\ref{sec:density-results}).
+\paragraph{Upper bound.} With a budget of a few thousand evaluations, a few dozen
+sub-problems can be solved, which provides a few dozen cuts to identify a cut
+model with $\sum_j m_j$ coefficients. The admissible density is therefore
+limited by the ratio between the number of binary variables and the number of
+affordable cuts, and not by the number of boxes. In five dimensions, with about
+fifty sub-problems, ten subdivisions per variable ($50$ binary variables, $10^5$
+boxes) gave the best results, and sixteen subdivisions ($80$ binary variables)
+markedly worse results (Section~\ref{sec:density-results}).
 
-\paragraph{Lower limit: separation of the basins.} The subdivision must separate
-the basins: minima one unit apart over a range of ten require about ten
-intervals. The interval between the two limits may be empty, in which case the
-method is not applicable.
+\paragraph{Lower bound.} The subdivision must separate the basins of attraction.
+For instance, minima one unit apart over a range of ten require about ten
+intervals. When the lower bound exceeds the upper bound, the method cannot be
+applied.
 
-\paragraph{Over-refinement.} Refining beyond the basins also degrades the
-results. A box that contains no minimum returns a constrained solution on its
-boundary, whose value and sensitivity carry no information on the location of the
-minimum, so that the ranking of the boxes deteriorates.
+\paragraph{Excessive refinement.} A subdivision finer than the basins also
+degrades the results. A box that contains no local minimum returns a solution on
+its boundary, whose value and sensitivity provide no information on the location
+of the minimum, so that the ranking of the boxes is deteriorated.
 
-\paragraph{Estimating the density.} Since the density must follow the spacing of
-the basins, the expected number of minima along an axial line is estimated,
+\paragraph{Estimation of the density.} Since the density has to follow the
+spacing of the basins, the expected number of minima along an axial line,
 \begin{equation}\label{eq:basins}
   N_j = \mathbb{E}_{x_\perp}\Bigl[\#\bigl\{t : \partial_j f(x_\perp + t e_j) = 0,\ \partial_{jj} f > 0\bigr\}\Bigr],
 \end{equation}
-which is well defined for any $C^1$ objective, unlike a wavelength, and set
-$m_j = N_j$. The expectation is estimated by Monte Carlo over random anchors
-$x_\perp$; along each line the abscissae are drawn at random, because an evenly
-spaced scan resonates with a regular landscape and returns a consistent but
-wrong count. A minimum is retained when its topographic prominence, measured
-with respect to its key saddle, exceeds a fraction of the range of the scan. A
-space-filling design cannot replace the scans, since averaging over the other
-components estimates the main effect $\mathbb{E}[f \mid x_j]$, in which
-interaction-driven multimodality (Griewank, Ackley) vanishes. The error is
-one-sided: a scan reveals the basins it resolves and no others, so that a ladder
-of scan rates can establish a lower bound on $N_j$ but not an upper bound. A
-ladder that does not converge is therefore reported as \emph{unresolved}, which
-flags the proposal as unreliable. For constrained problems the same count
-applies to $f$ restricted to each maximal feasible interval of the line.
+is estimated, and the density is set to $m_j = N_j$. Contrary to a wavelength,
+this quantity is defined for any continuously differentiable function. The
+expectation is estimated by Monte Carlo sampling over random anchor points
+$x_\perp$, and the abscissae along each line are also drawn at random, since a
+uniform sampling may resonate with a regular landscape and return a consistent
+but wrong count. A minimum is retained when its topographic prominence, measured
+with respect to the saddle that closes its basin, exceeds a given fraction of the
+range of the scan. A space-filling design cannot be used instead of the axial
+scans, since averaging over the other components yields the main effect
+$\mathbb{E}[f \mid x_j]$, in which the multimodality due to interactions between
+variables, as for the Griewank and Ackley functions, disappears. A scan can only
+reveal the basins that it resolves, so that the estimate is a lower bound of
+$N_j$, and no upper bound can be obtained from a finite sample. When the counts
+obtained with increasing sampling rates do not converge, the estimate is
+therefore reported as unresolved. For constrained problems, the same count is
+applied to the restriction of $f$ to each maximal feasible interval of the line.
 
 \subsection{Extensions}\label{sec:extensions}
 
-Three extensions address the density limits; they are evaluated in
-Section~\ref{sec:variants} and none is used by default.
+Three extensions related to the limits on the density were also studied. They
+are evaluated in Section~\ref{sec:extensions-results} and are not used by
+default.
 
-\paragraph{Multi-resolution encoding.} A box is selected by one categorical
-variable per level instead of one over the whole subdivision, the levels giving
-the base-$m$ digits $d_k(\alpha_j) \in \{0,\dots,m-1\}$ of the interval index:
+\paragraph{Partial subdivision.} Only the variables in which the objective
+function is multimodal are subdivided, the other variables being treated as
+continuous variables of the sub-problems.
+
+\paragraph{Multi-resolution encoding.} The box is selected by one categorical
+variable per level of resolution, the levels providing the base-$m$ digits
+$d_k(\alpha_j) \in \{0,\dots,m-1\}$ of the interval index:
 \begin{equation}\label{eq:multires}
   \ell_j(\alpha) = L_j + \Delta_j \sum_{k=1}^{L} m^{-k}\, d_k(\alpha_j),
   \qquad
   u_j(\alpha) = \ell_j(\alpha) + \Delta_j\, m^{-L},
   \qquad \Delta_j = U_j - L_j .
 \end{equation}
-With $L$ levels of $m$ intervals, the resolution is $m^L$ per component for $Lm$
-binaries; two levels of four give sixteen intervals per component with eight
-binaries instead of sixteen. The width of a box does not depend on the digits, so
-that the Jacobian of the mapping is constant and the post-optimal sensitivity
-remains valid. The cut model is linear in the digits and therefore additive over
-the levels: it cannot represent how the effect of a fine digit depends on the
-coarse one. The trust-region radius is multiplied by $L$, since a change of
-interval may change up to $L$ digits.
+With $L$ levels of $m$ intervals, a resolution of $m^L$ intervals per component
+is obtained with $Lm$ binary variables. For instance, two levels of four
+intervals provide sixteen intervals per component with eight binary variables
+instead of sixteen. Since the width of a box does not depend on the digits, the
+Jacobian of the mapping is constant and the post-optimal sensitivity remains
+valid. The cut model is linear with respect to the digits and is therefore
+additive over the levels, so that the dependence of the effect of a fine digit
+on the value of a coarse digit cannot be represented. The trust-region radius is
+multiplied by $L$, since a change of interval may modify up to $L$ digits.
 
-\paragraph{Hierarchies of subdivisions.} A coarse subdivision is solved, a
-promising box is refined with its own subdivision, and so on. Two levels of
-$m^{(1)}$ and $m^{(2)}$ intervals give a resolution of $m^{(1)}m^{(2)}$, and no
-master has more than $\sum_j m_j^{(k)}$ binaries. Three shapes are considered: a two-level
-hierarchy, a deep hierarchy that halves every variable at each of $d$ levels
-($2n$ binaries per level), and a best-first frontier that keeps the open boxes of
-all levels in a priority queue, akin to a spatial branch and bound in which the
-cut model replaces the relaxation. The cuts of a parent are expressed in its own
-one-hot variables and are discarded at each refinement, so that every node pays
-for its own cut model.
+\paragraph{Hierarchies of subdivisions.} A coarse subdivision is solved first,
+and a promising box is then subdivided and solved in turn. With two levels of
+$m^{(1)}$ and $m^{(2)}$ intervals, a resolution of $m^{(1)}m^{(2)}$ is obtained,
+while no master problem has more than $\sum_j m_j^{(k)}$ binary variables. Three
+variants are considered: a hierarchy with two levels; a deep hierarchy in which
+every variable is divided into two intervals at each of $d$ levels, with $2n$
+binary variables per level; and a best-first search which keeps the open boxes of
+all levels in a priority queue, similar to a spatial branch and bound method in
+which the relaxation is replaced by the cut model. Since the cuts of a parent box
+are expressed in the one-hot variables of its own subdivision, they are
+discarded at each refinement, and a new cut model has to be identified for each
+node.
 
 %% ---------------------------------------------------------------------------
 \section{Implementation}\label{sec:implementation}
 
 The method is implemented in the open-source package
-\code{gemseo-box-subdivision} \citep{boxsubdivision}, a plugin of GEMSEO
-\citep{gallard2018} built on the \code{Benders} formulation of
+\code{gemseo-box-subdivision} \citep{boxsubdivision}, a plugin of the GEMSEO
+library \citep{gallard2018} based on the \code{Benders} formulation of
 \code{gemseo-bilevel-outer-approximation} \citep{gemseobilevel}. Both levels are
-declared in one catalogue design space, which the formulation splits by keeping
-the categorical variables, the box selections, in the master. A mapping
-discipline computes $x(\xi,\alpha)$, or a constraint discipline computes
-$g_{\mathrm{box}}$, with analytic Jacobians, and is chained before the objective.
-A scenario class performs the assembly: it builds the design space from the
-subdivision, chains the mapping, names the variables of the master, selects the
-formulation and translates settings expressed in the terms of the method, such
-as a trust-region radius in changed components, into those of the master, so
-that a user supplies only the disciplines, the design space and the number of
-subdivisions. The sub-problems are solved by SLSQP \citep{kraft1988} for the
-analytic problems and by MMA \citep{svanberg1987} for the topology optimization
-problem; the master is a mixed-integer linear program.
+defined in a single catalogue design space, which is split by the formulation,
+the categorical variables describing the box selection being assigned to the
+master problem. A mapping discipline computes $x(\xi,\alpha)$, or a constraint
+discipline computes $g_{\mathrm{box}}$, with analytic Jacobians, and is chained
+before the disciplines that compute the objective function. The assembly is
+performed by a scenario class, which builds the design space from the
+subdivision, chains the mapping, defines the variables of the master problem,
+selects the formulation and converts the settings of the method, such as a
+trust-region radius expressed in number of modified components, into the
+settings of the master problem. The user therefore only provides the
+disciplines, the design space and the number of subdivisions. The sub-problems
+are solved by SLSQP \citep{kraft1988} for the analytic problems and by MMA
+\citep{svanberg1987} for the topology optimization problem, and the master
+problem is a mixed-integer linear program.
 
-The assembly is subject to invariants rather than user choices, because each of
-the following errors produces a run that completes and reports success with a
-wrong result.
+The assembly is subject to a number of conditions which are enforced by the
+package rather than left to the user, since their violation leads to a run that
+terminates normally with a wrong result:
 \begin{itemize}
-  \item \emph{One-hot layout.} The master assumes the one-hot vector of a
-    variable to be ordered by component; a mismatch with the layout of the
-    mapping makes the master select one box while the sub-problem enforces
-    another.
-  \item \emph{Starting point.} None of the policies of the host library suits a
-    subdivision: restarting from the initial design starts outside all boxes but
-    one, and warm-starting makes the result depend on the order of the boxes.
-    With the default policy, even the enumeration of the $100$ boxes of
-    Rastrigin returned $1.92$ instead of $0$, most local solvers stopping on a face
-    of their box. Each sub-problem is therefore started at the centre of its box,
-    which is $\xi = 1/2$ in the normalized formulation.
-  \item \emph{Boundary boxes.} In the constraint formulation, a face of a box
-    adjacent to the boundary coincides with a bound of the design space; when
-    both are active, the optimizer assigns the multiplier to the bound, and the
+  \item \emph{Ordering of the one-hot variables.} The master problem assumes the
+    one-hot vector of a variable to be ordered by component. A different
+    ordering in the mapping leads the sub-problem to enforce a box different from
+    the one selected by the master problem.
+  \item \emph{Starting point.} None of the initialization strategies of the host
+    library is suited to a subdivision. Restarting from the initial design leads
+    to starting points located outside all boxes but one, and warm-starting makes
+    the result dependent on the order in which the boxes are solved. With the
+    default strategy, the enumeration of the $100$ boxes of the Rastrigin function
+    returned $1.92$ instead of $0$, most local optimizations stopping on a face of
+    their box. Each sub-problem is therefore started at the centre of its box,
+    i.e. at $\xi = 1/2$ in the normalized formulation.
+  \item \emph{Boxes adjacent to the boundary.} In the constraint formulation, a
+    face of a box adjacent to the boundary of the design space coincides with a
+    bound of the design variables. When both are active, the multiplier is
+    assigned to the bound by the optimizer, and the
     slope~\eqref{eq:slope-constraint} of the first and last interval of every
-    variable is computed as zero. Widening the bounds by a relative margin of
-    $10^{-4}$, above the activity tolerance, restores the exact multiplier.
-  \item \emph{Convexity safeguards.} Selecting one of the two mechanisms of
-    Section~\ref{sec:convexification} sets the other to zero.
-  \item \emph{Catalogue weights.} The weights of the trust region are set to
-    one, instead of the interval indices used by default for a numeric catalogue
+    variable is computed as zero. This is avoided by enlarging the bounds by a
+    relative margin of $10^{-4}$, which is larger than the activity tolerance.
+  \item \emph{Safeguards against non-convexity.} When one of the two approaches
+    of Section~\ref{sec:convexification} is selected, the parameter of the other
+    one is set to zero.
+  \item \emph{Trust-region weights.} The weights of the trust region are set to
+    one instead of the interval indices used by default for numerical catalogues
     (Section~\ref{sec:trust}).
 \end{itemize}
 The Jacobians of the mapping and of the box constraint are verified against
-finite differences and the complex step at relaxed one-hot values, the
-sensitivity end to end against the exact slope of the objective on an active
-face, and each of the invariants above by a regression test.
+finite differences and the complex-step method at relaxed values of the one-hot
+variables, the sensitivity of the sub-problem is compared with the exact slope of
+the objective function on an active face, and each of the above conditions is
+checked by a regression test.
 
-The study also exposed defects of the master, reported and, where possible,
-fixed upstream: with parallel probes it could return an incorrect converged
-optimum, and rebuilding its mixed-integer program at every iteration made it
-eleven times slower than setting the rows on the solver directly. The swept
-convexity was ported to the master; for versions without it, the package drives
-the sweep from outside the master, which reproduces the results within one or
-two starting points out of six. On Rastrigin and Ackley in five variables, $73$ to $79\%$ of the
-wall-clock time of a run is spent in the mixed-integer master, so that the
-parallel evaluation of the probes brings no speed-up there; it pays off only when
-a sub-problem is expensive, as for the topology optimization problem.
+Several defects of the master problem were also identified during this work and
+reported to its developers, and corrected where possible. In particular, the
+parallel evaluation of the probes could return a wrong converged solution, and
+the reconstruction of the mixed-integer program at each iteration made the
+master problem eleven times slower than a direct update of the solver. The swept
+convexity has been implemented in the master problem; for earlier versions, the
+sweep is performed by the package outside the master problem, which reproduces
+the results within one or two starting points out of six. For the Rastrigin and
+Ackley functions in five dimensions, $73$ to $79\%$ of the computation time is
+spent in the master problem, so that the parallel evaluation of the probes does
+not reduce the computation time for the analytic problems. It is beneficial only
+when the solution of a sub-problem is expensive, as for the topology optimization
+problem.
 
 %% ---------------------------------------------------------------------------
 \section{Numerical experiments}\label{sec:results}
 
-\subsection{Problems and protocol}\label{sec:protocol}
+\subsection{Test problems and protocol}\label{sec:protocol}
 
-The analytic problems are the Rastrigin \citep{rastrigin1974,torn1989}, Ackley
+The method is assessed on the Rastrigin \citep{rastrigin1974,torn1989}, Ackley
 \citep{ackley1987}, Styblinski--Tang \citep{styblinski1990} and Griewank
 \citep{griewank1981} functions \citep[see also][]{jamil2013} in $n = 2$ and
-$n = 5$ dimensions, and a \emph{partly multimodal} function, Rastrigin in two
-variables and a paraboloid in the others (Appendix~\ref{app:problems},
-Fig.~\ref{fig:problems}). The bounds are shifted so that the global minimizer
-lies neither at the centre nor on the boundary of a box, which would favour a
-subdivision-based method. The four classical functions span the landscapes of
-interest: well separated basins (Styblinski--Tang, two per variable), dense
-regular basins (Rastrigin, about one unit apart over a range of ten), a single
-broad funnel with a superimposed ripple (Ackley), and dense near-equal minima on
-a shallow paraboloid (Griewank).
+$n = 5$ dimensions, and on a partly multimodal function, defined as the Rastrigin
+function in the first two variables and a paraboloid in the other ones
+(Appendix~\ref{app:problems}, Fig.~\ref{fig:problems}). The bounds are shifted so
+that the global minimizer lies neither at the centre nor on the boundary of a box,
+which would favour a method based on a subdivision of the design space. The four
+classical functions represent different types of landscape: two well separated
+basins per variable for the Styblinski--Tang function, regularly spaced basins
+about one unit apart over a range of ten for the Rastrigin function, a single
+broad basin with a superimposed oscillation for the Ackley function, and closely
+spaced minima of similar values on a shallow paraboloid for the Griewank
+function.
 
-All runs receive a fixed budget of \emph{equivalent evaluations}, a gradient
-counting as one evaluation. A run whose cost equals the budget was stopped by
-the budget and not by its own criterion; its distance to the optimum is then
-an upper bound on what it would reach with more evaluations, and such results
-are marked. The variants and baselines are compared through data profiles
-\citep{more2009}: for each problem twenty targets are defined, from a value
-reached early by every method down to the global optimum, and the profile is the
-fraction of targets, over problems and starting points, reached after a given
-number of evaluations. The targets are generated from the pooled histories of all
-runs of a given dimension with \code{gemseo-benchmark} \citep{gemseobenchmark},
-and the area under the profile ranks the configurations.
+All runs are given a fixed budget of equivalent evaluations, the computation of a
+gradient being counted as one evaluation. When the cost of a run is equal to the
+budget, the run was stopped by the budget and not by its own stopping criterion.
+The distance to the optimum is then an upper bound of the distance that would be
+obtained with a larger budget, and such results are marked in the tables. The
+variants of the method and the baselines are compared by means of data profiles
+\citep{more2009}. For each problem, twenty target values are defined, from a value
+reached early by all methods down to the global optimum, and the data profile
+gives the fraction of the targets reached, over all problems and starting points,
+as a function of the number of evaluations. The targets are generated from the
+histories of all runs of a given dimension with \code{gemseo-benchmark}
+\citep{gemseobenchmark}, and the configurations are ranked by the area under
+their profile.
 
-The baselines are GEMSEO's multistart with $50$ starting points and SLSQP, the
-same local solver as the sub-problems, so that the comparison concerns the
-choice of the starting regions; CMA-ES \citep{hansen2001,hansen2016} with
-$\sigma_0$ a quarter of the range; DIRECT \citep{jones1993} as implemented in
-SciPy \citep{virtanen2020}; and EGO \citep{jones1998} through \code{egobox}
-\citep{lafage2022}.
+The following baselines are considered: the multistart algorithm of GEMSEO with
+$50$ starting points and SLSQP as local optimizer, which is also the optimizer of
+the sub-problems, so that the comparison concerns only the choice of the starting
+regions; CMA-ES \citep{hansen2001,hansen2016}, with an initial standard deviation
+equal to a quarter of the range; DIRECT \citep{jones1993}, as implemented in SciPy
+\citep{virtanen2020}; and efficient global optimization (EGO) \citep{jones1998},
+as implemented in \code{egobox} \citep{lafage2022}.
 
-\paragraph{Threats to validity.} The configuration of the method reported against
-the baselines was selected as the best of up to twelve variants on the same
-problems and runs on which it is scored, each measured once, which biases the
-comparison in its favour. The number of subdivisions, the trust-region radius
-and the headroom factor of the sweep were chosen on these problems. The number of
-starting points (three to eight) is small. The cost of the master is not counted
-in the budget. These results characterize the method on the problems studied;
-a claim of general performance would require a separate test set and a protocol
-fixed in advance.
+\paragraph{Limitations of the protocol.} The configuration of the method compared
+with the baselines was selected as the best of up to twelve variants evaluated on
+the same problems and runs, each variant being run once, which introduces a bias
+in favour of the method. The number of subdivisions, the trust-region radius and
+the headroom factor of the sweep were also selected on these problems. The number
+of starting points, between three and eight, is small, and the cost of the master
+problem is not included in the budget. The results presented below therefore
+characterize the method on the problems studied, and an assessment of its general
+performance would require an independent set of test problems and a protocol
+defined in advance.
 
 \begin{figure}[t]
   \centering
@@ -608,20 +665,22 @@ fixed in advance.
   \label{fig:problems}
 \end{figure}
 
-\subsection{Outer approximation versus enumeration}\label{sec:enum}
+\subsection{Comparison with the enumeration of the boxes}\label{sec:enum}
 
-The reference is the enumeration, which solves the sub-problem of every box with
-the same formulation, so that the comparison isolates the exploration strategy.
-Table~\ref{tab:enum} reports the results on Rastrigin in two dimensions with
-$10\times 10$ boxes and eight starting points; Fig.~\ref{fig:solve} shows one run.
-The outer approximation reaches the same optimum after solving 20 to 36\% of the
-boxes, at about a third of the cost of the enumeration. Both formulations reach
-the optimum from seven of the eight starting points.
+The enumeration of the boxes, in which the sub-problem of every box is solved with
+the same formulation, is used as a reference, so that the comparison concerns only
+the exploration strategy. The results obtained for the Rastrigin function in two
+dimensions with $10\times 10$ boxes and eight starting points are given in
+Table~\ref{tab:enum}, and one run is illustrated in Fig.~\ref{fig:solve}. The same
+optimum is obtained by the outer approximation after the solution of 20 to 36\% of
+the boxes, at about one third of the cost of the enumeration. With both
+formulations, the optimum is reached from seven of the eight starting points.
 
 \begin{table}[t]
   \centering
-  \caption{Enumeration and outer approximation on Rastrigin, $n=2$, $100$ boxes,
-    eight starting points. Cost in executions of the objective.}
+  \caption{Enumeration of the boxes and outer approximation for the Rastrigin
+    function, $n=2$, $100$ boxes, eight starting points. The cost is given in
+    number of evaluations of the objective function.}
   \label{tab:enum}
   \begin{tabular}{llrrr}
     \toprule
@@ -638,31 +697,32 @@ the optimum from seven of the eight starting points.
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.9\linewidth]{figures/solve_final.png}
-  \caption{A run on Rastrigin, $n=2$. Left: boxes solved (blue) with the
-    path of the local solver from the centre of each box, last box selected by
-    the master (orange) and global optimum (star). Right: best value against
-    equivalent evaluations. The seventh box returns the global optimum after
-    $154$ evaluations; none of the first six improves on the local minimum
-    $8.95$ of the first box.}
+  \caption{Run of the method for the Rastrigin function, $n=2$. Left: solved
+    boxes (blue) with the path of the local optimizer from the centre of each
+    box, last box selected by the master problem (orange) and global optimum
+    (star). Right: best objective value as a function of the number of
+    equivalent evaluations. The global optimum is obtained in the seventh box,
+    after $154$ evaluations, none of the first six boxes improving on the local
+    minimum of $8.95$ obtained in the first one.}
   \label{fig:solve}
 \end{figure}
 
 \subsection{Variants of the method}\label{sec:variants}
 
-Each variant changes one setting of the swept configuration: four probes, a
-ladder bounded by the spread of the objective, and ten subdivisions per variable
-in two dimensions and two in five. The configuration with a calibrated margin
-$\delta = 100$ is included as the reference the sweep replaces. The budget is
-$500n$ equivalent evaluations, with four problems and five starting points.
-Table~\ref{tab:variants} gives the main results and Fig.~\ref{fig:variants}
-the profiles.
+Each variant differs from the swept configuration by one setting. The swept
+configuration uses four probes, a ladder bounded by the spread of the objective
+values, and ten subdivisions per variable in two dimensions and two in five
+dimensions. The configuration with a calibrated margin $\delta = 100$ is included
+for comparison. The budget is $500n$ equivalent evaluations, and four problems
+with five starting points each are considered. The main results are given in
+Table~\ref{tab:variants} and the data profiles in Fig.~\ref{fig:variants}.
 
 \begin{table}[t]
   \centering
-  \caption{Area under the data profile and fraction of targets reached at a
-    quarter and at the whole budget ($500n$ evaluations). In two variables ten
-    subdivisions per variable is the default; ``---'' marks rows that do not
-    apply.}
+  \caption{Area under the data profile and fraction of the targets reached at a
+    quarter of the budget and at the end of the budget ($500n$ evaluations). In
+    two dimensions, ten subdivisions per variable is the default setting, and the
+    corresponding row is therefore not repeated.}
   \label{tab:variants}
   \small
   \begin{tabular}{lrrrrrr}
@@ -694,50 +754,55 @@ the profiles.
   \label{fig:variants}
 \end{figure}
 
-\emph{Probes.} In two variables, sixteen probes reach 99\% of the targets after
-a quarter of the budget, against 90\% for four, and reach the optimum of
-Rastrigin, Ackley and Styblinski--Tang from all starting points. In five
-variables with two subdivisions, the number of probes does not matter, since no
-box separates the basins of Rastrigin or Ackley. The cost of the master grows
-with the probes: with sixteen probes and fifty binaries, half of the runs had
-not spent their budget after five hours of wall time, an overhead negligible
-only for expensive objectives.
+\paragraph{Number of probes.} In two dimensions, 99\% of the targets are reached
+after a quarter of the budget with sixteen probes, against 90\% with four probes,
+and the optimum of the Rastrigin, Ackley and Styblinski--Tang functions is reached
+from all starting points. In five dimensions with two subdivisions per variable,
+the number of probes has no significant influence, since no box separates the
+basins of the Rastrigin and Ackley functions. The computation time of the master
+problem increases with the number of probes. With sixteen probes and fifty binary
+variables, half of the runs had not used their budget after five hours, an
+overhead which is acceptable only for expensive objective functions.
 
-\emph{Ladder.} A low upper bound gives the fastest start but converges near the
-starting region, missing the optimum of Ackley from all starting points in two
-variables. A faster convergence is thus obtained at the expense of reliability.
+\paragraph{Upper bound of the ladder.} A low upper bound leads to the fastest
+initial progress, but the runs converge in the vicinity of the starting region,
+and the optimum of the Ackley function in two dimensions is missed from all
+starting points. A faster convergence is thus obtained at the expense of
+reliability.
 
-\emph{Calibrated margin.} The swept configuration, which is given no convexity
-value, has a higher area than the calibrated one in both dimensions and reaches
-the optimum of Ackley in two variables from five starting points of five against
-three.
+\paragraph{Calibrated margin.} The area under the profile of the swept
+configuration, which uses no convexity value, is larger than that of the
+calibrated configuration in both dimensions, and the optimum of the Ackley
+function in two dimensions is reached from five starting points out of five,
+against three.
 
-\emph{Density.} In five variables, ten subdivisions per variable is the best
-configuration, with the highest final fraction (84\%) of all configurations,
-baselines included (Table~\ref{tab:profiles}). Counting basins to propose the
-density costs more than the budget on most problems; even with the scans not
-charged, it ranks below the fixed density because on Ackley it proposes more than
-sixty subdivisions per variable (Section~\ref{sec:density-results}).
+\paragraph{Density.} In five dimensions, the configuration with ten subdivisions
+per variable gives the best results, with the largest final fraction of targets
+(84\%) among all configurations, including the baselines
+(Table~\ref{tab:profiles}). The cost of the basin count used to estimate the
+density exceeds the budget for most problems. Even when this cost is not
+counted, the estimated density gives worse results than the fixed one, since
+more than sixty subdivisions per variable are proposed for the Ackley function
+(Section~\ref{sec:density-results}).
 
-\emph{Extensions.} The multi-resolution encoding gives the fastest start and the
-flattest profile afterwards. The deep hierarchy is second in five variables and
-is the only configuration that reaches the optimum of Ackley in five variables
-from four starting points of five; the frontier hierarchy, the only one able to
-revise a choice, performed worst, because each node restarts a master and
-discards its cuts.
+\paragraph{Extensions.} The multi-resolution encoding gives the fastest initial
+progress, but its profile remains almost flat afterwards. The deep hierarchy
+ranks second in five dimensions and is the only configuration with which the
+optimum of the Ackley function in five dimensions is reached from four starting
+points out of five.
 
 \subsection{Density of the subdivision}\label{sec:density-results}
 
-Table~\ref{tab:density} reports the effect of the number $m$ of subdivisions per
-variable in five dimensions, with the adaptive repair, a budget of $2500$ and
-three starting points.
+The influence of the number $m$ of subdivisions per variable in five dimensions
+is shown in Table~\ref{tab:density}, for the adaptive repair, a budget of $2500$
+evaluations and three starting points.
 
 \begin{table}[t]
   \centering
-  \caption{Effect of the number $m$ of subdivisions per variable, $n=5$: median
-    distance to the optimum $\cdot$ median cost $\cdot$ starting points reaching
-    the optimum (when any). $\dagger$ stopped by the budget; the distance is an
-    upper bound.}
+  \caption{Influence of the number $m$ of subdivisions per variable, $n=5$:
+    median distance to the optimum $\cdot$ median cost $\cdot$ number of starting
+    points from which the optimum is reached (when non-zero). $\dagger$ Runs
+    stopped by the budget, for which the distance is an upper bound.}
   \label{tab:density}
   \small
   \begin{tabular}{rrrllll}
@@ -753,52 +818,63 @@ three starting points.
   \end{tabular}
 \end{table}
 
-With ten subdivisions per variable, $10^5$ boxes and $50$ binaries, the optimum
-of Rastrigin in five dimensions is reached from all starting points for about
-$2100$ evaluations; none of the baselines reaches it at the budgets tested
-(Section~\ref{sec:baselines}). Beyond ten, the distance on Rastrigin grows while
-the cost falls, i.e. the runs terminate early: eighty binaries cannot be
-identified by about fifty cuts. Conversely, Styblinski--Tang, with two basins per
-variable, is solved with two and four subdivisions and mostly missed with ten,
-which divide each basin into five boxes whose values and slopes are uninformative.
-The same behaviour was observed with the convexification constant and with three
-of four trust-region radii, which attributes it to the subdivision rather than to
-the master. The three effects of Section~\ref{sec:density} are thus all visible,
-and no single density suits the four problems: ten is the best value for three of
-them and the worst for the fourth. The Ackley and Griewank columns rest on
-truncated runs from $m = 10$ upwards and only rank the progress within the
-budget.
+With ten subdivisions per variable, i.e. $10^5$ boxes and $50$ binary variables,
+the optimum of the Rastrigin function in five dimensions is reached from all
+starting points with about $2100$ evaluations, whereas it is not reached by any of
+the baselines with the budgets considered (Section~\ref{sec:baselines}). With more
+than ten subdivisions, the distance to the optimum increases while the cost
+decreases, which indicates that the runs terminate prematurely, since eighty
+binary variables cannot be identified with about fifty cuts. Conversely, the
+optimum of the Styblinski--Tang function, which has two basins per variable, is
+reached with two and four subdivisions, but in most cases not with ten, since each
+basin is then divided into five boxes whose values and slopes provide little
+information. The same behaviour was observed with the convexification constant
+and with three of the four trust-region radii tested, which indicates that it is
+due to the subdivision rather than to the master problem. The three effects
+described in Section~\ref{sec:density} are therefore observed, and no single
+density is suitable for the four problems, ten subdivisions being the best value
+for three of them and the worst for the fourth. For the Ackley and Griewank
+functions, the runs with ten or more subdivisions were stopped by the budget, so
+that the corresponding results only rank the progress made within the budget.
 
-\paragraph{Proposed density.} Table~\ref{tab:proposed} gives each problem four
-times the budget implied by its proposed density, so that every run terminates on
-its own criterion. Where the basin count converged, the proposal coincides with
-the better of the two fixed densities, and on the partly multimodal problem it
-improves on both, leaving the three unimodal components undivided: the optimum
-is reached from all starting points for $858$ evaluations against $1554$ with ten
-subdivisions everywhere. The implied budget, $\sum_j m_j$ sub-problems, agrees
-with the measured cost within a third. On Ackley the count does not converge;
-the ripples are indeed one unit apart over a range of sixty-four, but it is the
-funnel, not the ripples, that must be resolved, and the estimator correctly flags
-itself as unresolved before the run. The randomization of the abscissae is necessary. On Ackley, a uniform scan
-returns a single basin at two consecutive sampling rates and is therefore
-stopped, with a count that is wrong by a factor of sixty, whereas the counts of
-the randomized scans increase as $4, 9, 20, 36, 55, 62$ without converging,
-which is the expected behaviour. Moreover, no prominence threshold reduces the
-count of Ackley to the density of ten, which gives the best results, since a
-threshold large enough to affect this count already leads to wrong counts for
-Styblinski--Tang and Griewank. The density of ten corresponds to the box size
-for which the local optimizer descends the global funnel while the values of
-neighbouring boxes can still be distinguished, which depends on the local
-optimizer as well as on the objective. The scans themselves are expensive
-($1250$ to $12\,525$ evaluations on the problems whose count converged, about
-$25\,000$ on Ackley), which is not included in Table~\ref{tab:proposed}: the estimator
-measures the right quantity but is affordable only when an evaluation is cheap
-relative to a sub-problem.
+\paragraph{Estimated density.} For the results of Table~\ref{tab:proposed}, each
+problem is given four times the budget corresponding to its estimated density, so
+that all runs terminate on their own stopping criterion. When the basin count
+converged, the estimated density is equal to the better of the two fixed
+densities. For the partly multimodal function, the estimated density gives better
+results than both fixed densities, since the three unimodal components are not
+subdivided, and the optimum is reached from all starting points with $858$
+evaluations, against $1554$ with ten subdivisions for every variable. The cost
+predicted from the estimated density, i.e. $\sum_j m_j$ sub-problems, agrees with
+the measured cost within one third. For the Ackley function, the basin count does
+not converge. The oscillations of this function are indeed about one unit apart
+over a range of sixty-four, but the global basin, and not the oscillations, has
+to be resolved, and the estimate is correctly reported as unresolved before the
+run.
+
+The random sampling of the abscissae was found to be necessary. For the Ackley
+function, a uniform scan returns a single basin at two consecutive sampling rates
+and is therefore stopped, with a count that is wrong by a factor of sixty,
+whereas the counts obtained with randomized scans increase as
+$4, 9, 20, 36, 55, 62$ without converging, which is the expected behaviour.
+Moreover, no prominence threshold reduces the count of the Ackley function to the
+density of ten, which gives the best results, since a threshold large enough to
+affect this count already leads to wrong counts for the Styblinski--Tang and
+Griewank functions. The density of ten corresponds to the box size for which the
+local optimizer descends the global basin while the values of neighbouring boxes
+can still be distinguished, and thus depends on the local optimizer as well as on
+the objective function. Finally, the scans require between $1250$ and $12\,525$
+evaluations for the problems whose count converged, and about $25\,000$ for the
+Ackley function. These evaluations are not included in Table~\ref{tab:proposed},
+and the estimation of the density is therefore affordable only when the
+evaluation of the objective function is inexpensive compared with the solution of
+a sub-problem.
 
 \begin{table}[t]
   \centering
-  \caption{Proposed density, $n = 5$, three starting points, budget four times
-    the implied one; costs exclude the scans.}
+  \caption{Results obtained with the estimated density, $n = 5$, three starting
+    points and a budget equal to four times the predicted cost. The cost of the
+    scans is not included.}
   \label{tab:proposed}
   \small
   \begin{tabular}{llrrrr}
@@ -814,34 +890,57 @@ relative to a sub-problem.
   \end{tabular}
 \end{table}
 
-\subsection{Swept versus calibrated convexity}\label{sec:sweep-results}
+\subsection{Swept and calibrated convexity}\label{sec:sweep-results}
 
-Table~\ref{tab:sweep} compares fixed and swept convexity on Rastrigin and Ackley
-in two dimensions, whose objectives differ in scale by a factor of four, with
-ten subdivisions, a budget of $1000$ and six starting points. No fixed margin
-reaches the optimum of both problems from all starting points, whereas both swept
-configurations do, including the unbounded one, which is given no convexity value
-at all. The additional rungs cost mixed-integer solves rather than evaluations,
-so that the swept and calibrated configurations cost about the same. This
-comparison covers two problems on which the headroom factor was chosen; the
-broader comparison is that of Table~\ref{tab:variants}.
-
-The sweep does not dominate the calibrated margin everywhere.
-Table~\ref{tab:sweep-density} repeats the comparison in five variables at the
-densities proposed by the basin count, so that neither a margin nor a density is
-supplied to the swept runs. The sweep reaches the optimum of Ackley at ten
-subdivisions and of Griewank from two starting points of three, where the
-calibrated margin, which exceeds the range of both objectives, reaches it from
-one. It fails, however, on Rastrigin, which the calibrated margin solves from all
-starting points: the swept runs terminate after about $1550$ evaluations one basin
-away from the optimum, for a reason which has not been identified. The margin of $100$
-is $54\%$ of the range of Rastrigin and was calibrated on it.
+Fixed and swept convexity values are compared in Table~\ref{tab:sweep} for the
+Rastrigin and Ackley functions in two dimensions, whose ranges differ by a factor
+of four, with ten subdivisions per variable, a budget of $1000$ evaluations and
+six starting points. None of the fixed margins leads to the optimum of both
+problems from all starting points, whereas both swept configurations do,
+including the unbounded one, for which no convexity value is specified. The
+additional values of the ladder require mixed-integer solutions but no
+evaluations of the objective, so that the costs of the swept and calibrated
+configurations are similar. These results concern two problems which were also
+used to select the headroom factor, and a broader comparison is given in
+Table~\ref{tab:variants}.
 
 \begin{table}[t]
   \centering
-  \caption{Swept and calibrated convexity at the proposed densities, $n = 5$,
-    three starting points: median distance $\cdot$ median cost $\cdot$ starting
-    points reaching the optimum.}
+  \caption{Fixed and swept convexity, $n = 2$, six starting points: median
+    distance $\cdot$ median cost $\cdot$ number of starting points from which the
+    optimum is reached.}
+  \label{tab:sweep}
+  \begin{tabular}{lll}
+    \toprule
+    convexity & Rastrigin (range $\approx 80$) & Ackley (range $\approx 22$) \\
+    \midrule
+    fixed, margin 10                   & 0.000 $\cdot$ 226 $\cdot$ 4/6 & 10.415 $\cdot$ 208 $\cdot$ 1/6 \\
+    fixed, margin 100                  & 0.000 $\cdot$ 543 $\cdot$ 6/6 & 0.000 $\cdot$ 428 $\cdot$ 4/6 \\
+    sweep, $\kappa_{\max} = 100$       & 0.000 $\cdot$ 491 $\cdot$ 6/6 & 0.000 $\cdot$ 517 $\cdot$ 6/6 \\
+    sweep, unbounded                   & 0.000 $\cdot$ 489 $\cdot$ 6/6 & 0.000 $\cdot$ 601 $\cdot$ 6/6 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The swept convexity does not give better results than the calibrated margin in
+all cases. In Table~\ref{tab:sweep-density}, the comparison is repeated in five
+dimensions with the densities estimated by the basin count, so that neither a
+margin nor a density is specified for the swept runs. With the swept convexity,
+the optimum of the Ackley function with ten subdivisions and of the Griewank
+function is reached from two starting points out of three, against one with the
+calibrated margin, which exceeds the range of both functions. For the Rastrigin
+function, however, the optimum is reached from all starting points with the
+calibrated margin and from none with the swept convexity. The swept runs
+terminate after about $1550$ evaluations, one basin away from the optimum, for a
+reason which has not been identified. It should be noted that the calibrated
+margin represents $54\%$ of the range of the Rastrigin function and was
+calibrated on this function.
+
+\begin{table}[t]
+  \centering
+  \caption{Swept and calibrated convexity with the estimated densities, $n = 5$,
+    three starting points: median distance $\cdot$ median cost $\cdot$ number of
+    starting points from which the optimum is reached.}
   \label{tab:sweep-density}
   \small
   \begin{tabular}{llll}
@@ -858,80 +957,74 @@ is $54\%$ of the range of Rastrigin and was calibrated on it.
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
-  \centering
-  \caption{Fixed and swept convexity, $n = 2$, six starting points: median
-    distance $\cdot$ median cost $\cdot$ starting points reaching the optimum.}
-  \label{tab:sweep}
-  \begin{tabular}{lll}
-    \toprule
-    convexity & Rastrigin (range $\approx 80$) & Ackley (range $\approx 22$) \\
-    \midrule
-    fixed, margin 10                   & 0.000 $\cdot$ 226 $\cdot$ 4/6 & 10.415 $\cdot$ 208 $\cdot$ 1/6 \\
-    fixed, margin 100                  & 0.000 $\cdot$ 543 $\cdot$ 6/6 & 0.000 $\cdot$ 428 $\cdot$ 4/6 \\
-    sweep, $\kappa_{\max} = 100$       & 0.000 $\cdot$ 491 $\cdot$ 6/6 & 0.000 $\cdot$ 517 $\cdot$ 6/6 \\
-    sweep, unbounded                   & 0.000 $\cdot$ 489 $\cdot$ 6/6 & 0.000 $\cdot$ 601 $\cdot$ 6/6 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\subsection{Extensions}\label{sec:extensions-results}
 
-\subsection{Extensions at equal budget}\label{sec:extensions-results}
+The extensions of Section~\ref{sec:extensions} were evaluated in five dimensions
+with a budget of $2500$ equivalent evaluations and the calibrated margin. The
+detailed results are given in Appendix~\ref{app:extensions}.
 
-The extensions of Section~\ref{sec:extensions} were evaluated in five variables
-with $2500$ equivalent evaluations and the calibrated margin; the tables are in
-Appendix~\ref{app:extensions}.
+\paragraph{Partial subdivision.} For the partly multimodal function, the optimum
+is reached from all starting points when only the two variables of the Rastrigin
+function are divided into ten intervals, and from none of them with a coarse
+subdivision of the five variables (Table~\ref{tab:partial}). For the
+Styblinski--Tang function, which is multimodal in every variable, eight basins
+remain in every box when three variables are not subdivided, and the optimum is
+no longer reached. The least expensive successful configuration does not
+correspond exactly to the multimodal variables. Dividing three variables into
+four intervals ($12$ binary variables, $773$ evaluations) is less expensive than
+dividing two variables into ten ($20$ binary variables, $858$ evaluations), since
+the subdivision of a variable in which the function is unimodal has no adverse
+effect, and the cost depends mainly on the number of binary variables.
 
-\emph{Partial subdivision.} On the partly multimodal function, subdividing
-only the two Rastrigin variables into ten reaches the optimum from all starting
-points, whereas a coarse subdivision of all five variables fails from all of
-them (Table~\ref{tab:partial}). On Styblinski--Tang, multimodal in every
-variable, leaving three variables undivided keeps eight basins in every box and
-the optimum is no longer reached. The cheapest successful configuration does not
-match the multimodality exactly: three variables divided into four
-($12$ binaries, $773$ evaluations) is cheaper than two divided into ten
-($20$ binaries, $858$), because a unimodal variable costs nothing to subdivide
-and the cost is governed by the binaries.
+\paragraph{Multi-resolution encoding.} With two levels of four intervals, a
+resolution of sixteen intervals per variable is obtained with forty binary
+variables instead of eighty, without degradation of the results at this
+resolution (Table~\ref{tab:multires}). This encoding is most useful for the
+Styblinski--Tang function, for which ten subdivisions per variable give poor
+results; a distance of $0.27$ is obtained with $920$ evaluations, against $0.00$
+with $973$ evaluations for sixteen subdivisions with the standard encoding. For
+the same resolution and number of binary variables, two levels of four intervals
+give better results than four levels of two intervals. This is consistent with
+the additive cut model, which becomes less accurate as the number of levels
+increases.
 
-\emph{Multi-resolution encoding.} Two levels of four reach a resolution of
-sixteen with forty binaries instead of eighty, without degrading the results
-at that resolution, and are most useful on Styblinski--Tang, where ten flat
-subdivisions fail: a distance of $0.27$ for $920$ evaluations, against $0.00$ for
-$973$ with sixteen flat subdivisions (Table~\ref{tab:multires}). At equal
-resolution and binaries, two levels of four perform better than four levels of
-two, consistently with the additive cut model: each further level adds a
-dimension over which the model is wrong.
+\paragraph{Hierarchies.} With the deep hierarchy, in which every variable is
+divided into two intervals at each of four levels, the optimum of the Ackley
+function in five dimensions is reached from four starting points out of six, and
+the runs terminate on their own criterion. For the Rastrigin and Styblinski--Tang
+functions, the results are worse than with a single subdivision
+(Table~\ref{tab:hierarchies}). The best-first search, which is the only variant
+able to revise the choice of a box, gives the worst results, and these results
+deteriorate as the number of expansions increases. A budget which provides fifty
+cuts to a single cut model provides only five cuts to each of ten models, which
+are then not sufficiently determined to rank the boxes. The poor performance of
+the best-first search is therefore due to the weakness of the cut models rather
+than to the search strategy.
 
-\emph{Hierarchies.} The deep hierarchy, halving every variable at each of four
-levels, reaches the optimum of Ackley in five variables from four starting
-points of six and terminates on its own criterion; it performs worse than the
-flat subdivision on Rastrigin and Styblinski--Tang (Table~\ref{tab:hierarchies}).
-The frontier, the only shape able to revise a choice, performs worst, and more
-expansions make it worse: a budget that provides fifty cuts to one model provides
-five to each of ten models, none of which is determined enough to rank its
-children. The poor performance of the frontier is therefore due to the
-weakness of the cut models rather than to the search strategy.
-
-\emph{Effect of the budget.} Several of these comparisons involve runs stopped by
-the budget, and the most sensitive one was repeated at two and four times the
-budget (Table~\ref{tab:budget}). The flat subdivision at ten intervals then
-reaches Ackley from two starting points of six instead of none, which reduces the
-advantage of the hierarchy to four against two; beyond twice the budget nothing
-changes, both configurations terminating on their own stopping rules.
+\paragraph{Influence of the budget.} Since several of these comparisons involve
+runs stopped by the budget, the most sensitive one was repeated with two and four
+times the budget (Table~\ref{tab:budget}). The optimum of the Ackley function is
+then reached with ten subdivisions per variable from two starting points out of
+six instead of none, and the difference with the deep hierarchy is reduced to
+four starting points against two. Beyond twice the budget, the results are
+unchanged, since both configurations terminate on their own stopping criteria.
 
 \subsection{Comparison with the baselines}\label{sec:baselines}
 
-The method is used in its best variant of Table~\ref{tab:variants}, sixteen
-probes in two variables and ten subdivisions per variable in five, both with
-swept convexity, with the bias stated in Section~\ref{sec:protocol}.
-Table~\ref{tab:baselines} gives the per-problem results and
-Table~\ref{tab:profiles} and Fig.~\ref{fig:profiles} the data profiles; EGO is
-run with the $500$ evaluations its surrogate can afford.
+The best variant of Table~\ref{tab:variants} is used for the comparison, i.e.
+sixteen probes in two dimensions and ten subdivisions per variable in five
+dimensions, both with swept convexity, subject to the bias mentioned in
+Section~\ref{sec:protocol}. The results obtained for each problem are given in
+Table~\ref{tab:baselines}, and the data profiles in Table~\ref{tab:profiles} and
+Fig.~\ref{fig:profiles}. EGO is run with a budget of $500$ evaluations, which is
+the largest budget compatible with the cost of its surrogate model.
 
 \begin{table}[t]
   \centering
-  \caption{Box subdivision (best variant) and baselines, $500n$ equivalent
-    evaluations, five starting points: median distance $\cdot$ median cost
-    $\cdot$ starting points reaching the optimum.}
+  \caption{Comparison of the best variant of the method with the baselines,
+    $500n$ equivalent evaluations, five starting points: median distance $\cdot$
+    median cost $\cdot$ number of starting points from which the optimum is
+    reached.}
   \label{tab:baselines}
   \small
   \begin{tabular}{lrllll}
@@ -952,10 +1045,11 @@ run with the $500$ evaluations its surrogate can afford.
 
 \begin{table}[t]
   \centering
-  \caption{Area under the data profile and fraction of targets reached at a
-    tenth, a quarter, a half and the whole budget. $\ddagger$ at the EGO budget
-    of $500$ evaluations, less than a quarter of the others' budget in five
-    variables; no area is given for EGO.}
+  \caption{Area under the data profile and fraction of the targets reached at a
+    tenth, a quarter and a half of the budget and at the end of the budget.
+    $\ddagger$ Value at the end of the budget of EGO, i.e. $500$ evaluations,
+    which in five dimensions is less than a quarter of the budget of the other
+    methods; no area is given for EGO.}
   \label{tab:profiles}
   \small
   \begin{tabular}{rlrrrrr}
@@ -981,40 +1075,45 @@ run with the $500$ evaluations its surrogate can afford.
   \centering
   \includegraphics[width=\linewidth]{figures/data_profiles.pdf}
   \caption{Data profiles of the best variant of the method and of the
-    baselines; the end of the EGO budget is marked on its curve.}
+    baselines. The end of the budget of EGO is marked on its curve.}
   \label{fig:profiles}
 \end{figure}
 
-In two variables the method reaches 99\% of the targets within a quarter of the
-budget, against 84\% for DIRECT, which reaches the same fraction at half the
-budget. Its runs, however, keep proposing boxes after the optimum is found and
-spend the whole budget on Ackley, where DIRECT terminates after $417$
-evaluations: how early a target is reached and when a run terminates rank the
-methods differently.
+In two dimensions, 99\% of the targets are reached by the method within a quarter
+of the budget, against 84\% for DIRECT, which reaches the same fraction at half of
+the budget. However, the runs of the method continue to propose boxes after the
+optimum has been found and use the whole budget for the Ackley function, whereas
+DIRECT terminates after $417$ evaluations. The speed at which the targets are
+reached and the cost at termination therefore lead to different rankings of the
+methods.
 
-In five variables, DIRECT reaches the highest fraction of targets for most of the
-budget, and the method is behind DIRECT and CMA-ES until about $1900$ evaluations,
-ending at 84\% against 79\% and 78\%. It is the only method that reaches the
-optimum of Rastrigin in five variables, from two starting points of five, and it
-reaches the optimum of Styblinski--Tang from all starting points for $789$
-evaluations, against $2340$ for the multistart and $2505$ for DIRECT. CMA-ES is
-better on Ackley, whose single broad funnel suits a method that learns a search
-distribution; on Griewank no method reaches the optimum and DIRECT gets closest at
-the lowest cost.
+In five dimensions, the largest fraction of targets is reached by DIRECT during
+most of the run, and the method remains behind DIRECT and CMA-ES up to about
+$1900$ evaluations, with final fractions of 84\%, 79\% and 78\% respectively. The
+method is the only one with which the optimum of the Rastrigin function in five
+dimensions is reached, from two starting points out of five, and the optimum of
+the Styblinski--Tang function is reached from all starting points with $789$
+evaluations, against $2340$ for the multistart algorithm and $2505$ for DIRECT.
+Better results are obtained with CMA-ES for the Ackley function, whose single
+broad basin is well suited to a method based on the adaptation of a search
+distribution. For the Griewank function, the optimum is not reached by any
+method, and the smallest distance is obtained by DIRECT at the lowest cost.
 
-\subsection{Comparison at a budget of 500 evaluations}\label{sec:small}
+\subsection{Comparison with a budget of 500 evaluations}\label{sec:small}
 
-A budget of $500n$ is large for industrial applications and excludes Bayesian
-optimization, whose overhead is cubic in the number of points. Table~\ref{tab:small}
-compares all methods at $500$ evaluations, three starting points, with the
-swept configuration of the method, i.e. no tuned setting.
+A budget of $500n$ evaluations is large for industrial applications, and does not
+allow the use of Bayesian optimization, whose computational cost grows cubically
+with the number of samples. All methods are therefore compared in
+Table~\ref{tab:small} with a budget of $500$ evaluations and three starting
+points, the method being used in its swept configuration, i.e. without any
+problem-specific setting.
 
 \begin{table}[t]
   \centering
-  \caption{Median distance to the optimum and starting points reaching it at a
-    budget of $500$ evaluations; a third number is the cost of a run that
-    terminated before the budget. $\ddagger$ EGO terminated on a vanishing
-    expected improvement.}
+  \caption{Median distance to the optimum and number of starting points from
+    which the optimum is reached, for a budget of $500$ evaluations. A third value
+    gives the cost of the runs that terminated before the end of the budget.
+    $\ddagger$ Termination of EGO due to a vanishing expected improvement.}
   \label{tab:small}
   \small
   \begin{tabular}{lrlllll}
@@ -1033,48 +1132,53 @@ swept configuration of the method, i.e. no tuned setting.
   \end{tabular}
 \end{table}
 
-At this budget EGO is best on the hardest multimodal case, Rastrigin in five
-dimensions ($1.99$ against $4.98$ for DIRECT and $8.57$ for the method): with few
-evaluations and many basins, a surrogate built on the whole history is more
-effective than methods that do not reuse it. Its own computation time is,
-however, about a hundred times larger ($444$\,s against $3$\,s on that problem)
-and is negligible only for expensive objectives. When the subdivision does not
-separate the basins within the budget, as for Rastrigin and Ackley in five
-dimensions, the method is among the worst; when it does, as for Styblinski--Tang,
-it is among the best.
+With this budget, the best result for the Rastrigin function in five dimensions,
+which is the most difficult multimodal case, is obtained by EGO, with a distance
+of $1.99$ against $4.98$ for DIRECT and $8.57$ for the method. When few
+evaluations are available and the number of basins is large, a surrogate model
+built on the whole history is thus more effective than methods that do not reuse
+this information. The computation time of EGO is, however, about one hundred
+times larger ($444$\,s against $3$\,s for this problem), which is acceptable only
+for expensive objective functions. When the subdivision does not separate the
+basins within the budget, as for the Rastrigin and Ackley functions in five
+dimensions, the results of the method are among the worst. When it does, as for
+the Styblinski--Tang function, they are among the best.
 
 \subsection{Application to topology optimization}\label{sec:cantilever}
 
-The short cantilever of the generalized geometry projection (GGP)
-\citep{coniglio2020,ggpcode} is a constrained problem with adjoint gradients: $18$
-bars, each defined by the position of its centre, its angle, length, thickness
-and density, give $108$ variables, and the compliance $C$ is minimized under a
-volume fraction of $0.4$ on a $60\times 30$ mesh. The setting reproduces the
-reference MATLAB implementation with the moving node approach: a cubic
-characteristic function, a lower-bound Kreisselmeier--Steinhauser aggregation
+The short cantilever problem of the generalized geometry projection (GGP)
+\citep{coniglio2020,ggpcode} is a constrained problem with adjoint sensitivities.
+The structure is described by $18$ bars, each defined by the position of its
+centre, its angle, length, thickness and density, which gives $108$ design
+variables, and the compliance $C$ is minimized subject to a volume fraction of
+$0.4$ on a mesh of $60\times 30$ elements. The settings of the reference MATLAB
+implementation with the moving node approach are used: a cubic characteristic
+function, a lower-bound Kreisselmeier--Steinhauser aggregation
 \citep{kreisselmeier1979} with $k_a = 10$ followed by a smooth saturation, a
-penalization exponent $p = 3$, angle bounds $[-2\pi, 2\pi]$, the objective
-$\log(C+1)$, and MMA \citep{svanberg1987} with a move limit of $0.01$. The Python
-implementation was verified against a direct port of the MATLAB code: for the
-same design the densities agree to $3\cdot 10^{-8}$ and the compliances to all
-reported digits. The MMA settings matter: with a move limit of $0.1$ and wider
-asymptotes, initial designs differing by $10^{-12}$ converged to compliances
-between $84$ and $128$.
+penalization exponent $p = 3$, bounds of $[-2\pi, 2\pi]$ on the angles, the
+objective function $\log(C+1)$, and MMA \citep{svanberg1987} with a move limit of
+$0.01$. The Python implementation was verified against a direct translation of
+the MATLAB code, the densities agreeing to $3\cdot 10^{-8}$ and the compliances to
+all reported digits for the same design. The results were found to be sensitive
+to the settings of MMA: with a move limit of $0.1$ and wider asymptotes, initial
+designs differing by $10^{-12}$ converged to compliances between $84$ and $128$.
 
-The box subdivision subdivides the pose of every bar (centre and angle) into ten
-intervals, i.e. $54$ subdivided variables and $540$ binaries; length, thickness
-and density remain continuous variables of every sub-problem. The convexity is
-swept, the master proposes nine boxes per iteration, solved in parallel, and each
-sub-problem is solved by MMA with at most $1800$ iterations. The multistart solves
-the same problem with MMA from $63$ initial designs, one per box solved by the
-box subdivision: the reference initial design and $62$ designs whose bar poses
-are drawn uniformly within the bounds.
+The position and the angle of every bar are divided into ten intervals, which
+gives $54$ subdivided variables and $540$ binary variables, while the length, the
+thickness and the density of the bars remain continuous variables of every
+sub-problem. The convexity is swept, nine boxes are proposed at each iteration of
+the master problem and solved in parallel, and each sub-problem is solved by MMA
+with at most $1800$ iterations. For comparison, the same problem is solved by MMA
+from $63$ initial designs, one for each box solved by the method, namely the
+reference initial design and $62$ designs whose bar positions and angles are
+drawn uniformly within the bounds.
 
 \begin{table}[t]
   \centering
-  \caption{Short cantilever: best feasible compliance, designs evaluated until
-    the best one, and total designs evaluated. $^1$ runs 0 to 8, executed in
-    parallel; the best is found by run 8.}
+  \caption{Short cantilever problem: best feasible compliance, number of designs
+    evaluated until the best design is found, and total number of designs
+    evaluated. $^1$ Designs evaluated by runs 0 to 8, which are executed in
+    parallel, the best design being found by run 8.}
   \label{tab:cantilever}
   \small
   \begin{tabular}{lrrrr}
@@ -1091,26 +1195,30 @@ are drawn uniformly within the bounds.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/cantilever_final.png}
-  \caption{Box subdivision on the short cantilever. Left: the nine boxes of the
-    last round of the master. Right: best feasible design ($C = 82.1$, box 32)
-    and best feasible compliance against the designs evaluated by all
-    processes, compared with MMA from the reference initial design.}
+  \caption{Box-subdivision method applied to the short cantilever problem. Left:
+    the nine boxes of the last iteration of the master problem. Right: best
+    feasible design ($C = 82.1$, box 32), and best feasible compliance as a
+    function of the number of designs evaluated by all processes, compared with
+    MMA from the reference initial design.}
   \label{fig:cantilever}
 \end{figure}
 
-MMA from the reference initial design converges to the symmetric layout reported
-in \citet{coniglio2020}, $C = 84.0$ (Table~\ref{tab:cantilever},
-Fig.~\ref{fig:cantilever}). The multistart reaches $C = 83.0$ from three of its
-$63$ initial designs; its median run ends at $95.6$ and eight runs hit the
-iteration limit. The box subdivision improves on the reference in its first box,
-after $349$ designs, and reaches $C = 82.1$ in its 32nd box, for a total number
-of designs comparable with the multistart and about half its wall time on the
-same four cores ($2.0$\,h against $3.9$\,h). The best layout is not symmetric:
-the lower diagonal bars meet the bottom chord at a single node instead of
-crossing. The ten best of the $63$ boxes lie between $82.1$ and $82.4$ and the
-median box at $83.8$, so that the best value is not an isolated outcome. The
-improvement over the multistart, about 1\%, is modest, and rests on a single run
-of each method.
+From the reference initial design, MMA converges to the symmetric layout reported
+by \citet{coniglio2020}, with $C = 84.0$ (Table~\ref{tab:cantilever},
+Fig.~\ref{fig:cantilever}). With the multistart approach, a compliance of
+$C = 83.0$ is obtained from three of the $63$ initial designs, while the median
+run ends at $95.6$ and eight runs reach the iteration limit. With the
+box-subdivision method, the solution obtained from the reference initial design
+is improved in the first box, after $349$ evaluations, and a compliance of
+$C = 82.1$ is reached in the 32nd box. The total number of evaluations is similar
+to that of the multistart approach, and the computation time on the same four
+cores is about half ($2.0$\,h against $3.9$\,h). The best layout is not symmetric,
+since the lower diagonal bars meet the bottom chord at a single node instead of
+crossing each other. The compliances of the ten best boxes lie between $82.1$ and
+$82.4$, and the median value over the $63$ boxes is $83.8$, so that the best value
+is not an isolated result. The improvement with respect to the multistart
+approach, about 1\%, is nevertheless modest, and is based on a single run of each
+method.
 
 %% ---------------------------------------------------------------------------
 \section{Discussion}\label{sec:discussion}
@@ -1267,14 +1375,15 @@ validation, writing.}
   \end{tabular}
 \end{table}
 
-The gradients of all problems are implemented analytically and verified against
-central finite differences.
+The gradients of all functions are computed analytically and were verified
+against central finite differences.
 
 \section{Tuning of the master}\label{app:tuning}
 
-All experiments of this appendix use the adaptive repair unless stated otherwise,
-ten subdivisions per variable, eight starting points and a budget of $1000$ in
-two variables, three starting points and a budget of $2500$ in five.
+Unless stated otherwise, the results of this appendix were obtained with the
+adaptive repair and ten subdivisions per variable, with eight starting points and
+a budget of $1000$ evaluations in two dimensions, and three starting points and a
+budget of $2500$ evaluations in five dimensions.
 
 \begin{table}[h]
   \centering
@@ -1370,24 +1479,27 @@ two variables, three starting points and a budget of $2500$ in five.
   \end{tabular}
 \end{table}
 
-The margin of the adaptive repair saturates above a threshold on Rastrigin
-(Table~\ref{tab:margin}) but has a useful range on Ackley
-(Table~\ref{tab:margin-ackley}), whose range is smaller than the calibrated
-value. The convexification constant has a useful range bounded on both sides,
-which in five variables reduces to a single tested value (Table~\ref{tab:constant}).
-Counting changed components with a radius of one is the best metric in every
-column of Table~\ref{tab:metric}; the ordinal proximity is as reliable with a
-small radius but more expensive. In five variables a radius of two is best on
-Rastrigin and worst on Styblinski--Tang (Table~\ref{tab:radius}). With the same
-density, the pure convexification costs a third to two thirds of the adaptive
-repair when both reach the same result, but does not reach the optimum of
-Rastrigin at ten subdivisions ($1.92$ against $0.00$ from all starting points),
-which is why the adaptive repair is the default.
+For the Rastrigin function, the results obtained with the adaptive repair no
+longer improve above a threshold value of the margin (Table~\ref{tab:margin}).
+For the Ackley function, whose range is smaller than the calibrated margin, the
+best results are obtained for intermediate values of the margin
+(Table~\ref{tab:margin-ackley}). The convexification constant has a useful range
+bounded on both sides, which in five dimensions reduces to a single value among
+those tested (Table~\ref{tab:constant}). The Hamming distance with a radius of one
+gives the best results for the three problems of Table~\ref{tab:metric}, and the
+ordinal distance is as reliable with a small radius but more expensive. In five
+dimensions, a radius of two gives the best results for the Rastrigin function and
+the worst for the Styblinski--Tang function (Table~\ref{tab:radius}). For the same
+density, the cost of the convexification constant is between one third and two
+thirds of that of the adaptive repair when both lead to the same result, but the
+optimum of the Rastrigin function with ten subdivisions is not reached with the
+constant (distance of $1.92$, against $0.00$ from all starting points with the
+adaptive repair). The adaptive repair is therefore used by default.
 
 \section{Extensions}\label{app:extensions}
 
-All experiments of this appendix use five variables, a budget of $2500$ and the
-calibrated margin.
+The results of this appendix were obtained in five dimensions with a budget of
+$2500$ evaluations and the calibrated margin.
 
 \begin{table}[h]
   \centering
