@@ -57,6 +57,7 @@ from benchmarks.configurations import DEFAULT_CONFIGURATION
 from benchmarks.configurations import TRUST_REGION_RADIUS
 from benchmarks.problems import Counter
 from benchmarks.problems import Objective
+from benchmarks.tunneling import tunnel
 from gemseo_box_subdivision import BoxSubdivisionScenario
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
 
@@ -111,6 +112,7 @@ METHODS = (
     "cmaes",
     "direct",
     "egobox",
+    "tunneling",
 )
 """The methods compared."""
 
@@ -540,6 +542,42 @@ def run_egobox(
     return _result("egobox", problem, dimension, seed, counter, adjoint)
 
 
+def run_tunneling(
+    problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
+) -> Result:
+    """Run the classic tunneling method of Levy and Montalvo (1985).
+
+    It alternates SLSQP minimizations of the objective with SLSQP minimizations
+    of the tunneling function, see :mod:`benchmarks.tunneling`, from the same
+    starting point as the other methods. Its budget is enforced by the counter,
+    which every evaluation of the objective and of its gradient goes through,
+    those of the tunneling function included. It may stop before the budget,
+    when every tunneling search from a minimizer has failed.
+
+    Args:
+        problem: The problem.
+        dimension: The number of design variables.
+        seed: The seed of the starting point and of the tunneling directions.
+        budget: The budget in equivalent objective evaluations.
+        adjoint: Whether a gradient costs one objective evaluation.
+
+    Returns:
+        The outcome of the run.
+    """
+    counter = BudgetedCounter(problem, dimension, budget, adjoint)
+    with suppress(BudgetExceededError):
+        tunnel(
+            counter,
+            dimension,
+            problem.lower_bound,
+            problem.upper_bound,
+            _starting_point(problem, dimension, seed),
+            seed,
+        )
+
+    return _result("tunneling", problem, dimension, seed, counter, adjoint)
+
+
 def _result(
     method: str,
     problem: Problem,
@@ -583,6 +621,7 @@ RUNNERS = {
     "cmaes": run_cmaes,
     "direct": run_direct,
     "egobox": run_egobox,
+    "tunneling": run_tunneling,
 }
 """The runner of each method."""
 
