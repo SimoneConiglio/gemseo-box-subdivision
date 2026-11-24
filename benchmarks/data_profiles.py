@@ -95,6 +95,15 @@ SEEDS = (11, 101, 202, 303, 404)
 BASELINES = ("multistart", "cmaes", "direct", "egobox")
 """The baselines, compared with the best variant only."""
 
+LATE_BASELINES = ("tunneling",)
+"""The baselines added after the targets were published.
+
+They are profiled against the targets but kept out of the pool of histories the
+targets are generated from, so that adding one moves no published number: the
+fraction of the targets a method reaches depends only on its own runs and on the
+targets. See :mod:`benchmarks.run_tunneling`.
+"""
+
 FLAT_VARIANTS = (
     "swept",
     "margin_100",
@@ -449,9 +458,11 @@ def main() -> None:
     }
     for dimension in DIMENSIONS:
         budget = BUDGET_PER_VARIABLE * dimension
-        methods = (*VARIANTS[dimension], *BASELINES)
+        methods = (*VARIANTS[dimension], *BASELINES, *LATE_BASELINES)
         results = collect(dimension, methods, cache=CACHE / f"{dimension}.jsonl")
-        targets = compute_targets(results)
+        targets = compute_targets(
+            result for result in results if result.method not in LATE_BASELINES
+        )
         profiles = compute_profiles(results, targets)
         ranking = sorted(
             VARIANTS[dimension],
@@ -476,7 +487,7 @@ def main() -> None:
         print(f"{dimension} variables, best target the optimum on {optimal}")  # noqa: T201
         checkpoints = [budget // 10, budget // 4, budget // 2, budget]
         print(f"{'':>22} {'area':>5} " + " ".join(f"{c:>5}" for c in checkpoints))  # noqa: T201
-        for name in (*ranking, *BASELINES):
+        for name in (*ranking, *BASELINES, *LATE_BASELINES):
             profile = _padded(profiles[name], budget)
             cells = " ".join(f"{profile[c - 1]:>5.0%}" for c in checkpoints)
             print(f"{name:>22} {area(profile, budget):>5.2f} {cells}")  # noqa: T201

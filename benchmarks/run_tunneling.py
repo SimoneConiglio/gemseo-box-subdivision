@@ -26,7 +26,8 @@ The data profile of the first is computed against the **published** targets of
 are generated from the pooled histories of every method, so that adding a method
 to the pool would move every published number. The fraction of the targets a
 method reaches depends only on its own runs and on the targets, so the profile
-so computed is comparable with the published ones. As a check of that claim, the
+so computed is comparable with the published ones, and is added to that file
+under :data:`benchmarks.data_profiles.LATE_BASELINES`. As a check of that claim, the
 deterministic DIRECT is run again and its area compared with the published one.
 
 Besides the settings of :data:`benchmarks.tunneling.SETTINGS`, which stop at the
@@ -148,6 +149,9 @@ def main() -> None:
             if seeds == data_profiles.SEEDS:
                 _print_profiles(published, dimension, results)
 
+    data_profiles.OUTPUT.write_text(
+        json.dumps(published, indent=2) + "\n", encoding="utf-8"
+    )
     logging.disable(logging.NOTSET)
 
 
@@ -167,6 +171,13 @@ def _print_profiles(published: dict, dimension: int, results: list[Result]) -> N
         for seed in data_profiles.SEEDS
     ]
     profiles = data_profiles.compute_profiles([*results, *direct], data["targets"])
+    # Only the settings of the benchmark are published, next to the others.
+    method = "tunneling"
+    data["areas"][method] = round(data_profiles.area(profiles[method], budget), 4)
+    data["summary"][method] = data_profiles.summarize(
+        result for result in results if result.method == method
+    )[method]
+    data["profiles"][method] = data_profiles.change_points(profiles[method])
     checkpoints = [budget // 10, budget // 4, budget // 2, budget]
     print(  # noqa: T201
         f"\ndata profile, {dimension} variables, published targets\n"
