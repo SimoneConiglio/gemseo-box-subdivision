@@ -558,6 +558,159 @@ a margin. The effect of keeping the trust region open with the sweep has not bee
 measured.
 :::
 
+### Termination of the swept runs on Rastrigin
+
+This section investigates the termination left open above. It was obtained after
+the measurements of Table D.12, with the master installed without the sweep, so
+that the swept runs are driven by the external driver of this package. The swept
+and calibrated Rastrigin rows of Table D.12 reproduce to the evaluation, as do
+the other rows except Ackley at sixty-three subdivisions, which gives
+$9.6144$ · 2439 · 0/3 instead of $7.6161$ · 3459 · 0/3.
+
+#### Criterion that stops the runs
+
+`benchmarks/sweep_termination.py` records every mixed-integer solve of the master
+without changing it. All three swept runs end on the lower-bound test of the outer
+approximation, $\eta^* > \mathrm{UBD} + \texttt{ub\_tol}$, where $\eta^*$ is the
+smallest optimum of the master over the probes of the iteration (Table D.21).
+
+| seed | iterations | cost | stall counter | $\eta^*$ | UBD | box holding the optimum |
+| --- | --- | --- | --- | --- | --- | --- |
+| 11 | 10 | 1439 | 1/10 | $1.855$ | $0.9950$ | adjacent, never proposed |
+| 101 | 11 | 1547 | 3/10 | $1.151$ | $0.9950$ | adjacent, never proposed |
+| 202 | 16 | 2131 | 3/10 | $1.766$ | $0.9950$ | proposed by the last iteration, not solved |
+
+*Table D.21. Termination of the swept runs of Rastrigin, $m = 10$, $n = 5$.*
+
+The other criteria are ruled out by the same records:
+
+- the ladder is not exhausted: in the last iteration every probe still proposes a
+  box not yet solved, and these proposals are discarded because the test is
+  applied before they are evaluated;
+- the stall counter is at one to three of ten, and the budget at a fifth of the
+  $8000$ evaluations;
+- the trust region is at $1.4$ or $1.68$, above its floor, so that the probes keep
+  distinct radii and rungs, and the box holding the optimum differs from the
+  incumbent in one component, inside every probe's region.
+
+Without the lower-bound test, the run from seed 11 reaches the optimum for $2488$
+evaluations, and the run from seed 101 reaches it at the ninth stalling
+iteration, before the mixed-integer solver stalls on a nearly exhausted trust
+region. The test therefore cannot simply be removed.
+
+#### The margin raises the cuts at unsolved boxes
+
+At the last iteration, every rung predicts the box holding the optimum above the
+incumbent. The low rungs leave the cuts close to their raw slopes, which
+overestimate a non-convex objective. The high rungs should lower the prediction,
+and do not: the repair solves $D_i^\top D_i \mu_i = r_i$ by minimum-norm least
+squares, so that at a box $\alpha$ the margin $\delta$ moves cut $i$ by
+$-\delta\,\mathbf{1}^\top (D_i^\top D_i)^+ D_i^\top(\alpha-\alpha_i)$. This is
+$-\delta$ at a solved box, but its sign at an unsolved box depends on how
+$\alpha - \alpha_i$ decomposes over the solved boxes. At the end of the three
+runs, one, three and five cuts are raised at the box holding the optimum, by up
+to $0.31$, $0.36$ and $0.85$ per unit of margin. Table D.22 gives the cut model at
+that box for the state of seed 11.
+
+| margin | $0$ | $4$ | $20$ | $100$ | $400$ | $1000$ |
+| --- | --- | --- | --- | --- | --- | --- |
+| released repair | $8.94$ | $5.94$ | $8.97$ | $40.19$ | $133.94$ | $321.44$ |
+| non-negative repair | $14.29$ | $10.83$ | $0.995$ | $0.995$ | $0.995$ | $0.995$ |
+
+*Table D.22. Cut model at the box holding the optimum, end of the swept run from
+seed 11, incumbent $0.9950$.*
+
+Replaying the last solve of seed 11 with margins from $0$ to $3000$ terminates the
+run in all cases: the state, not the rung, closes the box. Whether the optimum is
+proposed before such a state is reached depends on the history, which explains the
+lack of a trend in the settings of the ladder (Table D.23): the factor of the
+upper bound, the upper bound itself and the number of probes all change the
+outcome non-monotonically. Five further starting points (seeds 303 to 707) reach
+the optimum from four of five, so that $0/3$ also reflects the three seeds.
+
+| setting | distance · cost · reached |
+| --- | --- |
+| headroom $1$, $3$, $10$, $30$ | $0.0000$ · 1417 · 2/3, $0.9950$ · 1446 · 1/3, $0.9950$ · 1547 · 0/3, $0.0000$ · 1754 · 3/3 |
+| bound $100$, $1000$ | $0.0000$ · 1611 · 2/3, $0.0000$ · 1987 · 3/3 |
+| probes $4$, $6$, $10$ | $0.9950$ · 1547 · 0/3, $0.9950$ · 2155 · 1/3, $0.0000$ · 3064 · 2/3 |
+| calibrated margin $30$, $100$, $400$ | $0.0000$ · 1706 · 2/3, $0.0000$ · 2103 · 3/3, $0.0000$ · 2076 · 3/3 |
+
+*Table D.23. Swept Rastrigin, $m = 10$, $n = 5$, with one setting changed.*
+
+The calibrated runs end on the same test, but after reaching the optimum. A ladder
+assumes that a higher rung explores more; the margin of the least-squares repair
+does not satisfy this, whereas the convexification constant does, since it moves
+cut $i$ at $\alpha$ by $-2\kappa/n$ per component changed.
+
+#### Two corrections, measured
+
+Both corrections below follow from this cause, and neither is tuned on a problem.
+
+- **Non-negative repair.** Solving for $\mu_i \ge 0$ makes the correction of cut
+  $i$ at any box $-\sum_j \mu_{ij}(\alpha-\alpha_i)^\top(\alpha_j-\alpha_i)$,
+  and for one-hot encodings $(\alpha-\alpha_i)^\top(\alpha_j-\alpha_i)$ is
+  $h(\alpha,\alpha_i) + h(\alpha_i,\alpha_j) - h(\alpha,\alpha_j) \ge 0$, with
+  $h$ the number of differing components. The repair then never raises a cut,
+  at the price of a margin met only approximately at the solved boxes. This is a
+  change of the master; it is measured by replacing its repair for the duration
+  of a run, without modifying the installed package.
+- **Swept convexification constant.** `SweptBoxSubdivisionSettings(mechanism=
+  "convexification")`, an existing setting.
+
+The results below were obtained with these corrections and are not those of the
+tables above. Table D.24 gives the swept rows of Table D.12, Table D.25 the swept
+rows of Table C.4 and Table D.26 the five-variable best variant of Table 6, all
+with their seeds, budgets and densities.
+
+| problem | density | released | convexification | non-negative repair |
+| --- | --- | --- | --- | --- |
+| Styblinski-Tang | 2⁵ | $0.0000$ · 601 · 3/3 | $0.0000$ · 603 · 3/3 | $0.0000$ · 596 · 3/3 |
+| `partly_multimodal` | 10 10 1 1 1 | $0.0000$ · 729 · 3/3 | $0.0000$ · 1347 · 3/3 | $0.0000$ · 918 · 3/3 |
+| Ackley | 10⁵ | $0.0000$ · 2622 · 2/3 | $0.0000$ · 3183 · 3/3 | $4.9449$ · 3391 · 1/3 |
+| Griewank | 19 13 11 7 9 | $0.0074$ · 3083 · 2/3 | $0.0123$ · 7264 · 1/3 | $0.0074$ · 5343 · 3/3 |
+| Ackley | 63⁵ | $9.6144$ · 2439 · 0/3 | $6.4223$ · 5320 · 0/3 | $17.3506$ · 2579 · 0/3 |
+| Rastrigin | 10⁵ | $0.9950$ · 1547 · 0/3 | $0.0000$ · 2753 · 3/3 | $0.0000$ · 2666 · 3/3 |
+| Rastrigin, seeds 303–707 | 10⁵ | $0.0000$ · 1809 · 4/5 | $0.0000$ · 2636 · 5/5 | $0.0000$ · 2479 · 5/5 |
+
+*Table D.24. Swept rows of Table D.12 with the corrections, $n = 5$.*
+
+With the calibrated margin, the non-negative repair gives $0.0000$ · 2292 · 2/3 on
+Rastrigin, against $0.0000$ · 2103 · 3/3.
+
+| convexity | Rastrigin: released | convexification | non-negative | Ackley: released | convexification | non-negative |
+| --- | --- | --- | --- | --- | --- | --- |
+| sweep, $\kappa_{\max} = 100$ | $0.000$ · 491 · 6/6 | $0.000$ · 550 · 5/6 | $0.000$ · 586 · 6/6 | $0.000$ · 517 · 5/6 | $0.000$ · 758 · 6/6 | $0.000$ · 528 · 6/6 |
+| sweep, $\kappa_{\max} = 1000$ | $0.000$ · 532 · 6/6 | $0.000$ · 725 · 6/6 | $0.000$ · 566 · 6/6 | $0.000$ · 554 · 5/6 | $0.000$ · 764 · 6/6 | $0.000$ · 674 · 6/6 |
+| sweep, observed spread | $0.000$ · 361 · 6/6 | $0.000$ · 574 · 6/6 | $0.000$ · 538 · 6/6 | $10.415$ · 234 · 1/6 | $10.415$ · 156 · 0/6 | $0.000$ · 216 · 6/6 |
+| sweep, observed spread $\times 10$ | $0.000$ · 489 · 6/6 | $0.000$ · 616 · 6/6 | $0.000$ · 562 · 6/6 | $0.000$ · 601 · 6/6 | $0.000$ · 797 · 6/6 | $0.000$ · 617 · 6/6 |
+
+*Table D.25. Swept rows of Table C.4 with the corrections, $n = 2$. The released
+column is the external driver; its Ackley rows differ from Table C.4 for the
+first three bounds, by one or two starting points.*
+
+| problem | released | convexification | non-negative repair |
+| --- | --- | --- | --- |
+| Rastrigin | $1.00$ · 1650 · 2/5 | $0.00$ · 2500 · 5/5 | $0.00$ · 2500 · 5/5 |
+| Ackley | $0.00$ · 2500 · 3/5 | $0.00$ · 2500 · 4/5 | $6.30$ · 2500 · 1/5 |
+| Styblinski-Tang | $0.00$ · 789 · 5/5 | $0.00$ · 975 · 5/5 | $0.00$ · 1177 · 5/5 |
+| Griewank | $0.027$ · 2118 · 0/5 | $0.052$ · 2500 · 0/5 | $0.027$ · 2500 · 0/5 |
+
+*Table D.26. Best variant of Table 6 with the corrections, $n = 5$.*
+
+Both corrections solve Rastrigin in five variables from every starting point
+measured, and neither is free. The non-negative repair improves Griewank and the
+two-dimensional Ackley with the unscaled bound, but loses Ackley in five
+variables, $1/3$ against $2/3$ and $1/5$ against $3/5$. The swept
+convexification constant improves Ackley in five variables, but loses Griewank,
+$1/3$ against $2/3$ for more than twice the cost, and costs up to $85\%$ more
+evaluations on the rows both configurations solve. Neither is therefore made the default; the choice is
+left open.
+
+```shell
+python -m benchmarks.sweep_termination            # Tables D.21 and D.22
+python -m benchmarks.sweep_termination measure    # Table D.24, non-negative repair
+```
+
 ### Prominence gate
 
 `count_minima` initially measured a minimum against the highest point on each
