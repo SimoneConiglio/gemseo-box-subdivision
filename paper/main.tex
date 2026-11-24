@@ -32,6 +32,8 @@
 \usepackage{xcolor}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\code}[1]{\texttt{\hyphenchar\font=45\relax #1}}
@@ -303,10 +305,11 @@ procedure is summarized in Algorithm~\ref{alg:bsoa}.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.6\linewidth]{figures/bilevel.pdf}
-  \caption{Exchanges between the master problem, which selects a box $\alpha$,
-    and the sub-problem, which returns the local optimum $v(\alpha)$ and its
-    sensitivity $s = \mathrm{d}v/\mathrm{d}\alpha$.}
+  \resizebox{\linewidth}{!}{\input{figures/bilevel.tex}}
+  \caption{Exchanges between the master problem, a mixed-integer linear program
+    (MILP) which selects the box $\alpha^{(i)}$, and the sub-problem, a nonlinear
+    program (NLP) which returns the local optimum $v(\alpha^{(i)})$ in this box and
+    its sensitivity $s^{(i)}$, from which a new cut is built.}
   \label{fig:bilevel}
 \end{figure}
 

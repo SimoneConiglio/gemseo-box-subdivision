@@ -1,0 +1,27 @@
+% Exchanges between the master problem and the sub-problem (Fig. bilevel).
+\begin{tikzpicture}[
+    font=\small,
+    level/.style={draw, thick, rounded corners=2pt, align=center,
+                  minimum width=5.2cm, minimum height=2.3cm, inner sep=6pt},
+    flow/.style={-{Stealth[length=2.2mm]}, thick},
+  ]
+  \node[level] (master) {%
+    \textbf{Master problem} (MILP)\\[2pt]
+    $\displaystyle\min_{\alpha,\,\eta}\ \eta$\\[2pt]
+    s.t.\ cuts~\eqref{eq:cuts}, one-hot $\alpha$,\\
+    trust region~\eqref{eq:trust}};
+  \node[level, right=3.6cm of master] (sub) {%
+    \textbf{Sub-problem} (NLP)\\[2pt]
+    $\displaystyle v(\alpha^{(i)}) = \min_{x}\ f(x)$\\[2pt]
+    s.t.\ $g(x) \le 0$,\\
+    $\ell(\alpha^{(i)}) \le x \le u(\alpha^{(i)})$};
+  \draw[flow] ([yshift=5mm]master.east) -- node[above, align=center]
+    {box $\alpha^{(i)}$} ([yshift=5mm]sub.west);
+  \draw[flow] ([yshift=-5mm]sub.west) -- node[below, align=center]
+    {value $v(\alpha^{(i)})$\\slope $s^{(i)}$}
+    ([yshift=-5mm]master.east);
+  \node[below=1.5mm of master, font=\footnotesize\itshape]
+    {exploration: selection of the box};
+  \node[below=1.5mm of sub, font=\footnotesize\itshape]
+    {exploitation: optimization in the box};
+\end{tikzpicture}
