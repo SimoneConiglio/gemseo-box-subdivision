@@ -47,17 +47,34 @@ is minus the constant times the number of components the box changes, so a
 higher rung lowers every unexplored box, the farther the more, which is what the
 ladder assumes; see :func:`convexification_sensitivity`.
 
+**The correction this calls for is upstream**, in the repair itself, and it is
+one constraint: solve for the multipliers of the repair under $\mu_i \ge 0$.
+The correction of cut $i$ at a box $\alpha$ is then
+$-\sum_j \mu_{ij}\,(\alpha-\alpha_i)^\top(\alpha_j-\alpha_i)$, and for one-hot
+encodings $(\alpha-\alpha_i)^\top(\alpha_j-\alpha_i) = h(\alpha, \alpha_i) +
+h(\alpha_i, \alpha_j) - h(\alpha, \alpha_j) \ge 0$, with $h$ the number of
+components two boxes differ in, by the triangle inequality. The repair then
+lowers or leaves every prediction at every box, solved or not, and can no longer
+close a box. It is what the repair is for anyway: the right-hand side it fits is
+clipped at zero, an amount to *lower* each cut by, and only the minimum-norm
+solution turned some of it into raising. :func:`nonnegative_repair` installs it
+for the length of a measurement, without touching the installed master.
+
 ```shell
-python -m benchmarks.sweep_termination
+python -m benchmarks.sweep_termination            # why the runs stop
+python -m benchmarks.sweep_termination measure    # Table D.12 with the fix
 ```
 """
 
 from __future__ import annotations
 
 import logging
+import sys
 from contextlib import contextmanager
+from contextlib import nullcontext
 from dataclasses import dataclass
 from dataclasses import field
+from statistics import median
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -70,6 +87,7 @@ from numpy import isfinite
 from numpy import ravel
 from numpy import zeros
 from numpy.linalg import pinv
+from scipy.optimize import nnls
 
 from benchmarks.basin_spacing import COST_PER_SUB_PROBLEM
 from benchmarks.basin_spacing import HEADROOM
@@ -307,6 +325,77 @@ def convexification_sensitivity(
     ])
 
 
+def repair_nonnegatively(
+    alphas: Sequence[ndarray],
+    slopes: Sequence[ndarray],
+    values: Sequence[float],
+    margin: float,
+) -> list[ndarray]:
+    r"""Repair the cut slopes as the master does, but with non-negative multipliers.
+
+    This is ``_update_sensitivities_wt_secant_method`` of the master with one
+    change: $\mu_i$ solves $D_i^\top D_i \mu_i = r_i$ by non-negative least
+    squares instead of by the minimum-norm least squares. The right-hand side is
+    the master's, $r_{ij} = \max(0, s_i^\top(\alpha_j-\alpha_i) - (v_j-v_i) +
+    \delta)$; the bilateral variant of the master, which does not clip it, is not
+    reproduced.
+
+    Args:
+        alphas: The one-hot encodings of the boxes solved.
+        slopes: The slopes of their cuts.
+        values: The values of the boxes.
+        margin: The convexity margin $\delta$.
+
+    Returns:
+        The repaired slopes, in the order of the boxes.
+    """
+    encodings = [array(alpha, dtype=float).ravel() for alpha in alphas]
+    values = array(values, dtype=float).ravel()
+    repaired = []
+    for alpha, slope, value in zip(encodings, slopes, values, strict=False):
+        slope = array(slope, dtype=float).ravel()
+        directions = array(encodings).T - alpha[:, None]
+        rhs = slope @ directions - (values - value) + margin
+        rhs[rhs < 0.0] = 0.0
+        multipliers, _ = nnls(
+            directions.T @ directions, rhs, maxiter=50 * max(len(rhs), 1)
+        )
+        repaired.append(slope - directions @ multipliers)
+
+    return repaired
+
+
+@contextmanager
+def nonnegative_repair() -> Generator[None, None, None]:
+    """Make the master repair its cuts with non-negative multipliers.
+
+    For a measurement only: the change belongs to the master, and this replaces
+    its method for the length of the context and restores it after.
+
+    Yields:
+        Nothing.
+    """
+    original = core.OuterApproximationOptimizer._update_sensitivities_wt_secant_method
+
+    def repair(self, alpha_hist, slopes_hist, fopt_hist, min_dfk):  # noqa: ANN001, ANN202
+        """Repair the slopes with non-negative multipliers."""
+        del self
+        return [
+            atleast_2d(slope)
+            for slope in repair_nonnegatively(
+                alpha_hist, slopes_hist, fopt_hist, min_dfk
+            )
+        ]
+
+    core.OuterApproximationOptimizer._update_sensitivities_wt_secant_method = repair
+    try:
+        yield
+    finally:
+        core.OuterApproximationOptimizer._update_sensitivities_wt_secant_method = (
+            original
+        )
+
+
 def _optimal_box(n_components: int, n_subdivisions: int) -> ndarray:
     """Return the one-hot encoding of the box holding the origin from below.
 
@@ -387,10 +476,57 @@ def report(name: str, swept: bool, seed: int, n_subdivisions: int = 10) -> Recor
     return record
 
 
+ROWS: tuple[tuple[str, tuple[int, ...]], ...] = (
+    ("styblinski_tang", (2,) * 5),
+    ("partly_multimodal", (10, 10, 1, 1, 1)),
+    ("ackley", (10,) * 5),
+    ("griewank", (19, 13, 11, 7, 9)),
+    ("ackley", (63,) * 5),
+    ("rastrigin", (10,) * 5),
+)
+"""The rows of Table D.12: each problem at the density its scans estimate."""
+
+
+def measure(rows: Sequence[tuple[str, tuple[int, ...]]] = ROWS) -> None:
+    """Print the swept rows of Table D.12 with the master's repair and with the fix.
+
+    Args:
+        rows: The problems and their densities.
+    """
+    print(f"{'problem':>18} {'density':>16} {'released repair':>24} {'fixed':>24}")
+    for name, density in rows:
+        problem = PROBLEMS[name]
+        optimum = problem.optimum(len(density))
+        budget = sum(density) * COST_PER_SUB_PROBLEM * HEADROOM
+        cells = []
+        for fixed in (False, True):
+            gaps, costs = [], []
+            for seed in SEEDS:
+                with nonnegative_repair() if fixed else nullcontext():
+                    outcome = run_at_density_swept(
+                        problem, len(density), density, seed, budget
+                    )
+                gaps.append(outcome.best - optimum)
+                costs.append(outcome.cost)
+            cells.append(
+                f"{median(gaps):.4f} · {median(costs):.0f} · "
+                f"{sum(gap < 1e-2 for gap in gaps)}/{len(gaps)}"
+            )
+        print(
+            f"{name:>18} {' '.join(map(str, density)):>16}"
+            f" {cells[0]:>24} {cells[1]:>24}",
+            flush=True,
+        )
+
+
 def main() -> None:
-    """Report why the swept and the calibrated runs of Rastrigin stop."""
+    """Report why the runs of Rastrigin stop, or measure the fix."""
     for name in ("gemseo", "gemseo_box_subdivision", ""):
         logging.getLogger(name).setLevel(logging.CRITICAL)
+    if sys.argv[1:] == ["measure"]:
+        measure()
+        return
+
     for swept in (True, False):
         for seed in SEEDS:
             report("rastrigin", swept, seed)
