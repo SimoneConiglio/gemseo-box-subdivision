@@ -184,9 +184,9 @@ per design component, the number of binary variables of the master problem is
 the sum of the numbers of intervals of the components, whereas the number of
 boxes is their product. Five variables divided into ten intervals each thus
 correspond to $10^5$ boxes but only $50$ binary variables, and the boxes are
-never enumerated. Moreover, the slope of each cut is obtained from the Lagrange
-multipliers of the box constraints, or from a reparameterization of the design
-variables, without additional function evaluations.
+never enumerated. Moreover, the slope of each cut is obtained by post-optimal analysis of the
+sub-problem, formulated with design variables normalized within the box, without
+additional function evaluations.
 
 The value function of a multimodal problem is, however, not convex with respect
 to the box selection. The outer-approximation cuts are therefore not valid
@@ -201,9 +201,9 @@ The main contributions of the paper are the following:
     bi-level mixed-integer problem over a Cartesian subdivision, with a master
     problem whose size grows with the sum of the subdivisions
     (Section~\ref{sec:method});
-  \item two formulations of the sub-problem providing exact cut slopes by
-    post-optimal analysis, with the box defined either as a constraint or as a
-    normalization of the design variables (Section~\ref{sec:formulations});
+  \item a formulation of the sub-problem in normalized variables, which
+    provides exact cut slopes by post-optimal analysis
+    (Section~\ref{sec:formulations});
   \item an analysis of the safeguards against non-convexity and of the trust
     region of the master problem, including a swept convexification which
     avoids the calibration of a parameter expressed in the units of the
@@ -334,7 +334,7 @@ procedure is summarized in Algorithm~\ref{alg:bsoa}.
   \end{algorithmic}
 \end{algorithm}
 
-\subsection{Formulations of the sub-problem}\label{sec:formulations}
+\subsection{Formulation of the sub-problem}\label{sec:formulations}
 
 The sensitivity of the optimal value with respect to a parameter $p$ is given by
 post-optimal analysis as
@@ -345,24 +345,10 @@ post-optimal analysis as
 where $\lambda$ denotes the Lagrange multipliers of the constraints. In
 Eq.~\eqref{eq:postopt}, the bounds of the design variables are assumed to be
 independent of $p$, whereas in problem~\eqref{eq:bilevel} the bounds are
-precisely the quantities that depend on $\alpha$. Two formulations of the
-sub-problem are therefore proposed, for which this assumption is satisfied.
+precisely the quantities that depend on $\alpha$. The sub-problem is therefore
+formulated so that this assumption is satisfied.
 
-\paragraph{Box as a constraint.} In the first formulation, the original bounds
-$[L,U]$ are kept and the box is expressed as the constraint
-$g_{\mathrm{box}}(x,\alpha) = [x - u(\alpha);\ \ell(\alpha) - x] \le 0$ of
-dimension $2n$. The slope is then given analytically by
-\begin{equation}\label{eq:slope-constraint}
-  \frac{\partial v}{\partial \alpha_{j,k}}
-  = -\lambda^{u}_j\, u_{j,k} + \lambda^{\ell}_j\, l_{j,k},
-\end{equation}
-where $\lambda^u_j, \lambda^\ell_j \ge 0$ are the multipliers associated with the
-upper and lower faces of the box. Since this constraint is linear in $x$ and
-affine in $\alpha$, the non-convexity of the sub-problem is limited to that of
-$f$ and $g$.
-
-\paragraph{Box as normalized variables.} In the second formulation, the
-sub-problem is solved with respect to the normalized variables
+The sub-problem is solved with respect to the normalized variables
 $\xi \in [0,1]^n$, with
 $x(\xi,\alpha) = \ell(\alpha) + \xi \odot (u(\alpha) - \ell(\alpha))$. The bounds
 of the sub-problem are then the unit interval for every box, and the slope is
@@ -374,11 +360,9 @@ given by the partial derivative
 This expression is valid both at an interior optimum, where the gradient
 vanishes, and on a face of the box, where $\xi_j$ is fixed at one of its bounds.
 In this formulation, the box selection enters the objective function through a
-bilinear mapping. No adverse effect of this nonlinearity was observed in the
-experiments, and the normalized formulation was found to be about 11\% less
-expensive than the constraint formulation (Section~\ref{sec:enum}), since
-feasibility with respect to the box is satisfied by construction. The normalized
-formulation is used in the remainder of the paper.
+bilinear mapping, and feasibility with respect to the box is satisfied by
+construction. No adverse effect of this nonlinearity was observed in the
+experiments.
 
 \subsection{Safeguards against non-convexity}\label{sec:convexification}
 
@@ -632,8 +616,8 @@ library \citep{gallard2018} based on the \code{Benders} formulation of
 the bi-level outer approximation of \citet{barjhoux2022}. Both levels are
 defined in a single catalogue design space, which is split by the formulation,
 the categorical variables describing the box selection being assigned to the
-master problem. A mapping discipline computes $x(\xi,\alpha)$, or a constraint
-discipline computes $g_{\mathrm{box}}$, with analytic Jacobians, and is chained
+master problem. A mapping discipline computes $x(\xi,\alpha)$ with an analytic Jacobian, and is
+chained
 before the disciplines that compute the objective function. The assembly is
 performed by a scenario class, which builds the design space from the
 subdivision, chains the mapping, defines the variables of the master problem,
@@ -645,22 +629,18 @@ are solved by SLSQP \citep{kraft1988} for the analytic problems and by MMA
 \citep{svanberg1987} for the topology optimization problem, and the master
 problem is a mixed-integer linear program.
 
-Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$ in the
-normalized formulation, so that the result does not depend on the order in which
-the boxes are solved. In the constraint formulation, the bounds of the design
-space are enlarged by a relative margin of $10^{-4}$, so that a face of a box
-adjacent to the boundary does not coincide with an active bound and its
-multiplier is computed correctly. The two safeguards against non-convexity of
+Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$, so
+that the result does not depend on the order in which the boxes are solved. The
+two safeguards against non-convexity of
 Section~\ref{sec:convexification} are mutually exclusive: when one of them is
 selected, the parameter of the other one is set to zero. The swept convexity is
 implemented in the master problem; for earlier versions of the master problem,
 the sweep is performed by the package outside the master problem, which
 reproduces the results within one or two starting points out of six.
 
-The Jacobians of the mapping and of the box constraint are verified against
+The Jacobian of the mapping is verified against
 finite differences and the complex-step method at relaxed values of the one-hot
-variables, and the sensitivity of the sub-problem is compared with the exact
-slope of the objective function on an active face. For the Rastrigin and Ackley
+variables. For the Rastrigin and Ackley
 functions in five dimensions, $73$ to $79\%$ of the computation time is spent in
 the master problem, so that the parallel evaluation of the probes does not reduce
 the computation time for the analytic problems. It is beneficial only when the
@@ -738,8 +718,8 @@ the exploration strategy. The results obtained for the Rastrigin function in two
 dimensions with $10\times 10$ boxes and eight starting points are given in
 Table~\ref{tab:enum}, and one run is illustrated in Fig.~\ref{fig:solve}. The same
 optimum is obtained by the outer approximation after the solution of 20 to 36\% of
-the boxes, at about one third of the cost of the enumeration. With both
-formulations, the optimum is reached from seven of the eight starting points.
+the boxes, at about one third of the cost of the enumeration, and is reached
+from seven of the eight starting points.
 
 \begin{table}[t]
   \centering
@@ -747,14 +727,12 @@ formulations, the optimum is reached from seven of the eight starting points.
     function, $n=2$, $100$ boxes, eight starting points. The cost is given in
     number of evaluations of the objective function.}
   \label{tab:enum}
-  \begin{tabular}{llrrr}
+  \begin{tabular}{lrrr}
     \toprule
-    formulation & method & objective & boxes solved & executions \\
+    method & objective & boxes solved & evaluations \\
     \midrule
-    constraint & enumeration          & $0.0$ & 100      & 1427 \\
-    constraint & outer approximation  & $0.0$ & 24--36   & 341--521 \\
-    normalized & enumeration          & $0.0$ & 100      & 1267 \\
-    normalized & outer approximation  & $0.0$ & 20--36   & 255--458 \\
+    enumeration          & $0.0$ & 100      & 1267 \\
+    outer approximation  & $0.0$ & 20--36   & 255--458 \\
     \bottomrule
   \end{tabular}
 \end{table}
