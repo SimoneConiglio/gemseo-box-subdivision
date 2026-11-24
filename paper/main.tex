@@ -495,9 +495,7 @@ component has no cost, whereas leaving the last one costs $m_j - 1$, whatever
 the interval reached. Unit weights are therefore used, so that $\Delta$ bounds
 the Hamming distance between the one-hot encodings, i.e. the number of modified
 components, and constraint~\eqref{eq:trust} becomes a local branching
-constraint \citep{fischetti2003}. The weighting by the interval indices, which is the default choice
-of the host library for numerical catalogues, degraded the results of the method
-until it was identified. An ordinal variant,
+constraint \citep{fischetti2003}. An ordinal variant,
 $|v^\top\alpha - v^\top\bar\alpha| \le \Delta$, where $v$ denotes the interval
 indices, was also tested; it was found to be as reliable as the Hamming distance
 and about 50\% more expensive. For the landscapes considered, neighbouring boxes
@@ -639,54 +637,26 @@ are solved by SLSQP \citep{kraft1988} for the analytic problems and by MMA
 \citep{svanberg1987} for the topology optimization problem, and the master
 problem is a mixed-integer linear program.
 
-The assembly is subject to a number of conditions which are enforced by the
-package rather than left to the user, since their violation leads to a run that
-terminates normally with a wrong result:
-\begin{itemize}
-  \item \emph{Ordering of the one-hot variables.} The master problem assumes the
-    one-hot vector of a variable to be ordered by component. A different
-    ordering in the mapping leads the sub-problem to enforce a box different from
-    the one selected by the master problem.
-  \item \emph{Starting point.} None of the initialization strategies of the host
-    library is suited to a subdivision. Restarting from the initial design leads
-    to starting points located outside all boxes but one, and warm-starting makes
-    the result dependent on the order in which the boxes are solved. With the
-    default strategy, the enumeration of the $100$ boxes of the Rastrigin function
-    returned $1.92$ instead of $0$, most local optimizations stopping on a face of
-    their box. Each sub-problem is therefore started at the centre of its box,
-    i.e. at $\xi = 1/2$ in the normalized formulation.
-  \item \emph{Boxes adjacent to the boundary.} In the constraint formulation, a
-    face of a box adjacent to the boundary of the design space coincides with a
-    bound of the design variables. When both are active, the multiplier is
-    assigned to the bound by the optimizer, and the
-    slope~\eqref{eq:slope-constraint} of the first and last interval of every
-    variable is computed as zero. This is avoided by enlarging the bounds by a
-    relative margin of $10^{-4}$, which is larger than the activity tolerance.
-  \item \emph{Safeguards against non-convexity.} When one of the two approaches
-    of Section~\ref{sec:convexification} is selected, the parameter of the other
-    one is set to zero.
-  \item \emph{Trust-region weights.} The weights of the trust region are set to
-    one instead of the interval indices used by default for numerical catalogues
-    (Section~\ref{sec:trust}).
-\end{itemize}
+Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$ in the
+normalized formulation, so that the result does not depend on the order in which
+the boxes are solved. In the constraint formulation, the bounds of the design
+space are enlarged by a relative margin of $10^{-4}$, so that a face of a box
+adjacent to the boundary does not coincide with an active bound and its
+multiplier is computed correctly. The two safeguards against non-convexity of
+Section~\ref{sec:convexification} are mutually exclusive: when one of them is
+selected, the parameter of the other one is set to zero. The swept convexity is
+implemented in the master problem; for earlier versions of the master problem,
+the sweep is performed by the package outside the master problem, which
+reproduces the results within one or two starting points out of six.
+
 The Jacobians of the mapping and of the box constraint are verified against
 finite differences and the complex-step method at relaxed values of the one-hot
-variables, the sensitivity of the sub-problem is compared with the exact slope of
-the objective function on an active face, and each of the above conditions is
-checked by a regression test.
-
-Several defects of the master problem were also identified during this work and
-reported to its developers, and corrected where possible. In particular, the
-parallel evaluation of the probes could return a wrong converged solution, and
-the reconstruction of the mixed-integer program at each iteration made the
-master problem eleven times slower than a direct update of the solver. The swept
-convexity has been implemented in the master problem; for earlier versions, the
-sweep is performed by the package outside the master problem, which reproduces
-the results within one or two starting points out of six. For the Rastrigin and
-Ackley functions in five dimensions, $73$ to $79\%$ of the computation time is
-spent in the master problem, so that the parallel evaluation of the probes does
-not reduce the computation time for the analytic problems. It is beneficial only
-when the solution of a sub-problem is expensive, as for the topology optimization
+variables, and the sensitivity of the sub-problem is compared with the exact
+slope of the objective function on an active face. For the Rastrigin and Ackley
+functions in five dimensions, $73$ to $79\%$ of the computation time is spent in
+the master problem, so that the parallel evaluation of the probes does not reduce
+the computation time for the analytic problems. It is beneficial only when the
+solution of a sub-problem is expensive, as for the topology optimization
 problem.
 
 %% ---------------------------------------------------------------------------
@@ -1324,20 +1294,15 @@ boxes, $10^5$ boxes can be handled in five dimensions. When no such subdivision
 exists, the results are among the worst of the methods compared, and no setting
 was found to compensate for this.
 
-\paragraph{Undetected failures.} Several configuration and implementation errors
-were found to produce runs which terminate normally and report a wrong
-solution: the absence of a safeguard against non-convexity, a convexity margin
-larger than the range of the objective, a trust region weighted by the interval
-indices, a starting point located outside the box, a Lagrange multiplier
-assigned to a bound of the design space coinciding with a face of the box, an
-inconsistent ordering of the one-hot variables, and the parallel evaluation of
-the probes in an uncorrected version of the master problem. The benchmark itself
-was affected, since an evaluation counter wrapped around the objective function
-does not account for the evaluations performed by forked processes. These errors
-were identified by dedicated checks rather than by inspection of the results,
-and each of them is now covered by a regression test. The verification of the
-sub-problem sensitivities and of the validity of the cuts is therefore
-recommended when the method is applied to a new problem.
+\paragraph{Safeguards against non-convexity.} The safeguard against
+non-convexity determines the outcome of a run, and an inappropriate safeguard is
+not detected by the method. Without safeguard, or with a convexity margin larger
+than the range of the objective function, the runs terminate normally and report
+a successful convergence, while the global optimum is not reached from any
+starting point. The validity of the cuts, i.e. the absence of cuts which
+overestimate the values observed at other boxes, and the sensitivities of the
+sub-problem should therefore be verified when the method is applied to a new
+problem.
 
 \paragraph{Settings.} With the swept convexity, no parameter expressed in the
 units of the objective has to be supplied. The swept configuration performed at
