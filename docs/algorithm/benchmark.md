@@ -396,19 +396,20 @@ with adjoint gradients. Each cell of Table 6 gives the median distance to the
 optimum, the median cost, and the number of starting points from which the
 optimum is reached.
 
-| problem | $n$ | box subdivision, best variant | multistart | CMA-ES | DIRECT |
-|---------|-----|-------------------------------|------------|--------|--------|
-| Rastrigin | 2 | $0.00$ · 908 · 5/5 | $1.00$ · 1000 · 2/5 | $2.06$ · 619 · 0/5 | $0.00$ · 649 · 5/5 |
-| Ackley | 2 | $0.00$ · 1000 · 5/5 | $0.00$ · 1000 · 4/5 | $0.00$ · 757 · 5/5 | $0.00$ · 417 · 5/5 |
-| Styblinski-Tang | 2 | $0.00$ · 553 · 5/5 | $0.00$ · 1000 · 5/5 | $0.00$ · 529 · 3/5 | $0.00$ · 1011 · 5/5 |
-| Griewank | 2 | $0.007$ · 1000 · 0/5 | $0.010$ · 1000 · 0/5 | $0.030$ · 775 · 0/5 | $0.007$ · 1011 · 0/5 |
-| Rastrigin | 5 | $1.00$ · 1650 · 2/5 | $5.97$ · 2500 · 0/5 | $8.95$ · 1497 · 0/5 | $4.98$ · 461 · 0/5 |
-| Ackley | 5 | $0.00$ · 2500 · 3/5 | $8.01$ · 2500 · 0/5 | $0.00$ · 2001 · 5/5 | $0.11$ · 353 · 0/5 |
-| Styblinski-Tang | 5 | $0.00$ · 789 · 5/5 | $0.00$ · 2340 · 5/5 | $0.00$ · 1401 · 3/5 | $0.00$ · 2505 · 5/5 |
-| Griewank | 5 | $0.027$ · 2118 · 0/5 | $0.047$ · 2500 · 0/5 | $0.030$ · 1641 · 0/5 | $0.011$ · 397 · 0/5 |
+| problem | $n$ | box subdivision, best variant | multistart | CMA-ES | DIRECT | tunneling |
+|---------|-----|-------------------------------|------------|--------|--------|-----------|
+| Rastrigin | 2 | $0.00$ · 908 · 5/5 | $1.00$ · 1000 · 2/5 | $2.06$ · 619 · 0/5 | $0.00$ · 649 · 5/5 | $1.00$ · 1000 · 0/5 |
+| Ackley | 2 | $0.00$ · 1000 · 5/5 | $0.00$ · 1000 · 4/5 | $0.00$ · 757 · 5/5 | $0.00$ · 417 · 5/5 | $0.00$ · 1000 · 4/5 |
+| Styblinski-Tang | 2 | $0.00$ · 553 · 5/5 | $0.00$ · 1000 · 5/5 | $0.00$ · 529 · 3/5 | $0.00$ · 1011 · 5/5 | $0.00$ · 1000 · 5/5 |
+| Griewank | 2 | $0.007$ · 1000 · 0/5 | $0.010$ · 1000 · 0/5 | $0.030$ · 775 · 0/5 | $0.007$ · 1011 · 0/5 | $0.007$ · 1000 · 0/5 |
+| Rastrigin | 5 | $1.00$ · 1650 · 2/5 | $5.97$ · 2500 · 0/5 | $8.95$ · 1497 · 0/5 | $4.98$ · 461 · 0/5 | $4.97$ · 2500 · 0/5 |
+| Ackley | 5 | $0.00$ · 2500 · 3/5 | $8.01$ · 2500 · 0/5 | $0.00$ · 2001 · 5/5 | $0.11$ · 353 · 0/5 | $2.32$ · 2500 · 2/5 |
+| Styblinski-Tang | 5 | $0.00$ · 789 · 5/5 | $0.00$ · 2340 · 5/5 | $0.00$ · 1401 · 3/5 | $0.00$ · 2505 · 5/5 | $0.00$ · 2500 · 3/5 |
+| Griewank | 5 | $0.027$ · 2118 · 0/5 | $0.047$ · 2500 · 0/5 | $0.030$ · 1641 · 0/5 | $0.011$ · 397 · 0/5 | $0.123$ · 2500 · 0/5 |
 
 *Table 6. Box subdivision and baselines, $500$ equivalent evaluations per
-variable.*
+variable. The tunneling column was added after the others, from the same
+starting points; see [annex B](baselines.md#tunneling).*
 
 ```{image} ../_static/figures/results.svg
 :class: only-light
@@ -446,16 +447,19 @@ budget in the [next section](#comparison-at-a-budget-of-500-evaluations).
 | 2 | CMA-ES | $0.73$ | 60% | 70% | 78% | 78% |
 | 2 | DIRECT | $0.90$ | 69% | 84% | 99% | 99% |
 | 2 | EGO, 500 evaluations | — | 74% | 84% | 86% | 86%‡ |
+| 2 | tunneling | $0.79$ | 66% | 75% | 84% | 90% |
 | 5 | box subdivision, 10 per variable | $0.64$ | 30% | 62% | 73% | 84% |
 | 5 | multistart | $0.51$ | 37% | 50% | 54% | 60% |
 | 5 | CMA-ES | $0.68$ | 54% | 67% | 76% | 78% |
 | 5 | DIRECT | $0.76$ | 75% | 79% | 79% | 79% |
 | 5 | EGO, 500 evaluations | — | 59% | — | — | 64%‡ |
+| 5 | tunneling | $0.68$ | 43% | 67% | 76% | 77% |
 
 *Table 7. Area under the data profile and fraction of targets reached at a
 tenth, a quarter, a half and the whole budget. ‡ At the EGO budget of $500$,
 which in five variables is less than a quarter of the budget of the other
-methods; no area is given for EGO.*
+methods; no area is given for EGO. Tunneling is profiled against the same
+targets, which were generated without its runs.*
 
 In two variables, the method with sixteen probes reaches $99\%$ of the targets
 within a quarter of the budget ($250$ evaluations), against $84\%$ for DIRECT,
@@ -519,16 +523,16 @@ setting. The calibrated configuration gives the same distances on all rows and
 differs only in the number of starting points: $2/3$ instead of $3/3$ on Ackley
 in two dimensions and on Styblinski-Tang in five.
 
-| problem | $n$ | box subdivision, swept | multistart | CMA-ES | DIRECT | EGO |
-|---------|-----|------------------------|------------|--------|--------|-----|
-| Rastrigin | 2 | $0.00$ · 3/3 · 457 | $0.00$ · 2/3 | $1.00$ | $0.00$ · 3/3 | $0.00$ · 2/3 |
-| Ackley | 2 | $0.00$ · 3/3 | $9.58$ | $0.00$ · 3/3 | $0.00$ · 3/3 | $0.32$ |
-| Styblinski-Tang | 2 | $0.00$ · 3/3 · 334 | $0.00$ · 3/3 | $0.00$ · 2/3 | $0.00$ · 3/3 | $0.29$ · 29‡ |
-| Griewank | 2 | $0.007$ | $0.067$ | $0.048$ | $0.009$ | $0.008$ |
-| Rastrigin | 5 | $8.57$ | $9.95$ | $11.20$ | $4.98$ | $1.99$ |
-| Ackley | 5 | $14.43$ | $17.06$ | $0.05$ | $0.11$ | $2.90$ |
-| Styblinski-Tang | 5 | $0.00$ · 3/3 | $14.14$ · 1/3 | $0.003$ | $0.00$ · 3/3 | $0.14$ · 219‡ |
-| Griewank | 5 | $0.061$ | $0.096$ | $0.381$ | $0.011$ | $0.104$ |
+| problem | $n$ | box subdivision, swept | multistart | CMA-ES | DIRECT | EGO | tunneling |
+|---------|-----|------------------------|------------|--------|--------|-----|-----------|
+| Rastrigin | 2 | $0.00$ · 3/3 · 457 | $0.00$ · 2/3 | $1.00$ | $0.00$ · 3/3 | $0.00$ · 2/3 | $1.99$ |
+| Ackley | 2 | $0.00$ · 3/3 | $9.58$ | $0.00$ · 3/3 | $0.00$ · 3/3 | $0.32$ | $0.00$ · 3/3 |
+| Styblinski-Tang | 2 | $0.00$ · 3/3 · 334 | $0.00$ · 3/3 | $0.00$ · 2/3 | $0.00$ · 3/3 | $0.29$ · 29‡ | $0.00$ · 3/3 |
+| Griewank | 2 | $0.007$ | $0.067$ | $0.048$ | $0.009$ | $0.008$ | $0.027$ |
+| Rastrigin | 5 | $8.57$ | $9.95$ | $11.20$ | $4.98$ | $1.99$ | $4.97$ |
+| Ackley | 5 | $14.43$ | $17.06$ | $0.05$ | $0.11$ | $2.90$ | $4.25$ |
+| Styblinski-Tang | 5 | $0.00$ · 3/3 | $14.14$ · 1/3 | $0.003$ | $0.00$ · 3/3 | $0.14$ · 219‡ | $14.14$ · 1/3 |
+| Griewank | 5 | $0.061$ | $0.096$ | $0.381$ | $0.011$ | $0.104$ | $0.340$ |
 
 *Table 8. Median distance to the optimum and number of starting points reaching
 it at a budget of $500$ evaluations; a third number is the cost of a run that
@@ -567,6 +571,23 @@ calibrated configuration terminates after $458$ evaluations and reaches it from
 two. When the subdivision does not separate the basins, $500$ evaluations are
 not sufficient: Rastrigin in five variables requires the $2103$ evaluations of
 Table 3, and no method reaches its optimum at this budget.
+
+Tunneling, added to both tables after the other methods, reaches the optimum
+of Styblinski-Tang and Ackley in two variables from all or all but one starting
+point, but not that of Rastrigin, where it stays at a local minimum, $1.00$
+from the optimum in Table 6 and $1.99$ in Table 8. In five variables it reaches
+an optimum only from a minority of the starting points, on Ackley and
+Styblinski-Tang. Its area under the data profile is $0.79$ in two variables,
+above the multistart and CMA-ES ($0.73$) and below DIRECT ($0.90$) and the
+best variant of the box subdivision ($0.92$), and $0.68$ in five, equal to
+CMA-ES, above the box subdivision ($0.64$) and the multistart ($0.51$) and
+below DIRECT ($0.76$). Its targets are reached early and hardly any after half
+the budget, $76\%$ then and $77\%$ at its end, against $84\%$ at the end for
+the box subdivision. Having no stopping rule in this setting, its runs spend
+the whole budget. Its settings are values from the literature where available
+and fixed choices elsewhere, none of them tuned on these problems. A
+run of $500$ evaluations takes about $0.2$ seconds and one of $2500$ about one
+second. Both protocols are rerun by `python -m benchmarks.run_tunneling`.
 
 Tables 6 and 8 address different situations: Table 8 the case of scarce
 evaluations, typical of industrial problems, and Table 6 the case of a budget
