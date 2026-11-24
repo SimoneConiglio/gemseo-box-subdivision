@@ -406,8 +406,38 @@ $\alpha^{(j)}$:
   v(\alpha^{(i)}) + s^{(i)\top}\bigl(\alpha^{(j)} - \alpha^{(i)}\bigr)
   \le v(\alpha^{(j)}) - \delta,
 \end{equation}
-where $\delta$ is a convexity margin, and the violations of these conditions are
-removed by a least-squares correction of the slopes.
+where $\delta$ is a convexity margin. The violations of these conditions are
+removed by a correction of the slopes, which is computed independently for each
+cut. For the cut built at $\alpha^{(i)}$, the matrix of the displacements towards
+the $N$ solved boxes and the vector of the excesses of the cut over the
+condition~\eqref{eq:adaptive} are defined as
+\begin{align}
+  D_i &= \bigl[\alpha^{(1)} - \alpha^{(i)}, \dots, \alpha^{(N)} - \alpha^{(i)}\bigr],
+  \label{eq:repair-data}\\
+  r_{i,j} &= \max\Bigl(0,\ s^{(i)\top}\bigl(\alpha^{(j)} - \alpha^{(i)}\bigr)
+    - \bigl[v(\alpha^{(j)}) - v(\alpha^{(i)})\bigr] + \delta\Bigr),
+  \qquad j = 1, \dots, N,
+  \label{eq:repair-excess}
+\end{align}
+so that $r_{i,j} > 0$ if and only if the cut built at $\alpha^{(i)}$ violates
+condition~\eqref{eq:adaptive} at $\alpha^{(j)}$. The corrected slope is
+\begin{equation}\label{eq:repair}
+  \tilde s^{(i)} = s^{(i)} - D_i\,\mu_i,
+  \qquad
+  \mu_i \in \operatorname*{arg\,min}_{\mu \in \R^{N}}
+    \bigl\| D_i^\top D_i\,\mu - r_i \bigr\|_2 ,
+\end{equation}
+where the minimum-norm solution of the least-squares problem is retained. When
+the system $D_i^\top D_i\,\mu = r_i$ is consistent,
+$\tilde s^{(i)\top}(\alpha^{(j)} - \alpha^{(i)})
+ = s^{(i)\top}(\alpha^{(j)} - \alpha^{(i)}) - r_{i,j}$
+for every $j$, so that the violated conditions~\eqref{eq:adaptive} are satisfied
+with equality, the other ones are left unchanged, and the correction
+$D_i\,\mu_i$ is the correction of minimum Euclidean norm with this property. The
+boxes whose sub-problem is infeasible are included among the $N$ solved boxes,
+and the same correction is applied to the cuts of the inequality constraints.
+The corrected slopes $\tilde s^{(i)}$ are then used in place of $s^{(i)}$ in the
+cuts~\eqref{eq:cuts}.
 
 The two approaches are alternatives and are not combined. With a large value of
 $\kappa$, the cuts are valid by construction, but the lower bound of the master
