@@ -106,8 +106,11 @@ extended to constrained problems with non-connected feasible regions
 \citep{gomez1982}, and was applied to feature-based topology optimization by
 \citet{zhang2018tunneling}, who combined gradient-based tunneling with the
 geometry projection method to move from a local minimum to a better one in
-stress-based design problems in two and three dimensions; filled function methods rely on a similar modification of
-the objective function around the current minimum \citep{ge1990}. The deflation
+stress-based design problems in two and three dimensions. Since the
+generalized geometry projection used in Section~\ref{sec:cantilever} belongs to
+the same family of methods, this approach is the most direct competitor of the
+present work for the topology optimization application. Filled function methods
+rely on a similar modification of the objective function around the current minimum \citep{ge1990}. The deflation
 technique applied to topology optimization by \citet{papadopoulos2021} is based
 on the same principle, the known solutions being removed by deflation
 operators. These methods are the closest competitors of the method proposed
@@ -1369,7 +1372,9 @@ the cost of the master problem nor that of the surrogate model of efficient
 global optimization is included in the budget. A comparison on an expensive
 objective function is required to compare the method with Bayesian optimization.
 (vi) Tunneling, filled function and deflation methods, which are the closest
-competitors of the method, were not included in the comparison, so that its
+competitors of the method, were not included in the comparison, although
+tunneling has already been applied with the geometry projection method
+\citep{zhang2018tunneling}, so that its
 performance relative to these methods remains to be assessed.
 
 \paragraph{Future work.} Five directions of research follow from these results:
