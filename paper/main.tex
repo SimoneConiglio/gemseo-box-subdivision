@@ -1008,8 +1008,18 @@ function is reached from two starting points out of three, against one with the
 calibrated margin, which exceeds the range of both functions. For the Rastrigin
 function, however, the optimum is reached from all starting points with the
 calibrated margin and from none with the swept convexity. The swept runs
-terminate after about $1550$ evaluations, one basin away from the optimum, for a
-reason which has not been identified. It should be noted that the calibrated
+terminate after about $1550$ evaluations, one basin away from the optimum, on
+the lower-bound test of the master problem, whereas the box containing the
+optimum lies inside the trust region and has not been evaluated. The
+minimum-norm correction of Eq.~\eqref{eq:repair} decreases the cuts by $\delta$
+at the evaluated boxes, but its sign at the other boxes depends on the position
+of the evaluated boxes: at the end of these runs, several cuts are increased at
+the box containing the optimum, and they are increased further by the larger
+values of the ladder. The predicted value of this box then exceeds the
+incumbent for every value of the ladder. Whether the optimum is reached before
+such a set of cuts is accumulated depends on the history of the run, and the
+optimum is reached from four starting points out of five with another set of
+seeds. It should be noted that the calibrated
 margin represents $54\%$ of the range of the Rastrigin function and was
 calibrated on this function.
 
@@ -1343,9 +1353,11 @@ factor of the sweep were selected on the problems on which they are evaluated.
 function in five dimensions, doubling the budget changed the number of starting
 points reaching the optimum from zero to two out of six, and further increases
 had no effect.
-(iii) The runs terminate on the trust region or on the stall criterion and never
-on the optimality test, so that the convergence guarantee associated with a
-large convexification constant is not attained in practice.
+(iii) The convergence guarantee associated with a large convexification
+constant is not attained in practice: the runs terminate on the trust region, on
+the stall criterion, or on the lower-bound test with cuts which are not valid
+underestimators, in which case boxes which have not been evaluated can be
+excluded.
 (iv) The analytic problems are only bound constrained, and the topology
 optimization problem has a single volume constraint.
 (v) The evaluation of the analytic functions takes a few microseconds, whereas
@@ -1359,7 +1371,11 @@ tunneling has already been applied with the geometry projection method
 \citep{zhang2018tunneling}, so that its
 performance relative to these methods remains to be assessed.
 
-\paragraph{Future work.} Five directions of research follow from these results:
+\paragraph{Future work.} Six directions of research follow from these results:
+a least-squares repair with non-negative coefficients, which cannot increase a
+cut at any box for one-hot variables and removes the early termination on the
+Rastrigin function in five dimensions, but reduced the number of starting points
+reaching the optimum of the Ackley function in preliminary tests;
 a master problem defined over a growing set of boxes, in which the cuts are kept
 when a box is refined, so that the hierarchies become a lazy branch and bound
 procedure; the computation of a lower bound without the convexification term,
