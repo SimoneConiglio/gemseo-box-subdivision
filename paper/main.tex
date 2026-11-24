@@ -439,11 +439,11 @@ and the same correction is applied to the cuts of the inequality constraints.
 The corrected slopes $\tilde s^{(i)}$ are then used in place of $s^{(i)}$ in the
 cuts~\eqref{eq:cuts}.
 
-The two approaches are alternatives and are not combined. With a large value of
-$\kappa$, the cuts are valid by construction, but the lower bound of the master
-problem is decreased by approximately $\kappa$; values of $\eta \approx -996$ and
-$\eta \approx -9991$ were obtained for $\kappa = 10^3$ and $\kappa = 10^4$
-respectively. The optimality gap therefore never closes, and the runs terminate
+The combination of the two approaches has not been extensively tested, although
+it is possible in principle, and they are used separately in this work. With a
+large value of $\kappa$, the cuts are valid by construction, but the lower bound
+of the master problem is decreased by approximately $\kappa$. The optimality
+gap therefore never closes, and the runs terminate
 either when the trust region has been reduced until the master problem becomes
 infeasible, or when the number of iterations without improvement reaches its
 limit, but never on the optimality test. Moreover, when $\kappa$ exceeds the
@@ -665,9 +665,9 @@ problem is a mixed-integer linear program.
 
 Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$, so
 that the result does not depend on the order in which the boxes are solved. The
-two safeguards against non-convexity of
-Section~\ref{sec:convexification} are mutually exclusive: when one of them is
-selected, the parameter of the other one is set to zero. The swept convexity is
+two safeguards against non-convexity of Section~\ref{sec:convexification} are
+used separately: when one of them is selected, the parameter of the other one is
+set to zero by default. The swept convexity is
 implemented in the master problem; for earlier versions of the master problem,
 the sweep is performed by the package outside the master problem, which
 reproduces the results within one or two starting points out of six.
