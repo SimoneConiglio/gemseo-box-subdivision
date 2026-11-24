@@ -228,13 +228,18 @@ limitations are described in Section~\ref{sec:protocol}.
 
 \subsection{Problem and subdivision}
 
-The following problem is considered:
+The family of nonlinear programming problems of the form
 \begin{equation}\label{eq:problem}
   \min_{x \in [L, U] \subset \R^n} f(x)
-  \quad \text{subject to} \quad g(x) \le 0,
+  \quad \text{subject to} \quad g(x) \le 0
 \end{equation}
-where $f$ and $g$ are continuously differentiable and non-convex, so that the
-problem has several local minima. Each component $x_j$ of the design vector is
+is considered, where $f$ and $g$ are continuously differentiable and possibly
+non-convex functions. Depending on these functions, such a problem may have a
+single local minimum, several local minima, or an empty feasible set. In this
+work, multimodal problems, i.e. problems with several local minima, are
+considered as a special case of this family, since they are the problems for
+which the result of a local optimizer depends on its initial design. Each
+component $x_j$ of the design vector is
 divided into $m_j$ contiguous intervals $[l_{j,k}, u_{j,k}]$, $k = 1, \dots, m_j$,
 and the Cartesian product of these intervals defines $\prod_j m_j$ boxes
 (Fig.~\ref{fig:subdivision}). It is not necessary to subdivide every component.
