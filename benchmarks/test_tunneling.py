@@ -33,6 +33,7 @@ from benchmarks.problems import Problem
 from benchmarks.problems import rastrigin
 from benchmarks.problems import rastrigin_gradient
 from benchmarks.tunneling import SETTINGS
+from benchmarks.tunneling import TunnelingSettings
 from benchmarks.tunneling import _solve
 from benchmarks.tunneling import tunnel
 from benchmarks.tunneling import tunneling_function
@@ -45,6 +46,9 @@ def _sphere(x):
 def _sphere_gradient(x):
     return 2.0 * x
 
+
+LIMITED = TunnelingSettings(attempts_per_variable=2)
+"""The settings with the method's own stopping rule, so that it ends."""
 
 SPHERE = Problem("sphere", _sphere, _sphere_gradient, -1.3, 1.7, lambda n: 0.0)  # noqa: ARG005
 """A problem with a single minimum, where every tunneling search must fail."""
@@ -114,11 +118,21 @@ def test_the_pole_keeps_the_search_away_from_the_minimizer() -> None:
 
 
 def test_a_single_minimum_stops_the_method_on_its_own() -> None:
-    """Check that every tunneling search fails on a sphere, ending the run."""
+    """Check that every tunneling search fails on a sphere, ending the run.
+
+    This is the method's own stopping rule, which only a limit on the number of
+    tunneling searches from a minimizer enables.
+    """
     counter = Counter(SPHERE)
     logging.disable(logging.CRITICAL)
     minima = tunnel(
-        counter, 2, SPHERE.lower_bound, SPHERE.upper_bound, array([1.0, -1.0]), 11
+        counter,
+        2,
+        SPHERE.lower_bound,
+        SPHERE.upper_bound,
+        array([1.0, -1.0]),
+        11,
+        LIMITED,
     )
     logging.disable(logging.NOTSET)
     assert len(minima) == 1
@@ -131,7 +145,7 @@ def test_tunneling_descends() -> None:
     """Check the generalized descent property on Rastrigin."""
     counter = Counter(PROBLEMS["rastrigin"])
     logging.disable(logging.CRITICAL)
-    minima = tunnel(counter, 2, -4.1, 5.9, array([3.2, -2.9]), 11)
+    minima = tunnel(counter, 2, -4.1, 5.9, array([3.2, -2.9]), 11, LIMITED)
     logging.disable(logging.NOTSET)
     values = [value for _, value in minima]
     assert len(values) > 1
@@ -153,3 +167,10 @@ def test_budget_and_outcome(name, dimension) -> None:
     assert result.cost_adjoint <= budget
     assert len(result.history) == result.cost_adjoint
     assert result.history[-1] == result.best
+
+
+def test_without_a_limit_the_budget_stops_the_run() -> None:
+    """Check that a run with no limit on the attempts spends its budget."""
+    result = run("tunneling", SPHERE, 2, 11, 200)
+    assert result.cost_adjoint == 200
+    assert result.truncated

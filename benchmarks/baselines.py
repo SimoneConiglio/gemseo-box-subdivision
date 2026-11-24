@@ -57,6 +57,8 @@ from benchmarks.configurations import DEFAULT_CONFIGURATION
 from benchmarks.configurations import TRUST_REGION_RADIUS
 from benchmarks.problems import Counter
 from benchmarks.problems import Objective
+from benchmarks.tunneling import SETTINGS as TUNNELING_SETTINGS
+from benchmarks.tunneling import TunnelingSettings
 from benchmarks.tunneling import tunnel
 from gemseo_box_subdivision import BoxSubdivisionScenario
 from gemseo_box_subdivision import SweptBoxSubdivisionSettings
@@ -543,7 +545,12 @@ def run_egobox(
 
 
 def run_tunneling(
-    problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
+    problem: Problem,
+    dimension: int,
+    seed: int,
+    budget: int,
+    adjoint: bool,
+    settings: TunnelingSettings = TUNNELING_SETTINGS,
 ) -> Result:
     """Run the classic tunneling method of Levy and Montalvo (1985).
 
@@ -552,7 +559,8 @@ def run_tunneling(
     starting point as the other methods. Its budget is enforced by the counter,
     which every evaluation of the objective and of its gradient goes through,
     those of the tunneling function included. It may stop before the budget,
-    when every tunneling search from a minimizer has failed.
+    when every tunneling search from a minimizer has failed, if its settings
+    limit the number of these searches, which the default settings do not.
 
     Args:
         problem: The problem.
@@ -560,6 +568,7 @@ def run_tunneling(
         seed: The seed of the starting point and of the tunneling directions.
         budget: The budget in equivalent objective evaluations.
         adjoint: Whether a gradient costs one objective evaluation.
+        settings: The settings of the method.
 
     Returns:
         The outcome of the run.
@@ -573,6 +582,7 @@ def run_tunneling(
             problem.upper_bound,
             _starting_point(problem, dimension, seed),
             seed,
+            settings,
         )
 
     return _result("tunneling", problem, dimension, seed, counter, adjoint)

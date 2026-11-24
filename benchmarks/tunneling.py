@@ -45,6 +45,7 @@ and where it comes from.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import count
 from typing import TYPE_CHECKING
 
 from gemseo.algos.design_space import DesignSpace
@@ -103,9 +104,16 @@ class TunnelingSettings:
     chosen here and was not tuned.
     """
 
-    attempts_per_variable: int = 2
+    attempts_per_variable: int = 0
     """The number of tunneling searches, along random directions, from one
-    minimizer before declaring it global, per variable; chosen here."""
+    minimizer before declaring it global, per variable, or zero for no limit.
+
+    A limit is the method's own stopping rule: the minimizer from which every
+    search has failed is taken as the global one. The benchmark sets none, so
+    that the run stops at its budget like the other methods, rather than
+    leaving part of it unspent; a limit of two per variable, chosen here, is
+    reported apart in the documentation as a sensitivity check.
+    """
 
     mobile_poles_per_variable: int = 1
     """The number of mobile poles placed in one tunneling search before it is
@@ -280,7 +288,8 @@ def tunnel(
 
     Returns:
         The local minimizers of the successive minimization phases, with their
-        values, if the method stops on its own; the counter raising otherwise.
+        values, if the method stops on its own, which it can only do with a
+        limit on the attempts; the counter raising otherwise.
     """
     cached = _CachedObjective(counter)
     rng = default_rng(seed)
@@ -312,7 +321,8 @@ def tunnel(
 
         # Tunneling phase.
         try:
-            for _ in range(settings.attempts_per_variable * dimension):
+            attempts = settings.attempts_per_variable * dimension
+            for _ in range(attempts) if attempts else count():
                 _tunneling_search(
                     cached,
                     lower,
