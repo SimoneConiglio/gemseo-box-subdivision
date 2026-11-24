@@ -98,7 +98,7 @@ from benchmarks.problems import PROBLEMS
 from gemseo_box_subdivision._convexity_sweep_driver import _probe
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
     from collections.abc import Sequence
 
     from numpy import ndarray
@@ -204,7 +204,7 @@ def _box(alpha: ndarray, n_subdivisions: int) -> tuple[int, ...]:
 
 
 @contextmanager
-def recording(n_subdivisions: int) -> Generator[Record, None, None]:
+def recording(n_subdivisions: int) -> Iterator[Record]:
     """Record every solve of the master, changing nothing it does.
 
     Open it *outside* the sweep driver, so that the driver wraps the recording
@@ -366,7 +366,7 @@ def repair_nonnegatively(
 
 
 @contextmanager
-def nonnegative_repair() -> Generator[None, None, None]:
+def nonnegative_repair() -> Iterator[None]:
     """Make the master repair its cuts with non-negative multipliers.
 
     For a measurement only: the change belongs to the master, and this replaces
