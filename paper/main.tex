@@ -34,6 +34,8 @@
 \usepackage{algpseudocode}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\code}[1]{\texttt{\hyphenchar\font=45\relax #1}}
@@ -434,10 +436,12 @@ Griewank ($4.9$).
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.55\linewidth]{figures/convexification.pdf}
-  \caption{Convexification term $C(\alpha)$ for a relaxed box selection. The
-    term vanishes at the vertices of the one-hot polytope and is negative
-    between them.}
+  \input{figures/convexification.tex}
+  \caption{Contribution $\kappa\,\alpha_{j,k}(\alpha_{j,k}-1)$ of one relaxed
+    one-hot variable to the convexification term $\kappa C(\alpha)$, for three
+    values of $\kappa$. The term vanishes at the integer values, so that the
+    discrete problem is unchanged, and lowers the relaxation between them by up
+    to $\kappa/4$.}
   \label{fig:convexification}
 \end{figure}
 
