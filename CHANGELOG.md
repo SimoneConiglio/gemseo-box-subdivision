@@ -26,6 +26,18 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `benchmarks/tunneling.py`, the classic tunneling method of Levy and Montalvo
+  (1985) as a baseline, with SLSQP in both phases, analytic gradients of the
+  tunneling function charged to the same budgeted counter, and settings fixed
+  across problems; `benchmarks/run_tunneling.py` runs it under the protocols of
+  Tables 6 to 8 and profiles it against the published targets, which it leaves
+  unchanged. The variant of Zhang and Norato (2018) is not implemented, its
+  formulation not having been verified from an accessible source.
+
 ## 0.3.0 (2026-10-03)
 
 ### Added
