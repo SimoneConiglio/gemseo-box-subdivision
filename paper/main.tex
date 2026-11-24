@@ -92,11 +92,11 @@ is not derived from a model of the problem, and the information provided by the
 local solutions already obtained is exploited only partially.
 Tunneling methods \citep{levy1985,levygomez1985} are deterministic alternatives
 based on the same local optimizers. A minimization phase, which provides a local
-minimum $x^\ast$, alternates with a tunneling phase, in which a point
-$x \ne x^\ast$ such that $f(x) \le f(x^\ast)$ is sought as a zero of a
-tunneling function, and is then used as the starting point of the next
-minimization phase. In the tunneling function, a pole placed at $x^\ast$
-prevents the convergence to the minimum already found, and additional mobile
+minimum, alternates with a tunneling phase, in which a different point with an
+objective value lower than or equal to that of this minimum is sought, and is
+then used as the starting point of the next minimization phase. This point is
+obtained as a zero of an auxiliary function, in which a pole placed at the last
+minimum prevents the convergence to the minimum already found, and additional mobile
 poles are introduced at the stationary points encountered during the tunneling
 phase. The method was
 extended to constrained problems with non-connected feasible regions
@@ -125,9 +125,10 @@ explores a hierarchical partition without knowledge of the smoothness of the
 function. These methods are mostly based on sampling, and the number of boxes
 they generate grows rapidly with the dimension. Deterministic spatial branch and
 bound methods, such as $\alpha$BB \citep{androulakis1995,adjiman1998}, provide
-certificates of global optimality by means of convex underestimators of the
-form $f(x) + \alpha \sum_i (x_i - L_i)(x_i - U_i)$, but require bounds on the
-eigenvalues of the Hessian of the functions over each box
+certificates of global optimality by means of convex underestimators, obtained
+by adding to the function a quadratic term which vanishes at the bounds of each
+box, but require bounds on the eigenvalues of the Hessian of the functions over
+each box
 \citep{horst1996}, which are seldom available for simulation-based models. In
 Bayesian optimization \citep{jones1998}, the whole history is exploited through
 a surrogate model, at a computational cost that grows cubically with the number
@@ -177,9 +178,10 @@ exploitation is performed by the local optimizer, which retains the use of
 gradients and constraints.
 
 The approach is tractable for two reasons. With one one-hot categorical variable
-per design component, the master problem has $\sum_j m_j$ binary variables for
-$\prod_j m_j$ boxes, so that five variables divided into ten intervals each
-correspond to $10^5$ boxes and only $50$ binary variables, and the boxes are
+per design component, the number of binary variables of the master problem is
+the sum of the numbers of intervals of the components, whereas the number of
+boxes is their product. Five variables divided into ten intervals each thus
+correspond to $10^5$ boxes but only $50$ binary variables, and the boxes are
 never enumerated. Moreover, the slope of each cut is obtained from the Lagrange
 multipliers of the box constraints, or from a reparameterization of the design
 variables, without additional function evaluations.
