@@ -93,15 +93,12 @@ local solutions already obtained is exploited only partially.
 Tunneling methods \citep{levy1985,levygomez1985} are deterministic alternatives
 based on the same local optimizers. A minimization phase, which provides a local
 minimum $x^\ast$, alternates with a tunneling phase, in which a point
-$x \ne x^\ast$ such that $f(x) \le f(x^\ast)$ is sought as a zero of the
-tunneling function
-\begin{equation}\label{eq:tunneling}
-  T(x) = \frac{f(x) - f(x^\ast)}{\bigl[(x - x^\ast)^\top (x - x^\ast)\bigr]^{\lambda}},
-\end{equation}
-and is then used as the starting point of the next minimization phase. The pole
-placed at $x^\ast$, of strength $\lambda$, prevents the convergence to the
-minimum already found, and additional mobile poles are introduced at the
-stationary points of $T$ encountered during the tunneling phase. The method was
+$x \ne x^\ast$ such that $f(x) \le f(x^\ast)$ is sought as a zero of a
+tunneling function, and is then used as the starting point of the next
+minimization phase. In the tunneling function, a pole placed at $x^\ast$
+prevents the convergence to the minimum already found, and additional mobile
+poles are introduced at the stationary points encountered during the tunneling
+phase. The method was
 extended to constrained problems with non-connected feasible regions
 \citep{gomez1982}, and was applied to feature-based topology optimization by
 \citet{zhang2018tunneling}, who combined gradient-based tunneling with the
