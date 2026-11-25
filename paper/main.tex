@@ -508,20 +508,15 @@ lower bound among the probes, which is degraded by the largest convexity values.
 The search of the master problem is restricted to a neighbourhood of the
 incumbent box $\bar\alpha$:
 \begin{equation}\label{eq:trust}
-  \sum_{j\,:\,\alpha_j = \bar\alpha_j} w_j(\bar\alpha)
-  \ \ge\ \sum_j w_j(\bar\alpha) - \Delta,
+  \operatorname{card}\{\, j : \alpha_j \ne \bar\alpha_j \,\} \ \le\ \Delta,
 \end{equation}
-where the weight $w_j(\bar\alpha)$ is counted for each component modified by the
-candidate. Since the weight depends only on the incumbent, this constraint does
-not express any proximity between categories. As a subdivided variable is
-ordinal, weighting each interval by its index may appear natural. However, this
-choice produces an asymmetric region rather than a neighbourhood of the
-incumbent (Fig.~\ref{fig:trust}), since leaving the first interval of a
-component has no cost, whereas leaving the last one costs $m_j - 1$, whatever
-the interval reached. Unit weights are therefore used, so that $\Delta$ bounds
-the Hamming distance between the one-hot encodings, i.e. the number of modified
-components, and constraint~\eqref{eq:trust} becomes a local branching
-constraint \citep{fischetti2003}. An ordinal variant,
+where $\alpha_j$ denotes the interval selected for the component $j$, and the
+left-hand side is linear in the one-hot variables. The radius $\Delta$ bounds the Hamming distance between the selected intervals,
+i.e. the number of modified components, and constraint~\eqref{eq:trust} becomes a local branching constraint
+\citep{fischetti2003}. A radius of one admits the boxes which differ from the
+incumbent in a single component, and a radius of $\Delta$ admits
+$\sum_{k=0}^{\Delta}\binom{n}{k}(m-1)^k$ boxes for $n$ components subdivided into
+$m$ intervals each (Fig.~\ref{fig:trust}). An ordinal variant,
 $|v^\top\alpha - v^\top\bar\alpha| \le \Delta$, where $v$ denotes the interval
 indices, was also tested; it was found to be as reliable as the Hamming distance
 and about 50\% more expensive. For the landscapes considered, neighbouring boxes
@@ -544,11 +539,11 @@ coincide, all probes solve the same master problem, and the exploration stops.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.8\linewidth]{figures/trust_region.pdf}
-  \caption{Trust regions of the same radii around two incumbents, with weights
-    equal to the interval indices (the whole design space around $(1,1)$ and the
-    incumbent alone around $(7,6)$) and with unit weights (nineteen boxes in both
-    cases).}
+  \input{figures/trust_region.tex}
+  \caption{Trust regions of radii one and two around the incumbent box (black),
+    with ten subdivisions per variable: the admitted boxes (shaded) differ from
+    the incumbent in at most $\Delta$ components. In two dimensions, a radius of
+    two admits the whole design space.}
   \label{fig:trust}
 \end{figure}
 
@@ -1541,8 +1536,7 @@ budget of $2500$ evaluations in five dimensions.
 \begin{table}[h]
   \centering
   \caption{Trust-region metrics, $n = 2$: median distance $\cdot$ median cost
-    $\cdot$ starting points reaching the optimum. \emph{indices}: weights equal
-    to the interval indices; \emph{unit}: Hamming distance; \emph{none}: no trust
+    $\cdot$ starting points reaching the optimum. \emph{unit}: Hamming distance; \emph{none}: no trust
     region; \emph{proximity}: $|v^\top\alpha - v^\top\bar\alpha| \le \Delta$.}
   \label{tab:metric}
   \small
@@ -1550,7 +1544,6 @@ budget of $2500$ evaluations in five dimensions.
     \toprule
     metric, radius & Rastrigin & Ackley & Griewank \\
     \midrule
-    indices, 10   & 0.000 $\cdot$ 530 $\cdot$ 8/8 & 0.000 $\cdot$ 450 $\cdot$ 6/8 & 0.027 $\cdot$ 1000 $\cdot$ 0/8 \\
     unit, 2       & 0.000 $\cdot$ 543 $\cdot$ 8/8 & 0.000 $\cdot$ 560 $\cdot$ 6/8 & 0.007 $\cdot$ 618 $\cdot$ 0/8 \\
     unit, 1       & 0.000 $\cdot$ 452 $\cdot$ 8/8 & 0.000 $\cdot$ 496 $\cdot$ 8/8 & 0.007 $\cdot$ 526 $\cdot$ 0/8 \\
     none          & 0.000 $\cdot$ 810 $\cdot$ 8/8 & 0.000 $\cdot$ 450 $\cdot$ 6/8 & 0.027 $\cdot$ 1000 $\cdot$ 0/8 \\
