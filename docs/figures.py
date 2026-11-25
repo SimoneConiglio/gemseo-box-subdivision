@@ -126,6 +126,14 @@ is why every figure using them is accompanied by its table.
 SERIES_DARK = ("#3987e5", "#d95926", "#199e70", "#c98500", "#d55181")
 """The same five hues stepped for a dark surface, not an automatic flip."""
 
+LATE_HUES = {"#24292f": "#7b5fc9", "#c9d1d9": "#9a7fe6"}
+"""The hue of tunneling, the baseline added after the others, by theme.
+
+A sixth categorical slot after :data:`.SERIES_LIGHT` and :data:`.SERIES_DARK`,
+validated with them on each surface; its curve is also dashed, so that it is
+told apart without its colour.
+"""
+
 METHOD_LABELS = (
     "box subdivision",
     "multistart",
@@ -1434,6 +1442,15 @@ def draw_data_profiles(foreground: str):
             if end < entry["budget"]:
                 axes.plot(end, ratio, marker="o", color=hue, markersize=4)
 
+        if "tunneling" in profiles:
+            _plot_profile(
+                axes,
+                profiles["tunneling"],
+                color=LATE_HUES[foreground],
+                linestyle="--",
+                label="tunneling",
+            )
+
         optimal = len(entry["best_target_is_the_optimum"])
         _profile_axes(
             axes,
@@ -1729,6 +1746,23 @@ ANIMATIONS = {"solve": animate_solve}
 """The animations, by name, each written as a GIF."""
 
 
+PAPER = Path(__file__).parents[1] / "paper" / "figures"
+"""The figures of the manuscript drawn by this module, in the light theme."""
+
+PAPER_FIGURES = {"data_profiles": draw_data_profiles}
+"""The figures of the manuscript, by name, each written as a PDF."""
+
+
+def write_paper_figures() -> None:
+    """Write the figures of the manuscript, in the light theme, as PDF."""
+    for name, draw in PAPER_FIGURES.items():
+        with plt.rc_context(_style(LIGHT)):
+            figure = draw(LIGHT)
+            figure.savefig(PAPER / f"{name}.pdf", bbox_inches="tight", format="pdf")
+            plt.close(figure)
+        print(f"paper/figures/{name}.pdf")  # noqa: T201
+
+
 def main(names: Sequence[str] = ()) -> None:
     """Write the figures and the animations, for both themes.
 
@@ -1744,6 +1778,9 @@ def main(names: Sequence[str] = ()) -> None:
         if not names or name in names:
             animate(name)
             print(f"{name}.gif")  # noqa: T201
+
+    if not names or set(names) & set(PAPER_FIGURES):
+        write_paper_figures()
 
 
 if __name__ == "__main__":

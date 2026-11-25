@@ -14,3 +14,10 @@ Build: `latexmk -pdf main.tex`
   the GIFs; the PNG frames are low resolution and should be regenerated at 300 dpi
   from `docs/figures.py` before submission.
 - Every entry in `references.bib` must be checked against the publisher's record.
+
+Figure 5 (`figures/data_profiles.pdf`) is drawn with the documentation figures,
+from `docs/_static/data_profiles.json`:
+
+```bash
+python docs/figures.py data_profiles
+```

@@ -438,7 +438,8 @@ budget in the [next section](#comparison-at-a-budget-of-500-evaluations).
 :alt: Fraction of the targets reached by the best variant and each baseline against the evaluations spent
 ```
 
-*Figure 4. Data profiles of the best variant and of the baselines.*
+*Figure 4. Data profiles of the best variant and of the baselines; tunneling,
+added after the others, is dashed.*
 
 | $n$ | method | area | at a tenth | at a quarter | at a half | at the budget |
 |-----|--------|------|------------|--------------|-----------|---------------|
