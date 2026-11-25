@@ -44,6 +44,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import fields
+from math import ceil
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
@@ -61,6 +62,8 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from gemseo.algos.base_algorithm_settings import BaseAlgorithmSettings
+
+    from gemseo_box_subdivision._euclidean_trust_region import EuclideanTrustRegion
 
 TRUST_REGION_RADIUS: int = 2
 """The default radius of the trust region, in components changed.
@@ -126,6 +129,15 @@ class BaseBoxSubdivisionSettings(ABC):
     MECHANISMS: ClassVar[tuple[str, ...]] = ("adaptive", "convexification")
     """The two mechanisms keeping the cuts usable on a non-convex problem."""
 
+    TRUST_REGION_METRICS: ClassVar[tuple[str, ...]] = ("hamming", "euclidean")
+    """The distances the trust region of the master can bound."""
+
+    TRUST_REGION_ANCHORS: ClassVar[tuple[str, ...]] = ("incumbent", "nearest")
+    """The boxes the Euclidean distance can be measured from."""
+
+    TRUST_REGION_SCHEDULES: ClassVar[tuple[str, ...]] = ("fixed", "diameter")
+    """The schedules of the Euclidean radius."""
+
     MASTER_TERMS: ClassVar[dict[str, str]] = {
         "mechanism": "adapt",
         "convexity_margin": "min_dfk",
@@ -158,8 +170,41 @@ class BaseBoxSubdivisionSettings(ABC):
     :meth:`.BoxSubdivisionSettings.to_master_settings`.
     """
 
-    trust_region_radius: int = TRUST_REGION_RADIUS
-    """The radius of the trust region of the master, in components changed."""
+    trust_region_radius: float = TRUST_REGION_RADIUS
+    """The radius of the trust region of the master.
+
+    In components changed for the Hamming metric, an integer; in widths of the
+    coarsest interval for the Euclidean one, where it is the initial radius of the
+    ``"fixed"`` schedule and is ignored by the ``"diameter"`` one.
+    """
+
+    trust_region_metric: str = "hamming"
+    r"""The distance the trust region of the master bounds.
+
+    ``"hamming"``, the default, counts the components a candidate box changes,
+    which makes the trust region a local branching constraint. ``"euclidean"``
+    measures the distance between the centres of the incumbent and the candidate
+    boxes, in the design space scaled to the unit hypercube; see Tables C.11 to
+    C.19 of the tuning annex, which keep the Hamming metric as the default.
+    """
+
+    trust_region_anchor: str = "incumbent"
+    """The box the Euclidean distance is measured from.
+
+    ``"incumbent"`` centres the ball on the incumbent box; ``"nearest"`` admits a
+    box within the radius of any evaluated box, a union of balls costing one more
+    binary variable of the master per evaluated box. Euclidean metric only.
+    """
+
+    trust_region_schedule: str = "fixed"
+    r"""How the Euclidean radius evolves.
+
+    ``"fixed"`` starts at :attr:`.trust_region_radius` and keeps the master's
+    shrink and growth; ``"diameter"`` starts at the diameter of the subdivision,
+    so that the region covers it, and spreads the probes from
+    $R / (2\sqrt{n})$ to $R$, floored at one interval width. Euclidean metric
+    only.
+    """
 
     n_parallel_points: int = N_PARALLEL_POINTS
     """The number of trust-region radii the master probes per iteration.
@@ -217,10 +262,69 @@ class BaseBoxSubdivisionSettings(ABC):
                 msg = f"{name} must be positive; got {getattr(self, name)}."
                 raise ValueError(msg)
 
+        self._check_the_trust_region()
+
         _check_settings_names(
             self.sub_problem_algo_name, self.to_sub_problem_settings(), "sub-problems"
         )
         _check_sub_problem_settings_model(self.sub_problem_algo_name)
+
+    def _check_the_trust_region(self) -> None:
+        """Refuse an unknown or inconsistent trust region.
+
+        Raises:
+            ValueError: When the metric, the anchor or the schedule is unknown,
+                when an anchor or a schedule is given to the Hamming metric, or
+                when a Hamming radius is not an integer.
+        """
+        for name, allowed in (
+            ("trust_region_metric", self.TRUST_REGION_METRICS),
+            ("trust_region_anchor", self.TRUST_REGION_ANCHORS),
+            ("trust_region_schedule", self.TRUST_REGION_SCHEDULES),
+        ):
+            if getattr(self, name) not in allowed:
+                msg = (
+                    f"{name} must be one of {list(allowed)}; "
+                    f"got {getattr(self, name)!r}."
+                )
+                raise ValueError(msg)
+
+        if self.trust_region_metric == "hamming":
+            for name, default in (
+                ("trust_region_anchor", "incumbent"),
+                ("trust_region_schedule", "fixed"),
+            ):
+                if getattr(self, name) != default:
+                    msg = (
+                        f"{name} applies to the Euclidean trust region only; "
+                        "set trust_region_metric='euclidean'."
+                    )
+                    raise ValueError(msg)
+
+            if self.trust_region_radius != int(self.trust_region_radius):
+                msg = (
+                    "The Hamming radius counts components and must be an integer; "
+                    f"got {self.trust_region_radius}."
+                )
+                raise ValueError(msg)
+
+    def euclidean_trust_region(self) -> EuclideanTrustRegion | None:
+        """Return the Euclidean trust region of the master, if it has one.
+
+        Returns:
+            The settings of the Euclidean trust region, or ``None`` for the
+            Hamming one.
+        """
+        if self.trust_region_metric != "euclidean":
+            return None
+
+        from gemseo_box_subdivision._euclidean_trust_region import EuclideanTrustRegion  # noqa: PLC0415
+
+        return EuclideanTrustRegion(
+            initial_radius=float(self.trust_region_radius),
+            anchor=self.trust_region_anchor,
+            schedule=self.trust_region_schedule,
+        )
 
     @property
     def convexity_setting_name(self) -> str:
@@ -291,7 +395,12 @@ class BaseBoxSubdivisionSettings(ABC):
             "number_of_parallel_points": (
                 self.n_parallel_points if adaptive or swept else 1
             ),
-            "max_step": self.trust_region_radius if radius is None else radius,
+            # A Euclidean radius is driven by its own schedule, so the master is
+            # only given a valid integer step, which the schedule overrides.
+            "max_step": max(
+                1,
+                ceil(self.trust_region_radius if radius is None else radius),
+            ),
         }
 
         value = self.convexity_value
@@ -318,13 +427,24 @@ class BaseBoxSubdivisionSettings(ABC):
         """Run the master under whatever this construction has to supply it.
 
         A master configured entirely by its settings needs nothing, which is the
-        general case and what this yields. The swept construction overrides it
-        where the installed master does not sweep on its own.
+        general case and what this yields. The Euclidean trust region, which the
+        installed master does not implement, is supplied around its solves; the
+        swept construction adds the sweep where the master does not sweep.
 
         Yields:
             Nothing.
         """
-        yield
+        region = self.euclidean_trust_region()
+        if region is None:
+            yield
+            return
+
+        from gemseo_box_subdivision._euclidean_trust_region import (  # noqa: PLC0415
+            euclidean_trust_region,
+        )
+
+        with euclidean_trust_region(region):
+            yield
 
     def master_settings_the_run_needs(self) -> dict[str, Any]:
         """Return what a run keeps of its master settings whatever it overrides.
@@ -480,6 +600,17 @@ class BoxSubdivisionSettings(BaseBoxSubdivisionSettings):
             for name, term in self.MASTER_TERMS.items()
             if term not in declared and getattr(self, name) != defaults[name]
         }
+        if "max_step" not in declared:
+            refused.update({
+                name: "max_step"
+                for name in (
+                    "trust_region_metric",
+                    "trust_region_anchor",
+                    "trust_region_schedule",
+                )
+                if getattr(self, name) != defaults[name]
+            })
+
         if refused:
             named = ", ".join(
                 f"{name!r} ({term!r})" for name, term in sorted(refused.items())
@@ -620,16 +751,17 @@ class SweptBoxSubdivisionSettings(BaseBoxSubdivisionSettings):
         Yields:
             Nothing.
         """
-        if MASTER_SWEEPS_CONVEXITY:
-            yield
-            return
+        with super().drive_the_master():
+            if MASTER_SWEEPS_CONVEXITY:
+                yield
+                return
 
-        # Imported here: it patches the master, which nothing else needs, and
-        # both it and the patching go when the master ships the sweep.
-        from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep
+            # Imported here: it patches the master, which nothing else needs, and
+            # both it and the patching go when the master ships the sweep.
+            from gemseo_box_subdivision._convexity_sweep_driver import drive_the_sweep  # noqa: PLC0415
 
-        with drive_the_sweep(self):
-            yield
+            with drive_the_sweep(self):
+                yield
 
     def master_settings_the_run_needs(self) -> dict[str, Any]:
         """Return the sweep, which a run configuring its own master still needs.

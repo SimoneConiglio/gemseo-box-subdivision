@@ -378,6 +378,17 @@ class BoxSubdivisionScenario(MDOScenario):
         # Whatever the run supplies its master applies to every execution, not
         # only to the one this class configures: settings given here override
         # what the master is told, never what the run needs of it.
+        if (
+            isinstance(self.subdivision, MultiResolution)
+            and self.box_settings.trust_region_metric == "euclidean"
+        ):
+            msg = (
+                "The Euclidean trust region measures the distance between box "
+                "centres, which the digits of a multi-resolution encoding do not "
+                "encode; use the Hamming trust region with this encoding."
+            )
+            raise ValueError(msg)
+
         with self.box_settings.drive_the_master():
             if algo_settings_model is None and not algo_settings:
                 radius = None

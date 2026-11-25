@@ -198,12 +198,15 @@ general class designates the master and the sub-problem solver and requires a
 calibrated convexity; the swept class configures the master that implements the
 sweep.
 
-Eight settings are common to both classes:
+Eleven settings are common to both classes:
 
 | setting | default | description |
 |---------|---------|-------------|
 | `mechanism` | `"adaptive"` | safeguard against the non-convexity of the relaxed problem, `adaptive` or `convexification`; passed only to a master that declares it |
-| `trust_region_radius` | $2$ | radius of the trust region of the master, in number of changed components |
+| `trust_region_radius` | $2$ | radius of the trust region of the master, in number of changed components; with the Euclidean metric, in widths of the coarsest interval |
+| `trust_region_metric` | `"hamming"` | distance bounded by the trust region, `hamming` (changed components) or `euclidean` (distance between box centres) |
+| `trust_region_anchor` | `"incumbent"` | Euclidean metric only: distance from the incumbent box, or from the `nearest` evaluated box |
+| `trust_region_schedule` | `"fixed"` | Euclidean metric only: `fixed` radius schedule, or `diameter`, starting at the diameter of the subdivision |
 | `n_parallel_points` | $4$ | number of trust-region radii probed per iteration; with the swept class also the number of rungs. The pure convexification probes a single point unless a sweep is used |
 | `max_iter` | $80$ | iterations of the master, not of the sub-problems |
 | `sub_problem_max_iter` | $40$ | iterations of each sub-problem |
@@ -290,6 +293,40 @@ are not subdivided, whose basins all remain within every box. In
 [annex C](tuning.md#subdivision-of-a-subset-of-the-variables) it solves a
 problem that a coarse subdivision of all variables does not, and degrades the
 results on problems that are multimodal in all variables.
+
+## Euclidean trust region
+
+The trust region of the master bounds by default the number of components a
+candidate box changes, a Hamming distance. It can instead bound the Euclidean
+distance between the centres of the boxes, in the design space scaled to the unit
+hypercube and in widths of the coarsest interval:
+
+```python
+from gemseo_box_subdivision import SweptBoxSubdivisionSettings
+
+settings = SweptBoxSubdivisionSettings(
+    trust_region_metric="euclidean",
+    # The region starts at the diameter of the subdivision, and the probes
+    # spread from R / (2 sqrt(n)) to R, floored at one interval width.
+    trust_region_schedule="diameter",
+)
+```
+
+With `trust_region_schedule="fixed"`, the radius starts at `trust_region_radius`
+and follows the shrink and growth of the master. With
+`trust_region_anchor="nearest"`, a box is admitted within the radius of any
+evaluated box rather than of the incumbent, at the cost of one more binary
+variable of the master per evaluated box. The master of
+`gemseo-bilevel-outer-approximation` has no such option, so the package supplies
+it around the master's solves; it is refused with another master and with the
+multi-resolution encoding, whose digits are not positions of boxes.
+
+The Hamming metric remains the default. In
+[annex C](tuning.md#euclidean-trust-region), the diameter schedule with the swept
+convexity reaches the optimum of Rastrigin in five variables from more starting
+points, at a higher cost and with a slightly smaller area under the data
+profile, and the union of balls around the evaluated boxes is not better than
+the Hamming region.
 
 ## Multi-resolution encoding
 

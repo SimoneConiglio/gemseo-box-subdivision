@@ -632,6 +632,24 @@ two therefore remains the default; the diameter schedule is the Euclidean
 variant worth considering together with the swept convexity, when the budget
 allows runs to the end.
 
+| $n$ | trust region | area | at a tenth | at a quarter | at a half | at the budget |
+|-----|--------------|------|------------|--------------|-----------|---------------|
+| 2 | `hamming`, radius 2 | $0.87$ | 43% | 90% | 96% | 99% |
+| 2 | Euclidean, diameter | $0.88$ | 68% | 88% | 94% | 99% |
+| 5 | `hamming`, radius 2 | $0.64$ | 30% | 62% | 73% | 84% |
+| 5 | Euclidean, diameter | $0.61$ | 40% | 51% | 68% | 84% |
+
+*Table C.20. Data profiles of the swept configuration, four probes and ten
+subdivisions per variable, with either trust region, against the targets of
+Table 7 of the results; five starting points, budget $500n$. The Hamming rows
+reproduce the published areas.*
+
+Measured by the area under the data profile, the diameter schedule is level with
+the Hamming region in two variables and slightly behind in five (Table C.20):
+it starts faster, but its gains on Rastrigin come late in the budget, and both
+end at the same fraction of the targets. It reaches the optimum more often, not
+sooner.
+
 ### Euclidean trust region around the evaluated boxes
 
 A third variant measures the distance of a candidate from the nearest evaluated

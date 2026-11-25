@@ -29,15 +29,15 @@ from numpy import concatenate
 from numpy import eye
 from numpy.testing import assert_allclose
 
-from benchmarks.euclidean_trust_region import _PATCHED
-from benchmarks.euclidean_trust_region import EuclideanTrustRegion
-from benchmarks.euclidean_trust_region import box_distance
 from benchmarks.euclidean_trust_region import cell
-from benchmarks.euclidean_trust_region import diameter
-from benchmarks.euclidean_trust_region import euclidean_trust_region
 from benchmarks.euclidean_trust_region import run
-from benchmarks.euclidean_trust_region import squared_distance_coefficients
 from benchmarks.problems import PROBLEMS
+from gemseo_box_subdivision._euclidean_trust_region import _PATCHED
+from gemseo_box_subdivision._euclidean_trust_region import EuclideanTrustRegion
+from gemseo_box_subdivision._euclidean_trust_region import box_distance
+from gemseo_box_subdivision._euclidean_trust_region import diameter
+from gemseo_box_subdivision._euclidean_trust_region import euclidean_trust_region
+from gemseo_box_subdivision._euclidean_trust_region import squared_distance_coefficients
 
 
 def _box(blocks, indexes):  # noqa: ANN001, ANN202
