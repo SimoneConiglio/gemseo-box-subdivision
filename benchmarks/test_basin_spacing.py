@@ -23,6 +23,7 @@ the count it happens to have reached.
 
 from __future__ import annotations
 
+import inspect
 import logging
 
 import pytest
@@ -44,6 +45,26 @@ from benchmarks.basin_spacing import run_at_density
 from benchmarks.basin_spacing import run_at_density_swept
 from benchmarks.basin_spacing import stall_counter
 from benchmarks.problems import PROBLEMS
+
+
+def _master_returns_forked_results() -> bool:
+    """Return whether the installed master collects what its forked workers compute.
+
+    Merge request 139 of ``gemseo-bilevel-outer-approximation`` (issue 7) passes a
+    callback to the parallel execution of ``_execute_doe``; without it, what a
+    worker computes never reaches the caller and a run with several processes
+    returns a wrong optimum.
+
+    Returns:
+        Whether ``_execute_doe`` of the installed master passes callbacks.
+    """
+    from gemseo_bilevel_outer_approximation.algos.opt.core import (  # noqa: PLC0415
+        outer_approximation_optimizer as core,
+    )
+
+    return "callback" in inspect.getsource(
+        core.OuterApproximationOptimizer._execute_doe
+    )
 
 
 def test_count_minima_prominence():
@@ -200,6 +221,11 @@ def test_run_at_density_refines_per_variable():
     assert outcome.boxes > 0
 
 
+@pytest.mark.skipif(
+    not _master_returns_forked_results(),
+    reason="the installed gemseo-bilevel-outer-approximation lacks merge request "
+    "139 (issue 7): forked workers do not return their results",
+)
 def test_the_database_counts_what_a_fork_takes_away():
     """The measures read from the master's database survive the fan-out.
 
