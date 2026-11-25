@@ -33,6 +33,7 @@ from benchmarks.euclidean_trust_region import _PATCHED
 from benchmarks.euclidean_trust_region import EuclideanTrustRegion
 from benchmarks.euclidean_trust_region import box_distance
 from benchmarks.euclidean_trust_region import cell
+from benchmarks.euclidean_trust_region import diameter
 from benchmarks.euclidean_trust_region import euclidean_trust_region
 from benchmarks.euclidean_trust_region import run
 from benchmarks.euclidean_trust_region import squared_distance_coefficients
@@ -90,6 +91,7 @@ def test_the_unit_cube_charges_a_finer_component_less() -> None:
         {"max_radius": 1.0},
         {"shrink_factor": 1.0},
         {"growth_factor": 0.9},
+        {"schedule": "random"},
     ],
 )
 def test_the_settings_are_checked(settings) -> None:
@@ -169,3 +171,57 @@ def test_a_cell_reads_as_the_tables() -> None:
 def test_the_box_encoding_is_concatenated_per_component() -> None:
     """Check the helper the other tests rely on."""
     assert_allclose(_box([2, 3], (1, 0)), array([0, 1, 1, 0, 0]))
+
+
+def test_the_diameter_joins_the_centres_of_opposite_corners() -> None:
+    """Check the diameter, with equal and unequal densities."""
+    assert diameter([10] * 5) == pytest.approx(9 * sqrt(5))
+    # Three coarse widths along the first, seven half-widths along the second.
+    assert diameter([4, 8]) == pytest.approx(sqrt(3**2 + 3.5**2))
+    assert diameter([4, 8], "interval") == pytest.approx(sqrt(3**2 + 7**2))
+
+
+def test_the_diameter_schedule_spreads_the_probes_down_to_the_floor() -> None:
+    """Check the probes of the diameter schedule and of the fixed one."""
+    region = EuclideanTrustRegion(schedule="diameter")
+    blocks = [10] * 5
+    radius = region.initial_radius_of(blocks)
+    assert radius == pytest.approx(9 * sqrt(5))
+    assert region.max_radius_of(blocks) == pytest.approx(radius)
+    probes = region.probe_radii(radius, 4, 5)
+    assert probes[0] == pytest.approx(radius / (2 * sqrt(5)))
+    assert probes[-1] == pytest.approx(radius)
+    # Every probe is floored at one width, and a radius below the floor too.
+    assert_allclose(region.probe_radii(3.0, 4, 5), [1.0, 1.442, 2.080, 3.0], 1e-3)
+    assert_allclose(region.probe_radii(0.5, 4, 5), [1.0] * 4)
+    assert_allclose(
+        EuclideanTrustRegion().probe_radii(3.0, 3, 5), [1.5, 2.121, 3], 1e-3
+    )
+    assert_allclose(region.probe_radii(3.0, 1, 5), [3.0])
+
+
+def test_the_diameter_schedule_gives_the_probes_their_radii(monkeypatch) -> None:
+    """Check that the probes of a run are solved at the radii of the schedule.
+
+    Args:
+        monkeypatch: The fixture patching the master.
+    """
+    logging.disable(logging.CRITICAL)
+    radii = []
+    region = EuclideanTrustRegion(schedule="diameter")
+    optimizer = core.OuterApproximationOptimizer
+    build = optimizer._build_milp_problem
+
+    def spy(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        radii.append((args[-1], self.current_step))
+        return build(self, *args, **kwargs)
+
+    # Installed before the region, so that the region calls the spy.
+    monkeypatch.setattr(optimizer, "_build_milp_problem", spy)
+    run(PROBLEMS["rastrigin"], 2, 11, 300, 10, region)
+    logging.disable(logging.NOTSET)
+    for radius, current in radii:
+        expected = region.probe_radii(current, 4, 2)
+        assert min(abs(expected - radius)) == pytest.approx(0.0, abs=1e-9)
+
+    assert {round(radius, 3) for radius, _ in radii} >= {4.5, 12.728}
