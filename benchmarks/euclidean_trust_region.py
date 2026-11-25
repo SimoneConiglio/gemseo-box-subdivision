@@ -83,6 +83,7 @@ import argparse
 import logging
 from contextlib import contextmanager
 from contextlib import suppress
+from copy import deepcopy
 from dataclasses import dataclass
 from math import isfinite
 from math import sqrt
@@ -90,6 +91,7 @@ from statistics import median
 from typing import TYPE_CHECKING
 from typing import Any
 
+from gemseo.algos.optimization_problem import OptimizationProblem
 from gemseo.core.mdo_functions.mdo_function import MDOFunction
 from gemseo.core.mdo_functions.mdo_linear_function import MDOLinearFunction
 from gemseo_bilevel_outer_approximation.algos.opt.core import (
@@ -101,6 +103,7 @@ from numpy import argmin
 from numpy import array
 from numpy import concatenate
 from numpy import geomspace
+from numpy import hstack
 from numpy import ones
 from numpy import zeros
 
@@ -142,6 +145,18 @@ SCHEDULES = ("fixed", "diameter")
   distance between the centres of two opposite corner boxes, so that the region
   covers every box from any incumbent, and the probes are spread over
   ``geomspace(max(R / (2 sqrt(n)), R_min), R)``, $n$ the number of components.
+"""
+
+ANCHORS = ("incumbent", "nearest")
+"""The boxes the distance of a candidate is measured from.
+
+``"incumbent"``
+: the ball is centred on the incumbent box.
+
+``"nearest"``
+: the candidate must lie within the radius of the nearest evaluated box, i.e.
+  in the union of the balls centred on every evaluated box. The union is
+  expressed with one binary variable per evaluated box and big-M constraints.
 """
 
 _SOLVE = "_solve_milp"
@@ -220,6 +235,9 @@ class EuclideanTrustRegion:
     ignored.
     """
 
+    anchor: str = "incumbent"
+    """The box the distance is measured from, one of :data:`.ANCHORS`."""
+
     def __post_init__(self) -> None:
         """Check the settings.
 
@@ -229,6 +247,10 @@ class EuclideanTrustRegion:
         """
         if self.normalization not in NORMALIZATIONS:
             msg = f"The normalization must be one of {NORMALIZATIONS}."
+            raise ValueError(msg)
+
+        if self.anchor not in ANCHORS:
+            msg = f"The anchor must be one of {ANCHORS}."
             raise ValueError(msg)
 
         if self.schedule not in SCHEDULES:
@@ -435,6 +457,120 @@ def _add_ball(
     )
 
 
+def _add_union_of_balls(
+    optimizer: Any,
+    problem: Any,
+    anchors: Sequence[ndarray],
+    radius: float,
+    region: EuclideanTrustRegion,
+) -> Any:
+    r"""Return the problem of the master restricted to a union of balls.
+
+    A candidate is admitted when it lies within ``radius`` of at least one of the
+    anchors. With a binary $z_i$ per anchor and $M_i$ the largest squared
+    distance from anchor $i$, the constraints are
+    $d_i^2(\\alpha) + (M_i - R^2) z_i \\le M_i$ and $\\sum_i z_i \\ge 1$.
+
+    Args:
+        optimizer: The master.
+        problem: The problem the master has built.
+        anchors: The one-hot encodings of the evaluated boxes.
+        radius: The radius, in reference widths.
+        region: The settings of the trust region.
+
+    Returns:
+        A problem with the binaries appended to the design variables, or
+        ``problem`` itself when a ball covers the whole subdivision.
+    """
+    blocks = blocks_of(optimizer)
+    squared = float(radius) ** 2 + _TOLERANCE
+    rows, bounds = [], []
+    seen = set()
+    for anchor in anchors:
+        key = tuple(int(v) for v in anchor[: sum(blocks)])
+        if key in seen:
+            continue
+        seen.add(key)
+        row = squared_distance_coefficients(blocks, anchor, region.normalization)
+        largest, offset = 0.0, 0
+        for size in blocks:
+            largest += float(row[offset : offset + size].max())
+            offset += size
+        if largest <= squared:
+            return problem
+        rows.append(row)
+        bounds.append(largest)
+
+    if not rows:
+        return problem
+
+    design_space = deepcopy(problem.design_space)
+    n_old = design_space.dimension
+    n_z = len(rows)
+    design_space.add_variable(
+        "z",
+        size=n_z,
+        lower_bound=0,
+        upper_bound=1,
+        value=0,
+        type_=design_space.DesignVariableType.INTEGER,
+    )
+    names = list(design_space.variable_names)
+    restricted = OptimizationProblem(design_space, is_linear=True)
+
+    def padded(function: Any, f_type: Any) -> MDOLinearFunction:
+        coefficients = function.coefficients
+        return MDOLinearFunction(
+            hstack([coefficients, zeros((coefficients.shape[0], n_z))]),
+            function.name,
+            f_type,
+            input_names=names,
+            value_at_zero=function.value_at_zero,
+            expr="",
+        )
+
+    objective = problem.objective.original
+    restricted.objective = padded(objective, MDOFunction.FunctionType.OBJ)
+    for constraint in problem.constraints.get_originals():
+        restricted.add_constraint(
+            padded(constraint, MDOFunction.FunctionType.NONE),
+            constraint_type=constraint.f_type,
+        )
+
+    n_alpha = rows[0].size
+    for i, (row, largest) in enumerate(zip(rows, bounds, strict=True)):
+        coefficients = zeros(n_old + n_z)
+        coefficients[:n_alpha] = row
+        coefficients[n_old + i] = largest - squared
+        restricted.add_constraint(
+            MDOLinearFunction(coefficients, f"ball {i}", input_names=names, expr=""),
+            value=largest,
+            constraint_type=MDOFunction.ConstraintType.INEQ,
+        )
+
+    coefficients = zeros(n_old + n_z)
+    coefficients[n_old:] = -1.0
+    restricted.add_constraint(
+        MDOLinearFunction(coefficients, "one ball", input_names=names, expr=""),
+        value=-1.0,
+        constraint_type=MDOFunction.ConstraintType.INEQ,
+    )
+    return restricted
+
+
+def _evaluated(args: Sequence[Any]) -> list[ndarray]:
+    """Return the evaluated boxes among the positional arguments of a build.
+
+    Args:
+        args: The positional arguments of ``_build_milp_problem`` or of
+            ``_build_relaxed_milp_problem``.
+
+    Returns:
+        The feasible and the infeasible evaluated boxes.
+    """
+    return [*list(args[1]), *list(args[11])]
+
+
 @contextmanager
 def euclidean_trust_region(
     region: EuclideanTrustRegion | None = None,
@@ -464,6 +600,10 @@ def euclidean_trust_region(
         incumbent = kwargs.get("retained_alpha", args[-2] if len(args) > 1 else None)
         radius = kwargs.get("current_step", args[-1] if args else None)
         if incumbent is not None and radius is not None:
+            if region.anchor == "nearest":
+                return _add_union_of_balls(
+                    self, problem, _evaluated(args), radius, region
+                )
             _add_ball(self, problem, incumbent, radius, region, 1)
 
         return problem
@@ -474,6 +614,10 @@ def euclidean_trust_region(
         if incumbent is not None:
             # As the built-in constraint, at the radius of the master and not at
             # the radius of the probe that turned out infeasible.
+            if region.anchor == "nearest":
+                return _add_union_of_balls(
+                    self, problem, _evaluated(args), self.current_step, region
+                )
             _add_ball(self, problem, incumbent, self.current_step, region, 2)
 
         return problem
@@ -760,8 +904,9 @@ def main(argv: Sequence[str] | None = None) -> None:
         argv: The command line,
             ``EXPERIMENT [hamming[RADIUS] | RADIUS | diameter ...]``, ``hamming``
             alone for :data:`.TRUST_REGION_RADIUS`, a bare number for the initial
-            radius of the Euclidean region and ``diameter`` for its diameter
-            schedule.
+            radius of the Euclidean region, ``diameter`` for its diameter
+            schedule, and ``nearestRADIUS`` or ``nearest-diameter`` for the same
+            regions measured from the nearest evaluated box.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("experiment", choices=SETTINGS)
@@ -774,9 +919,17 @@ def main(argv: Sequence[str] | None = None) -> None:
     for label in arguments.regions:
         if label.startswith("hamming"):
             region = int(label.removeprefix("hamming") or TRUST_REGION_RADIUS)
-        elif label == "diameter":
+        elif label in {"diameter", "nearest-diameter"}:
             region = EuclideanTrustRegion(
-                schedule="diameter", normalization=arguments.normalization
+                schedule="diameter",
+                normalization=arguments.normalization,
+                anchor="nearest" if label.startswith("nearest") else "incumbent",
+            )
+        elif label.startswith("nearest"):
+            region = EuclideanTrustRegion(
+                initial_radius=float(label.removeprefix("nearest")),
+                normalization=arguments.normalization,
+                anchor="nearest",
             )
         else:
             region = EuclideanTrustRegion(

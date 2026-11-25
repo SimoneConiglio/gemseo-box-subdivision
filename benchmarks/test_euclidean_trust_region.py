@@ -225,3 +225,46 @@ def test_the_diameter_schedule_gives_the_probes_their_radii(monkeypatch) -> None
         assert min(abs(expected - radius)) == pytest.approx(0.0, abs=1e-9)
 
     assert {round(radius, 3) for radius, _ in radii} >= {4.5, 12.728}
+
+
+def test_every_proposal_lies_near_an_evaluated_box(monkeypatch) -> None:
+    """Check that the nearest anchor admits only boxes near an evaluated box.
+
+    The proposals must lie within the radius of at least one evaluated box, and
+    at least one of them must lie outside the ball around the incumbent, which
+    the union of balls admits and the single ball does not.
+
+    Args:
+        monkeypatch: The fixture patching the master.
+    """
+    logging.disable(logging.CRITICAL)
+    proposals = []
+    region = EuclideanTrustRegion(initial_radius=1.5, anchor="nearest")
+    optimizer = core.OuterApproximationOptimizer
+    solve = optimizer._solve_milp
+
+    def spy(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        alpha, eta, feasible = solve(self, *args, **kwargs)
+        step = kwargs.get("current_step", args[14] if len(args) > 14 else None)
+        evaluated = [*args[1], *args[11]]
+        if feasible and step is not None and evaluated:
+            radius = max(step, self.current_step)
+            nearest = min(box_distance([10, 10], box, alpha) for box in evaluated)
+            incumbent = box_distance([10, 10], args[13], alpha)
+            proposals.append((nearest, incumbent, radius))
+        return alpha, eta, feasible
+
+    monkeypatch.setattr(optimizer, "_solve_milp", spy)
+    outcome = run(PROBLEMS["rastrigin"], 2, 11, 300, 10, region)
+
+    logging.disable(logging.NOTSET)
+    assert proposals
+    assert all(nearest <= radius + 1e-6 for nearest, _, radius in proposals)
+    assert any(incumbent > radius + 1e-6 for _, incumbent, radius in proposals)
+    assert isfinite(outcome.best)
+
+
+def test_the_anchor_is_checked() -> None:
+    """Check that an unknown anchor is rejected."""
+    with pytest.raises(ValueError, match="anchor"):
+        EuclideanTrustRegion(anchor="farthest")
