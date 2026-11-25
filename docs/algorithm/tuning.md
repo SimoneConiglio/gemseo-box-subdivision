@@ -548,6 +548,59 @@ the union of a Euclidean ball and a Hamming region of radius one, is a natural
 next step; a union is not a single linear constraint and needs one more binary
 variable in the master, and it was not evaluated.
 
+### Euclidean trust region spanning the design space
+
+A second schedule starts the ball at the diameter of the subdivision and lets
+the probes rather than the radius provide the locality:
+
+- the initial and maximum radius are the distance between the centres of two
+  opposite corner boxes, $\sqrt{\sum_j (m_j - 1)^2 s_j^2}$ in reference widths,
+  $9\sqrt{n}$ with ten subdivisions. This is the smallest radius admitting every
+  box from every incumbent; the diameter $\sqrt{n}$ of $[0, 1]^n$, $10\sqrt{n}$
+  widths, admits no further box;
+- with current radius $R$, the probes are spread over
+  `geomspace(max(R / (2 sqrt(n)), 1), R)`, every probe radius, and $R$ after a
+  shrink, being floored at one width. With equal densities the lowest probe at
+  the diameter is $(m - 1)/2$, $4.5$ widths whatever $n$;
+- the shrink by $0.7$ and the growth by $1.2$ are kept.
+
+The master identifies a probe by the position of its radius in its own spread;
+it is therefore given a negligible floor, so that this spread never collapses,
+and each probe is solved at the radius of the same position in the spread above,
+where the floor of one width applies (`schedule="diameter"` in
+`benchmarks/euclidean_trust_region.py`). Probes at the floor still propose
+distinct boxes, since the boxes proposed earlier in the iteration are eliminated.
+
+The radius no longer terminates a run. Over the $24$ runs of Table C.14, the
+diameter schedule ends $10$ runs on the bound test of the master, the cut model
+over the ball exceeding the best value, $10$ on the budget and $4$ when no probe
+proposes a new box; none ends on the stall counter or on an infeasible master.
+With the default radius of two, the Hamming region ends $23$ runs of $24$ on the
+bound test. The shrink does conflict with the schedule: it applies after three
+stalled iterations and the run stops after ten, so that the radius decreases at
+most three times between two improvements, to $0.34$ of the diameter, and in
+practice stays close to it; the locality is that of the lowest probe.
+
+| trust region | Rastrigin | Ackley | Griewank |
+|--------------|-----------|--------|----------|
+| `hamming`, radius 2 | $0.000$ · 543 · 8/8 | $0.000$ · 560 · 6/8 | $0.007$ · 618 · 0/8 |
+| Euclidean, radius 1.5 | $0.000$ · 326 · 8/8 | $0.000$ · 356 · 8/8 | $0.007$ · 500 · 0/8 |
+| Euclidean, radius 2 | $0.000$ · 444 · 8/8 | $0.000$ · 345 · 8/8 | $0.007$ · 530 · 0/8 |
+| Euclidean, diameter | $0.000$ · 920 · 8/8 | $0.000$ · 580 · 7/8 | $0.007$ · 1000 · 0/8 |
+
+*Table C.14. Diameter schedule against the rows of Table C.11, $n = 2$.*
+
+| trust region | Rastrigin | Ackley | Styblinski-Tang | Griewank |
+|--------------|-----------|--------|-----------------|----------|
+| `hamming`, radius 2 | $0.000$ · 2103 · 3/3 | $6.302$ · 2500 · 0/3 | $14.137$ · 598 · 1/3 | $0.027$ · 2500 · 0/3 |
+| Euclidean, radius 1.5 | $0.000$ · 1468 · 3/3 | $0.000$ · 2500 · 3/3 | $28.273$ · 609 · 0/3 | $0.022$ · 2388 · 0/3 |
+| Euclidean, diameter | $0.995$ · 2500 · 1/3 | $15.974$ · 2500 · 0/3 | $0.000$ · 868 · 2/3 | $0.175$ · 2500 · 0/3 |
+
+*Table C.15. Diameter schedule against the rows of Table C.12, $n = 5$,
+convexity margin $100$.*
+
+TABLE_C16_PLACEHOLDER
+
 ## Settings in five variables
 
 The mechanisms were tuned in two dimensions, and the results do not transfer
