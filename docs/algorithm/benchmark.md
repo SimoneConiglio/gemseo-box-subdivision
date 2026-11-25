@@ -643,6 +643,39 @@ the length, thickness and density being those of the initial design, as in the
 sub-problems. Each run uses the settings above and at most $1800$ iterations,
 and the runs are distributed over four processes.
 
+The classic tunneling method of [annex B](baselines.md#tunneling) (Levy and
+Montalvo, 1985), with the volume constraint kept in the tunneling phase as in
+Levy and Gómez (1985), alternates
+MMA minimizations of $\log(C + 1)$ under the volume constraint, the first from
+the initial design of `GGP_main.m`, and MMA minimizations under the same
+constraint of the tunneling function
+$T(x) = (f(x) - f^*) / \left(\|x - x^*\|^{2\lambda^*}
+\prod_j \|x - x_j\|^{2\lambda_0}\right)$ in the normalized variables, where
+$x^*$ is the best feasible design of the last minimization, $f^*$ its value
+and the $x_j$ the earlier minimizers and the mobile poles of the search. A
+search starts at a distance $\varepsilon = 0.1$ of $x^*$ in a random direction
+and stops at the first feasible design with $T \le 0$, from which the next
+minimization starts; when its MMA run stalls above the level, a mobile pole of
+strength $\lambda_0 = 1$ is placed there and the search starts again next to
+it, twice at most, after which a new direction is drawn. $\lambda^*$ starts at
+$1$ and is raised by $0.1$ until $T$ decreases away from $x^*$ at the starting
+point, and whenever a search ends within $\varepsilon$ of $x^*$. Every MMA run
+uses the settings above and at most $1800$ iterations; in the tunneling phase,
+whose objective varies by orders of magnitude along a search, the KKT test of
+MMA is replaced by a step shorter than $10^{-4}$, and $T$ is divided by its
+magnitude at the start of each run. Four searches from the same minimizer run
+in parallel, each failed one being replaced at once by a new direction, and the
+first to reach the level stops the others; the minimizations run on one
+process. The run stops at $56\,000$ designs, the budget of the box subdivision,
+counted over all processes, the method having no other stopping rule here. The
+initial strength, its increments and the strength of the mobile poles are
+recalled from the literature, not verified against the original articles; the
+perturbation, the number of mobile poles, the stalling step and the scaling of
+$T$ are chosen here. The stalling test replaced the KKT test after trial
+searches from the first minimizer, in which the KKT test ended the runs while
+the compliance was still decreasing; no value was tuned on the result of the
+run. The driver is `benchmarks/cantilever/classic_tunneling.py`.
+
 ### Results
 
 | method | $C$ | $\log(C + 1)$ | designs to the best | designs evaluated |
@@ -650,11 +683,14 @@ and the runs are distributed over four processes.
 | MMA from the initial design of `GGP_main.m` | $84.0$ | $4.443$ | 680 | 680 |
 | multistart of MMA, 63 initial designs | $83.0$ | $4.431$ | 9967¹ | 59322 |
 | box subdivision, 9 probes, 63 boxes | $82.1$ | $4.420$ | 31070 | 55995 |
+| classic tunneling, 4 searches in parallel² | $82.8$ | $4.429$ | 44072 | 56000 |
 
 *Table 9. Short cantilever: best feasible compliance, number of designs
 evaluated until the best one was found, and total number of designs evaluated.
 ¹ Designs of the runs from initial designs 0 to 8, the best being found by
-run 8; the runs are executed in parallel.*
+run 8; the runs are executed in parallel. ² Added after the other rows, on a
+NumPy port of `GGP_main.m` rather than on the GGP preset, see below; designs
+of all processes, in the order they were analysed.*
 
 ```{image} ../_static/figures/cantilever.gif
 :class: only-light
@@ -685,6 +721,51 @@ corresponding layout is not symmetric: the lower diagonal bars meet the bottom
 chord at a single node instead of crossing. The ten best of the 63 boxes have a
 compliance between $82.1$ and $82.4$ and the median box $83.8$, so that the best
 value is not attained by an isolated box.
+
+Classic tunneling, run afterwards with the budget of the box subdivision,
+reaches $C = 82.8$ after $44\,072$ of its $56\,000$ designs, between the
+multistart ($83.0$) and the box subdivision ($82.1$). Its first minimization
+reproduces the MMA run from the initial design of `GGP_main.m`, $C = 84.04$
+after $671$ designs, against $680$ in the first row. It then finds nine minima,
+of compliance $84.0$, $83.8$, $83.7$, $83.6$, $83.2$, $83.1$, $83.1$, $82.9$
+and $82.8$, through eight successful tunnelings out of $51$ searches, $15$ of
+which failed after their three MMA solutions, $24$ being stopped by a search
+that reached the level and $4$ by the budget. Every successful search ends at a
+design whose compliance is below the level by less than $0.01$, at a distance
+between $1.2$ and $4.3$ of the minimizer in the normalized variables, from
+which the next minimization descends: the tunneling phase crosses the region of
+designs of nearly equal compliance rather than jumping to a lower basin, and
+the descent is made by the minimizations. The $108$ variables admit equivalent
+designs, the bars being interchangeable and an angle being defined up to $\pi$
+on a range of $4\pi$, which the poles at the minimizers do not exclude. The
+fourth tunneling took $20\,700$ designs, nearly half of the budget.
+
+The run was made on a NumPy port of `GGP_main.m` with the settings of the
+preset `short_cantilever_mna` and GEMSEO's MMA, the GGP environment with legacy
+FEniCS being unavailable; this port reproduces the first row, as said above,
+but is not the code of the other rows. Its wall time was $3.6$ hours, excluding
+a restart of the machine after which the run resumed from its logs (the four
+searches in progress were lost, their designs counted), and its
+processes used about $4.7$ hours of CPU; the machine was shared with other
+jobs, a
+load average of $20$ on four cores at the median of its samples, so that
+the wall time is not comparable with those above. The minimizations, on one
+process, took $5980$ of the designs.
+
+```{image} ../_static/figures/cantilever-tunneling.svg
+:class: only-light
+:alt: Best layout found by classic tunneling on the cantilever, and its best compliance against the designs analysed
+```
+
+```{image} ../_static/figures/cantilever-tunneling-dark.svg
+:class: only-dark
+:alt: Best layout found by classic tunneling on the cantilever, and its best compliance against the designs analysed
+```
+
+*Figure 7. Classic tunneling on the short cantilever. Left: the best design
+found. Right: the best feasible compliance against the designs analysed by all
+processes, with the final values of Table 9 at the designs where they were
+reached. The data is in `docs/_static/cantilever_tunneling.json`.*
 
 The result depends on the MMA settings. With a move limit of $0.1$ and
 asymptotes allowed to widen, the direct port of the MATLAB code converged to

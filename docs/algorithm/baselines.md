@@ -223,6 +223,13 @@ are unchanged except on Griewank in five variables, $0.160$ instead of
 $0.123$, while the median costs of the two-dimensional runs of Table 6 fall to
 between $477$ and $603$ evaluations of their $1000$.
 
+**On the cantilever.** The constrained short cantilever of the
+[application](benchmark.md#application-to-the-ggp-short-cantilever) is solved
+by the same method with MMA in both phases, the volume constraint kept in the
+tunneling phase as in Levy and Gómez (1985), poles at every minimizer found,
+and four searches in parallel; its settings, and where they depart from these,
+are given there.
+
 **Variant of Zhang and Norato.** Zhang and Norato (2018) combine a
 gradient-based tunneling method with the geometry projection method in topology
 optimization, and a later article reports that they adapted the method of moving

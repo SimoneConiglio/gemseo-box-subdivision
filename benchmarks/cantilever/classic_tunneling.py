@@ -795,7 +795,9 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=Path("benchmarks/box_subdivision"))
     args = parser.parse_args()
     summary = run(args)
-    (args.out / "tunneling_summary.json").write_text(json.dumps(summary))
+    (args.out / "tunneling_summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n"
+    )
     print(
         f"best C = {summary['compliance']:.2f} (log {summary['log_compliance']:.4f}),"
         f" {summary['designs_to_best']} designs to the best of {summary['designs']},"

@@ -59,7 +59,9 @@ On the short cantilever of the GGP package, a constrained problem with $108$
 variables and adjoint gradients, in the setting of the MATLAB implementation of
 the GGP paper, MMA from the reference initial design reaches $C = 84.0$, a
 multistart of MMA from $63$ initial designs $83.0$, and the box subdivision with
-nine probes and $63$ boxes $82.1$, for a comparable number of designs.
+nine probes and $63$ boxes $82.1$, for a comparable number of designs;
+classic tunneling, added afterwards on a port of the MATLAB code, reaches
+$82.8$ with the same budget.
 
 ## Findings and limitations
 
