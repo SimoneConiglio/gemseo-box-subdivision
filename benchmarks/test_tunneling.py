@@ -174,3 +174,33 @@ def test_without_a_limit_the_budget_stops_the_run() -> None:
     result = run("tunneling", SPHERE, 2, 11, 200)
     assert result.cost_adjoint == 200
     assert result.truncated
+
+
+def test_gradient_of_the_cantilever_tunneling_function() -> None:
+    """Check the tunneling function of the cantilever driver, through ln D."""
+    from benchmarks.cantilever.classic_tunneling import tunneling_function as cantilever
+
+    level = rastrigin(array([0.98, -0.02]))
+    poles = [
+        (array([0.98, -0.02]), 1.7),
+        (array([1.6, 0.4]), 1.0),
+        (array([0.2, -0.7]), 1.0),
+    ]
+    x = array([1.31, -0.47])
+
+    def value(point):
+        return cantilever(
+            point, rastrigin(point), rastrigin_gradient(point), level, poles
+        )
+
+    expected = tunneling_function(
+        rastrigin(x), rastrigin_gradient(x), x, poles[0][0], level, 1.7, poles[1:]
+    )
+    assert value(x)[0] == pytest.approx(expected[0])
+    gradient = value(x)[1]
+    step = 1e-6
+    for i, direction in enumerate(eye(2)):
+        difference = (
+            value(x + step * direction)[0] - value(x - step * direction)[0]
+        ) / (2 * step)
+        assert gradient[i] == pytest.approx(difference, rel=1e-5, abs=1e-6)
