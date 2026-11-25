@@ -540,11 +540,6 @@ For instance, minima one unit apart over a range of ten require about ten
 intervals. When the lower bound exceeds the upper bound, the method cannot be
 applied.
 
-\paragraph{Excessive refinement.} A subdivision finer than the basins also
-degrades the results. A box that contains no local minimum returns a solution on
-its boundary, whose value and sensitivity provide no information on the location
-of the minimum, so that the ranking of the boxes is deteriorated.
-
 \paragraph{Estimation of the density.} Since the density has to follow the
 spacing of the basins, the expected number of minima along an axial line,
 \begin{equation}\label{eq:basins}
@@ -885,10 +880,8 @@ than ten subdivisions, the distance to the optimum increases while the cost
 decreases, which indicates that the runs terminate prematurely, since eighty
 binary variables cannot be identified with about fifty cuts. Conversely, the
 optimum of the Styblinski--Tang function, which has two basins per variable, is
-reached with two and four subdivisions, but in most cases not with ten, since each
-basin is then divided into five boxes whose values and slopes provide little
-information. The three effects
-described in Section~\ref{sec:density} are therefore observed, and no single
+reached with two and four subdivisions, but in most cases not with ten. Both
+bounds of Section~\ref{sec:density} are therefore observed, and no single
 density is suitable for the four problems, ten subdivisions being the best value
 for three of them and the worst for the fourth. For the Ackley and Griewank
 functions, the runs with ten or more subdivisions were stopped by the budget, so
