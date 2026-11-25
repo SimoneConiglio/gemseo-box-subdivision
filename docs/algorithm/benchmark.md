@@ -575,17 +575,19 @@ Table 3, and no method reaches its optimum at this budget.
 Tunneling, added to both tables after the other methods, reaches the optimum
 of Styblinski-Tang and Ackley in two variables from all or all but one starting
 point, but not that of Rastrigin, where it stays at a local minimum, $1.00$
-from the optimum in Table 6 and $1.99$ in Table 8. In five variables it reaches
-an optimum only from a minority of the starting points, on Ackley and
-Styblinski-Tang. Its area under the data profile is $0.79$ in two variables,
-above the multistart and CMA-ES ($0.73$) and below DIRECT ($0.90$) and the
-best variant of the box subdivision ($0.92$), and $0.68$ in five, equal to
-CMA-ES, above the box subdivision ($0.64$) and the multistart ($0.51$) and
-below DIRECT ($0.76$). Its targets are reached early and hardly any after half
-the budget, $76\%$ then and $77\%$ at its end, against $84\%$ at the end for
-the box subdivision. Having no stopping rule in this setting, its runs spend
-the whole budget. Its settings are values from the literature where available
-and fixed choices elsewhere, none of them tuned on these problems. A
+from the optimum in Table 6 and $1.99$ in Table 8. In five variables it
+reaches the optimum from two and three of the five starting points on Ackley
+and Styblinski-Tang in Table 6, and from one of the three on Styblinski-Tang in
+Table 8. Its area under the data profile is $0.79$ in two variables, above the
+multistart and CMA-ES ($0.73$) and below DIRECT ($0.90$) and the best variant
+of the box subdivision ($0.92$), and $0.68$ in five, equal to CMA-ES, above the
+box subdivision ($0.64$) and the multistart ($0.51$) and below DIRECT ($0.76$).
+Its targets are reached early and hardly any after half the budget, $76\%$
+then and $77\%$ at its end, against $84\%$ at the end for the box subdivision.
+Having no stopping rule in this setting, its runs spend the whole budget. Its
+settings are fixed choices, some recalled from the literature without the
+original articles at hand (see [annex B](baselines.md#tunneling)), none of them
+tuned on these problems. A
 run of $500$ evaluations takes about $0.2$ seconds and one of $2500$ about one
 second. Both protocols are rerun by `python -m benchmarks.run_tunneling`.
 

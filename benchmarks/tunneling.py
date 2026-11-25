@@ -39,7 +39,9 @@ attempt from the current minimizer has failed, which is the method's own
 stopping rule.
 
 Every setting is fixed across problems; see :data:`.SETTINGS` for each value
-and where it comes from.
+and where it comes from. The values attributed to Levy and Montalvo (1985) were
+recalled from descriptions of the method, the article not being accessible
+where this module was written: they are to be checked against its text.
 """
 
 from __future__ import annotations
@@ -75,17 +77,18 @@ class TunnelingSettings:
     r"""The initial strength :math:`\lambda^*` of the pole at the minimizer.
 
     One is the smallest strength removing the zero of :math:`f - f^*` at a
-    non-degenerate minimizer, where it vanishes quadratically, which is the
-    reason given by Levy and Montalvo (1985) for a pole of that order.
+    non-degenerate minimizer, where it vanishes quadratically. Recalled as the
+    starting value of Levy and Montalvo (1985), not checked against the text.
     """
 
     strength_increment: float = 0.1
     r"""The increment of :math:`\lambda^*` until the tunneling function descends
     away from the minimizer at the starting point of a tunneling search.
 
-    The adaptive increase of the strength in steps of a tenth follows Levy and
-    Montalvo (1985); it costs no evaluation, since the objective and its
-    gradient at the starting point do not depend on the strength.
+    The adaptive increase of the strength in steps of a tenth is recalled from
+    Levy and Montalvo (1985), not checked against the text; it costs no
+    evaluation, since the objective and its gradient at the starting point do
+    not depend on the strength.
     """
 
     max_strength: float = 10.0
@@ -93,7 +96,8 @@ class TunnelingSettings:
 
     mobile_strength: float = 1.0
     r"""The strength :math:`\lambda_m` of a mobile pole, of order one like the
-    pole at the minimizer (Levy and Montalvo, 1985)."""
+    pole at the minimizer; recalled from Levy and Montalvo (1985), not checked
+    against the text."""
 
     perturbation: float = 0.01
     """The distance of a tunneling starting point from the minimizer (or from a
@@ -393,8 +397,12 @@ def _tunneling_search(
         )[0]
 
     def jacobian(x: ndarray) -> ndarray:
+        # The level is tested here too, should a gradient be asked first.
+        value = cached.value(x)
+        if value < f_star:
+            raise LowerPointFoundError(x.copy())
         return tunneling_function(
-            cached.value(x), cached.gradient(x), x, x_star, f_star, strength, poles
+            value, cached.gradient(x), x, x_star, f_star, strength, poles
         )[1]
 
     for _ in range(max_poles + 1):

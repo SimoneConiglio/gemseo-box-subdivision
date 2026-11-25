@@ -201,18 +201,20 @@ settings are the same on every problem and were not tuned:
 | setting | value | source |
 |---------|-------|--------|
 | form of $T$, pole at $x^*$, mobile poles | as above | Levy and Montalvo (1985) |
-| initial strength $\lambda^*$ | $1$, the order of the zero of $f - f^*$ at a non-degenerate minimizer | Levy and Montalvo (1985) |
-| increase of $\lambda^*$ | by $0.1$ until $\nabla T \cdot (x_0 - x^*) < 0$ at the starting point $x_0$, at most $10$ | Levy and Montalvo (1985); the cap is chosen here |
-| strength $\lambda_m$ of a mobile pole | $1$ | Levy and Montalvo (1985) |
+| initial strength $\lambda^*$ | $1$, the order of the zero of $f - f^*$ at a non-degenerate minimizer | recalled from Levy and Montalvo (1985), not verified |
+| increase of $\lambda^*$ | by $0.1$ until $\nabla T \cdot (x_0 - x^*) < 0$ at the starting point $x_0$, at most $10$ | recalled from Levy and Montalvo (1985), not verified; the cap is chosen here |
+| strength $\lambda_m$ of a mobile pole | $1$ | recalled from Levy and Montalvo (1985), not verified |
 | perturbation of $x^*$ or $x_m$ | $1\%$ of the range of each variable, in a random direction, reflected into the bounds | chosen here |
 | mobile poles per tunneling search | $n$, after which a new direction is drawn | chosen here |
 | tunneling searches per minimizer | no limit, the run stopping at the budget | chosen here, see below |
 | acceptance of a tunneling point | $f(x) < f^*$, as soon as it is evaluated | $T \le 0$ of Levy and Montalvo, made strict |
 
-The literature values were taken from the descriptions of the method in these
-references as recalled when it was implemented; the original articles could not
-be consulted from the environment in which the baseline was written, so that
-the rows attributed to them should be checked against the text. The method's
+The rows marked *recalled* were taken from the descriptions of the method as
+remembered when it was implemented: neither the original articles nor a
+secondary source giving these values could be consulted from the environments
+in which the baseline was written and reviewed, so that they are to be checked
+against the text. Only the form of $T$, its poles and the alternation of the
+two phases are certain. The method's
 own stopping rule ends a run when every tunneling search from a minimizer has
 failed, after a fixed number of searches. The benchmark sets no such number, so
 that the run stops at its budget like the other methods. With two searches per
