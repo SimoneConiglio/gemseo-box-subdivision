@@ -1,3 +1,4 @@
+# ruff: noqa: INP001
 """Draw the data profiles of the best variant and of the baselines (Figure 5).
 
 Reads ``docs/_static/data_profiles.json``, written by
