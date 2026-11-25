@@ -599,7 +599,38 @@ practice stays close to it; the locality is that of the lowest probe.
 *Table C.15. Diameter schedule against the rows of Table C.12, $n = 5$,
 convexity margin $100$.*
 
-TABLE_C16_PLACEHOLDER
+| trust region | Rastrigin | Ackley | Styblinski-Tang | Griewank |
+|--------------|-----------|--------|-----------------|----------|
+| `hamming`, radius 2 | $0.995$ · 1650 · 2/5 | $0.000$ · 2500 · 3/5 | $0.000$ · 789 · 4/5 | $0.027$ · 2118 · 0/5 |
+| Euclidean, radius 2 | $0.000$ · 1450 · 4/5 | $0.000$ · 1912 · 5/5 | $28.273$ · 665 · 0/5 | $0.025$ · 2033 · 0/5 |
+| Euclidean, diameter | $0.000$ · 2500 · 4/5 | $0.000$ · 2500 · 3/5 | $0.000$ · 1462 · 4/5 | $0.044$ · 2500 · 0/5 |
+
+*Table C.16. Diameter schedule against the rows of Table C.13, swept convexity,
+$n = 5$, five starting points. As in Table C.13, a Styblinski-Tang run ending
+$2.16 \cdot 10^{-4}$ from the optimum is not counted as reaching it.*
+
+| problem | density | `hamming`, radius 2 | Euclidean, diameter |
+|---------|---------|---------------------|---------------------|
+| Styblinski-Tang | $2^{\times 5}$ | $0.000$ · 601 · 3/3 | $0.000$ · 603 · 3/3 |
+| `partly_multimodal` | 10, 10, 1, 1, 1 | $0.000$ · 729 · 3/3 | $0.000$ · 730 · 3/3 |
+| Ackley | $10^{\times 5}$ | $0.000$ · 2622 · 2/3 | $0.000$ · 4023 · 2/3 |
+| Griewank | 19, 13, 11, 7, 9 | $0.007$ · 3083 · 2/3 | $0.007$ · 5170 · 3/3 |
+| Rastrigin | $10^{\times 5}$ | $0.995$ · 1547 · 0/3 | $0.000$ · 3086 · 3/3 |
+
+*Table C.17. Diameter schedule with swept convexity at the estimated densities of
+Table D.12, three starting points, a distance below $10^{-2}$ counting as
+reaching the optimum.*
+
+With swept convexity, the diameter schedule reaches the optimum at least as
+often as the Hamming region on every problem of Tables C.16 and C.17, and more
+often on Rastrigin, from four starting points of five against two and from three
+of three against none, and on Griewank at the estimated density. It does so at a
+higher cost, the runs going to the budget in Table C.16 and costing up to twice
+as much in Table C.17, and with the calibrated margin of Table C.15 it is worse
+than the Hamming region on Rastrigin and Ackley. The Hamming region of radius
+two therefore remains the default; the diameter schedule is the Euclidean
+variant worth considering together with the swept convexity, when the budget
+allows runs to the end.
 
 ### Euclidean trust region around the evaluated boxes
 
