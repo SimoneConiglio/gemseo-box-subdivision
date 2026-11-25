@@ -363,8 +363,7 @@ This expression is valid both at an interior optimum, where the gradient
 vanishes, and on a face of the box, where $\xi_j$ is fixed at one of its bounds.
 In this formulation, the box selection enters the objective function through a
 bilinear mapping, and feasibility with respect to the box is satisfied by
-construction. No adverse effect of this nonlinearity was observed in the
-experiments.
+construction.
 
 \subsection{Safeguards against non-convexity}\label{sec:convexification}
 
@@ -372,9 +371,8 @@ The cuts~\eqref{eq:cuts} are supporting hyperplanes only if $v$ is convex with
 respect to the relaxed variables $\alpha$. This condition is not satisfied for a
 multimodal problem. A cut built at one box may then lie above $v$ at another box
 and exclude the global optimum, in which case the master problem converges
-rapidly to a wrong box without any error being reported. In the experiments, no
-starting point reached the global optimum when both safeguards described below
-were disabled, although all runs terminated successfully.
+rapidly to a wrong box without any error being reported. Two safeguards are
+therefore considered.
 
 \paragraph{Convexification constant.} In the first approach, a term which is
 convex with respect to the relaxed one-hot variables and vanishes at every
@@ -439,30 +437,23 @@ and the same correction is applied to the cuts of the inequality constraints.
 The corrected slopes $\tilde s^{(i)}$ are then used in place of $s^{(i)}$ in the
 cuts~\eqref{eq:cuts}.
 
-The combination of the two approaches has not been extensively tested, although
-it is possible in principle, and they are used separately in this work. With a
-large value of $\kappa$, the cuts are valid by construction, but the lower bound
-of the master problem is decreased by approximately $\kappa$. The optimality
-gap therefore never closes, and the runs terminate
-either when the trust region has been reduced until the master problem becomes
-infeasible, or when the number of iterations without improvement reaches its
-limit, but never on the optimality test. Moreover, when $\kappa$ exceeds the
-value required to compensate the non-convexity, every box not yet solved is
-ranked before the incumbent, and the method tends towards an enumeration of the
-boxes. The constant therefore has a useful range bounded on both sides, and this
-range becomes narrower as the dimension increases (Appendix~\ref{app:tuning}).
+The two approaches can be combined in principle; they are used separately in
+this work. With a large value of $\kappa$, the cuts are valid by construction,
+but the lower bound of the master problem is decreased by approximately
+$\kappa$, so that the optimality gap cannot close. Moreover, when $\kappa$
+exceeds the value required to compensate the non-convexity, every box not yet
+solved is ranked before the incumbent, and the method tends towards an
+enumeration of the boxes. The constant therefore has a useful range bounded on
+both sides.
 
-With the adaptive repair, the lower bound remains informative, and this approach
-was found to be more reliable in the experiments. Convexity is, however,
-enforced only with respect to the boxes already solved, and no convergence
-guarantee is obtained. For values of $\delta$ below a threshold, the cuts remain
-invalid. Conversely, when $\delta$ exceeds the range of the objective function,
-the right-hand side of the least-squares problem is dominated by the margin
-rather than by the observed values, all slopes are shifted in the same
-direction, and the ranking of the boxes no longer reflects the landscape. With
-$\delta = 100$, the optimum was never reached in five dimensions for the two
-problems whose range is smaller than the margin, namely Ackley ($14.5$) and
-Griewank ($4.9$).
+With the adaptive repair, the lower bound is not degraded by a uniform shift.
+Convexity is, however, enforced only with respect to the boxes already solved,
+and no convergence guarantee is obtained. For values of $\delta$ below a
+threshold, the cuts remain invalid. Conversely, when $\delta$ exceeds the range
+of the objective function, the right-hand side of the least-squares problem is
+dominated by the margin rather than by the observed values, all slopes are
+shifted in the same direction, and the ranking of the boxes no longer reflects
+the landscape.
 
 \begin{figure}[t]
   \centering
@@ -477,10 +468,8 @@ Griewank ($4.9$).
 
 \paragraph{Swept convexity.} Both $\kappa$ and $\delta$ are expressed in the
 units of the objective function, and have to be specified before any information
-on this function is available. For instance, a margin of $100$ leads to the
-optimum from all starting points on the Rastrigin function, whose range is about
-$80$, but is among the worst values tested on the Ackley function, whose range is
-about $22$. To avoid this calibration, the parallel probes of the master problem,
+on this function is available, whereas a suitable value depends on the range of
+the function. To avoid this calibration, the parallel probes of the master problem,
 which are already used to sweep the trust-region radius, are also used to sweep
 the convexity value. A sequence of values $\kappa_1 < \dots < \kappa_p$, referred
 to as a ladder and distributed geometrically below an upper bound, is defined,
@@ -494,12 +483,10 @@ any evaluation of the objective function. The run is terminated when the ladder
 is exhausted for all probes.
 
 The upper bound of the ladder is set to ten times the spread of the objective
-values over the boxes already solved, including the infeasible ones. Without this
-factor, the spread is underestimated when the first boxes are few and similar, as
-on the broad basin of the Ackley function, and the exploration required to
-correct this estimate does not take place. The factor is dimensionless and can
-therefore be applied to other problems, contrary to an absolute margin, but its
-value was selected on two problems only. It should be noted that the sweep does
+values over the boxes already solved, including the infeasible ones. The factor
+compensates for the underestimation of the spread when the first boxes are few
+and similar. It is dimensionless and can therefore be applied to other problems,
+contrary to an absolute margin. It should be noted that the sweep does
 not restore the optimality test, since the master problem retains the smallest
 lower bound among the probes, which is degraded by the largest convexity values.
 
@@ -516,23 +503,13 @@ i.e. the number of modified components, and constraint~\eqref{eq:trust} becomes 
 \citep{fischetti2003}. A radius of one admits the boxes which differ from the
 incumbent in a single component, and a radius of $\Delta$ admits
 $\sum_{k=0}^{\Delta}\binom{n}{k}(m-1)^k$ boxes for $n$ components subdivided into
-$m$ intervals each (Fig.~\ref{fig:trust}). An ordinal variant,
+$m$ intervals each (Fig.~\ref{fig:trust}). The Hamming distance treats the box
+selection as a categorical choice; an ordinal variant,
 $|v^\top\alpha - v^\top\bar\alpha| \le \Delta$, where $v$ denotes the interval
-indices, was also tested; it was found to be as reliable as the Hamming distance
-and about 50\% more expensive. For the landscapes considered, neighbouring boxes
-are not more similar than distant ones, so that the box selection is better
-treated as a categorical choice than as an ordinal one.
+indices, is compared with it in Section~\ref{sec:mechanisms}.
 
-A small radius was found to be necessary. For the Rastrigin function in five
-dimensions with ten subdivisions per variable, the optimum is reached from all
-six starting points with a radius of two components, from two starting points
-with a radius equal to the diameter $n$ of the design space, and from one
-starting point without trust region. For the Ackley function, the distance to
-the optimum increases monotonically with the radius. The radius of two is a
-suitable compromise for the problems studied rather than a general rule, since
-for the Styblinski--Tang function with the same density it gives the worst
-result among the four radii tested (Appendix~\ref{app:tuning},
-Table~\ref{tab:radius}). The radius is multiplied by $0.7$ after a given number
+The initial radius is set to $\Delta = 2$ (Section~\ref{sec:mechanisms}). The
+radius is multiplied by $0.7$ after a given number
 of iterations without improvement, down to a minimum value of one. Once this
 value is reached, the radii of the probes, which lie in $[\Delta/2, \Delta]$,
 coincide, all probes solve the same master problem, and the exploration stops.
@@ -549,17 +526,14 @@ coincide, all probes solve the same master problem, and the exploration stops.
 
 \subsection{Density of the subdivision}\label{sec:density}
 
-The subdivision density $m_j$ has the largest influence on the results, and its
-admissible values are bounded from above and from below.
+The admissible values of the subdivision density $m_j$ are bounded from above
+and from below.
 
 \paragraph{Upper bound.} With a budget of a few thousand evaluations, a few dozen
 sub-problems can be solved, which provides a few dozen cuts to identify a cut
 model with $\sum_j m_j$ coefficients. The admissible density is therefore
 limited by the ratio between the number of binary variables and the number of
-affordable cuts, and not by the number of boxes. In five dimensions, with about
-fifty sub-problems, ten subdivisions per variable ($50$ binary variables, $10^5$
-boxes) gave the best results, and sixteen subdivisions ($80$ binary variables)
-markedly worse results (Section~\ref{sec:density-results}).
+affordable cuts, and not by the number of boxes.
 
 \paragraph{Lower bound.} The subdivision must separate the basins of attraction.
 For instance, minima one unit apart over a range of ten require about ten
@@ -779,6 +753,44 @@ from seven of the eight starting points.
   \label{fig:solve}
 \end{figure}
 
+\subsection{Safeguards and trust region}\label{sec:mechanisms}
+
+When both safeguards of Section~\ref{sec:convexification} are disabled, no
+starting point reaches the global optimum, although all runs terminate without
+any error being reported. No adverse effect of the bilinear mapping of the
+normalized sub-problem was observed.
+
+With the convexification constant, the runs terminate either when the trust
+region has been reduced until the master problem becomes infeasible, or when the
+number of iterations without improvement reaches its limit, but never on the
+optimality test. The useful range of $\kappa$ becomes narrower as the dimension
+increases, and reduces to a single value among those tested in five dimensions
+(Appendix~\ref{app:tuning}, Table~\ref{tab:constant}). The adaptive repair was
+found to be more reliable and is used by default. Its margin has to match the
+range of the objective function: a margin of $100$ leads to the optimum from all
+starting points on the Rastrigin function, whose range is about $80$, but is
+among the worst values tested on the Ackley function, whose range is about $22$,
+and with this margin the optimum is never reached in five dimensions for the two
+problems whose range is smaller than the margin, namely Ackley ($14.5$) and
+Griewank ($4.9$). This dependence motivates the swept convexity. For its upper
+bound, the factor of ten was needed on the broad basin of the Ackley function,
+on which the first boxes are similar and the spread is underestimated; it was
+selected on two problems only.
+
+The ordinal trust region was found to be as reliable as the Hamming distance and
+about 50\% more expensive (Appendix~\ref{app:tuning}, Table~\ref{tab:metric}).
+For the landscapes considered, neighbouring boxes are not more similar than
+distant ones, so that the box selection is better treated as a categorical choice
+than as an ordinal one. A small radius was found to be necessary. For the
+Rastrigin function in five dimensions with ten subdivisions per variable, the
+optimum is reached from all six starting points with a radius of two components,
+from two starting points with a radius equal to the diameter $n$ of the design
+space, and from one starting point without trust region. For the Ackley
+function, the distance to the optimum increases monotonically with the radius.
+The radius of two is a suitable compromise for the problems studied rather than a
+general rule, since for the Styblinski--Tang function with the same density it
+gives the worst result among the four radii tested (Table~\ref{tab:radius}).
+
 \subsection{Variants of the method}\label{sec:variants}
 
 Each variant differs from the swept configuration by one setting. The swept
@@ -867,7 +879,10 @@ points out of five.
 
 The influence of the number $m$ of subdivisions per variable in five dimensions
 is shown in Table~\ref{tab:density}, for the adaptive repair, a budget of $2500$
-evaluations and three starting points.
+evaluations and three starting points. With about fifty sub-problems, ten
+subdivisions per variable ($50$ binary variables, $10^5$ boxes) give the best
+results, and sixteen subdivisions ($80$ binary variables) markedly worse results,
+in agreement with the upper bound of Section~\ref{sec:density}.
 
 \begin{table}[t]
   \centering
