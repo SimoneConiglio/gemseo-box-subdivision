@@ -318,6 +318,7 @@ def run_swept_box_subdivision(
     n_parallel_points: int = 0,
     max_value: float = 0.0,
     levels: int = 1,
+    trust_region: Mapping[str, Any] = MappingProxyType({}),
 ) -> Result:
     """Run the method with the convexity swept rather than calibrated.
 
@@ -346,6 +347,9 @@ def run_swept_box_subdivision(
             objective as the run observes it.
         levels: The levels of the multi-resolution encoding, one being the flat
             subdivision.
+        trust_region: The settings of the trust region to change, among
+            ``trust_region_metric``, ``trust_region_anchor``,
+            ``trust_region_schedule`` and ``trust_region_radius``.
 
     Returns:
         The outcome of the run.
@@ -360,14 +364,15 @@ def run_swept_box_subdivision(
         design_space,
         n_subdivisions=n_subdivisions or default_n_subdivisions(dimension),
         levels=levels,
-        settings=SweptBoxSubdivisionSettings(
-            trust_region_radius=TRUST_REGION_RADIUS,
-            n_parallel_points=n_parallel_points
+        settings=SweptBoxSubdivisionSettings(**{
+            "trust_region_radius": TRUST_REGION_RADIUS,
+            "n_parallel_points": n_parallel_points
             or CONFIGURATIONS[DEFAULT_CONFIGURATION]["number_of_parallel_points"],
-            max_value=max_value,
-            max_iter=10000,
-            tolerance=1e-4,
-        ),
+            "max_value": max_value,
+            "max_iter": 10000,
+            "tolerance": 1e-4,
+            **trust_region,
+        }),
     )
 
     # Executed without arguments, so that the run is the one the settings

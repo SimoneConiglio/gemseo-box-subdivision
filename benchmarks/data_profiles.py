@@ -130,6 +130,19 @@ VARIANTS = {
 }
 """The variants of each dimension."""
 
+LATE_VARIANTS = {
+    2: ("euclidean_diameter", "euclidean_nearest"),
+    5: ("density_10_euclidean_diameter", "density_10_euclidean_nearest"),
+}
+"""The variants added after the targets were published, by dimension.
+
+The Euclidean trust regions, in two variables at the default density and in five
+at ten subdivisions per variable, the density at which the trust region decides
+which basin is reached. As :data:`.LATE_BASELINES`, they are profiled against the
+published targets and kept out of the pool of histories the targets are
+generated from; see :mod:`benchmarks.run_late_variants`.
+"""
+
 N_TARGETS = 20
 """The number of target values of each problem."""
 
@@ -458,10 +471,11 @@ def main() -> None:
     }
     for dimension in DIMENSIONS:
         budget = BUDGET_PER_VARIABLE * dimension
-        methods = (*VARIANTS[dimension], *BASELINES, *LATE_BASELINES)
+        late = (*LATE_VARIANTS[dimension], *LATE_BASELINES)
+        methods = (*VARIANTS[dimension], *BASELINES, *late)
         results = collect(dimension, methods, cache=CACHE / f"{dimension}.jsonl")
         targets = compute_targets(
-            result for result in results if result.method not in LATE_BASELINES
+            result for result in results if result.method not in late
         )
         profiles = compute_profiles(results, targets)
         ranking = sorted(
@@ -487,7 +501,7 @@ def main() -> None:
         print(f"{dimension} variables, best target the optimum on {optimal}")  # noqa: T201
         checkpoints = [budget // 10, budget // 4, budget // 2, budget]
         print(f"{'':>22} {'area':>5} " + " ".join(f"{c:>5}" for c in checkpoints))  # noqa: T201
-        for name in (*ranking, *BASELINES, *LATE_BASELINES):
+        for name in (*ranking, *LATE_VARIANTS[dimension], *BASELINES, *LATE_BASELINES):
             profile = _padded(profiles[name], budget)
             cells = " ".join(f"{profile[c - 1]:>5.0%}" for c in checkpoints)
             print(f"{name:>22} {area(profile, budget):>5.2f} {cells}")  # noqa: T201

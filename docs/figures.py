@@ -1340,6 +1340,14 @@ RESOLVING = (
 AT_DENSITY_10 = {"density_10_ceiling_10": "ceiling_10"}
 """The exploring variants measured again at ten subdivisions per variable."""
 
+EUCLIDEAN_VARIANTS = {
+    "euclidean_diameter": "-",
+    "euclidean_nearest": ":",
+    "density_10_euclidean_diameter": "--",
+    "density_10_euclidean_nearest": ":",
+}
+"""The variants of the Euclidean trust region, with their line styles."""
+
 
 def draw_variant_profiles(foreground: str):
     """Draw the profiles of the variants, one row per dimension."""
@@ -1400,6 +1408,19 @@ def draw_variant_profiles(foreground: str):
                     profiles[name],
                     color=hues[EXPLORING.index(twin)],
                     linestyle="--",
+                    label=labels[name],
+                )
+
+        # The Euclidean trust regions, added after the targets were published,
+        # in the sixth hue: the diameter schedule solid, or dashed at the
+        # density resolving Rastrigin, and the union of balls dotted.
+        for name, style in EUCLIDEAN_VARIANTS.items():
+            if name in profiles:
+                _plot_profile(
+                    row[0],
+                    profiles[name],
+                    color=LATE_HUES[foreground],
+                    linestyle=style,
                     label=labels[name],
                 )
 
@@ -1749,7 +1770,10 @@ ANIMATIONS = {"solve": animate_solve}
 PAPER = Path(__file__).parents[1] / "paper" / "figures"
 """The figures of the manuscript drawn by this module, in the light theme."""
 
-PAPER_FIGURES = {"data_profiles": draw_data_profiles}
+PAPER_FIGURES = {
+    "data_profiles": draw_data_profiles,
+    "variant_profiles": draw_variant_profiles,
+}
 """The figures of the manuscript, by name, each written as a PDF."""
 
 

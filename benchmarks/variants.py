@@ -246,6 +246,19 @@ def run_deep_hierarchy(
     return _result("deep_hierarchy", problem, dimension, seed, counters[0])
 
 
+EUCLIDEAN_DIAMETER = {
+    "trust_region_metric": "euclidean",
+    "trust_region_schedule": "diameter",
+}
+"""The Euclidean trust region starting at the diameter of the subdivision."""
+
+EUCLIDEAN_NEAREST = {
+    "trust_region_metric": "euclidean",
+    "trust_region_anchor": "nearest",
+    "trust_region_radius": 1.5,
+}
+"""The union of the balls of radius 1.5 around the evaluated boxes."""
+
 VARIANTS: dict[str, tuple[str, Callable[[Problem, int, int, int], Result]]] = {
     "swept": ("swept, 4 probes", partial(run_swept, "swept")),
     "margin_100": ("calibrated, margin 100", run_calibrated),
@@ -283,6 +296,36 @@ VARIANTS: dict[str, tuple[str, Callable[[Problem, int, int, int], Result]]] = {
         partial(run_swept, "multi_resolution", n_subdivisions=4, levels=2),
     ),
     "deep_hierarchy": ("swept, deep hierarchy", run_deep_hierarchy),
+    "euclidean_diameter": (
+        "swept, Euclidean, diameter",
+        partial(
+            run_swept,
+            "euclidean_diameter",
+            trust_region=EUCLIDEAN_DIAMETER,
+        ),
+    ),
+    "euclidean_nearest": (
+        "swept, Euclidean, nearest box",
+        partial(run_swept, "euclidean_nearest", trust_region=EUCLIDEAN_NEAREST),
+    ),
+    "density_10_euclidean_diameter": (
+        "swept, 10 per variable, Euclidean, diameter",
+        partial(
+            run_swept,
+            "density_10_euclidean_diameter",
+            n_subdivisions=10,
+            trust_region=EUCLIDEAN_DIAMETER,
+        ),
+    ),
+    "density_10_euclidean_nearest": (
+        "swept, 10 per variable, Euclidean, nearest box",
+        partial(
+            run_swept,
+            "density_10_euclidean_nearest",
+            n_subdivisions=10,
+            trust_region=EUCLIDEAN_NEAREST,
+        ),
+    ),
 }
 """The label and the runner of each variant, by name."""
 
