@@ -46,6 +46,22 @@ and this project adheres to
   published rows unchanged. The settings recalled from Levy and Montalvo (1985)
   rather than read from the article are marked as such in both drivers and in
   annex B.
+- `benchmarks/euclidean_trust_region.py`, a Euclidean trust region of the
+  master, the squared distance between box centres being linear in the one-hot
+  variables, with a fixed radius, a diameter schedule whose probes span
+  $R/(2\sqrt{n})$ to $R$, or a union of balls around the evaluated boxes;
+  Tables C.11 to C.19 of annex C compare it with the Hamming region, which
+  remains the default.
+- `benchmarks/sweep_termination.py`, which records why a swept run of the master
+  stops, and the explanation of the early termination of the swept Rastrigin
+  runs of Table D.12 in annex D.
+- `docs/figures.py` draws the manuscript's data profiles, tunneling included.
+
+### Fixed
+
+- The fan-out invariance test of `benchmarks/test_basin_spacing.py` is skipped
+  when the installed master lacks merge request 139 of
+  `gemseo-bilevel-outer-approximation`, which it requires.
 
 ## 0.3.0 (2026-10-03)
 
