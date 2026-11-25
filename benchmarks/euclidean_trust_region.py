@@ -64,8 +64,14 @@ Elimination and infeasibility
   master infeasible exactly as an emptied Hamming region does.
 
 ```shell
-python -m benchmarks.euclidean_trust_region
+python -m benchmarks.euclidean_trust_region c5 hamming hamming1 1.5 2 3 5
+python -m benchmarks.euclidean_trust_region c6 hamming 1.5 2 3 5
+python -m benchmarks.euclidean_trust_region table6 hamming 1.5 2
 ```
+
+The results are Tables C.11 to C.13 of the tuning annex: the ball is better on
+Rastrigin and Ackley, comparable on Griewank, and fails on Styblinski-Tang, whose
+basins lie five intervals apart and are joined by one Hamming step only.
 
 The change belongs upstream, in ``OuterApproximationOptimizer`` of
 ``gemseo-bilevel-outer-approximation``; see ``UPSTREAM_PATCH``.
@@ -544,6 +550,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("experiment", choices=SETTINGS)
     parser.add_argument("regions", nargs="*", default=["hamming", "2"])
     parser.add_argument("--normalization", default="unit_cube")
+    parser.add_argument("--problems", nargs="*", default=())
     arguments = parser.parse_args(argv)
     dimension, budget, seeds, swept = SETTINGS[arguments.experiment]
     logging.disable(logging.CRITICAL)
@@ -556,7 +563,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             )
         )
         cells = []
-        for name in PROBLEM_NAMES[arguments.experiment]:
+        for name in arguments.problems or PROBLEM_NAMES[arguments.experiment]:
             benchmark = PROBLEMS[name]
             optimum = benchmark.optimum(dimension)
             gaps = []

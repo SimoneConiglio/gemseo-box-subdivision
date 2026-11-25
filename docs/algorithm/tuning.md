@@ -437,6 +437,117 @@ weights, which indicates that the trust region is inactive in both cases. The tw
 limits replace each other, so that neither the constant nor the radius alone
 recovers the guarantee.
 
+### Euclidean trust region
+
+The Hamming region admits any interval along the components it changes, so that a
+radius of two lets a step cross the whole design space along two axes. The
+alternative is to bound the Euclidean distance between the centre of the
+incumbent box and the centre of the candidate box. With $c_{j,k}$ the centre of
+interval $k$ of component $j$ and $\bar c_j$ that of the incumbent interval,
+
+$$
+d^2(\alpha) = \sum_j \sum_k \alpha_{j,k} \, (c_{j,k} - \bar c_j)^2 \ \le\ R^2,
+$$
+
+which is linear in $\alpha$, since exactly one $\alpha_{j,k}$ is one per
+component, and remains a single constraint of the mixed-integer master. It is
+implemented by patching the master in `benchmarks/euclidean_trust_region.py`,
+with the catalogue weights at zero so that the built-in constraint is inactive;
+the elimination of the boxes already solved and the relaxed problem solved when
+the master is infeasible are those of the master, the ball being added to both.
+
+The centres are expressed in the design space scaled to $[0, 1]^n$, and the radii
+in units of the coarsest interval width, $1 / \min_j m_j$. A geometric ball then
+covers the same fraction of every component whatever its density, and a step to
+the face neighbour of the coarsest component costs one. With the equal densities
+used here this coincides with counting intervals per component. The schedule is
+that of the master expressed in these units: a floor of one width, so that the
+face neighbours remain admissible, a shrink by $0.7$ after three stalled
+iterations, a growth by $1.2$ up to the initial radius when a step lands within
+one width of the border, and parallel probes over
+`geomspace(max(R / 2, 1), R)`.
+
+The initial radius sets the reach. From an interior box of a $10^5$ subdivision,
+the Hamming radii one and two admit $46$ and $856$ boxes, the Euclidean radii
+$1.5$, $2$ and $3$ admit $51$, $221$ and $1343$; in two variables, $19$ and $100$
+against $9$, $13$ and $29$. The Euclidean radii $2$ to $3$ are therefore the
+counterpart of the default Hamming radius, $1.5$ that of a Hamming radius of one,
+and $5$ is a wide region. The rows `hamming` reproduce Table C.5, Table C.6 and
+Table 6 with the same seeds and budgets.
+
+| trust region | Rastrigin | Ackley | Griewank |
+|--------------|-----------|--------|----------|
+| `hamming`, radius 2 | $0.000$ · 543 · 8/8 | $0.000$ · 560 · 6/8 | $0.007$ · 618 · 0/8 |
+| `hamming`, radius 1 | $0.000$ · 452 · 8/8 | $0.000$ · 496 · 8/8 | $0.007$ · 526 · 0/8 |
+| Euclidean, radius 1.5 | $0.000$ · 326 · 8/8 | $0.000$ · 356 · 8/8 | $0.007$ · 500 · 0/8 |
+| Euclidean, radius 2 | $0.000$ · 444 · 8/8 | $0.000$ · 345 · 8/8 | $0.007$ · 530 · 0/8 |
+| Euclidean, radius 3 | $0.000$ · 547 · 8/8 | $0.000$ · 494 · 8/8 | $0.007$ · 596 · 0/8 |
+| Euclidean, radius 5 | $0.000$ · 812 · 8/8 | $0.000$ · 513 · 8/8 | $0.007$ · 964 · 0/8 |
+
+*Table C.11. Hamming and Euclidean trust regions, $n = 2$, budget $1000$, eight
+starting points.*
+
+In two variables, every Euclidean radius reaches Ackley from all eight starting
+points, against six for the default Hamming radius, and the radii $1.5$ and $2$
+are the least expensive configurations on all three problems, $326$ evaluations
+on Rastrigin against $452$ for the best Hamming radius. The cost grows with the
+radius, as with the Hamming metric.
+
+| trust region | Rastrigin | Ackley | Styblinski-Tang | Griewank |
+|--------------|-----------|--------|-----------------|----------|
+| `hamming`, radius 2 | $0.000$ · 2103 · 3/3 | $6.302$ · 2500 · 0/3 | $14.137$ · 598 · 1/3 | $0.027$ · 2500 · 0/3 |
+| Euclidean, radius 1.5 | $0.000$ · 1468 · 3/3 | $0.000$ · 2500 · 3/3 | $28.273$ · 609 · 0/3 | $0.022$ · 2388 · 0/3 |
+| Euclidean, radius 2 | $0.000$ · 1588 · 2/3 | $4.945$ · 1830 · 1/3 | $28.273$ · 706 · 0/3 | $0.025$ · 2051 · 0/3 |
+| Euclidean, radius 3 | $0.000$ · 2459 · 3/3 | $4.945$ · 2500 · 0/3 | $28.273$ · 1052 · 0/3 | $0.074$ · 2500 · 0/3 |
+| Euclidean, radius 5 | $0.000$ · 2500 · 3/3 | $7.228$ · 2500 · 0/3 | $14.137$ · 951 · 0/3 | $0.094$ · 2500 · 0/3 |
+
+*Table C.12. Hamming and Euclidean trust regions, $n = 5$, ten subdivisions,
+budget $2500$, three starting points, convexity margin $100$.*
+
+In five variables the result depends on the problem. The radius $1.5$ reaches
+Ackley from all three starting points, which no radius of Table C.6 achieves,
+although within the budget only, and Rastrigin from all
+three for $1468$ evaluations against $2103$; Griewank is marginally closer. On
+Styblinski-Tang every Euclidean radius fails from every starting point, with a
+distance of $28.27$, two components left in the wrong basin, against one
+starting point of three for the Hamming region. The two basins of each component
+lie five intervals apart: the Hamming region moves a component from one basin to
+the other in a single step, a ball of radius below five cannot, and the cuts give
+no reason to cross the intervals between them. The Euclidean region is local in
+the sense of the landscape, which helps on the regular lattices of Rastrigin and
+Ackley and prevents the long axial moves that Styblinski-Tang requires. The
+radius again has to be small: from $1.5$ to $5$, the results degrade on every
+problem except Styblinski-Tang.
+
+The same comparison with the convexity swept, in the setting of Table 6 of the
+results, five starting points and four probes, gives the same pattern.
+
+| trust region | Rastrigin | Ackley | Styblinski-Tang | Griewank |
+|--------------|-----------|--------|-----------------|----------|
+| `hamming`, radius 2 | $0.995$ · 1650 · 2/5 | $0.000$ · 2500 · 3/5 | $0.000$ · 789 · 4/5 | $0.027$ · 2118 · 0/5 |
+| Euclidean, radius 1.5 | $0.000$ · 1375 · 4/5 | $0.000$ · 2500 · 5/5 | $28.273$ · 759 · 0/5 | $0.025$ · 2214 · 0/5 |
+| Euclidean, radius 2 | $0.000$ · 1450 · 4/5 | $0.000$ · 1912 · 5/5 | $28.273$ · 665 · 0/5 | $0.025$ · 2033 · 0/5 |
+
+*Table C.13. Hamming and Euclidean trust regions with swept convexity, $n = 5$,
+ten subdivisions, budget $2500$, five starting points.*
+
+The `hamming` row is that of Table 6; one Styblinski-Tang run ends at a distance
+of $2 	imes 10^{-4}$, counted as reached by the relative tolerance of the data
+profiles and not by the absolute tolerance of $10^{-4}$ used here. Both Euclidean
+radii reach Rastrigin from four starting points of five and Ackley from all five,
+against two and three, and lose Styblinski-Tang entirely.
+
+The Euclidean region is therefore better on the problems whose basins are
+regularly spaced at the scale of the subdivision, Rastrigin and Ackley, at equal
+or lower cost, comparable on Griewank, and worse on a problem whose basins are
+far apart in interval index. It does not replace the Hamming region as the
+default: the failure on Styblinski-Tang is systematic rather than a matter of
+radius, and the density study shows that this problem already suffers from a
+fine subdivision. A region admitting both the ball and the long axial moves,
+the union of a Euclidean ball and a Hamming region of radius one, is a natural
+next step; a union is not a single linear constraint and needs one more binary
+variable in the master, and it was not evaluated.
+
 ## Settings in five variables
 
 The mechanisms were tuned in two dimensions, and the results do not transfer
