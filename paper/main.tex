@@ -682,7 +682,13 @@ the sub-problems, so that the comparison concerns only the choice of the startin
 regions; CMA-ES \citep{hansen2001,hansen2016}, with an initial standard deviation
 equal to a quarter of the range; DIRECT \citep{jones1993}, as implemented in SciPy
 \citep{virtanen2020}; and efficient global optimization (EGO) \citep{jones1998},
-as implemented in \code{egobox} \citep{lafage2022}.
+as implemented in \code{egobox} \citep{lafage2022}; and the classic tunneling
+method \citep{levy1985}, which alternates SLSQP minimizations with the
+minimization of the tunneling function from a random perturbation of the last
+minimizer, with a pole at every minimizer found, and spends the whole budget
+since it has no other stopping rule. Its settings are fixed choices, not tuned
+on these problems, and it was added after the other baselines, from the same
+starting points.
 
 \paragraph{Limitations of the protocol.} The configuration of the method compared
 with the baselines was selected as the best of up to twelve variants evaluated on
@@ -1055,19 +1061,20 @@ the largest budget compatible with the cost of its surrogate model.
     median cost $\cdot$ number of starting points from which the optimum is
     reached.}
   \label{tab:baselines}
-  \small
-  \begin{tabular}{lrllll}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lrlllll}
     \toprule
-    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT \\
+    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & tunneling \\
     \midrule
-    Rastrigin        & 2 & 0.00 $\cdot$ 908 $\cdot$ 5/5   & 1.00 $\cdot$ 1000 $\cdot$ 2/5 & 2.06 $\cdot$ 619 $\cdot$ 0/5  & 0.00 $\cdot$ 649 $\cdot$ 5/5 \\
-    Ackley           & 2 & 0.00 $\cdot$ 1000 $\cdot$ 5/5  & 0.00 $\cdot$ 1000 $\cdot$ 4/5 & 0.00 $\cdot$ 757 $\cdot$ 5/5  & 0.00 $\cdot$ 417 $\cdot$ 5/5 \\
-    Styblinski--Tang & 2 & 0.00 $\cdot$ 553 $\cdot$ 5/5   & 0.00 $\cdot$ 1000 $\cdot$ 5/5 & 0.00 $\cdot$ 529 $\cdot$ 3/5  & 0.00 $\cdot$ 1011 $\cdot$ 5/5 \\
-    Griewank         & 2 & 0.007 $\cdot$ 1000 $\cdot$ 0/5 & 0.010 $\cdot$ 1000 $\cdot$ 0/5 & 0.030 $\cdot$ 775 $\cdot$ 0/5 & 0.007 $\cdot$ 1011 $\cdot$ 0/5 \\
-    Rastrigin        & 5 & 1.00 $\cdot$ 1650 $\cdot$ 2/5  & 5.97 $\cdot$ 2500 $\cdot$ 0/5 & 8.95 $\cdot$ 1497 $\cdot$ 0/5 & 4.98 $\cdot$ 461 $\cdot$ 0/5 \\
-    Ackley           & 5 & 0.00 $\cdot$ 2500 $\cdot$ 3/5  & 8.01 $\cdot$ 2500 $\cdot$ 0/5 & 0.00 $\cdot$ 2001 $\cdot$ 5/5 & 0.11 $\cdot$ 353 $\cdot$ 0/5 \\
-    Styblinski--Tang & 5 & 0.00 $\cdot$ 789 $\cdot$ 5/5   & 0.00 $\cdot$ 2340 $\cdot$ 5/5 & 0.00 $\cdot$ 1401 $\cdot$ 3/5 & 0.00 $\cdot$ 2505 $\cdot$ 5/5 \\
-    Griewank         & 5 & 0.027 $\cdot$ 2118 $\cdot$ 0/5 & 0.047 $\cdot$ 2500 $\cdot$ 0/5 & 0.030 $\cdot$ 1641 $\cdot$ 0/5 & 0.011 $\cdot$ 397 $\cdot$ 0/5 \\
+    Rastrigin        & 2 & 0.00 $\cdot$ 908 $\cdot$ 5/5   & 1.00 $\cdot$ 1000 $\cdot$ 2/5 & 2.06 $\cdot$ 619 $\cdot$ 0/5  & 0.00 $\cdot$ 649 $\cdot$ 5/5 & 1.00 $\cdot$ 1000 $\cdot$ 0/5 \\
+    Ackley           & 2 & 0.00 $\cdot$ 1000 $\cdot$ 5/5  & 0.00 $\cdot$ 1000 $\cdot$ 4/5 & 0.00 $\cdot$ 757 $\cdot$ 5/5  & 0.00 $\cdot$ 417 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 4/5 \\
+    Styblinski--Tang & 2 & 0.00 $\cdot$ 553 $\cdot$ 5/5   & 0.00 $\cdot$ 1000 $\cdot$ 5/5 & 0.00 $\cdot$ 529 $\cdot$ 3/5  & 0.00 $\cdot$ 1011 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 5/5 \\
+    Griewank         & 2 & 0.007 $\cdot$ 1000 $\cdot$ 0/5 & 0.010 $\cdot$ 1000 $\cdot$ 0/5 & 0.030 $\cdot$ 775 $\cdot$ 0/5 & 0.007 $\cdot$ 1011 $\cdot$ 0/5 & 0.007 $\cdot$ 1000 $\cdot$ 0/5 \\
+    Rastrigin        & 5 & 1.00 $\cdot$ 1650 $\cdot$ 2/5  & 5.97 $\cdot$ 2500 $\cdot$ 0/5 & 8.95 $\cdot$ 1497 $\cdot$ 0/5 & 4.98 $\cdot$ 461 $\cdot$ 0/5 & 4.97 $\cdot$ 2500 $\cdot$ 0/5 \\
+    Ackley           & 5 & 0.00 $\cdot$ 2500 $\cdot$ 3/5  & 8.01 $\cdot$ 2500 $\cdot$ 0/5 & 0.00 $\cdot$ 2001 $\cdot$ 5/5 & 0.11 $\cdot$ 353 $\cdot$ 0/5 & 2.32 $\cdot$ 2500 $\cdot$ 2/5 \\
+    Styblinski--Tang & 5 & 0.00 $\cdot$ 789 $\cdot$ 5/5   & 0.00 $\cdot$ 2340 $\cdot$ 5/5 & 0.00 $\cdot$ 1401 $\cdot$ 3/5 & 0.00 $\cdot$ 2505 $\cdot$ 5/5 & 0.00 $\cdot$ 2500 $\cdot$ 3/5 \\
+    Griewank         & 5 & 0.027 $\cdot$ 2118 $\cdot$ 0/5 & 0.047 $\cdot$ 2500 $\cdot$ 0/5 & 0.030 $\cdot$ 1641 $\cdot$ 0/5 & 0.011 $\cdot$ 397 $\cdot$ 0/5 & 0.123 $\cdot$ 2500 $\cdot$ 0/5 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1078,7 +1085,8 @@ the largest budget compatible with the cost of its surrogate model.
     tenth, a quarter and a half of the budget and at the end of the budget.
     $\ddagger$ Value at the end of the budget of EGO, i.e. $500$ evaluations,
     which in five dimensions is less than a quarter of the budget of the other
-    methods; no area is given for EGO.}
+    methods; no area is given for EGO. Tunneling is profiled against the same
+    targets, which were generated without its runs.}
   \label{tab:profiles}
   \small
   \begin{tabular}{rlrrrrr}
@@ -1090,12 +1098,14 @@ the largest budget compatible with the cost of its surrogate model.
     2 & CMA-ES                            & 0.73 & 60\% & 70\% & 78\% & 78\% \\
     2 & DIRECT                            & 0.90 & 69\% & 84\% & 99\% & 99\% \\
     2 & EGO, 500 evaluations              & ---  & 74\% & 84\% & 86\% & 86\%$\ddagger$ \\
+    2 & tunneling                         & 0.79 & 66\% & 75\% & 84\% & 90\% \\
     \midrule
     5 & box subdivision, 10 per variable  & 0.64 & 30\% & 62\% & 73\% & 84\% \\
     5 & multistart                        & 0.51 & 37\% & 50\% & 54\% & 60\% \\
     5 & CMA-ES                            & 0.68 & 54\% & 67\% & 76\% & 78\% \\
     5 & DIRECT                            & 0.76 & 75\% & 79\% & 79\% & 79\% \\
     5 & EGO, 500 evaluations              & ---  & 59\% & ---  & ---  & 64\%$\ddagger$ \\
+    5 & tunneling                         & 0.68 & 43\% & 67\% & 76\% & 77\% \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1104,7 +1114,9 @@ the largest budget compatible with the cost of its surrogate model.
   \centering
   \includegraphics[width=\linewidth]{figures/data_profiles.pdf}
   \caption{Data profiles of the best variant of the method and of the
-    baselines. The end of the budget of EGO is marked on its curve.}
+    baselines other than tunneling, whose profile is summarized in
+    Table~\ref{tab:profiles}. The end of the budget of EGO is marked on its
+    curve.}
   \label{fig:profiles}
 \end{figure}
 
@@ -1128,6 +1140,17 @@ broad basin is well suited to a method based on the adaptation of a search
 distribution. For the Griewank function, the optimum is not reached by any
 method, and the smallest distance is obtained by DIRECT at the lowest cost.
 
+Tunneling reaches the optimum of the Ackley and Styblinski--Tang functions in two
+dimensions from four and five starting points out of five, but not that of the
+Rastrigin function, for which it ends at a local minimum $1.00$ away from the
+optimum. In five dimensions, it reaches the optimum of the Ackley and
+Styblinski--Tang functions from two and three starting points, and not that of
+the Rastrigin function. The area under its profile is $0.79$ in two dimensions,
+between CMA-ES and DIRECT, and $0.68$ in five dimensions, equal to that of CMA-ES
+and larger than that of the method ($0.64$). Most of its targets are reached
+within half of the budget, $76\%$, against $77\%$ at the end of the budget and
+$84\%$ for the method.
+
 \subsection{Comparison with a budget of 500 evaluations}\label{sec:small}
 
 A budget of $500n$ evaluations is large for industrial applications, and does not
@@ -1144,19 +1167,20 @@ problem-specific setting.
     gives the cost of the runs that terminated before the end of the budget.
     $\ddagger$ Termination of EGO due to a vanishing expected improvement.}
   \label{tab:small}
-  \small
-  \begin{tabular}{lrlllll}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lrllllll}
     \toprule
-    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & EGO \\
+    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & EGO & tunneling \\
     \midrule
-    Rastrigin        & 2 & 0.00 $\cdot$ 3/3 $\cdot$ 457 & 0.00 $\cdot$ 2/3 & 1.00 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 2/3 \\
-    Ackley           & 2 & 0.00 $\cdot$ 3/3 & 9.58 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 3/3 & 0.32 \\
-    Styblinski--Tang & 2 & 0.00 $\cdot$ 3/3 $\cdot$ 334 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 2/3 & 0.00 $\cdot$ 3/3 & 0.29 $\cdot$ 29$\ddagger$ \\
-    Griewank         & 2 & 0.007 & 0.067 & 0.048 & 0.009 & 0.008 \\
-    Rastrigin        & 5 & 8.57 & 9.95 & 11.20 & 4.98 & 1.99 \\
-    Ackley           & 5 & 14.43 & 17.06 & 0.05 & 0.11 & 2.90 \\
-    Styblinski--Tang & 5 & 0.00 $\cdot$ 3/3 & 14.14 $\cdot$ 1/3 & 0.003 & 0.00 $\cdot$ 3/3 & 0.14 $\cdot$ 219$\ddagger$ \\
-    Griewank         & 5 & 0.061 & 0.096 & 0.381 & 0.011 & 0.104 \\
+    Rastrigin        & 2 & 0.00 $\cdot$ 3/3 $\cdot$ 457 & 0.00 $\cdot$ 2/3 & 1.00 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 2/3 & 1.99 \\
+    Ackley           & 2 & 0.00 $\cdot$ 3/3 & 9.58 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 3/3 & 0.32 & 0.00 $\cdot$ 3/3 \\
+    Styblinski--Tang & 2 & 0.00 $\cdot$ 3/3 $\cdot$ 334 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 2/3 & 0.00 $\cdot$ 3/3 & 0.29 $\cdot$ 29$\ddagger$ & 0.00 $\cdot$ 3/3 \\
+    Griewank         & 2 & 0.007 & 0.067 & 0.048 & 0.009 & 0.008 & 0.027 \\
+    Rastrigin        & 5 & 8.57 & 9.95 & 11.20 & 4.98 & 1.99 & 4.97 \\
+    Ackley           & 5 & 14.43 & 17.06 & 0.05 & 0.11 & 2.90 & 4.25 \\
+    Styblinski--Tang & 5 & 0.00 $\cdot$ 3/3 & 14.14 $\cdot$ 1/3 & 0.003 & 0.00 $\cdot$ 3/3 & 0.14 $\cdot$ 219$\ddagger$ & 14.14 $\cdot$ 1/3 \\
+    Griewank         & 5 & 0.061 & 0.096 & 0.381 & 0.011 & 0.104 & 0.340 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1194,7 +1218,16 @@ the master problem and solved in parallel, and each sub-problem is solved by MMA
 with at most $1800$ iterations. For comparison, the same problem is solved by MMA
 from $63$ initial designs, one for each box solved by the method, namely the
 reference initial design and $62$ designs whose bar positions and angles are
-drawn uniformly within the bounds.
+drawn uniformly within the bounds. The problem is also solved by the classic
+tunneling method with the volume constraint kept in the tunneling phase
+\citep{levy1985,levygomez1985}, with the same budget as the box-subdivision
+method. The minimizations and the tunneling phases are solved by MMA with the
+same settings, the first minimization being started from the reference initial
+design, and four tunneling searches from the same minimizer are run in
+parallel. This run was performed on a NumPy port of the reference MATLAB code,
+which reproduces the solution obtained from the reference initial design
+(Table~\ref{tab:cantilever}), and not on the implementation used for the other
+methods.
 
 \begin{table}[t]
   \centering
@@ -1202,7 +1235,9 @@ drawn uniformly within the bounds.
     over the runs or boxes, number of designs
     evaluated until the best design is found, and total number of designs
     evaluated. $^1$ Designs evaluated by runs 0 to 8, which are executed in
-    parallel, the best design being found by run 8.}
+    parallel, the best design being found by run 8. $^2$ First minimization:
+    $C = 84.0$ after $671$ designs; nine minima found through eight successful
+    tunneling phases; run on a NumPy port of the reference code.}
   \label{tab:cantilever}
   \small
   \begin{tabular}{lrrrrr}
@@ -1212,6 +1247,7 @@ drawn uniformly within the bounds.
     MMA from the reference initial design   & 84.0 & 4.443 & ---  & 680         & 680 \\
     multistart of MMA, 63 initial designs   & 83.0 & 4.431 & 95.6 & 9967$^1$    & 59\,322 \\
     box subdivision, 9 probes, 63 boxes     & 82.1 & 4.420 & 83.8 & 31\,070     & 55\,995 \\
+    classic tunneling$^2$                   & 82.8 & 4.429 & ---  & 44\,072     & 56\,000 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1231,7 +1267,9 @@ From the reference initial design, MMA converges to the symmetric layout reporte
 by \citet{coniglio2020}, with $C = 84.0$ (Table~\ref{tab:cantilever},
 Fig.~\ref{fig:cantilever}). The best compliance is $C = 83.0$ with the
 multistart approach and $C = 82.1$ with the box-subdivision method, reached in
-the 32nd box, the total numbers of evaluations being similar. The median
+the 32nd box, the total numbers of evaluations being similar. With the same
+budget, the classic tunneling method reaches $C = 82.8$, between the multistart
+approach and the box-subdivision method, after $44\,072$ designs. The median
 compliance over the $63$ runs is $95.6$ for the multistart approach and $83.8$
 over the $63$ boxes for the method. The best layout is not symmetric, since the
 lower diagonal bars meet the bottom chord at a single node instead of crossing
@@ -1300,11 +1338,10 @@ the method is intended for sub-problems whose solution takes minutes; neither
 the cost of the master problem nor that of the surrogate model of efficient
 global optimization is included in the budget. A comparison on an expensive
 objective function is required to compare the method with Bayesian optimization.
-(vi) Tunneling, filled function and deflation methods, which are the closest
-competitors of the method, were not included in the comparison, although
-tunneling has already been applied with the geometry projection method
-\citep{zhang2018tunneling}, so that its
-performance relative to these methods remains to be assessed.
+(vi) Only the classic tunneling method was compared, with settings which were
+not tuned; the variant applied with the geometry projection method
+\citep{zhang2018tunneling}, and the filled function and deflation methods, were
+not included in the comparison.
 
 \paragraph{Future work.} Six directions of research follow from these results:
 a least-squares repair with non-negative coefficients, which cannot increase a
@@ -1315,8 +1352,8 @@ procedure; the computation of a lower bound without the convexification term,
 which would provide a meaningful optimality gap; a basin count accounting for
 non-convex constraints such as stress constraints; the validation of the
 swept convexity on an independent set of test problems; and a comparison with
-tunneling and deflation methods on the same problems, including the topology
-optimization problem.
+the tunneling variant of \citet{zhang2018tunneling} and with deflation methods on
+the same problems, including the topology optimization problem.
 
 %% ---------------------------------------------------------------------------
 \section{Conclusions}\label{sec:conclusion}
@@ -1333,7 +1370,9 @@ conditions, the known global minimum of the Rastrigin function in five
 dimensions, which none of the baselines reached, was found. For the short
 cantilever problem of the generalized geometry projection, whose global optimum
 is unknown, the best design found has a compliance of $82.1$, against $84.0$ for
-the design obtained from the reference initial design. The reliability of
+the design obtained from the reference initial design, $83.0$ for a multistart
+approach and $82.8$ for the classic tunneling method with the same budget. The
+reliability of
 the method depends on the safeguard against non-convexity and on a small
 trust region measured in number of changed components; both lead to wrong
 results without any warning when they are not set properly. The swept
