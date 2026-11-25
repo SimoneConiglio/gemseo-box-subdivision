@@ -601,6 +601,55 @@ convexity margin $100$.*
 
 TABLE_C16_PLACEHOLDER
 
+### Euclidean trust region around the evaluated boxes
+
+A third variant measures the distance of a candidate from the nearest evaluated
+box rather than from the incumbent: a box is admitted when it lies within the
+radius of at least one box already solved, feasible or not. The region is then
+the union of the balls centred on the evaluated boxes, which is not a single
+linear constraint. It is written with one binary $z_i$ per evaluated box $i$,
+
+$$
+d_i^2(\alpha) + (M_i - R^2)\, z_i \le M_i, \qquad \sum_i z_i \ge 1,
+$$
+
+$M_i$ being the largest squared distance from box $i$, so that the master
+remains a mixed-integer linear problem with one more binary per evaluated box
+(`anchor="nearest"` in `benchmarks/euclidean_trust_region.py`). The radius
+schedule is the fixed one of Tables C.11 to C.13.
+
+| trust region | Rastrigin | Ackley | Griewank |
+|--------------|-----------|--------|----------|
+| `hamming`, radius 1 | $0.000$ · 452 · 8/8 | $0.000$ · 496 · 8/8 | $0.007$ · 526 · 0/8 |
+| Euclidean, radius 1.5 | $0.000$ · 326 · 8/8 | $0.000$ · 356 · 8/8 | $0.007$ · 500 · 0/8 |
+| nearest box, radius 1.5 | $0.000$ · 1000 · 8/8 | $0.000$ · 585 · 8/8 | $0.007$ · 1000 · 0/8 |
+| nearest box, radius 2 | $0.000$ · 993 · 8/8 | $0.000$ · 725 · 5/8 | $0.007$ · 1000 · 0/8 |
+
+*Table C.18. Trust region around the nearest evaluated box, $n = 2$, budget
+$1000$, eight starting points.*
+
+| trust region | Rastrigin | Ackley | Styblinski-Tang | Griewank |
+|--------------|-----------|--------|-----------------|----------|
+| swept, `hamming`, radius 2 | $0.995$ · 1650 · 2/5 | $0.000$ · 2500 · 3/5 | $0.000$ · 789 · 4/5 | $0.027$ · 2118 · 0/5 |
+| swept, nearest box, radius 1.5 | $0.000$ · 2500 · 5/5 | $12.350$ · 2500 · 2/5 | $14.140$ · 1138 · 0/5 | $0.025$ · 2500 · 0/5 |
+| swept, nearest box, radius 2 | $0.995$ · 2500 · 2/5 | $7.076$ · 2500 · 2/5 | $14.140$ · 1526 · 0/5 | $0.027$ · 2500 · 0/5 |
+| margin 100, `hamming`, radius 2 | $0.000$ · 2103 · 3/3 | $6.302$ · 2500 · 0/3 | $14.137$ · 598 · 1/3 | $0.027$ · 2500 · 0/3 |
+| margin 100, nearest box, radius 1.5 | $1.920$ · 2500 · 1/3 | $17.770$ · 2500 · 0/3 | $28.270$ · 1283 · 0/3 | $0.256$ · 2500 · 0/3 |
+
+*Table C.19. Trust region around the nearest evaluated box, $n = 5$, ten
+subdivisions, budget $2500$: the swept rows in the setting of Table C.13, five
+starting points, and the calibrated rows in that of Table C.12, three starting
+points.*
+
+The union of balls reaches the optimum as often as the other regions in two
+variables, but almost every run spends the whole budget: the region grows with
+every evaluated box and never shrinks, so that the run no longer terminates on
+its own. In five variables, it is the only configuration reaching the optimum
+of Rastrigin from the five starting points of the swept setting, with a radius
+of 1.5, but it loses on Ackley and never reaches the optimum of Styblinski-Tang,
+and with the calibrated margin it is the worst region on all four problems. It
+is not retained.
+
 ## Settings in five variables
 
 The mechanisms were tuned in two dimensions, and the results do not transfer
