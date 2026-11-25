@@ -1428,10 +1428,12 @@ def draw_variant_profiles(foreground: str):
 
     for axes in axes_grid[-1]:
         axes.set_xlabel("equivalent evaluations")
-        axes.legend(fontsize=7, loc="lower right", ncols=1)
 
-    axes_grid[0][0].legend(fontsize=7, loc="lower right")
-    axes_grid[0][1].legend(fontsize=7, loc="lower right")
+    # The exploring panels hold the most curves, so their legends take two
+    # columns and sit under the profiles, which have all risen by then.
+    for row in axes_grid:
+        for axes, ncols in zip(row, (2, 1), strict=True):
+            axes.legend(fontsize=6.5, loc="lower right", ncols=ncols)
     figure.tight_layout()
     return figure
 

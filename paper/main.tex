@@ -514,6 +514,27 @@ of iterations without improvement, down to a minimum value of one. Once this
 value is reached, the radii of the probes, which lie in $[\Delta/2, \Delta]$,
 coincide, all probes solve the same master problem, and the exploration stops.
 
+\paragraph{Euclidean trust region.} As an alternative, the Euclidean distance
+between the centre $c(\alpha)$ of a candidate box and that of the incumbent box
+can be bounded. In the design space scaled to the unit hypercube, the squared
+distance
+\begin{equation}\label{eq:euclidean}
+  \|c(\alpha) - c(\bar\alpha)\|^2
+  = \sum_j \sum_k \alpha_{j,k}\,\bigl(c_{j,k} - c_j(\bar\alpha)\bigr)^2,
+\end{equation}
+where $c_{j,k}$ denotes the centre of the interval $k$ of the component $j$, is
+linear in the one-hot variables, since one of them is equal to one for each
+component, so that the trust region remains a linear constraint of the master
+problem. Two schedules of the radius $R$ are considered. In the first one, $R$
+starts at a fixed value and follows the reduction rule of the Hamming radius. In
+the second one, $R$ starts at the diameter of the subdivision, so that the region
+initially covers every box, and the radii of the probes are distributed from
+$R/(2\sqrt{n})$ to $R$, with a lower bound of one interval width, which keeps the
+probes distinct. In a third variant, a candidate is admitted when it lies within
+the radius of any evaluated box rather than of the incumbent: the region is then
+a union of balls, which is expressed with one additional binary variable per
+evaluated box.
+
 \begin{figure}[t]
   \centering
   \input{figures/trust_region.tex}
@@ -789,7 +810,10 @@ Table~\ref{tab:variants} and the data profiles in Fig.~\ref{fig:variants}.
   \caption{Area under the data profile and fraction of the targets reached at a
     quarter of the budget and at the end of the budget ($500n$ evaluations). In
     two dimensions, ten subdivisions per variable is the default setting, and the
-    corresponding row is therefore not repeated.}
+    corresponding row is therefore not repeated. $^1$ Ten subdivisions per variable
+    in both dimensions, to be compared with the row with ten subdivisions per
+    variable in five dimensions; profiled against the same targets, which were
+    generated without these runs.}
   \label{tab:variants}
   \small
   \begin{tabular}{lrrrrrr}
@@ -809,6 +833,8 @@ Table~\ref{tab:variants} and the data profiles in Fig.~\ref{fig:variants}.
     \quad scans not charged         & 0.75 & 75\% & 83\% & 0.58 & 49\% & 70\% \\
     swept, 2 levels of 4            & 0.77 & 75\% & 85\% & 0.43 & 44\% & 44\% \\
     swept, deep hierarchy           & 0.67 & 68\% & 75\% & 0.60 & 56\% & 77\% \\
+    swept, Euclidean, diameter$^1$  & 0.88 & 88\% & 99\% & 0.61 & 51\% & 84\% \\
+    swept, Euclidean, nearest box$^1$ & 0.85 & 70\% & 99\% & 0.49 & 30\% & 72\% \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -817,7 +843,9 @@ Table~\ref{tab:variants} and the data profiles in Fig.~\ref{fig:variants}.
   \centering
   \includegraphics[width=\linewidth]{figures/variant_profiles.pdf}
   \caption{Data profiles of the variants of the method in two and five
-    dimensions.}
+    dimensions. Dashed lines: variants with ten subdivisions per variable in
+    five dimensions. Purple: Euclidean trust region, with the diameter schedule
+    (solid or dashed) and around the nearest evaluated box (dotted).}
   \label{fig:variants}
 \end{figure}
 
@@ -847,6 +875,13 @@ more than sixty subdivisions per variable are proposed for the Ackley function
 \paragraph{Extensions.} The multi-resolution encoding gives a smaller area than
 the reference configuration in both dimensions. The deep hierarchy ranks second
 in five dimensions.
+
+\paragraph{Euclidean trust region.} With the diameter schedule, the area is
+equal to that of the reference configuration in two dimensions ($0.88$ against
+$0.87$), and smaller in five dimensions with ten subdivisions per variable
+($0.61$ against $0.64$), the final fraction of the targets being the same
+($84\%$). The union of balls around the evaluated boxes gives smaller areas in
+both dimensions.
 
 \subsection{Density of the subdivision}\label{sec:density-results}
 
