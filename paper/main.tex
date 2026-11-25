@@ -640,9 +640,7 @@ set to zero by default. For versions of the master problem which do not
 implement the swept convexity, the sweep is performed by the package outside the
 master problem.
 
-The Jacobian of the mapping is verified against
-finite differences and the complex-step method at relaxed values of the one-hot
-variables. The parallel evaluation of the probes reduces the computation time
+The parallel evaluation of the probes reduces the computation time
 only when the solution of a sub-problem is expensive compared with that of the
 master problem, as for the topology optimization problem.
 
@@ -1193,9 +1191,7 @@ function, a lower-bound Kreisselmeier--Steinhauser aggregation
 \citep{kreisselmeier1979} with $k_a = 10$ followed by a smooth saturation, a
 penalization exponent $p = 3$, bounds of $[-2\pi, 2\pi]$ on the angles, the
 objective function $\log(C+1)$, and MMA \citep{svanberg1987} with a move limit of
-$0.01$. The Python implementation was verified against a direct translation of
-the MATLAB code, the densities agreeing to $3\cdot 10^{-8}$ and the compliances to
-all reported digits for the same design.
+$0.01$.
 
 The position and the angle of every bar are divided into ten intervals, which
 gives $54$ subdivided variables and $540$ binary variables, while the length, the
@@ -1418,8 +1414,7 @@ validation, writing.}
   \end{tabular}
 \end{table}
 
-The gradients of all functions are computed analytically and were verified
-against central finite differences.
+The gradients of all functions are computed analytically.
 
 \section{Tuning of the master}\label{app:tuning}
 
