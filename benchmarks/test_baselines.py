@@ -19,7 +19,9 @@ multimodal non-linear program driven by a local solver:
 
 - **multistart** of a local solver, the reference of the class;
 - **CMA-ES**, an evolution strategy, which does not use the gradient;
-- **DIRECT**, a deterministic partitioning method, which does not either.
+- **DIRECT**, a deterministic partitioning method, which does not either;
+- **tunneling**, a deterministic sequence of local solutions, each started
+  from a point below the level of the last minimum.
 
 Relaxation-based global solvers such as BARON or Alpine are deliberately absent:
 they require an algebraic form of the problem to build their relaxations, which

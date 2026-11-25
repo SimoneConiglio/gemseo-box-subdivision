@@ -26,6 +26,27 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `benchmarks/tunneling.py`, the classic tunneling method of Levy and Montalvo
+  (1985) as a baseline, with SLSQP in both phases, analytic gradients of the
+  tunneling function charged to the same budgeted counter, and settings fixed
+  across problems; `benchmarks/run_tunneling.py` runs it under the protocols of
+  Tables 6 to 8 and profiles it against the published targets, which it leaves
+  unchanged. The variant of Zhang and Norato (2018) is not implemented, its
+  formulation not having been verified from an accessible source.
+- `benchmarks/cantilever/classic_tunneling.py`, the classic constrained
+  tunneling method on the GGP short cantilever, MMA with the preset's settings
+  in both phases, four tunneling searches in parallel, at the budget of the box
+  subdivision, resumable from its logs; its result, C = 82.8 after 44 072 of
+  56 000 designs on a NumPy port of `GGP_main.m`, is a new row of Table 9 with
+  its figure and data in `docs/_static/cantilever_tunneling.json`, the
+  published rows unchanged. The settings recalled from Levy and Montalvo (1985)
+  rather than read from the article are marked as such in both drivers and in
+  annex B.
+
 ## 0.3.0 (2026-10-03)
 
 ### Added
