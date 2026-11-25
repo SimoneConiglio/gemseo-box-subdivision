@@ -22,7 +22,8 @@ to minimize under a volume constraint, and adjoint gradients. The scripts here
 drive that package's ``benchmarks/sc2d_box_subdivision.py``, from its branch
 ``claude/gemseo-mox-cantilever-optimization-dl9ejh``, and have to be run from
 that repository in its environment, which needs legacy FEniCS 2019.1 from
-conda-forge. None of this runs in the test suite.
+conda-forge. None of this runs in the test suite, but for the tunneling
+function of ``classic_tunneling.py``, which needs NumPy only.
 
 ``trivial_start.py``
     the box-subdivision and MMA runs from a trivial start: the preset's bar
@@ -36,6 +37,9 @@ conda-forge. None of this runs in the test suite.
     the animation of that run.
 ``parallel_multistart.py``
     a multistart of MMA, its starts distributed over processes.
+``classic_tunneling.py``
+    the classic constrained tunneling method, MMA in both phases, its
+    tunneling searches distributed over processes.
 ``cantilever_parallel_gif.py``
     the animation of a run whose probes are solved in parallel, recorded by
     ``trivial_start.py --record``, round by round: the one the documentation

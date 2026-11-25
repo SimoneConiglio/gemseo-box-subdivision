@@ -375,11 +375,20 @@ def tunneling_function(
 WORKER: dict = {}
 
 
-def _init_worker(backend: str, preset: str, out: Path, total, stop, budget, start):  # noqa: ANN001
+def _init_worker(  # noqa: PLR0917
+    backend: str,
+    preset: str,
+    out: Path,
+    total,  # noqa: ANN001
+    stop,  # noqa: ANN001
+    budget: int,
+    start: float,
+    tag: str = "",
+) -> None:
     """Build the problem and the counted evaluations of a worker."""
     logging.disable(logging.CRITICAL)
     problem = load_backend(backend, preset)
-    name = multiprocessing.current_process().name.replace(":", "_")
+    name = tag + multiprocessing.current_process().name.replace(":", "_")
     evaluate = Evaluator(problem, out / f"tunneling_{name}.bin", total, stop, budget)
     evaluate.start = start
     WORKER.update(problem=problem, evaluate=evaluate)
@@ -507,10 +516,26 @@ def run(args: argparse.Namespace) -> dict:
         budget=args.budget, processes=args.processes, max_iter=args.max_iter
     )
     args.out.mkdir(parents=True, exist_ok=True)
-    for path in args.out.glob("tunneling_*.bin"):
-        path.unlink()
     events = args.out / "tunneling_events.jsonl"
-    events.write_text("")
+    # A run cut short resumes from its logs: the designs already analysed are
+    # counted, the minimizers found keep their poles, and the tunneling phase
+    # from the last minimizer starts again, the searches in progress being
+    # lost but their designs kept in the count and in the history.
+    previous = (
+        [json.loads(line) for line in events.read_text().splitlines()]
+        if args.resume and events.is_file()
+        else []
+    )
+    done, offset = 0, 0.0
+    if previous:
+        rows = _read_logs(args.out, 3 + len(previous[0]["x"]))
+        done, offset = len(rows), float(rows[:, 0].max())
+        with events.open("a") as file:
+            file.write(json.dumps({"event": "resumed", "designs": done}) + "\n")
+    else:
+        for path in args.out.glob("tunneling_*.bin"):
+            path.unlink()
+        events.write_text("")
 
     def note(entry: dict) -> None:
         entry["time_s"] = time.time() - start_time
@@ -520,9 +545,9 @@ def run(args: argparse.Namespace) -> dict:
         print(json.dumps({k: v for k, v in entry.items() if k != "x"}), flush=True)
 
     context = multiprocessing.get_context("fork")
-    total = context.Value("q", 0)
+    total = context.Value("q", done)
     stop = context.Event()
-    start_time = time.time()
+    start_time = time.time() - offset
     problem = load_backend(args.backend, args.preset)
     evaluate = Evaluator(
         problem, args.out / "tunneling_main.bin", total, None, settings.budget
@@ -539,33 +564,41 @@ def run(args: argparse.Namespace) -> dict:
             stop,
             settings.budget,
             start_time,
+            "resumed" if previous else "",
         ),
     )
-    rng = np.random.default_rng(args.seed)
-    minima: list[np.ndarray] = []
+    rng = np.random.default_rng(args.seed + len(previous))
+    found_minima = [e for e in previous if e["event"] == "minimum"]
+    minima: list[np.ndarray] = [np.asarray(e["x"]) for e in found_minima[:-1]]
     x = problem.x_init.copy()
-    successes = 0
-    searches = 0
+    successes = sum(e["event"] == "tunneled" for e in previous)
+    searches = sum(e["event"] == "search" for e in previous)
     try:
         while True:
-            try:
-                x_star, f_star, feasible, designs = minimize(
-                    evaluate, x, problem.options, settings.max_iter
-                )
-            except BudgetExhaustedError:
-                break
-            note({
-                "event": "minimum",
-                "index": len(minima),
-                "f": f_star,
-                "compliance": float(np.expm1(f_star)),
-                "feasible": feasible,
-                "phase_designs": designs,
-                "distance_to_previous": (
-                    float(np.linalg.norm(x_star - minima[-1])) if minima else None
-                ),
-                "x": np.asarray(x_star).tolist(),
-            })
+            if found_minima:
+                # Resumed: the last minimizer of the logs, its phase done.
+                x_star = np.asarray(found_minima[-1]["x"])
+                f_star = found_minima[-1]["f"]
+                found_minima = []
+            else:
+                try:
+                    x_star, f_star, feasible, designs = minimize(
+                        evaluate, x, problem.options, settings.max_iter
+                    )
+                except BudgetExhaustedError:
+                    break
+                note({
+                    "event": "minimum",
+                    "index": len(minima),
+                    "f": f_star,
+                    "compliance": float(np.expm1(f_star)),
+                    "feasible": feasible,
+                    "phase_designs": designs,
+                    "distance_to_previous": (
+                        float(np.linalg.norm(x_star - minima[-1])) if minima else None
+                    ),
+                    "x": np.asarray(x_star).tolist(),
+                })
             earlier = list(minima)
             minima.append(np.asarray(x_star))
             found = None
@@ -618,15 +651,19 @@ def run(args: argparse.Namespace) -> dict:
     return summarize(args.out, settings, elapsed, problem, successes, searches)
 
 
-def summarize(out: Path, settings: Settings, elapsed, problem, successes, searches):  # noqa: ANN001, ANN201
-    """Merge the logs of all processes by time and summarize the run."""
-    width = 3 + problem.x_init.size
+def _read_logs(out: Path, width: int) -> np.ndarray:
+    """Return the designs of all processes, a row each, in the order of time."""
     rows = []
-    for path in sorted(out.glob("tunneling_*.bin")):
+    for path in sorted(out.glob("*tunneling_*.bin")):
         data = np.fromfile(path, dtype=np.float64)
         rows.append(data[: data.size // width * width].reshape(-1, width))
     rows = np.vstack(rows)
-    rows = rows[np.argsort(rows[:, 0], kind="stable")]
+    return rows[np.argsort(rows[:, 0], kind="stable")]
+
+
+def summarize(out: Path, settings: Settings, elapsed, problem, successes, searches):  # noqa: ANN001, ANN201
+    """Merge the logs of all processes by time and summarize the run."""
+    rows = _read_logs(out, 3 + problem.x_init.size)
     f, g = rows[:, 1], rows[:, 2]
     compliance = np.where(g <= TOLERANCE, np.expm1(f), np.inf)
     best = np.minimum.accumulate(compliance)
@@ -672,7 +709,7 @@ PUBLISHED = (
 """The published results of Table 9: best compliance and designs to it."""
 
 
-def plot(summary_path: Path, directory: Path) -> None:
+def plot(summary_path: Path, directory: Path, extension: str = "svg") -> None:
     """Draw the best layout and the best compliance against the designs."""
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "docs"))
     import figures
@@ -684,7 +721,6 @@ def plot(summary_path: Path, directory: Path) -> None:
     best = np.append(history[:, 1], history[-1, 1])
     finite = np.isfinite(best)
     for suffix, foreground in (("", figures.LIGHT), ("-dark", figures.DARK)):
-        colours = figures.series(foreground)
         with plt.rc_context(figures._style(foreground)):
             figure, (layout, curve) = plt.subplots(
                 1, 2, figsize=(10.0, 3.2), width_ratios=(1.0, 1.4)
@@ -699,6 +735,8 @@ def plot(summary_path: Path, directory: Path) -> None:
             )
             layout.set_xticks([])
             layout.set_yticks([])
+            for spine in layout.spines.values():
+                spine.set_visible(True)
             layout.set_title(
                 f"tunneling, best design found: C = {summary['compliance']:.1f}",
                 fontsize=9,
@@ -711,9 +749,19 @@ def plot(summary_path: Path, directory: Path) -> None:
                 linewidth=1.8,
                 label="classic tunneling",
             )
-            for (label, value, at), colour in zip(PUBLISHED, colours, strict=False):
+            # Only the final values of the other methods are published here,
+            # each drawn at the designs it took to reach it.
+            colours = (figures.SECOND, figures.THIRD, figures.FOURTH)
+            for (label, value, at), colour in zip(PUBLISHED, colours, strict=True):
                 curve.axhline(value, color=colour, linestyle=":", linewidth=1.0)
-                curve.plot(at, value, "o", color=colour, markersize=4, label=label)
+                curve.plot(
+                    at,
+                    value,
+                    "o",
+                    color=colour,
+                    markersize=4,
+                    label=f"{label}: {value}, Table 9",
+                )
             curve.set_xscale("log")
             curve.set_xlim(50, max(summary["designs"], 56000) * 1.05)
             curve.set_ylim(81.5, 90.0)
@@ -723,7 +771,7 @@ def plot(summary_path: Path, directory: Path) -> None:
             curve.legend(fontsize=7, loc="upper right")
             curve.grid(alpha=0.25)
             figure.tight_layout()
-            figure.savefig(directory / f"cantilever-tunneling{suffix}.svg")
+            figure.savefig(directory / f"cantilever-tunneling{suffix}.{extension}")
             plt.close(figure)
 
 
@@ -731,7 +779,9 @@ def main() -> None:
     """Run the method, or draw the figure of a finished run."""
     if "--plot" in sys.argv:
         index = sys.argv.index("--plot")
-        plot(Path(sys.argv[index + 1]), Path(sys.argv[index + 2]))
+        plot(
+            Path(sys.argv[index + 1]), Path(sys.argv[index + 2]), *sys.argv[index + 3 :]
+        )
         return
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -741,6 +791,7 @@ def main() -> None:
     parser.add_argument("--processes", type=int, default=SETTINGS.processes)
     parser.add_argument("--max-iter", type=int, default=SETTINGS.max_iter)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--resume", action="store_true")
     parser.add_argument("--out", type=Path, default=Path("benchmarks/box_subdivision"))
     args = parser.parse_args()
     summary = run(args)
