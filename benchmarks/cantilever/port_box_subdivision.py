@@ -25,14 +25,16 @@ the main level. The convexity is swept, each sub-problem is solved by MMA with
 the settings of ``mmasub.m`` and at most ``--sub-max-iter`` iterations, and the
 probes of the master are solved over ``--processes`` processes, which needs
 merge request 139 of gemseo-bilevel-outer-approximation. ``--master-max-iter``
-caps the evaluations of the main problem, one per box solved, so that runs with
-different numbers of probes solve about the same number of boxes.
+bounds the rounds of the master, of up to ``--probes`` boxes each; runs with
+different numbers of probes are compared at the same number of designs analysed,
+``--budget``, read off the logs, the run being stopped once past it.
 
 It is used to compare numbers of probes on the same code, the GGP environment
 with legacy FEniCS being unavailable; its results are not those of the GGP
 implementation. Every evaluation is appended, by the process making it, to
 ``<out>/<pid>.bin``: the time, the compliance, the volume constraint and the
-design, in float64. ``--summarize <out>`` reads these logs back:
+design, in float64. ``--summarize <out>`` reads these logs back, up to
+``--budget`` distinct designs if given:
 
     python benchmarks/cantilever/port_box_subdivision.py \
         --backend ggp_mna_port.py --probes 16 --master-max-iter 64 \
@@ -223,7 +225,7 @@ def run(args: argparse.Namespace) -> None:
     print(json.dumps({k: v for k, v in summary.items() if k != "boxes"}, indent=1))
 
 
-def summarize(out: Path, size: int) -> dict:
+def summarize(out: Path, size: int, budget: int | None = None) -> dict:
     """Return the best feasible compliance and the designs of a run.
 
     The boxes are read off the logs: in the normalized formulation a sub-problem
@@ -234,11 +236,13 @@ def summarize(out: Path, size: int) -> dict:
     Args:
         out: The directory of the logs.
         size: The number of design variables.
+        budget: The number of distinct designs, in the order of time, beyond
+            which the logs are ignored; ``None`` to read them all.
 
     Returns:
         The best feasible compliance, the number of distinct designs analysed in
-        all, the number analysed until the best, in the order of time, and the
-        median compliance of the feasible designs at the end of each log.
+        all, the number analysed until the best, in the order of time, the time
+        to the best and the best design.
     """
     rows = np.concatenate([
         np.fromfile(path, dtype=np.float64).reshape(-1, 3 + size)
@@ -246,7 +250,7 @@ def summarize(out: Path, size: int) -> dict:
     ])
     rows = rows[np.argsort(rows[:, 0], kind="stable")]
     _, first = np.unique(rows[:, 3:].round(12), axis=0, return_index=True)
-    rows = rows[np.sort(first)]
+    rows = rows[np.sort(first)][:budget]
     feasible = rows[:, 2] <= TOLERANCE
     compliance = np.where(feasible, rows[:, 1], np.inf)
     best = int(np.argmin(compliance))
@@ -270,11 +274,14 @@ def main() -> None:
     parser.add_argument("--trust-region-radius", type=int, default=2)
     parser.add_argument("--processes", type=int, default=4)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--budget", type=int)
     parser.add_argument("--summarize", action="store_true")
     args = parser.parse_args()
     if args.summarize:
         size = load_problem(args.backend).x_init.size
-        print(json.dumps(summarize(args.out, size), indent=1))
+        summary = summarize(args.out, size, args.budget)
+        summary.pop("x_best")
+        print(json.dumps(summary, indent=1))
     else:
         run(args)
 
