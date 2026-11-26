@@ -724,9 +724,11 @@ selected on these problems, from a first study of the variants with five
 starting points which are among the twenty of the final comparison, which
 introduces a bias in favour of the method. The comparisons of the variants and
 with the baselines use twenty starting points per problem and paired
-statistical tests (Sections~\ref{sec:variants} and~\ref{sec:baselines}), but
-the other comparisons use between three and eight starting points, which is too
-few for statistical tests, and the cost of
+statistical tests with a correction for multiple comparisons
+(Sections~\ref{sec:variants} and~\ref{sec:baselines}). The other comparisons use
+the same twenty starting points, and a difference of success between two of
+their configurations is called significant when the exact McNemar test gives a
+$p$-value below $0.05$, without correction for multiple comparisons. The cost of
 the master problem is not included in the budget. The results presented below therefore
 characterize the method on the problems studied, and an assessment of its general
 performance would require an independent set of test problems and a protocol
@@ -744,24 +746,25 @@ defined in advance.
 The enumeration of the boxes, in which the sub-problem of every box is solved with
 the same formulation, is used as a reference, so that the comparison concerns only
 the exploration strategy. The results obtained for the Rastrigin function in two
-dimensions with $10\times 10$ boxes and eight starting points are given in
-Table~\ref{tab:enum}, and one run is illustrated in Fig.~\ref{fig:solve}. The same
-optimum is obtained by the outer approximation after the solution of 20 to 36\% of
-the boxes, at about one third of the cost of the enumeration, and is reached
-from seven of the eight starting points.
+dimensions with $10\times 10$ boxes and twenty starting points are given in
+Table~\ref{tab:enum}, and one run is illustrated in Fig.~\ref{fig:solve}. The
+optimum is obtained by the outer approximation after the solution of 12 to 32\%
+of the boxes, at a median cost of one quarter of that of the enumeration, and is
+reached from nineteen of the twenty starting points.
 
 \begin{table}[t]
   \centering
   \caption{Enumeration of the boxes and outer approximation for the Rastrigin
-    function, $n=2$, $100$ boxes, eight starting points. The cost is given in
-    number of evaluations of the objective function.}
+    function, $n=2$, $100$ boxes, twenty starting points: median objective
+    value, and range over the starting points of the number of boxes solved and
+    of the number of evaluations of the objective function.}
   \label{tab:enum}
   \begin{tabular}{lrrr}
     \toprule
     method & objective & boxes solved & evaluations \\
     \midrule
     enumeration          & $0.0$ & 100      & 1267 \\
-    outer approximation  & $0.0$ & 20--36   & 255--458 \\
+    outer approximation  & $0.0$ & 12--32   & 158--412 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -784,24 +787,30 @@ from seven of the eight starting points.
 The results of this section are detailed in Appendix~\ref{app:tuning}. The
 useful range of the convexification constant becomes narrower as the dimension
 increases: for the Rastrigin function, the median distance to the optimum is
-zero for three of the five values tested in two dimensions, and for one of them
-in five dimensions (Table~\ref{tab:constant}). With ten subdivisions in five
-dimensions, the optimum is reached from all starting points with the adaptive
-repair, and from at most two starting points out of three with the constant
-(Tables~\ref{tab:density} and~\ref{tab:constant}); the adaptive repair is
-therefore used by default. Its margin has to match the range
-of the objective function. A margin of $100$ leads to the optimum from all
-starting points on the Rastrigin function in two dimensions, whose range is about
-$80$ (Table~\ref{tab:margin}), whereas on the Ackley function in five dimensions,
-whose range is $14.5$, the best results are obtained with a margin of $10$
+zero for four of the five values tested in two dimensions, and for none of them
+in five dimensions, where the optimum is reached from at most five starting
+points out of twenty (Table~\ref{tab:constant}). With ten subdivisions in five
+dimensions, it is reached from fifteen starting points with the adaptive repair
+and four probes (Table~\ref{tab:density}); the adaptive repair is therefore used
+by default, although this comparison also differs by the number of probes. Its
+margin has to match the range of the objective function. On the Rastrigin
+function in two dimensions, whose range is about $80$, the optimum is reached
+with four probes from half of the starting points with a margin of $10$, and
+from nineteen or twenty with a margin of $100$ or $300$
+(Table~\ref{tab:margin}). On the Ackley function in five dimensions, whose range
+is $14.5$, it is reached from one starting point with a margin of $100$, from
+five or six with margins between $3$ and $30$, and from none with a margin of
+$1$, only the last difference being significant
 (Table~\ref{tab:margin-ackley}). This dependence motivates the swept convexity.
 
-The ordinal trust region is as reliable as the Hamming distance, but more
-expensive (Table~\ref{tab:metric}), and a small radius gives the best results in
-two dimensions. In five dimensions, the radius of two gives the best results for
-the Rastrigin function, the distance to the optimum of the Ackley function
-increases monotonically with the radius, and for the Styblinski--Tang function
-the radius of two gives the worst result among the four radii tested
+The ordinal trust region reaches the optimum as often as the Hamming distance
+with a radius of one, at a higher cost (Table~\ref{tab:metric}). In five
+dimensions, a radius of one reaches the optimum of the Rastrigin function
+significantly less often than a radius of two, from seven starting points
+against fifteen, and larger radii do not reach it more often; the median
+distance to the optimum of the Ackley function increases with the radius, and
+the optimum of the Styblinski--Tang function is reached from all starting
+points with radii of three and five, against fifteen with a radius of two
 (Table~\ref{tab:radius}). This radius is therefore a compromise for the problems
 studied rather than a general rule.
 
@@ -921,56 +930,60 @@ dimensions.
 
 The influence of the number $m$ of subdivisions per variable in five dimensions
 is shown in Table~\ref{tab:density}, for the adaptive repair, a budget of $2500$
-evaluations and three starting points. With about fifty sub-problems, ten
+evaluations and twenty starting points. With about fifty sub-problems, ten
 subdivisions per variable ($50$ binary variables, $10^5$ boxes) give the best
-results, and sixteen subdivisions ($80$ binary variables) markedly worse results,
-in agreement with the upper bound of Section~\ref{sec:density}.
+results for the Rastrigin function, and sixteen subdivisions ($80$ binary
+variables) significantly worse results, in agreement with the upper bound of
+Section~\ref{sec:density}.
 
 \begin{table}[t]
   \centering
   \caption{Influence of the number $m$ of subdivisions per variable, $n=5$:
     median distance to the optimum $\cdot$ median cost $\cdot$ number of starting
-    points from which the optimum is reached (when non-zero). $\dagger$ Runs
-    stopped by the budget, for which the distance is an upper bound.}
+    points out of twenty from which the optimum is reached (when non-zero).
+    $\dagger$ Median run stopped by the budget, for which the distance is an
+    upper bound.}
   \label{tab:density}
   \small
   \begin{tabular}{rrrllll}
     \toprule
     $m$ & bin. & boxes & Rastrigin & Ackley & Styblinski--Tang & Griewank \\
     \midrule
-    2  & 10  & $32$            & 4.98 $\cdot$ 823          & 14.43 $\cdot$ 892             & 0.00 $\cdot$ 458 $\cdot$ 2/3  & 0.06 $\cdot$ 1016 \\
-    4  & 20  & $10^3$          & 6.70 $\cdot$ 714          & 12.63 $\cdot$ 1277            & 0.00 $\cdot$ 846 $\cdot$ 3/3  & 0.22 $\cdot$ 1547 \\
-    10 & 50  & $10^5$          & 0.00 $\cdot$ 2103 $\cdot$ 3/3 & 6.30 $\cdot$ 2500$\dagger$ & 14.14 $\cdot$ 598 $\cdot$ 1/3 & 0.03 $\cdot$ 2500$\dagger$ \\
-    16 & 80  & $10^6$          & 1.99 $\cdot$ 1706         & 12.63 $\cdot$ 2500$\dagger$   & 0.00 $\cdot$ 973 $\cdot$ 2/3  & 0.05 $\cdot$ 2500$\dagger$ \\
-    24 & 120 & $8\cdot 10^6$   & 3.59 $\cdot$ 1628         & 8.53 $\cdot$ 2500$\dagger$    & 14.44 $\cdot$ 1098 $\cdot$ 1/3 & 0.08 $\cdot$ 2500$\dagger$ \\
+    2  & 10  & $32$            & 4.98 $\cdot$ 866                & 14.43 $\cdot$ 674                    & 0.00 $\cdot$ 481 $\cdot$ 16/20  & 0.06 $\cdot$ 1015 \\
+    4  & 20  & $10^3$          & 6.70 $\cdot$ 801                & 12.63 $\cdot$ 1270                   & 0.00 $\cdot$ 749 $\cdot$ 19/20  & 0.22 $\cdot$ 1349 \\
+    10 & 50  & $10^5$          & 0.00 $\cdot$ 1757 $\cdot$ 15/20 & 6.30 $\cdot$ 2500$\dagger$ $\cdot$ 1/20 & 0.00 $\cdot$ 582 $\cdot$ 15/20  & 0.05 $\cdot$ 2500$\dagger$ \\
+    16 & 80  & $10^6$          & 1.99 $\cdot$ 1780 $\cdot$ 1/20  & 5.53 $\cdot$ 2500$\dagger$ $\cdot$ 3/20 & 0.13 $\cdot$ 864 $\cdot$ 10/20  & 0.06 $\cdot$ 2500$\dagger$ \\
+    24 & 120 & $8\cdot 10^6$   & 2.86 $\cdot$ 1834 $\cdot$ 1/20  & 8.90 $\cdot$ 2500$\dagger$           & 0.13 $\cdot$ 1122 $\cdot$ 8/20  & 0.08 $\cdot$ 2500$\dagger$ \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 With ten subdivisions per variable, i.e. $10^5$ boxes and $50$ binary variables,
-the optimum of the Rastrigin function in five dimensions is reached from all
-three starting points with about $2100$ evaluations, and from eleven out of
-twenty in Section~\ref{sec:baselines}, whereas it is not reached by any of the
-baselines with the budgets considered. With more
-than ten subdivisions, the distance to the optimum increases while the cost
-decreases, which indicates that the runs terminate prematurely, since eighty
-binary variables cannot be identified with about fifty cuts. Conversely, the
-optimum of the Styblinski--Tang function, which has two basins per variable, is
-reached with two and four subdivisions, but in most cases not with ten. Both
-bounds of Section~\ref{sec:density} are therefore observed, and no single
-density is suitable for the four problems, ten subdivisions being the best value
-for three of them and the worst for the fourth. For the Ackley and Griewank
-functions, the runs with ten or more subdivisions were stopped by the budget, so
-that the corresponding results only rank the progress made within the budget.
+the optimum of the Rastrigin function in five dimensions is reached from
+fifteen starting points out of twenty with a median of about $1750$ evaluations,
+and from eleven with the swept convexity of the configuration compared in
+Section~\ref{sec:baselines}, whereas it is not reached by any of the baselines
+with the budgets considered. With sixteen and twenty-four subdivisions, the runs
+terminate on their own criterion at a similar cost but reach the optimum from
+one starting point, since eighty binary variables cannot be identified with
+about fifty cuts. The optimum of the Styblinski--Tang function, which has two
+basins per variable, is reached from fifteen to nineteen starting points with
+two to ten subdivisions, and significantly less often with twenty-four. Both
+bounds of Section~\ref{sec:density} are therefore observed. For the Ackley and
+Griewank functions, the optimum is reached from at most three starting points
+with any density, and most runs with ten or more subdivisions were stopped by
+the budget, so that the corresponding results only rank the progress made within
+the budget.
 
 \paragraph{Estimated density.} For the results of Table~\ref{tab:proposed}, each
 problem is given four times the budget corresponding to its estimated density, so
-that all runs terminate on their own stopping criterion. When the basin count
-converged, the estimated density is equal to the better of the two fixed
-densities. For the partly multimodal function, the estimated density gives better
-results than both fixed densities, since the three unimodal components are not
-subdivided, and the optimum is reached from all starting points with $858$
-evaluations. For the Ackley function, the basin count does
+that all runs terminate on their own stopping criterion. For the Rastrigin and
+Styblinski--Tang functions, the estimated densities are ten and two subdivisions
+per variable, which reach the optimum from fifteen and sixteen starting points
+out of twenty. For the partly multimodal function, the three unimodal components
+are not subdivided, and the optimum is reached from all starting points with a
+median of $990$ evaluations, against none with two subdivisions of the five
+variables (Table~\ref{tab:partial}). For the Ackley function, the basin count does
 not converge. The oscillations of this function are indeed about one unit apart
 over a range of sixty-four, but the global basin, and not the oscillations, has
 to be resolved, and the estimate is correctly reported as unresolved before the
@@ -984,8 +997,10 @@ function is inexpensive compared with the solution of a sub-problem.
 
 \begin{table}[t]
   \centering
-  \caption{Results obtained with the estimated density, $n = 5$, three starting
-    points and a budget equal to four times the predicted cost. The cost of the
+  \caption{Results obtained with the estimated density and the calibrated margin,
+    $n = 5$, twenty starting points and a budget equal to four times the
+    predicted cost: median distance, median cost and number of starting points
+    from which the optimum is reached. The cost of the
     scans, given in the last column, is not included in the cost of the runs.}
   \label{tab:proposed}
   \small
@@ -993,11 +1008,11 @@ function is inexpensive compared with the solution of a sub-problem.
     \toprule
     problem & proposed $m$ & binaries & distance & cost & reached & scans \\
     \midrule
-    Rastrigin         & $10^{\times 5}$ & 50 & 0.00 & 2103 & 3/3 & 12\,525 \\
-    Styblinski--Tang  & $2^{\times 5}$  & 10 & 0.00 & 458  & 2/3 & 1250 \\
-    partly multimodal & 10, 10, 1, 1, 1 & 23 & 0.00 & 858  & 3/3 & 6100 \\
-    Griewank          & 19, 13, 11, 7, 9 & 59 & 0.064 & 3463 & 1/3 & 12\,525 \\
-    Ackley            & $63^{\times 5}$, unresolved & 314 & 12.75 & 5372 & 0/3 & 25\,350 \\
+    Rastrigin         & $10^{\times 5}$ & 50 & 0.00 & 1757 & 15/20 & 12\,525 \\
+    Styblinski--Tang  & $2^{\times 5}$  & 10 & 0.00 & 481  & 16/20 & 1250 \\
+    partly multimodal & 10, 10, 1, 1, 1 & 23 & 0.00 & 990  & 20/20 & 6100 \\
+    Griewank          & 19, 13, 11, 7, 9 & 59 & 0.034 & 3631 & 0/20 & 12\,525 \\
+    Ackley            & $63^{\times 5}$, unresolved & 314 & 14.72 & 3170 & 0/20 & 25\,350 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1007,9 +1022,12 @@ function is inexpensive compared with the solution of a sub-problem.
 Fixed and swept convexity values are compared in Table~\ref{tab:sweep} for the
 Rastrigin and Ackley functions in two dimensions, whose ranges differ by a factor
 of four, with ten subdivisions per variable, a budget of $1000$ evaluations and
-six starting points. None of the fixed margins leads to the optimum of both
-problems from all starting points, whereas both swept configurations do,
-including the unbounded one, for which no convexity value is specified. The
+twenty starting points. With a margin of $10$, the optimum of both problems is
+reached from half of the starting points, significantly less often than with
+either swept configuration. With a margin of $100$, it is reached from nineteen
+and seventeen starting points, and with the swept configurations from all or
+all but one, including the unbounded one, for which no convexity value is
+specified; these differences are not significant. The
 additional values of the ladder require mixed-integer solutions but no
 evaluations of the objective, so that the costs of the swept and calibrated
 configurations are similar. These results concern two problems which were also
@@ -1018,7 +1036,7 @@ Table~\ref{tab:variants}.
 
 \begin{table}[t]
   \centering
-  \caption{Fixed and swept convexity, $n = 2$, six starting points: median
+  \caption{Fixed and swept convexity, $n = 2$, twenty starting points: median
     distance $\cdot$ median cost $\cdot$ number of starting points from which the
     optimum is reached.}
   \label{tab:sweep}
@@ -1026,10 +1044,10 @@ Table~\ref{tab:variants}.
     \toprule
     convexity & Rastrigin (range $\approx 80$) & Ackley (range $\approx 22$) \\
     \midrule
-    fixed, margin 10                   & 0.000 $\cdot$ 226 $\cdot$ 4/6 & 10.415 $\cdot$ 208 $\cdot$ 1/6 \\
-    fixed, margin 100                  & 0.000 $\cdot$ 543 $\cdot$ 6/6 & 0.000 $\cdot$ 428 $\cdot$ 4/6 \\
-    sweep, $\kappa_{\max} = 100$       & 0.000 $\cdot$ 491 $\cdot$ 6/6 & 0.000 $\cdot$ 517 $\cdot$ 6/6 \\
-    sweep, unbounded                   & 0.000 $\cdot$ 489 $\cdot$ 6/6 & 0.000 $\cdot$ 601 $\cdot$ 6/6 \\
+    fixed, margin 10                   & 0.497 $\cdot$ 183 $\cdot$ 10/20 & 3.814 $\cdot$ 270 $\cdot$ 10/20 \\
+    fixed, margin 100                  & 0.000 $\cdot$ 541 $\cdot$ 19/20 & 0.000 $\cdot$ 528 $\cdot$ 17/20 \\
+    sweep, $\kappa_{\max} = 100$       & 0.000 $\cdot$ 539 $\cdot$ 20/20 & 0.000 $\cdot$ 517 $\cdot$ 19/20 \\
+    sweep, unbounded                   & 0.000 $\cdot$ 540 $\cdot$ 20/20 & 0.000 $\cdot$ 491 $\cdot$ 20/20 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1038,20 +1056,21 @@ The swept convexity does not give better results than the calibrated margin in
 all cases. In Table~\ref{tab:sweep-density}, the comparison is repeated in five
 dimensions with the densities estimated by the basin count, so that neither a
 margin nor a density is specified for the swept runs. With the swept convexity,
-the optimum of the Ackley function with ten subdivisions and of the Griewank
-function is reached from two starting points out of three, against one with the
-calibrated margin, which exceeds the range of both functions. For the Rastrigin
-function, however, the optimum is reached from all starting points with the
-calibrated margin and from none with the swept convexity: the swept runs
-terminate on their own criterion after about $1550$ evaluations, one basin away
-from the optimum. It should be noted that the calibrated
+the optimum of the Ackley function with ten subdivisions is reached from
+thirteen starting points out of twenty, significantly more often than from the
+four of the calibrated margin, which exceeds the range of this function. The
+optimum of the Griewank function is reached by neither, the median distance
+being $0.012$ with the swept convexity and $0.034$ with the calibrated margin.
+For the Rastrigin function, however, the optimum is reached from eleven starting
+points with the swept convexity and from fifteen with the calibrated margin, a
+difference which is not significant. It should be noted that the calibrated
 margin represents $54\%$ of the range of the Rastrigin function and was
 calibrated on this function.
 
 \begin{table}[t]
   \centering
   \caption{Swept and calibrated convexity with the estimated densities, $n = 5$,
-    three starting points: median distance $\cdot$ median cost $\cdot$ number of
+    twenty starting points: median distance $\cdot$ median cost $\cdot$ number of
     starting points from which the optimum is reached.}
   \label{tab:sweep-density}
   \small
@@ -1059,12 +1078,12 @@ calibrated on this function.
     \toprule
     problem & density & swept & calibrated, $\delta = 100$ \\
     \midrule
-    Styblinski--Tang  & $2^{\times 5}$     & 0.000 $\cdot$ 601 $\cdot$ 3/3  & 0.000 $\cdot$ 458 $\cdot$ 2/3 \\
-    partly multimodal & 10, 10, 1, 1, 1    & 0.000 $\cdot$ 729 $\cdot$ 3/3  & 0.000 $\cdot$ 858 $\cdot$ 3/3 \\
-    Ackley            & $10^{\times 5}$    & 0.000 $\cdot$ 2622 $\cdot$ 2/3 & 6.302 $\cdot$ 3385 $\cdot$ 1/3 \\
-    Griewank          & 19, 13, 11, 7, 9   & 0.007 $\cdot$ 3083 $\cdot$ 2/3 & 0.064 $\cdot$ 3463 $\cdot$ 1/3 \\
-    Ackley            & $63^{\times 5}$    & 7.616 $\cdot$ 3459 $\cdot$ 0/3 & 14.31 $\cdot$ 2094 $\cdot$ 0/3 \\
-    Rastrigin         & $10^{\times 5}$    & 0.995 $\cdot$ 1547 $\cdot$ 0/3 & 0.000 $\cdot$ 2103 $\cdot$ 3/3 \\
+    Styblinski--Tang  & $2^{\times 5}$     & 0.000 $\cdot$ 601 $\cdot$ 19/20  & 0.000 $\cdot$ 481 $\cdot$ 16/20 \\
+    partly multimodal & 10, 10, 1, 1, 1    & 0.000 $\cdot$ 848 $\cdot$ 20/20  & 0.000 $\cdot$ 990 $\cdot$ 20/20 \\
+    Ackley            & $10^{\times 5}$    & 0.000 $\cdot$ 2662 $\cdot$ 13/20 & 4.945 $\cdot$ 2620 $\cdot$ 4/20 \\
+    Griewank          & 19, 13, 11, 7, 9   & 0.012 $\cdot$ 3189 $\cdot$ 0/20  & 0.034 $\cdot$ 3631 $\cdot$ 0/20 \\
+    Ackley            & $63^{\times 5}$    & 8.735 $\cdot$ 3341 $\cdot$ 0/20  & 14.72 $\cdot$ 3170 $\cdot$ 0/20 \\
+    Rastrigin         & $10^{\times 5}$    & 0.000 $\cdot$ 1756 $\cdot$ 11/20 & 0.000 $\cdot$ 1757 $\cdot$ 15/20 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1078,29 +1097,32 @@ detailed results are given in Appendix~\ref{app:extensions}.
 \paragraph{Partial subdivision.} For the partly multimodal function, the optimum
 is reached from all starting points when only the two variables of the Rastrigin
 function are divided into ten intervals, and from none of them with a coarse
-subdivision of the five variables (Table~\ref{tab:partial}). The least expensive successful configuration does not
-correspond exactly to the multimodal variables. Dividing three variables into
-four intervals ($12$ binary variables, $773$ evaluations) is less expensive than
-dividing two variables into ten ($20$ binary variables, $858$ evaluations), since
-the subdivision of a variable in which the function is unimodal has no adverse
-effect, and the cost depends mainly on the number of binary variables.
+subdivision of the five variables (Table~\ref{tab:partial}). A subdivision which
+does not correspond exactly to the multimodal variables can also succeed:
+dividing three variables into four intervals ($12$ binary variables) reaches the
+optimum from seventeen starting points with a median of $758$ evaluations,
+against twenty with $990$ evaluations when two variables are divided into ten
+($20$ binary variables), a difference of success which is not significant. The
+cost depends mainly on the number of binary variables.
 
 \paragraph{Multi-resolution encoding.} With two levels of four intervals, a
 resolution of sixteen intervals per variable is obtained with forty binary
 variables instead of eighty (Table~\ref{tab:multires}). Compared with sixteen
-subdivisions with the standard encoding, the results are better for the Ackley
-function, similar for the Rastrigin function, and worse for the Styblinski--Tang
-function. For the same resolution and number of binary variables, two levels of
-four intervals give better results than four levels of two intervals for the
-Rastrigin and Styblinski--Tang functions. This is consistent with
-the additive cut model, which becomes less accurate as the number of levels
-increases.
+subdivisions with the standard encoding, the results are similar for the
+Rastrigin function and worse for the Ackley and Styblinski--Tang functions, the
+optimum of the latter being reached from two starting points out of twenty
+instead of ten. For the same resolution and number of binary variables, two
+levels of four intervals give smaller median distances than four levels of two
+intervals for the three functions. This is consistent with the additive cut
+model, which becomes less accurate as the number of levels increases.
 
 \paragraph{Hierarchies.} With the deep hierarchy, in which every variable is
 divided into two intervals at each of four levels, the optimum of the Ackley
-function in five dimensions is reached from four starting points out of six, and
-the runs terminate on their own criterion. For the Rastrigin and Styblinski--Tang
-functions, the results are worse than with a single subdivision
+function in five dimensions is reached from twelve starting points out of
+twenty, against one with ten subdivisions per variable, and the runs terminate
+on their own criterion. For the Rastrigin function, the results are worse than
+with a single subdivision, and for the Styblinski--Tang function, the optimum is
+reached as often as with two subdivisions per variable, at three times the cost
 (Table~\ref{tab:hierarchies}). The best-first search, which is the only variant
 able to revise the choice of a box, gives the worst results for the Rastrigin function. A budget which provides fifty
 cuts to a single cut model provides only five cuts to each of ten models, which
@@ -1109,9 +1131,9 @@ are then not sufficiently determined to rank the boxes.
 \paragraph{Influence of the budget.} Since several of these comparisons involve
 runs stopped by the budget, the most sensitive one was repeated with two and four
 times the budget (Table~\ref{tab:budget}). The optimum of the Ackley function is
-then reached with ten subdivisions per variable from two starting points out of
-six instead of none, and the difference with the deep hierarchy is reduced to
-four starting points against two. Beyond twice the budget, the results are
+then reached with ten subdivisions per variable from four starting points out of
+twenty instead of one, and with the deep hierarchy from twelve in both cases, a
+difference which remains significant. Beyond twice the budget, the results are
 unchanged, since both configurations terminate on their own stopping criteria.
 
 \subsection{Comparison with the baselines}\label{sec:baselines}
@@ -1411,7 +1433,7 @@ without any claim of global optimality.
 moderate number of well separated basins of attraction, for which a subdivision
 can be found that separates the basins with fewer binary variables than the
 number of sub-problems allowed by the budget. Under this condition, the optimum
-is reached at a fifth to a third of the cost of the enumeration of the boxes
+is reached at an eighth to a third of the cost of the enumeration of the boxes
 (Table~\ref{tab:enum}), the optimum of the Rastrigin function in five dimensions
 is reached only by the method, from eleven starting points out of twenty
 (Tables~\ref{tab:baselines} and~\ref{tab:tests}). Since the size of the master
@@ -1432,10 +1454,11 @@ sub-problem should therefore be verified when the method is applied to a new
 problem.
 
 \paragraph{Settings.} With the swept convexity, no parameter expressed in the
-units of the objective has to be supplied. The swept configuration performed at
-least as well as the calibrated one for the variants of the method, with the
-exception of the Rastrigin function in five dimensions with ten subdivisions
-(Table~\ref{tab:sweep-density}). The trust-region radius is set to two changed
+units of the objective has to be supplied. The swept configuration reached the
+optimum at least as often as the calibrated one in
+Tables~\ref{tab:variants}, \ref{tab:sweep} and~\ref{tab:sweep-density}, with the
+exception of the Rastrigin function in five dimensions with ten subdivisions,
+for which the difference is not significant. The trust-region radius is set to two changed
 components, which is a suitable compromise for the problems studied but cannot
 be regarded as a general rule. The subdivision density still has to be chosen.
 The estimator based on basin counting provides a suitable density when its
@@ -1448,7 +1471,7 @@ presented.
 factor of the sweep were selected on the problems on which they are evaluated.
 (ii) Several results correspond to runs stopped by the budget; for the Ackley
 function in five dimensions, doubling the budget changed the number of starting
-points reaching the optimum from zero to two out of six, and further increases
+points reaching the optimum from one to four out of twenty, and further increases
 had no effect.
 (iii) No convergence guarantee is obtained: with a large convexification
 constant the optimality gap cannot close (Section~\ref{sec:convexification}),
@@ -1500,8 +1523,9 @@ the method depends on the safeguard against non-convexity and on a small
 trust region measured in number of changed components; both lead to wrong
 results without any warning when they are not set properly. The swept
 convexity avoids the calibration of the only parameter expressed in the units of
-the objective, and gave results equal to or better than the calibrated margin in
-all but one of the configurations compared. The admissible subdivision density
+the objective, and reached the optimum at least as often as the calibrated margin
+in all but one of the configurations compared, for which the difference is not
+significant. The admissible subdivision density
 remains problem dependent, and its estimation by basin counting is affordable
 only when the objective function is inexpensive.
 
@@ -1574,14 +1598,14 @@ The gradients of all functions are computed analytically.
 \section{Tuning of the master}\label{app:tuning}
 
 Unless stated otherwise, the results of this appendix were obtained with the
-adaptive repair and ten subdivisions per variable, with eight starting points and
-a budget of $1000$ evaluations in two dimensions, and three starting points and a
-budget of $2500$ evaluations in five dimensions.
+adaptive repair and ten subdivisions per variable, from the twenty starting
+points of Section~\ref{sec:baselines}, with a budget of $1000$ evaluations in two
+dimensions and $2500$ evaluations in five dimensions.
 
 \begin{table}[h]
   \centering
   \caption{Adaptive repair on Rastrigin, $n=2$: starting points reaching the
-    optimum (median cost) against the number of parallel probes and the margin
+    optimum (median cost, when at least fifteen) against the number of parallel probes and the margin
     $\delta$.}
   \label{tab:margin}
   \small
@@ -1589,9 +1613,9 @@ budget of $2500$ evaluations in five dimensions.
     \toprule
     probes & $\delta = 1$ & 10 & 30 & 100 & 300 \\
     \midrule
-    1 & 0/8 & 0/8 & 2/8 & 6/8 (294) & 5/8 (294) \\
-    4 & 1/8 & 5/8 & 7/8 & 8/8 (543) & 8/8 (550) \\
-    8 & 1/8 & 1/8 & 8/8 (907) & 8/8 (1000) & 7/8 (1000) \\
+    1 & 0/20 & 0/20  & 5/20        & 11/20        & 12/20 \\
+    4 & 2/20 & 10/20 & 19/20 (360) & 19/20 (541)  & 20/20 (550) \\
+    8 & 4/20 & 6/20  & 20/20 (905) & 20/20 (1000) & 19/20 (1000) \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1599,18 +1623,19 @@ budget of $2500$ evaluations in five dimensions.
 \begin{table}[h]
   \centering
   \caption{Effect of the margin $\delta$ on Ackley, $n = 5$, $m = 10$ (range of
-    the objective $14.5$).}
+    the objective $14.5$): median distance, median cost and starting points
+    reaching the optimum.}
   \label{tab:margin-ackley}
   \small
   \begin{tabular}{rrrrr}
     \toprule
     $\delta$ & fraction of the range & distance & cost & reached \\
     \midrule
-    100 & 690\% & 6.302  & 3385 & 1/3 \\
-    30  & 207\% & 4.945  & 2721 & 1/3 \\
-    10  & 69\%  & 0.000  & 2450 & 2/3 \\
-    3   & 21\%  & 12.833 & 1287 & 0/3 \\
-    1   & 7\%   & 8.986  & 927  & 0/3 \\
+    100 & 690\% & 6.302  & 2500 & 1/20 \\
+    30  & 207\% & 4.945  & 2420 & 5/20 \\
+    10  & 69\%  & 4.945  & 1814 & 5/20 \\
+    3   & 21\%  & 7.076  & 1378 & 6/20 \\
+    1   & 7\%   & 13.323 & 960  & 0/20 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1626,8 +1651,8 @@ budget of $2500$ evaluations in five dimensions.
     \toprule
     & $\kappa = 10$ & 30 & 50 & 100 & 200 \\
     \midrule
-    $n=2$ & 6.97 $\cdot$ 0/8 & 0.00 $\cdot$ 6/8 & 0.00 $\cdot$ 5/8 & 0.00 $\cdot$ 6/8 & 0.50 $\cdot$ 4/8 \\
-    $n=5$ & 33.41 $\cdot$ 0/3 & 30.84 $\cdot$ 0/3 & 0.00 $\cdot$ 2/3 & 1.92 $\cdot$ 0/3 & 9.09 $\cdot$ 0/3 \\
+    $n=2$ & 11.44 $\cdot$ 0/20 & 0.00 $\cdot$ 18/20 & 0.00 $\cdot$ 14/20 & 0.00 $\cdot$ 15/20 & 0.00 $\cdot$ 12/20 \\
+    $n=5$ & 34.61 $\cdot$ 0/20 & 19.19 $\cdot$ 1/20 & 1.99 $\cdot$ 5/20  & 1.99 $\cdot$ 2/20  & 2.99 $\cdot$ 2/20 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1643,10 +1668,10 @@ budget of $2500$ evaluations in five dimensions.
     \toprule
     metric, radius & Rastrigin & Ackley & Griewank \\
     \midrule
-    unit, 2       & 0.000 $\cdot$ 543 $\cdot$ 8/8 & 0.000 $\cdot$ 560 $\cdot$ 6/8 & 0.007 $\cdot$ 618 $\cdot$ 0/8 \\
-    unit, 1       & 0.000 $\cdot$ 452 $\cdot$ 8/8 & 0.000 $\cdot$ 496 $\cdot$ 8/8 & 0.007 $\cdot$ 526 $\cdot$ 0/8 \\
-    none          & 0.000 $\cdot$ 810 $\cdot$ 8/8 & 0.000 $\cdot$ 450 $\cdot$ 6/8 & 0.027 $\cdot$ 1000 $\cdot$ 0/8 \\
-    proximity, 3  & 0.000 $\cdot$ 990 $\cdot$ 8/8 & 0.000 $\cdot$ 753 $\cdot$ 8/8 & 0.007 $\cdot$ 1000 $\cdot$ 0/8 \\
+    unit, 2       & 0.000 $\cdot$ 541 $\cdot$ 19/20  & 0.000 $\cdot$ 528 $\cdot$ 17/20 & 0.007 $\cdot$ 743 $\cdot$ 0/20 \\
+    unit, 1       & 0.000 $\cdot$ 458 $\cdot$ 20/20  & 0.000 $\cdot$ 454 $\cdot$ 20/20 & 0.007 $\cdot$ 530 $\cdot$ 0/20 \\
+    none          & 0.000 $\cdot$ 845 $\cdot$ 20/20  & 0.000 $\cdot$ 591 $\cdot$ 15/20 & 0.007 $\cdot$ 1000 $\cdot$ 0/20 \\
+    proximity, 3  & 0.000 $\cdot$ 1000 $\cdot$ 20/20 & 0.000 $\cdot$ 644 $\cdot$ 20/20 & 0.007 $\cdot$ 1000 $\cdot$ 0/20 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1654,38 +1679,40 @@ budget of $2500$ evaluations in five dimensions.
 \begin{table}[h]
   \centering
   \caption{Trust-region radius, $n = 5$: median distance $\cdot$ median cost
-    $\cdot$ starting points reaching the optimum (Ackley and Griewank: all runs
-    stopped by the budget).}
+    $\cdot$ starting points reaching the optimum (Ackley and Griewank: median
+    distance only, many runs being stopped by the budget).}
   \label{tab:radius}
   \small
   \begin{tabular}{rllll}
     \toprule
     radius & Rastrigin & Ackley & Styblinski--Tang & Griewank \\
     \midrule
-    1 & 0.000 $\cdot$ 1230 $\cdot$ 2/3 & 4.95  & 0.000 $\cdot$ 497 $\cdot$ 1/3  & 0.025 \\
-    2 & 0.000 $\cdot$ 2103 $\cdot$ 3/3 & 6.30  & 14.14 $\cdot$ 598 $\cdot$ 1/3  & 0.027 \\
-    3 & 0.995 $\cdot$ 1895 $\cdot$ 1/3 & 7.08  & 0.000 $\cdot$ 951 $\cdot$ 2/3  & 0.025 \\
-    5 & 0.000 $\cdot$ 2500 $\cdot$ 2/3 & 14.93 & 0.000 $\cdot$ 1026 $\cdot$ 2/3 & 0.111 \\
+    1 & 0.995 $\cdot$ 1232 $\cdot$ 7/20  & 6.01 & 0.000 $\cdot$ 395 $\cdot$ 16/20 & 0.027 \\
+    2 & 0.000 $\cdot$ 1757 $\cdot$ 15/20 & 6.30 & 0.000 $\cdot$ 582 $\cdot$ 15/20 & 0.052 \\
+    3 & 0.000 $\cdot$ 2049 $\cdot$ 15/20 & 7.08 & 0.000 $\cdot$ 773 $\cdot$ 20/20 & 0.036 \\
+    5 & 0.000 $\cdot$ 2500 $\cdot$ 15/20 & 9.06 & 0.000 $\cdot$ 860 $\cdot$ 20/20 & 0.067 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 For the Rastrigin function, the results obtained with the adaptive repair no
-longer improve above a threshold value of the margin (Table~\ref{tab:margin}).
-For the Ackley function, whose range is smaller than the calibrated margin, the
-best results are obtained for intermediate values of the margin
-(Table~\ref{tab:margin-ackley}). The convexification constant has a useful range
-bounded on both sides, which in five dimensions reduces to a single value among
-those tested (Table~\ref{tab:constant}). The Hamming distance with a radius of one
-gives the best results for the three problems of Table~\ref{tab:metric}, and the
-ordinal distance is as reliable with a small radius but more expensive. In five
-dimensions, a radius of two gives the best results for the Rastrigin function and
-the worst for the Styblinski--Tang function (Table~\ref{tab:radius}). For the same
-density, the cost of the convexification constant is between one third and two
-thirds of that of the adaptive repair when both lead to the same result, but the
-optimum of the Rastrigin function with ten subdivisions is not reached with the
-constant (distance of $1.92$, against $0.00$ from all starting points with the
-adaptive repair). The adaptive repair is therefore used by default.
+longer improve above a threshold value of the margin, which increases with the
+number of probes (Table~\ref{tab:margin}). For the Ackley function, whose range
+is smaller than the calibrated margin, the optimum is reached most often for
+intermediate values of the margin (Table~\ref{tab:margin-ackley}). The
+convexification constant has a useful range bounded on both sides, and in five
+dimensions none of the values tested reaches the optimum from more than five
+starting points out of twenty (Table~\ref{tab:constant}). The Hamming distance
+with a radius of one reaches the optimum of the Rastrigin and Ackley functions
+from all starting points at the lowest cost among the metrics of
+Table~\ref{tab:metric}, and the ordinal distance reaches it as often but at a
+higher cost. In five dimensions, a radius of one reaches the optimum of the
+Rastrigin function less often than the larger radii, and a radius of two that of
+the Styblinski--Tang function less often than radii of three and five
+(Table~\ref{tab:radius}). With ten subdivisions in five dimensions, the optimum
+of the Rastrigin function is reached from at most five starting points with the
+constant, against fifteen with the adaptive repair, which is therefore used by
+default.
 
 \section{Extensions}\label{app:extensions}
 
@@ -1694,68 +1721,70 @@ $2500$ evaluations and the calibrated margin.
 
 \begin{table}[h]
   \centering
-  \caption{Partial subdivision of the partly multimodal function, three
-    starting points.}
+  \caption{Partial subdivision of the partly multimodal function, twenty
+    starting points: median distance, median cost and starting points reaching
+    the optimum.}
   \label{tab:partial}
   \small
   \begin{tabular}{lrrrrr}
     \toprule
     subdivision & boxes & binaries & distance & cost & reached \\
     \midrule
-    all 5 variables, $m=2$ & 32  & 10 & 1.99 & 540 & 0/3 \\
-    3 variables, $m=4$     & 64  & 12 & 0.00 & 773 & 3/3 \\
-    2 variables, $m=10$    & 100 & 20 & 0.00 & 858 & 3/3 \\
-    2 variables, $m=5$     & 25  & 10 & 1.99 & 620 & 0/3 \\
-    1 variable, $m=10$     & 10  & 10 & 3.98 & 419 & 0/3 \\
+    all 5 variables, $m=2$ & 32  & 10 & 1.99 & 506 & 0/20 \\
+    3 variables, $m=4$     & 64  & 12 & 0.00 & 758 & 17/20 \\
+    2 variables, $m=10$    & 100 & 20 & 0.00 & 990 & 20/20 \\
+    2 variables, $m=5$     & 25  & 10 & 1.99 & 631 & 0/20 \\
+    1 variable, $m=10$     & 10  & 10 & 3.98 & 420 & 5/20 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \begin{table}[h]
   \centering
-  \caption{Flat and multi-resolution encodings, three starting points: median
-    distance (starting points reaching the optimum). $\dagger$ stopped by the
-    budget.}
+  \caption{Flat and multi-resolution encodings, twenty starting points: median
+    distance (starting points reaching the optimum, when non-zero). $\dagger$
+    median run stopped by the budget.}
   \label{tab:multires}
   \small
   \begin{tabular}{lrrlll}
     \toprule
     encoding & binaries & resolution & Rastrigin & Ackley & Styblinski--Tang \\
     \midrule
-    flat, $m=10$          & 50 & 10 & 0.00 (3/3) & 6.30$\dagger$  & 14.14 (1/3) \\
-    flat, $m=16$          & 80 & 16 & 1.99       & 12.63$\dagger$ & 0.00 (2/3) \\
-    $m=2$, $L=4$          & 40 & 16 & 2.99$\dagger$ & 7.08$\dagger$ & 14.44 \\
-    $m=2$, $L=5$          & 50 & 32 & 5.25       & 14.82$\dagger$ & 14.70 \\
-    $m=4$, $L=2$          & 40 & 16 & 1.99 (1/3) & 7.40           & 0.27 (1/3) \\
-    $m=4$, $L=3$          & 60 & 64 & 3.14 (1/3) & 6.28$\dagger$  & 5.67 \\
+    flat, $m=10$          & 50 & 10 & 0.00 (15/20)  & 6.30$\dagger$ (1/20) & 0.00 (15/20) \\
+    flat, $m=16$          & 80 & 16 & 1.99 (1/20)   & 5.53$\dagger$ (3/20) & 0.13 (10/20) \\
+    $m=2$, $L=4$          & 40 & 16 & 3.06$\dagger$ & 13.15$\dagger$       & 9.32 (1/20) \\
+    $m=2$, $L=5$          & 50 & 32 & 5.61          & 15.24$\dagger$       & 19.15 \\
+    $m=4$, $L=2$          & 40 & 16 & 2.99 (2/20)   & 7.40                 & 3.81 (2/20) \\
+    $m=4$, $L=3$          & 60 & 64 & 3.14 (1/20)   & 6.16$\dagger$        & 6.08 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \begin{table}[h]
   \centering
-  \caption{Hierarchies and flat subdivisions, six starting points: median
-    distance, starting points reaching the optimum and cost. $\dagger$ stopped by
-    the budget; the frontier expands boxes until the budget is spent.}
+  \caption{Hierarchies and flat subdivisions, twenty starting points: median
+    distance, and, when non-zero, starting points reaching the optimum and median
+    cost. $\dagger$ median run stopped by the budget; the frontier expands boxes
+    until the budget is spent.}
   \label{tab:hierarchies}
   \small
   \begin{tabular}{llll}
     \toprule
     method & Rastrigin & Ackley & Styblinski--Tang \\
     \midrule
-    flat, $m=2$               & 4.98                & 14.43               & 0.00, 5/6, 486 \\
-    flat, $m=10$              & 0.00, 6/6, 1920     & 6.30$\dagger$       & 0.00, 1/6, 532 \\
-    two levels, by value      & 4.98                & 6.30                & 0.00, 5/6, 872 \\
-    two levels, by cuts       & 2.45                & 8.11                & 0.00, 5/6, 987 \\
-    deep, 4 levels of 2       & 4.98                & 0.00, 4/6, 2387     & 0.00, 5/6, 1494 \\
-    frontier, best first      & 6.70$\dagger$       & 9.71$\dagger$       & 0.00, 6/6, 2500$\dagger$ \\
+    flat, $m=2$               & 4.98                & 14.43                   & 0.00, 16/20, 481 \\
+    flat, $m=10$              & 0.00, 15/20, 1757   & 6.30, 1/20, 2500$\dagger$ & 0.00, 15/20, 582 \\
+    two levels, by value      & 4.98                & 6.30                    & 0.00, 16/20, 867 \\
+    two levels, by cuts       & 2.99                & 9.58$\dagger$           & 0.00, 16/20, 974 \\
+    deep, 4 levels of 2       & 4.98                & 0.00, 12/20, 2136       & 0.00, 16/20, 1490 \\
+    frontier, best first      & 6.70$\dagger$       & 9.71$\dagger$           & 0.00, 20/20, 2500$\dagger$ \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \begin{table}[h]
   \centering
-  \caption{Effect of the budget on Ackley, six starting points: median distance
+  \caption{Effect of the budget on Ackley, twenty starting points: median distance
     $\cdot$ median cost $\cdot$ starting points reaching the optimum.}
   \label{tab:budget}
   \small
@@ -1763,9 +1792,9 @@ $2500$ evaluations and the calibrated margin.
     \toprule
     budget & flat, $m=10$ & deep, 4 levels of 2 \\
     \midrule
-    2500     & 6.30 $\cdot$ 2500 $\cdot$ 0/6 (4 runs truncated) & 0.00 $\cdot$ 2387 $\cdot$ 4/6 \\
-    5000     & 5.62 $\cdot$ 3306 $\cdot$ 2/6                    & 0.00 $\cdot$ 3093 $\cdot$ 4/6 \\
-    10\,000  & 5.62 $\cdot$ 3306 $\cdot$ 2/6                    & 0.00 $\cdot$ 3093 $\cdot$ 4/6 \\
+    2500     & 6.30 $\cdot$ 2500 $\cdot$ 1/20 (14 runs truncated) & 0.00 $\cdot$ 2136 $\cdot$ 12/20 \\
+    5000     & 4.95 $\cdot$ 2620 $\cdot$ 4/20                     & 0.00 $\cdot$ 2575 $\cdot$ 12/20 \\
+    10\,000  & 4.95 $\cdot$ 2620 $\cdot$ 4/20                     & 0.00 $\cdot$ 2575 $\cdot$ 12/20 \\
     \bottomrule
   \end{tabular}
 \end{table}

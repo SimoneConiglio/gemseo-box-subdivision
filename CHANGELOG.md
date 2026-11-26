@@ -30,6 +30,19 @@ and this project adheres to
 
 ### Added
 
+- `benchmarks/paper_tables.py`: every other table of the paper, from the
+  enumeration of the boxes to the effect of the budget, run again from the
+  twenty starting points of the comparison with the baselines, with the same
+  tolerance on the success; the summaries are in `docs/_static/paper_tables.json`,
+  from which the paper, Tables 1, 3, 4 and 5 of the benchmark page, Tables C.1,
+  C.2b, C.3, C.5b and C.6 of annex C, Tables D.1 to D.4, D.6, D.11 and D.12 of
+  annex D, and the figures of the density, the encodings and the hierarchies are
+  drawn. Claims which no longer hold from twenty starting points were corrected,
+  among them the failure of the swept convexity on Rastrigin in five dimensions
+  (eleven starting points against fifteen for the calibrated margin, not
+  significant), the benefit of the multi-resolution encoding on
+  Styblinski-Tang, and the failure of ten subdivisions on Styblinski-Tang. The
+  remaining tables of the annexes are labelled as coming from the earlier study.
 - `benchmarks/run_statistics.py` and `benchmarks/statistics.py`: the comparison
   with the baselines from twenty starting points per problem, with the exact
   McNemar test on the success, the Wilcoxon signed-rank test on the final

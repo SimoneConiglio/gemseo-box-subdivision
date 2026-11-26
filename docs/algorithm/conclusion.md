@@ -86,38 +86,38 @@ The following findings are supported by the experiments:
   problem that a coarse subdivision of all variables does not, and degrades the
   results when the multimodality concerns all variables;
 - the density can be proposed by counting the basins along jittered axial scans.
-  On all problems whose count converged, the proposal coincides with the better
-  of the two fixed densities tested, and improves on both for the problem with
-  unimodal components. The error of the estimate is one-sided by construction, so
+  On Rastrigin and Styblinski-Tang the proposal, ten and two subdivisions per
+  variable, reaches the optimum from fifteen and sixteen starting points of
+  twenty, and on the problem with unimodal components from all of them, against
+  none with two subdivisions of every variable. The error of the estimate is one-sided by construction, so
   that a count that does not converge indicates an unreliable proposal; on Ackley
   this indicator identifies the proposal to discard;
-- the trust region must be small and measured in components changed: a radius of
-  two reaches the optimum of Rastrigin in five variables from all starting
-  points, a radius equal to the diameter of the design space from two of six, and
-  no trust region from one;
+- the trust region must be measured in components changed and remain small: in
+  five variables, a radius of two reaches the optimum of Rastrigin from fifteen
+  starting points of twenty, significantly more often than a radius of one, and
+  the median distance on Ackley increases with the radius;
 - the ordinal proximity between neighbouring boxes brings no improvement: an
-  implementation based on it is as reliable as counting components and about
-  50% more expensive, the multimodality behaving as a categorical rather than an
+  implementation based on it is as reliable as counting components and more
+  expensive, the multimodality behaving as a categorical rather than an
   ordinal choice;
 - the multi-resolution encoding reaches a given resolution with fewer binaries,
-  sixteen subdivisions per component with forty binaries instead of eighty,
-  without degrading the results at that resolution: on Styblinski-Tang, where the
-  best flat density fails, it reaches a distance of $0.27$ to the optimum with
-  fewer evaluations than the equivalent flat encoding. Its cut model is additive
-  over the levels, so that fewer and coarser levels perform better;
+  sixteen subdivisions per component with forty binaries instead of eighty, but
+  gives similar results on Rastrigin and worse results on Ackley and
+  Styblinski-Tang than the flat encoding at that resolution. Its cut model is
+  additive over the levels, so that fewer and coarser levels perform better;
 - a hierarchy of subdivisions performs worse than the flat method whenever a flat
   subdivision separates the basins, and better when a basin is too broad for any
   affordable density: on Ackley in five variables the deep hierarchy reaches the
-  optimum from four starting points of six against two for the flat method, both
-  terminating on their own criteria.
+  optimum from twelve starting points of twenty against four for the flat
+  method, both terminating on their own criteria.
 
 The following points are not established:
 
 - Results beyond the budget of each comparison. A run whose cost equals its
   budget was stopped, and the comparison of two such runs ranks the progress made
   within the budget. On Ackley in five variables, a larger budget changed the
-  result from no starting point reaching the optimum to two of six, and then no
-  longer: both configurations terminate at the same evaluation with budgets of
+  result from one starting point of twenty reaching the optimum to four, and
+  then no longer: both configurations terminate at the same evaluation with budgets of
   $5000$ and $10\,000$, being limited by their own stopping rules. The other
   truncated results remain subject to the same restriction.
 - Generalization. The number of subdivisions, the trust-region radius and the

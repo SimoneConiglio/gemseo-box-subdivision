@@ -37,25 +37,28 @@ methods solve the same main problem with the same `Benders` formulation, so
 that the comparison isolates the exploration strategy.
 
 Table 1 reports the results on the Rastrigin function in two dimensions with
-$10 \times 10 = 100$ boxes and eight starting points. The cost is counted in
-executions of the objective discipline.
+$10 \times 10 = 100$ boxes. The cost is counted in executions of the objective
+discipline. The normalized formulation was run from the twenty starting points
+of the [comparison with the baselines](#comparison-with-the-baselines), the
+constraint formulation from eight starting points of an earlier study.
 
-| formulation | method | objective | boxes solved | executions |
-|-------------|--------|-----------|--------------|------------|
-| constraint | enumeration | $0.0$ | 100 | 1427 |
-| constraint | outer approximation | $0.0$ | 24 to 36 | 341 to 521 |
-| normalized | enumeration | $0.0$ | 100 | 1267 |
-| normalized | outer approximation | $0.0$ | 20 to 36 | 255 to 458 |
+| formulation | method | objective | boxes solved | executions | reached |
+|-------------|--------|-----------|--------------|------------|---------|
+| constraint | enumeration | $0.0$ | 100 | 1427 | |
+| constraint | outer approximation | $0.0$ | 24 to 36 | 341 to 521 | 7/8 |
+| normalized | enumeration | $0.0$ | 100 | 1267 | 20/20 |
+| normalized | outer approximation | $0.0$ | 12 to 32 | 158 to 412 | 19/20 |
 
-*Table 1. Enumeration and outer approximation on Rastrigin, $n = 2$.*
+*Table 1. Enumeration and outer approximation on Rastrigin, $n = 2$: median
+objective, and range over the starting points of the boxes solved and of the
+executions.*
 
-The outer approximation reaches the same optimum after solving 20 to 36% of the
-boxes, at about one third of the cost of the enumeration. Both formulations
-reach the optimum from seven of the eight starting points. The normalized
-formulation is about 11% cheaper in enumeration, since its sub-problems are
-bounded by the box instead of restoring feasibility with respect to a box
-constraint, and its least expensive outer-approximation runs cost $255$
-executions against $341$. It is retained in the following.
+With the normalized formulation, the outer approximation reaches the optimum
+from nineteen of the twenty starting points after solving 12 to 32% of the
+boxes, at a median cost of $312$ executions, a quarter of that of the
+enumeration. The normalized formulation is about 11% cheaper in enumeration,
+since its sub-problems are bounded by the box instead of restoring feasibility
+with respect to a box constraint. It is retained in the following.
 
 ## Variants of the method
 
@@ -253,7 +256,7 @@ variables and $42\%$ after $250$ in five, and the flattest profile afterwards,
 ending at $85\%$ and $44\%$. With the convexity swept it misses the optimum of
 Styblinski-Tang in five variables from all starting points, whereas the
 calibrated encoding of [annex D](extensions.md#multi-resolution-encoding)
-reached it from one of three.
+reaches it from two of twenty.
 
 ## Density of the subdivision
 
@@ -263,20 +266,21 @@ number $\sum_j m_j$ grows linearly. Five variables with ten subdivisions each
 give $100\,000$ boxes and $50$ binaries.
 
 Table 3 reports the results in five variables with the `adaptive`
-configuration, a budget of $2500$ and three starting points: the median distance
-to the optimum, the median cost, and the number of starting points from which
-the optimum is reached.
+configuration, a budget of $2500$ and the twenty starting points of the
+[comparison with the baselines](#comparison-with-the-baselines): the median
+distance to the optimum, the median cost, and the number of starting points from
+which the optimum is reached, when non-zero.
 
 | $m$ | binaries | boxes | Rastrigin | Ackley | Styblinski-Tang | Griewank |
 |-----|----------|-------|-----------|--------|-----------------|----------|
-| 2 | 10 | $32$ | $4.98$ · 823 | $14.43$ · 892 | $0.00$ · 458 · 2/3 | $0.06$ · 1016 |
-| 4 | 20 | $10^3$ | $6.70$ · 714 | $12.63$ · 1277 | $0.00$ · 846 · 3/3 | $0.22$ · 1547 |
-| 10 | 50 | $10^5$ | $0.00$ · 2103 · 3/3 | $6.30$ · 2500† | $14.14$ · 598 · 1/3 | $0.03$ · 2500† |
-| 16 | 80 | $10^6$ | $1.99$ · 1706 | $12.63$ · 2500† | $0.00$ · 973 · 2/3 | $0.05$ · 2500† |
-| 24 | 120 | $8 \cdot 10^6$ | $3.59$ · 1628 | $8.53$ · 2500† | $14.44$ · 1098 · 1/3 | $0.08$ · 2500† |
+| 2 | 10 | $32$ | $4.98$ · 866 | $14.43$ · 674 | $0.00$ · 481 · 16/20 | $0.06$ · 1015 |
+| 4 | 20 | $10^3$ | $6.70$ · 801 | $12.63$ · 1270 | $0.00$ · 749 · 19/20 | $0.22$ · 1349 |
+| 10 | 50 | $10^5$ | $0.00$ · 1757 · 15/20 | $6.30$ · 2500† · 1/20 | $0.00$ · 582 · 15/20 | $0.05$ · 2500† |
+| 16 | 80 | $10^6$ | $1.99$ · 1780 · 1/20 | $5.53$ · 2500† · 3/20 | $0.13$ · 864 · 10/20 | $0.06$ · 2500† |
+| 24 | 120 | $8 \cdot 10^6$ | $2.86$ · 1834 · 1/20 | $8.90$ · 2500† | $0.13$ · 1122 · 8/20 | $0.08$ · 2500† |
 
 *Table 3. Effect of the number $m$ of subdivisions per variable, $n = 5$.
-† stopped by the budget; the distance is an upper bound.*
+† median run stopped by the budget; the distance is an upper bound.*
 
 ```{image} ../_static/figures/density.svg
 :class: only-light
@@ -291,19 +295,19 @@ the optimum is reached.
 *Figure 2. Effect of the subdivision density, $n = 5$.*
 
 With ten subdivisions per variable, the optimum of Rastrigin in five dimensions
-is reached from all starting points for about $2100$ evaluations; none of the
-baselines reached it at the budgets tested. With two or four subdivisions it is
-not reached.
+is reached from fifteen of the twenty starting points for a median of about
+$1750$ evaluations; none of the baselines reached it at the budgets tested. With
+two or four subdivisions it is not reached.
 
 The Rastrigin and Styblinski-Tang columns compare terminated runs. In the Ackley
-and Griewank columns, all runs from ten subdivisions upwards were stopped by the
-budget; these columns therefore rank the progress made within $2500$
+and Griewank columns, most runs from ten subdivisions upwards were stopped by
+the budget; these columns therefore rank the progress made within $2500$
 evaluations and do not show which density would perform best with a larger
 budget.
 
-Beyond ten subdivisions the distance on Rastrigin increases, $1.99$ at sixteen
-and $3.59$ at twenty-four, while the cost decreases, which indicates that the
-runs terminate early. The cut model has $\sum_j m_j$ coefficients, and a budget
+Beyond ten subdivisions the optimum of Rastrigin is reached from one starting
+point, at sixteen and at twenty-four subdivisions, although the runs terminate
+on their own criterion at a cost similar to that with ten. The cut model has $\sum_j m_j$ coefficients, and a budget
 allows a few dozen cuts to identify them. A density is therefore usable as long
 as the number of binaries remains below the number of sub-problems the budget
 can pay for: fifty binaries are at this limit for a budget of about fifty
@@ -314,19 +318,16 @@ The density must also be sufficient to separate the minima: the basins of
 Rastrigin are about one unit apart over a range of ten, which requires ten
 subdivisions.
 
-Conversely, refining beyond the basins degrades the results. Styblinski-Tang has
-two basins per variable and its optimum is reached with two and four
-subdivisions; with ten, the distance is $14.14$ and the optimum is reached from
-one starting point of three. Ten subdivisions divide each basin into five boxes,
-and the value and sensitivity returned by a box that contains no minimum carry
-no information on the location of the minimum. The same behaviour is observed
-with the pure convexification and with three of the four trust-region radii of
-[annex C](tuning.md#interaction-between-density-and-mechanism), which
-attributes it to the subdivision rather than to the master.
+Conversely, refining well beyond the basins degrades the results.
+Styblinski-Tang has two basins per variable and its optimum is reached from
+fifteen to nineteen starting points with two to ten subdivisions, and from ten
+and eight with sixteen and twenty-four, the latter significantly less often than
+with two (exact McNemar test, $p = 0.008$).
 
 The useful density thus lies between the one separating the basins and the one
-limited by the binaries, and no single value suits the four problems: ten is the
-best density for three of them and the worst for the fourth. The default of
+limited by the binaries. Ten subdivisions suit Rastrigin and Styblinski-Tang,
+whereas no density reaches the optimum of Ackley from more than three starting
+points, nor that of Griewank from any, within this budget. The default of
 `benchmarks/baselines.py` bounds the enumeration accordingly.
 
 ### Proposed density
@@ -335,41 +336,42 @@ The density can be proposed by counting the basins along jittered axial scans of
 each component, as described in [the
 methodology](methodology.md#estimation-of-the-subdivision-density). Each problem
 of Table 4 is given four times the budget implied by its proposed density, so
-that every run terminates on its own criterion; three starting points, median
+that every run terminates on its own criterion; twenty starting points, median
 distance and median cost.
 
-| problem | proposed $m$ | binaries | distance | cost | reached | compared with a fixed density |
-| --------- | -------------- | ---------- | ----- | ------ | --------- | ---------------------- |
-| Rastrigin | 10 ×5 | 50 | $0.00$ | 2103 | 3/3 | equal to 10, better than 2 |
-| Styblinski-Tang | 2 ×5 | 10 | $0.00$ | 458 | 2/3 | equal to 2, better than 10 |
-| `partly_multimodal` | 10 10 1 1 1 | 23 | $0.00$ | 858 | 3/3 | better than both |
-| Griewank | 19 13 11 7 9 | 59 | $0.064$ | 3463 | 1/3 | equal to 2, worse than 10 |
-| Ackley | 63 ×5, *unresolved* | 314 | $12.75$ | 5372 | 0/3 | worse than 10 |
+| problem | proposed $m$ | binaries | distance | cost | reached |
+| --------- | -------------- | ---------- | ----- | ------ | --------- |
+| Rastrigin | 10 ×5 | 50 | $0.00$ | 1757 | 15/20 |
+| Styblinski-Tang | 2 ×5 | 10 | $0.00$ | 481 | 16/20 |
+| `partly_multimodal` | 10 10 1 1 1 | 23 | $0.00$ | 990 | 20/20 |
+| Griewank | 19 13 11 7 9 | 59 | $0.034$ | 3631 | 0/20 |
+| Ackley | 63 ×5, *unresolved* | 314 | $14.72$ | 3170 | 0/20 |
 
 *Table 4. Proposed density, $n = 5$.*
 
 :::{note}
 The costs of Table 4 exclude the scans that determine the density, which also
-evaluate the objective: about $6100$ evaluations on Rastrigin in five variables,
-against $2103$ for the run itself, and about twenty-five thousand on Ackley and
-Griewank. Charged to the budget of the [variants](#variants-of-the-method), the
+evaluate the objective: about $12\,500$ evaluations on Rastrigin in five
+variables, against a median of $1757$ for the run itself, $12\,525$ on Griewank and
+$25\,350$ on Ackley. Charged to the budget of the [variants](#variants-of-the-method), the
 proposed density ranks last in both dimensions. Table 4 measures the value of
 the proposed density, not the cost of proposing it.
 :::
 
-On the problems whose basin count converged, the proposed density coincides with
-the better of the two fixed densities, and on `partly_multimodal` it improves on
-both: the optimum is reached from all starting points for $858$ evaluations
-against $1554$ with ten subdivisions everywhere, the three unimodal components
-being left undivided. The proposal selects ten subdivisions for Rastrigin and
-two for Styblinski-Tang, which no single fixed value achieves.
+The proposal selects ten subdivisions for Rastrigin and two for
+Styblinski-Tang, which reach the optimum from fifteen and sixteen starting
+points. On `partly_multimodal` the three unimodal components are left undivided,
+and the optimum is reached from all starting points for a median of $990$
+evaluations, against none with two subdivisions of every variable
+([annex D](extensions.md#partial-subdivision)).
 
-The budget implied by the proposal, $\sum_j m_j$ sub-problems, agrees with the
-measured cost within a third: $2000$ against $2103$ on Rastrigin, $400$ against
-$458$ on Styblinski-Tang and $920$ against $858$ on `partly_multimodal`.
+The budget implied by the proposal, $\sum_j m_j$ sub-problems, is of the order
+of the measured cost: $2000$ against a median of $1757$ on Rastrigin, $400$
+against $481$ on Styblinski-Tang and $920$ against $990$ on
+`partly_multimodal`.
 
 On Ackley the basin count does not converge, and the proposed density of
-sixty-three performs worse than ten. Its ripples are one unit apart over a range
+sixty-three reaches the optimum from no starting point. Its ripples are one unit apart over a range
 of sixty-four, so that the count is correct but the corresponding subdivision is
 not useful: the global funnel, not the ripples, has to be resolved. The estimate
 reports itself as unresolved before the run, which identifies the proposals to
@@ -393,36 +395,31 @@ solved.
 
 Table 5 compares fixed and swept convexity on Rastrigin and Ackley in two
 dimensions, whose objectives differ in scale by a factor of four, with ten
-subdivisions, a budget of $1000$ and six starting points: median distance,
+subdivisions, a budget of $1000$ and twenty starting points: median distance,
 median cost and number of starting points from which the optimum is reached.
 
 | convexity | Rastrigin, range $\approx 80$ | Ackley, range $\approx 22$ |
 |-----------|-------------------------------|----------------------------|
-| fixed, margin $10$ | $0.000$ · 226 · 4/6 | $10.415$ · 208 · 1/6 |
-| fixed, margin $100$ | $0.000$ · 543 · 6/6 | $0.000$ · 428 · 4/6 |
-| sweep, $\kappa_{\max} = 100$ | $0.000$ · 491 · 6/6 | $0.000$ · 517 · 6/6 |
-| sweep, unbounded | $0.000$ · 489 · 6/6 | $0.000$ · 601 · 6/6 |
+| fixed, margin $10$ | $0.497$ · 183 · 10/20 | $3.814$ · 270 · 10/20 |
+| fixed, margin $100$ | $0.000$ · 541 · 19/20 | $0.000$ · 528 · 17/20 |
+| sweep, $\kappa_{\max} = 100$ | $0.000$ · 539 · 20/20 | $0.000$ · 517 · 19/20 |
+| sweep, unbounded | $0.000$ · 540 · 20/20 | $0.000$ · 491 · 20/20 |
 
 *Table 5. Fixed and swept convexity, $n = 2$.*
 
-No fixed margin reaches the optimum of both problems from all starting points:
-the margin of $100$ retained by the tuning reaches Ackley from four of six. Both
-swept configurations reach both problems from all six, including the unbounded
-one, which is given no convexity value.
-
-The sweep is less sensitive to its bound than the fixed method is to its margin.
-A bound ten times too large costs $532$ evaluations against $491$ on Rastrigin
-without changing the starting points from which the optimum is reached, since
-the low rungs remain in the ladder; it does, however, lose two starting points
-on Ackley. A margin ten times too small reaches the optimum from one starting
-point of six.
+A margin ten times too small reaches the optimum of both problems from half of
+the starting points, significantly less often than either swept configuration
+(exact McNemar test, $p \le 0.004$). The margin of $100$ retained by the tuning
+reaches Rastrigin and Ackley from nineteen and seventeen starting points, and
+the swept configurations from all or all but one, including the unbounded one,
+which is given no convexity value; these differences are not significant.
 
 The additional rungs cost mixed-integer solves rather than evaluations, so the
 swept configurations cost about as much as the calibrated one. Table 5 covers
 two problems in two dimensions, on which the headroom of the unbounded form was
 chosen; it does not establish a general factor. A broader comparison is given by
 the [variants](#variants-of-the-method), on four problems in two and five
-dimensions from five starting points, for the adaptive repair only. The full
+dimensions from twenty starting points, for the adaptive repair only. The full
 table and the derivation of the bound are in
 [annex C](tuning.md#swept-convexity).
 
@@ -436,16 +433,17 @@ rank a box. None of them was adopted as a default. The tables are given in
 
 - Subdividing a subset of the variables improves the results when the
   multimodality is concentrated in that subset and degrades them otherwise. The
-  least expensive configuration that reaches the optimum does not subdivide
-  exactly the multimodal variables, because the number of binaries governs the
-  cost.
+  configurations that do not subdivide exactly the multimodal variables can
+  also reach the optimum, at a cost governed by the number of binaries.
 - The multi-resolution encoding reduces the number of binaries for a given
   resolution, sixteen subdivisions per variable for forty binaries instead of
-  eighty, and improves the results on Styblinski-Tang, where the density study
-  fails. Fewer and coarser levels perform better than more and finer ones.
+  eighty, but reaches the optimum less often than the flat encodings of the
+  same resolution on Ackley and Styblinski-Tang. Fewer and coarser levels
+  perform better than more and finer ones.
 - The hierarchies address basins too broad for any affordable density: the deep
-  hierarchy reaches the optimum of Ackley in five variables, which no other
-  configuration does. The frontier hierarchy, the only one able to revise a
+  hierarchy reaches the optimum of Ackley in five variables from twelve
+  starting points of twenty, against at most four for the other configurations
+  of these tables. The frontier hierarchy, the only one able to revise a
   choice, performs worst, because each node restarts a master and discards its
   cuts.
 - The positional weighting of the subdivisions performs worse than the
@@ -454,10 +452,10 @@ rank a box. None of them was adopted as a default. The tables are given in
 Several of these comparisons involve runs stopped by the budget, so
 [annex D](extensions.md#effect-of-the-budget) repeats the most
 sensitive one at two and four times the budget. The flat subdivision then
-reaches Ackley from two starting points of six instead of none, which reduces
-the advantage of the hierarchy to four against two; beyond that, a larger budget
-does not change the results, both configurations terminating on their own
-criteria.
+reaches Ackley from four starting points of twenty instead of one, and the deep
+hierarchy from twelve in both cases, a difference which remains significant;
+beyond that, a larger budget does not change the results, both configurations
+terminating on their own criteria.
 
 ## Comparison with the baselines
 

@@ -890,36 +890,76 @@ def draw_results(foreground: str):
 EXTENSIONS_BUDGET = 2500
 """The budget of the comparison of the extensions."""
 
-EXTENSIONS = {
-    "Rastrigin": {
-        "flat $m=2$": (4.975, 888, 0),
-        "flat $m=10$": (0.0, 1920, 6),
-        "2 then 5, value": (4.975, 1986, 0),
-        "2 then 5, cuts": (2.452, 1947, 0),
-        "deep, 4 of 2": (4.975, 1672, 0),
-        "frontier": (6.700, 2500, 0),
-    },
-    "Ackley": {
-        "flat $m=2$": (14.430, 873, 0),
-        "flat $m=10$": (6.302, 2500, 0),
-        "2 then 5, value": (6.302, 2417, 0),
-        "2 then 5, cuts": (8.107, 2458, 0),
-        "deep, 4 of 2": (0.0, 2387, 4),
-        "frontier": (9.714, 2500, 0),
-    },
-    "Styblinski-Tang": {
-        "flat $m=2$": (0.0, 486, 5),
-        "flat $m=10$": (0.0, 532, 1),
-        "2 then 5, value": (0.0, 872, 5),
-        "2 then 5, cuts": (0.0, 987, 5),
-        "deep, 4 of 2": (0.0, 1494, 5),
-        "frontier": (0.0, 2500, 6),
-    },
+PAPER_TABLES = Path(__file__).parent / "_static" / "paper_tables.json"
+"""The cells of the tables of the paper, written by ``benchmarks.paper_tables``."""
+
+PROBLEM_NAMES = {
+    "rastrigin": "Rastrigin",
+    "ackley": "Ackley",
+    "styblinski_tang": "Styblinski-Tang",
+    "griewank": "Griewank",
 }
+"""The display name of each problem."""
+
+
+def _paper_cells(table: str) -> dict[tuple[str, str], dict]:
+    """Return the cells of a table of the paper, by row and problem.
+
+    Args:
+        table: The name of the table in ``paper_tables.json``.
+
+    Returns:
+        The summary of each cell over the twenty starting points.
+    """
+    cells = json.loads(PAPER_TABLES.read_text())["cells"]
+    return {
+        (str(cell["row"]), cell["problem"]): cell
+        for cell in cells
+        if cell["table"] == table
+    }
+
+
+def _rows_of(table: str, rows: dict[str, str]) -> dict[str, dict]:
+    """Return the median distance, median cost and successes of some rows.
+
+    Args:
+        table: The name of the table in ``paper_tables.json``.
+        rows: The label of each row in the figure, by its name in the table.
+
+    Returns:
+        By problem, then by label, the median distance, the median cost and the
+        number of starting points from which the optimum was reached.
+    """
+    cells = _paper_cells(table)
+    problems = dict.fromkeys(problem for _, problem in cells)
+    return {
+        PROBLEM_NAMES[problem]: {
+            label: (
+                cells[row, problem]["median_gap"],
+                cells[row, problem]["median_cost"],
+                cells[row, problem]["reached"],
+            )
+            for row, label in rows.items()
+        }
+        for problem in problems
+    }
+
+
+EXTENSIONS = _rows_of(
+    "hierarchies",
+    {
+        "flat, 2": "flat $m=2$",
+        "flat, 10": "flat $m=10$",
+        "two levels, value": "2 then 5, value",
+        "two levels, cuts": "2 then 5, cuts",
+        "deep": "deep, 4 of 2",
+        "frontier": "frontier",
+    },
+)
 """The hierarchies against the flat subdivisions, by problem.
 
 Each entry is the median distance to the optimum, the median cost and the number
-of the six starting points from which the optimum was reached.
+of the twenty starting points from which the optimum was reached.
 """
 
 
@@ -965,15 +1005,16 @@ def draw_extensions(foreground: str):
                     axes.text(
                         bar.get_x() + bar.get_width() / 2,
                         max(drawn) * 0.02 + value,
-                        "\u2713" * count,
+                        f"{count}/20",
                         ha="center",
                         fontsize=6.5,
                         color=colours[list(bars).index(bar)],
                     )
 
-            if row == 0 and max(drawn) <= 1e-6:
-                # Every run solved the problem: a bar chart of zeros says
-                # nothing, so the panel says it in words.
+            if row == 0 and max(drawn) <= 1e-3:
+                # Every median is within the tolerance of the optimum, which is
+                # relative to its magnitude: a bar chart of zeros says nothing,
+                # so the panel says it in words.
                 axes.set_ylim(0.0, 1.0)
                 axes.text(
                     positions.mean(),
@@ -997,9 +1038,9 @@ def draw_extensions(foreground: str):
                 axes.set_xticklabels(methods, rotation=35, ha="right", fontsize=8)
 
     figure.suptitle(
-        "Five variables, one budget of 2500, median over six starting points, "
-        "a tick per run reaching the optimum;\nhatched costs are runs the budget "
-        "stopped, whose gap above is an upper bound",
+        "Five variables, one budget of 2500, median over twenty starting points, "
+        "with the starting points reaching the optimum;\nhatched costs are "
+        "medians the budget stopped, whose gap above is an upper bound",
         fontsize=9.5,
     )
     figure.tight_layout()
@@ -1009,39 +1050,33 @@ def draw_extensions(foreground: str):
 ENCODINGS_BUDGET = 2500
 """The budget of the comparison of the encodings."""
 
+ENCODING_ROWS = {
+    "flat, 10": ("flat $m=10$", 50, 10),
+    "flat, 16": ("flat $m=16$", 80, 16),
+    "2, 4": ("$m=2$, $L=4$", 40, 16),
+    "2, 5": ("$m=2$, $L=5$", 50, 32),
+    "4, 2": ("$m=4$, $L=2$", 40, 16),
+    "4, 3": ("$m=4$, $L=3$", 60, 64),
+}
+"""The label, the binaries and the resolution of each encoding."""
+
 ENCODINGS = {
-    "Rastrigin": {
-        "flat $m=10$": (0.000, 50, 10, 2103, 3),
-        "flat $m=16$": (1.990, 80, 16, 1706, 0),
-        "$m=2$, $L=4$": (2.985, 40, 16, 2500, 0),
-        "$m=2$, $L=5$": (5.252, 50, 32, 2338, 0),
-        "$m=4$, $L=2$": (1.990, 40, 16, 1953, 1),
-        "$m=4$, $L=3$": (3.142, 60, 64, 1409, 1),
-        "$m=2$, $L=4$, pos.": (7.043, 40, 16, 2500, 0),
-    },
-    "Ackley": {
-        "flat $m=10$": (6.302, 50, 10, 2500, 0),
-        "flat $m=16$": (12.632, 80, 16, 2500, 0),
-        "$m=2$, $L=4$": (7.076, 40, 16, 2500, 0),
-        "$m=2$, $L=5$": (14.819, 50, 32, 2500, 0),
-        "$m=4$, $L=2$": (7.398, 40, 16, 2457, 0),
-        "$m=4$, $L=3$": (6.280, 60, 64, 2500, 0),
-        "$m=2$, $L=4$, pos.": (16.807, 40, 16, 2500, 0),
-    },
-    "Styblinski-Tang": {
-        "flat $m=10$": (14.137, 50, 10, 598, 1),
-        "flat $m=16$": (0.000, 80, 16, 973, 2),
-        "$m=2$, $L=4$": (14.435, 40, 16, 1281, 0),
-        "$m=2$, $L=5$": (14.700, 50, 32, 1280, 0),
-        "$m=4$, $L=2$": (0.266, 40, 16, 920, 1),
-        "$m=4$, $L=3$": (5.667, 60, 64, 840, 0),
-        "$m=2$, $L=4$, pos.": (3.675, 40, 16, 1656, 1),
-    },
+    problem: {
+        ENCODING_ROWS[row][0]: (
+            cell["median_gap"],
+            *ENCODING_ROWS[row][1:],
+            cell["median_cost"],
+            cell["reached"],
+        )
+        for (row, name), cell in _paper_cells("multires").items()
+        if PROBLEM_NAMES[name] == problem
+    }
+    for problem in ("Rastrigin", "Ackley", "Styblinski-Tang")
 }
 """The encodings against the flat subdivisions, by problem.
 
 Each entry is the median distance to the optimum, the binaries of the master, the
-subdivisions per component reached, the median cost, and the number of the three
+subdivisions per component reached, the median cost, and the number of the twenty
 starting points from which the optimum was reached.
 """
 
@@ -1085,7 +1120,7 @@ def draw_encodings(foreground: str):
                 axes.text(
                     bar.get_x() + bar.get_width() / 2,
                     bar.get_height() + max(gaps) * 0.02,
-                    "\u2713" * count,
+                    f"{count}/20",
                     ha="center",
                     fontsize=6.5,
                     color=foreground,
@@ -1104,8 +1139,8 @@ def draw_encodings(foreground: str):
             axes.set_ylabel("binaries of the master")
 
     figure.suptitle(
-        "Five variables, one budget of 2500, median over three starting points. "
-        "The encodings reach\ntheir resolution on fewer binaries; hatched runs "
+        "Five variables, one budget of 2500, median over twenty starting points. "
+        "The encodings reach\ntheir resolution on fewer binaries; hatched medians "
         "were stopped by the budget",
         fontsize=9.5,
     )
@@ -1256,13 +1291,14 @@ def draw_density(foreground: str):  # noqa: ARG001
     """Draw what the subdivision density does at five variables."""
     figure, axes = plt.subplots(figsize=(7.2, 3.4))
     labels = ("Rastrigin", "Ackley", "Styblinski-Tang", "Griewank")
-    # Median distance to the optimum, five variables, budget 2500.
+    # Median distance to the optimum over twenty starting points, five
+    # variables, budget 2500.
+    cells = _paper_cells("density")
     gaps = {
-        2: (4.975, 14.430, 0.0, 0.061),
-        4: (6.700, 12.632, 0.0, 0.224),
-        10: (0.0, 6.302, 14.137, 0.027),
-        16: (1.990, 12.632, 0.0, 0.054),
-        24: (3.589, 8.526, 14.435, 0.084),
+        density: tuple(
+            cells[str(density), problem]["median_gap"] for problem in PROBLEM_NAMES
+        )
+        for density in (2, 4, 10, 16, 24)
     }
     colours = ("#adb5bd", SECOND, ACCENT, THIRD, "#862e9c")
     positions = arange(len(labels))

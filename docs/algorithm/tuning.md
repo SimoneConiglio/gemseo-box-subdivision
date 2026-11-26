@@ -16,9 +16,16 @@ values, the trust region that limits the region searched by the master, the two
 limits that terminate a run, and the dependence of these settings on the size of
 the boxes.
 
-All experiments use the problems of [annex A](problems.md), with eight starting
-points in two dimensions and three in five; the conclusions apply to these
-landscapes and are not general rules.
+All experiments use the problems of [annex A](problems.md); the conclusions
+apply to these landscapes and are not general rules. Tables C.1, C.2b, C.3 and
+C.6, which appear in the paper, were run from the twenty starting points of the
+[comparison with the baselines](benchmark.md#comparison-with-the-baselines)
+(`benchmarks/paper_tables.py`). The other tables of this annex come from an
+earlier study with eight starting points in two dimensions and three, five or
+six in five, as stated in their captions; with so few starting points, a
+difference of one or two starting points is not significant. A difference
+between two configurations run from the twenty starting points is called
+significant below when the exact McNemar test gives a $p$-value below $0.05$.
 
 ## The two convexity mechanisms
 
@@ -53,15 +60,15 @@ evaluated separately.
 ### Adaptive repair
 
 Table C.1 reports the results on Rastrigin with ten subdivisions per variable and
-no convexification constant, in two variables, from eight starting points, with a
-budget of $1000$: number of starting points from which the optimum is reached and
-median cost.
+no convexification constant, in two variables, from twenty starting points, with
+a budget of $1000$: number of starting points from which the optimum is reached
+and, when at least fifteen, median cost.
 
 | parallel points | `min_dfk` = 1 | 10 | 30 | 100 | 300 |
 |-----------------|---------------|----|----|-----|-----|
-| 1 | 0/8 | 0/8 | 2/8 | 6/8 (294) | 5/8 (294) |
-| 4 | 1/8 | 5/8 | 7/8 | 8/8 (543) | 8/8 (550) |
-| 8 | 1/8 | 1/8 | 8/8 (907) | 8/8 (1000) | 7/8 (1000) |
+| 1 | 0/20 | 0/20 | 5/20 | 11/20 | 12/20 |
+| 4 | 2/20 | 10/20 | 19/20 (360) | 19/20 (541) | 20/20 (550) |
+| 8 | 4/20 | 6/20 | 20/20 (905) | 20/20 (1000) | 19/20 (1000) |
 
 *Table C.1. Adaptive repair on Rastrigin, $n = 2$.*
 
@@ -69,8 +76,9 @@ Two settings matter.
 
 Number of parallel points. The master probes one trust-region radius per point,
 over `geomspace(step / 2, step)`, so that a feasible master problem remains
-available. Four points reach the optimum from all starting points; a single point
-from six of eight; eight points from all starting points but at nearly twice the
+available. With a margin of $100$, four points reach the optimum from nineteen
+starting points of twenty, significantly more often than a single point, from
+eleven; eight points reach it from all starting points but at nearly twice the
 cost, the budget being spent on probes rather than boxes. The choice of four is
 therefore a matter of cost rather than feasibility. With the earlier trust region
 based on the catalogue values, a single point stopped a run after two or three
@@ -79,9 +87,10 @@ boxes; this was due to the metric, not to the probing.
 Convexity margin. `min_dfk` is subtracted from a difference of objective values,
 so that it is an absolute quantity in the units of the objective. Its effect
 increases up to a threshold and then saturates: for an objective with a range of
-about eighty, the optimum is reached from one starting point with a margin of $1$,
-five with $10$, seven with $30$ and all eight with $100$ and $300$. Table C.2
-shows the same behaviour in five variables.
+about eighty and four points, the optimum is reached from two starting points of
+twenty with a margin of $1$, ten with $10$, and nineteen or twenty from $30$
+upwards. Table C.2, from three starting points, shows the same behaviour on
+Rastrigin in five variables.
 
 | `min_dfk` | 1 | 10 | 30 | 100 | 300 |
 |-----------|---|----|----|-----|-----|
@@ -89,13 +98,22 @@ shows the same behaviour in five variables.
 | Ackley, $n=5$ | $8.99$ · 0/3 | $4.95$ · 1/3 | $4.95$ · 0/3 | $6.30$ · 0/3 | $7.23$ · 1/3 |
 
 *Table C.2. Median distance and number of starting points reaching the optimum
-against the convexity margin, $n = 5$.*
+against the convexity margin, $n = 5$, earlier study, three starting points.*
 
-An overestimated margin costs sub-problems rather than quality, so that the
-default is set to the first saturating value. On Ackley, whose objective has a
-range of about twenty-two instead of eighty, the most useful margin is the
-smallest one tested, which illustrates that the margin depends on the units of
-the objective.
+| `min_dfk` | 1 | 3 | 10 | 30 | 100 |
+|-----------|---|---|----|----|-----|
+| Ackley, $n=5$ | $13.32$ · 0/20 | $7.08$ · 6/20 | $4.95$ · 5/20 | $4.95$ · 5/20 | $6.30$ · 1/20 |
+
+*Table C.2b. Median distance and number of starting points reaching the optimum
+against the convexity margin, Ackley, $n = 5$, twenty starting points.*
+
+An overestimated margin costs sub-problems rather than quality on Rastrigin, so
+that the default is set to the first saturating value. On Ackley in five
+variables, whose objective has a range of $14.5$ instead of eighty, the margin of
+$100$ reaches the optimum from one starting point of twenty, the margins from
+$3$ to $30$ from five or six and the margin of $1$ from none (Table C.2b); only
+the difference between $3$ and $1$ is significant. The margin depends on the
+units of the objective.
 
 ### Pure convexification
 
@@ -110,23 +128,26 @@ disabled and one parallel point.
 
 | constant | 10 | 30 | 50 | 100 | 200 |
 |----------|----|----|----|-----|-----|
-| $n=2$, budget $1000$ | $6.97$ · 0/8 | $0.00$ · 6/8 (456) | $0.00$ · 5/8 | $0.00$ · 6/8 (466) | $0.50$ · 4/8 |
-| $n=5$, budget $2500$ | $33.41$ · 0/3 | $30.84$ · 0/3 | $0.00$ · 2/3 | $1.92$ · 0/3 | $9.09$ · 0/3 |
+| $n=2$, budget $1000$ | $11.44$ · 0/20 | $0.00$ · 18/20 | $0.00$ · 14/20 | $0.00$ · 15/20 | $0.00$ · 12/20 |
+| $n=5$, budget $2500$ | $34.61$ · 0/20 | $19.19$ · 1/20 | $1.99$ · 5/20 | $1.99$ · 2/20 | $2.99$ · 2/20 |
 
-*Table C.3. Pure convexification on Rastrigin.*
+*Table C.3. Pure convexification on Rastrigin, twenty starting points: median
+distance and number of starting points reaching the optimum.*
 
-The useful range narrows as the dimension increases. In two variables a factor of
-three on the constant has little effect, and the optimum is reached from five or
-six starting points of eight. In five variables only the constant $50$ reaches it,
-the smaller values leaving the cuts invalid and the larger ones making the ranking
-uninformative. On Ackley the best constant is $100$, with much worse results at
-$200$.
+The useful range narrows as the dimension increases. In two variables the
+constants from $30$ to $200$ reach the optimum from twelve to eighteen starting
+points of twenty, and $10$ from none. In five variables no constant reaches it
+from more than five starting points, the smaller values leaving the cuts invalid
+and the larger ones making the ranking uninformative.
 
-The adaptive repair reaches the same optima from eight starting points of eight in
-two variables and three of three in five, so that the pure convexification is
-dominated on these problems. It is retained because it corresponds to the
-theoretical argument of the outer approximation and requires no observed pairs,
-but it is not the default.
+With one point, the adaptive repair with a margin of $100$ reaches the optimum
+of Rastrigin in two variables from eleven starting points of twenty
+(Table C.1), against eighteen with the constant $30$, a difference which is not
+significant. With four points, it reaches it from nineteen in two variables and
+fifteen in five ([Table 3](benchmark.md#density-of-the-subdivision)), against at
+most five with the constant in five variables. The pure convexification is
+retained because it corresponds to the theoretical argument of the outer
+approximation and requires no observed pairs, but it is not the default.
 
 The useful constants are of the order of the variation of the objective over the
 design space, as is the convexity margin of the adaptive repair: both mechanisms
@@ -185,9 +206,9 @@ the integer points and would make the gap meaningful.
 The convexity margin and the convexification constant are absolute quantities in
 the units of the objective, and the suitable value is of the order of the
 variation of the objective over the design space, which is unknown to the user. A
-margin of $100$ reaches the optimum from all starting points on Rastrigin, whose
-range is about eighty, and gives the worst result among the tested values on
-Ackley, whose range is about twenty-two.
+margin of $100$ reaches the optimum from nineteen starting points of twenty on
+Rastrigin in two variables, whose range is about eighty, and from one on Ackley
+in five variables, whose range is $14.5$ (Tables C.1 and C.2b).
 
 The master already avoids choosing its trust-region radius: it probes one radius
 per parallel point over `geomspace(step / 2, step)`, so that the parallel points
@@ -223,7 +244,8 @@ below can be reproduced with both.
 #### Results
 
 Table C.4 reports the results on Rastrigin and Ackley in two dimensions with ten
-subdivisions, a budget of $1000$, six starting points and the adaptive repair:
+subdivisions, a budget of $1000$, six starting points of the earlier study and
+the adaptive repair:
 median distance, median cost and number of starting points from which the optimum
 is reached. The first three rows correspond to a manual calibration of the margin;
 the swept rows use no margin.
@@ -238,11 +260,16 @@ the swept rows use no margin.
 | sweep, observed spread | $0.000$ · 361 · 6/6 | $3.814$ · 315 · 3/6 |
 | sweep, observed spread $\times 10$ | $0.000$ · 489 · 6/6 | $0.000$ · 601 · 6/6 |
 
-*Table C.4. Fixed and swept convexity, $n = 2$.*
+*Table C.4. Fixed and swept convexity, $n = 2$, earlier study, six starting
+points. [Table 5](benchmark.md#swept-convexity) gives four of these rows from
+twenty starting points.*
 
-No fixed margin reaches the optimum of both problems from all starting points. The
-best fixed margin, $100$, reaches Ackley from four starting points of six, and the
-sweep with the same bound from six. The sweep is also less sensitive to its bound:
+In this earlier study, no fixed margin reaches the optimum of both problems from
+all starting points. The best fixed margin, $100$, reaches Ackley from four
+starting points of six, and the sweep with the same bound from six; from twenty
+starting points, these counts become seventeen and nineteen, a difference which
+is not significant, and the only significant difference of Table 5 is the lower
+success of the margin of $10$. The sweep is also less sensitive to its bound:
 a bound ten times too large costs $532$ evaluations against $491$ on Rastrigin
 without changing the number of starting points reaching the optimum, whereas a
 margin ten times too small reaches it from one of six. On Ackley the overestimated
@@ -366,7 +393,7 @@ is the number of components changed by a candidate.
 ### Comparison of the metrics
 
 Table C.5 compares four metrics in two variables with ten subdivisions, a budget
-of $1000$ and eight starting points. `indexes` is the former default based on the
+of $1000$ and eight starting points of the earlier study. `indexes` is the former default based on the
 catalogue values, `unit` the Hamming distance now used, `none` sets all weights to
 zero so that the constraint is inactive, and `proximity` replaces the constraint
 by $|v^\top\alpha' - v^\top\alpha| \le \texttt{max\_step}$ on the catalogue values
@@ -382,17 +409,25 @@ $v$, implemented in the master by the stub of `benchmarks/trust_region.py`.
 | `proximity`, step 9 | $0.000$ · 822 · 8/8 | $0.000$ · 487 · 7/8 | $0.007$ · 1000 · 0/8 |
 | `proximity`, step 3 | $0.000$ · 990 · 8/8 | $0.000$ · 753 · 8/8 | $0.007$ · 1000 · 0/8 |
 
-*Table C.5. Comparison of the trust-region metrics, $n = 2$.*
+*Table C.5. Comparison of the trust-region metrics, $n = 2$, earlier study,
+eight starting points.*
 
-The unit metric with a radius of one gives the best result in every column: it is
-the only configuration reaching Ackley from all eight starting points, the least
-expensive on Rastrigin, and the closest on Griewank, which no configuration
-solves.
+| metric | Rastrigin | Ackley | Griewank |
+|--------|-----------|--------|----------|
+| `unit`, step 2 | $0.000$ · 541 · 19/20 | $0.000$ · 528 · 17/20 | $0.007$ · 743 · 0/20 |
+| `unit`, step 1 | $0.000$ · 458 · 20/20 | $0.000$ · 454 · 20/20 | $0.007$ · 530 · 0/20 |
+| `none` | $0.000$ · 845 · 20/20 | $0.000$ · 591 · 15/20 | $0.007$ · 1000 · 0/20 |
+| `proximity`, step 3 | $0.000$ · 1000 · 20/20 | $0.000$ · 644 · 20/20 | $0.007$ · 1000 · 0/20 |
+
+*Table C.5b. Four rows of Table C.5 from twenty starting points.*
+
+The unit metric with a radius of one reaches the optimum of Rastrigin and Ackley
+from all twenty starting points at the lowest cost of Table C.5b, and is among
+the closest on Griewank, which no configuration solves.
 
 The ordinal proximity, described in the upstream documentation, also reaches
-Ackley from eight starting points when its radius is small, but for $753$
-evaluations against $496$; on Rastrigin it reaches the optimum from all starting
-points with both radii, for $822$ or $990$ evaluations against $452$. The
+Rastrigin and Ackley from all twenty starting points when its radius is small,
+but for $1000$ and $644$ evaluations against $458$ and $454$. The
 reliability is therefore due to a small neighbourhood, which is expressed at
 lowest cost by counting components. The ordinal interpretation of the interval
 indices brings no improvement on a multimodal landscape, where a neighbouring box
@@ -402,37 +437,35 @@ rather than an ordinal choice.
 ### Radius of the trust region
 
 Table C.6 gives the results in five variables with ten subdivisions, a budget of
-$2500$ and three starting points.
+$2500$ and twenty starting points: median distance, median cost and number of
+starting points reaching the optimum.
 
 | radius | Rastrigin | Ackley | Styblinski-Tang | Griewank |
 |--------|-----------|--------|-----------------|----------|
-| 1 | $0.000$ · 1230 · 2/3 | $4.95$ · 2500 | $0.000$ · 497 · 1/3 | $0.025$ · 2500 |
-| 2 | $0.000$ · 2103 · 3/3 | $6.30$ · 2500 | $14.14$ · 598 · 1/3 | $0.027$ · 2500 |
-| 3 | $0.995$ · 1895 · 1/3 | $7.08$ · 2500 | $0.000$ · 951 · 2/3 | $0.025$ · 2500 |
-| 5 | $0.000$ · 2500 · 2/3 | $14.93$ · 2500 | $0.000$ · 1026 · 2/3 | $0.111$ · 2500 |
+| 1 | $0.995$ · 1232 · 7/20 | $6.01$ · 2386 · 3/20 | $0.000$ · 395 · 16/20 | $0.027$ · 2408 |
+| 2 | $0.000$ · 1757 · 15/20 | $6.30$ · 2500 · 1/20 | $0.000$ · 582 · 15/20 | $0.052$ · 2500 |
+| 3 | $0.000$ · 2049 · 15/20 | $7.08$ · 2500 · 1/20 | $0.000$ · 773 · 20/20 | $0.036$ · 2500 |
+| 5 | $0.000$ · 2500 · 15/20 | $9.06$ · 2500 · 0/20 | $0.000$ · 860 · 20/20 | $0.067$ · 2500 |
 
-*Table C.6. Effect of the trust-region radius, $n = 5$.*
+*Table C.6. Effect of the trust-region radius, $n = 5$, twenty starting points.*
 
-The radius must be small. The distance on Ackley increases monotonically with the
-radius, and Rastrigin gives the best results with a radius of two, from all
-starting points. With six starting points, the same Rastrigin configuration
-reaches the optimum from six of six for $1920$ evaluations, against three of six
-with a radius of five, two of six with the diameter of the design space and one
-of six without trust region. The default radius is therefore two
-(`TRUST_REGION_RADIUS`).
+A radius of one reaches the optimum of Rastrigin from seven starting points,
+significantly less often than a radius of two, from fifteen; larger radii reach
+it as often, at a higher cost. The median distance on Ackley increases with the
+radius. The default radius is two (`TRUST_REGION_RADIUS`).
 
 :::{warning}
-Styblinski-Tang is an exception: at this density a radius of two is its worst
-setting, with a distance of $14.14$ against $0.000$ for radii of one, three and
-five. The same configuration stands out in the density study below. The default
-radius is a good average over these problems and not a general rule; when the
-runs of a problem stop early, the neighbouring radii should be tested first.
+On Styblinski-Tang, a radius of two reaches the optimum from fifteen starting
+points, against twenty with radii of three and five, a difference which is not
+significant. The default radius is a compromise over these problems and not a
+general rule; when the runs of a problem stop early, the neighbouring radii
+should be tested first.
 :::
 
 Disabling the shrinking of the trust region, by setting
 `step_decreasing_activation` above the number of iterations, does not help: the
 run then terminates on the stall counter, reaching the optimum from six starting
-points of eight for $\kappa = 100$, with identical results for index and unit
+points of eight of the earlier study for $\kappa = 100$, with identical results for index and unit
 weights, which indicates that the trust region is inactive in both cases. The two
 limits replace each other, so that neither the constant nor the radius alone
 recovers the guarantee.
@@ -472,8 +505,9 @@ the Hamming radii one and two admit $46$ and $856$ boxes, the Euclidean radii
 $1.5$, $2$ and $3$ admit $51$, $221$ and $1343$; in two variables, $19$ and $100$
 against $9$, $13$ and $29$. The Euclidean radii $2$ to $3$ are therefore the
 counterpart of the default Hamming radius, $1.5$ that of a Hamming radius of one,
-and $5$ is a wide region. The rows `hamming` reproduce Table C.5, Table C.6 and
-Table 6 with the same seeds and budgets.
+and $5$ is a wide region. The Euclidean tables below come from the earlier
+study: their rows `hamming` reproduce Table C.5 and the earlier versions of
+Table C.6 and of Table 6, with the same seeds and budgets.
 
 | trust region | Rastrigin | Ackley | Griewank |
 |--------------|-----------|--------|----------|
@@ -505,7 +539,8 @@ radius, as with the Hamming metric.
 budget $2500$, three starting points, convexity margin $100$.*
 
 In five variables the result depends on the problem. The radius $1.5$ reaches
-Ackley from all three starting points, which no radius of Table C.6 achieves,
+Ackley from all three starting points, which no radius achieved in the earlier
+version of Table C.6,
 although within the budget only, and Rastrigin from all
 three for $1468$ evaluations against $2103$; Griewank is marginally closer. On
 Styblinski-Tang every Euclidean radius fails from every starting point, with a
@@ -618,7 +653,7 @@ $2.16 \cdot 10^{-4}$ from the optimum is not counted as reaching it.*
 | Rastrigin | $10^{\times 5}$ | $0.995$ · 1547 · 0/3 | $0.000$ · 3086 · 3/3 |
 
 *Table C.17. Diameter schedule with swept convexity at the estimated densities of
-Table D.12, three starting points, a distance below $10^{-2}$ counting as
+the earlier rows of Table D.12, three starting points, a distance below $10^{-2}$ counting as
 reaching the optimum.*
 
 With swept convexity, the diameter schedule reaches the optimum at least as

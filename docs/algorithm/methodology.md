@@ -680,8 +680,8 @@ problems that a flat subdivision can resolve. They perform better on a case the
 flat method does not resolve within the same budget, a basin too broad for the
 affordable densities. The single basin of Ackley spans a range of sixty, and the
 deep hierarchy, dividing each variable in two four times, reaches its optimum
-from four starting points of six, against two for the flat subdivision at its
-best density, both terminating on their own criteria. Each level has only $2n$
+from twelve starting points of twenty, against four for the flat subdivision at
+ten subdivisions per variable, both terminating on their own criteria. Each level has only $2n$
 coefficients, so that a quarter of the budget suffices to identify them, and the
 resolution reaches $2^4$ per variable without any large level.
 

@@ -57,11 +57,12 @@ A convexity margin on the **scale of the objective**: ``min_dfk`` is subtracted
 from an objective difference, so it is an absolute quantity in the units of the
 objective, not a ratio, and it has to be scaled to the problem. On the Rastrigin
 benchmark, whose objective spans about eighty, the margin crosses a threshold and
-then **saturates** rather than passing through a window: at two variables it
-reaches the optimum from one starting point out of eight at $1$, five at $10$,
-seven at $30$ and all eight at $100$ and at $300$; at five variables and ten
-subdivisions, from none at $10$, two out of three at $30$ and all three at $100$
-and at $300$. What an over-large margin costs is sub-problems, not quality, so
+then **saturates** rather than passing through a window: at two variables and
+four parallel points it reaches the optimum from two starting points out of
+twenty at $1$, ten at $10$, and nineteen or twenty from $30$ upwards; at five
+variables and ten subdivisions, from none at $10$, two out of three at $30$ and
+all three at $100$ and at $300$ in an earlier study with three starting
+points. What an over-large margin costs is sub-problems, not quality, so
 the default sits at the first value that saturates.
 """
 
@@ -82,11 +83,10 @@ the incumbent whatever the cuts say, so the master ranks them by nothing in
 particular.
 
 The window narrows as the dimension grows. At two variables and ten
-subdivisions, constants of $30$ to $100$ reach the optimum from five or six
-starting points out of eight, against eight out of eight for the adaptive
-repair. At five variables the window is a single value of those tried, $50$,
-which reaches it from two starting points out of three, while $100$ misses and
-$200$ is far off.
+subdivisions, constants of $30$ to $200$ reach the optimum from twelve to
+eighteen starting points out of twenty. At five variables none of the constants
+tried reaches it from more than five starting points out of twenty, $50$ being
+the best, against fifteen for the adaptive repair with four parallel points.
 
 An exaggerated constant is therefore not a conservative choice, and the regime
 where the convergence argument would apply is out of reach anyway, the run ending
@@ -114,15 +114,15 @@ The master restricts each iteration to a neighbourhood of the incumbent box, and
 the distance it measures is the number of components a candidate changes, every
 subdivision being weighed alike by the design spaces of this package.
 
-A radius of two is what the measurements support, and it is far from the radius
-at which the region stops constraining,
-:attr:`.BoxSubdivision.max_step`. Letting the master change every component at
-once is markedly worse: on Rastrigin with five variables and ten subdivisions,
-a radius of two reaches the optimum from six starting points out of six for
-$1920$ evaluations, a radius of five from three, and the radius of the design
-space from two. Removing the region altogether is worse still, one out of six.
+A radius of two is a compromise over the benchmark problems, far from the
+radius at which the region stops constraining,
+:attr:`.BoxSubdivision.max_step`. On Rastrigin with five variables and ten
+subdivisions, from twenty starting points, a radius of one reaches the optimum
+from seven, and radii of two, three and five from fifteen, at median costs of
+$1757$, $2049$ and $2500$ evaluations. On Styblinski-Tang, radii of three and
+five reach it from all twenty starting points and a radius of two from fifteen.
 
-The two-dimensional benchmark agrees on the cheaper end: every radius solves it
-from every starting point, for $452$ evaluations at a radius of one against
-$810$ with no region at all.
+In two variables, a radius of one reaches the optimum of Rastrigin from every
+starting point for a median of $458$ evaluations, against $845$ with no region
+at all.
 """
