@@ -33,7 +33,7 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{arrows.meta,positioning,fit}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
@@ -695,7 +695,24 @@ settings of the master problem. The user therefore only provides the
 disciplines, the design space and the number of subdivisions. The sub-problems
 are solved by SLSQP \citep{kraft1988} for the analytic problems and by MMA
 \citep{svanberg1987,gemseomma} for the topology optimization problem, and the master
-problem is a mixed-integer linear program.
+problem is a mixed-integer linear program, solved by OR-Tools or by SciPy
+(Fig.~\ref{fig:architecture}).
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figures/architecture.tex}}
+  \caption{Architecture of the implementation. The user provides the
+    disciplines, the design space, the number of subdivisions and the settings
+    of the method (grey). The scenario of \code{gemseo-box-subdivision} builds
+    the subdivision and the design space of the normalized variables $\xi$ and
+    of the box selection $\alpha$, chains the mapping $x(\xi, \alpha)$ before
+    the disciplines and converts the settings into those of the master problem.
+    The \code{Benders} formulation of \code{gemseo-bilevel-outer-approximation}
+    assigns $\alpha$ to the master problem, which selects the boxes, and $\xi$
+    to the sub-problems, which are solved by GEMSEO and return the value and the
+    slope from which the cuts are built.}
+  \label{fig:architecture}
+\end{figure}
 
 Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$, so
 that the result does not depend on the order in which the boxes are solved. The

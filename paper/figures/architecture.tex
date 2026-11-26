@@ -1,0 +1,70 @@
+% Architecture of the implementation (Fig. architecture): the classes of each
+% package and the data exchanged between them.
+\begin{tikzpicture}[
+    font=\footnotesize,
+    cls/.style={draw, rounded corners=1.5pt, fill=white, align=center,
+                inner sep=3pt, minimum height=0.9cm, text width=3.5cm},
+    user/.style={cls, fill=black!6},
+    pkg/.style={draw, dashed, rounded corners=3pt, inner sep=6pt},
+    pkgname/.style={font=\footnotesize\bfseries, rotate=90, anchor=south,
+                    align=center},
+    flow/.style={-{Stealth[length=2mm]}, thick},
+    data/.style={font=\scriptsize, align=center},
+  ]
+  % --- User input.
+  \node[user] (input) {disciplines, design space,\\number of subdivisions};
+  \node[user, right=0.5cm of input, text width=4.6cm] (settings)
+    {\code{BoxSubdivisionSettings}\\\code{SweptBoxSubdivisionSettings}};
+
+  % --- gemseo-box-subdivision.
+  \node[cls, below=0.9cm of input, text width=7.5cm, xshift=2.3cm]
+    (scenario) {\code{BoxSubdivisionScenario}\\
+      builds the design space, chains the mapping, converts the settings};
+  \node[cls, below left=0.6cm and -3.0cm of scenario] (subdivision)
+    {\code{BoxSubdivision}\\boxes $\ell(\alpha)$, $u(\alpha)$};
+  \node[cls, right=0.5cm of subdivision] (mapping)
+    {\code{BoxMapping}\\$x(\xi, \alpha)$ and its Jacobian};
+  \node[cls, right=0.5cm of mapping] (sweep)
+    {convexity sweep\\ladder of $\delta$ per probe};
+  \node[pkg, fit=(scenario) (subdivision) (mapping) (sweep)] (box) {};
+  \node[pkgname] at (box.west) {gemseo-box-\\subdivision};
+
+  % --- gemseo-bilevel-outer-approximation.
+  \node[cls, below=1.4cm of subdivision] (benders)
+    {\code{Benders} formulation\\$\alpha$ to the master,\\$\xi$ to the sub-problem};
+  \node[cls, right=0.5cm of benders] (master)
+    {\code{BILEVEL\_MASTER\_}\\\code{OUTER\_APPROXIMATION}\\cuts, repair, trust region};
+  \node[cls, right=0.5cm of master] (milp)
+    {MILP solver\\OR-Tools or SciPy};
+  \node[pkg, fit=(benders) (master) (milp)] (oa) {};
+  \node[pkgname] at (oa.west) {gemseo-bilevel-outer-\\approximation};
+
+  % --- GEMSEO and the solvers of the sub-problem.
+  \node[cls, below=1.4cm of benders] (adapter)
+    {scenario adapter\\a sub-problem\\per box};
+  \node[cls, right=0.5cm of adapter] (chain)
+    {\code{MDOChain}\\\code{BoxMapping} $\to$ disciplines};
+  \node[cls, right=0.5cm of chain] (nlp)
+    {NLP solver\\SLSQP or MMA (gemseo-mma)};
+  \node[pkg, fit=(adapter) (chain) (nlp)] (gemseo) {};
+  \node[pkgname] at (gemseo.west) {GEMSEO};
+
+  % --- Flows.
+  \draw[flow] (input) -- (input |- scenario.north);
+  \draw[flow] (settings) -- (settings |- scenario.north);
+  \draw[flow] (scenario) -- (subdivision);
+  \draw[flow] (scenario) -- (mapping);
+  \draw[flow] (scenario) -- (sweep);
+  \draw[flow] (subdivision.south) -- node[data, right] {design space\\$(\xi, \alpha)$}
+    (benders.north);
+  \draw[flow] (sweep.south) -- node[data, left] {settings of the master,\\$\delta$, $\Delta$}
+    (sweep.south |- oa.north);
+  \draw[flow] (benders) -- (master);
+  \draw[flow, <->] (master) -- (milp);
+  \draw[flow] ([xshift=-4mm]master.south) -- node[data, left] {box $\alpha^{(i)}$}
+    ([xshift=-4mm]master.south |- gemseo.north);
+  \draw[flow] ([xshift=4mm]master.south |- gemseo.north) --
+    node[data, right] {$v(\alpha^{(i)})$, $s^{(i)}$} ([xshift=4mm]master.south);
+  \draw[flow] (adapter) -- (chain);
+  \draw[flow, <->] (chain) -- (nlp);
+\end{tikzpicture}
