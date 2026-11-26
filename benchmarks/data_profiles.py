@@ -186,17 +186,20 @@ def _single_threaded() -> None:
         os.environ[name] = "1"
 
 
-def _run(arguments: tuple[str, str, int, int]) -> Result:
+def _run(arguments: tuple[str, str, int, int], budget: int | None = None) -> Result:
     """Run one method on one problem, in a worker process.
 
     Args:
         arguments: The method, the problem, the dimension and the seed.
+        budget: The budget.
+            If ``None``, use the budget of the method in the profiles.
 
     Returns:
         The outcome of the run.
     """
     method, name, dimension, seed = arguments
-    budget = budget_of(method, dimension)
+    if budget is None:
+        budget = budget_of(method, dimension)
     if method in variants.VARIANTS:
         return variants.run(method, PROBLEMS[name], dimension, seed, budget)
 
@@ -244,6 +247,7 @@ def collect(
     seeds: Iterable[int] = SEEDS,
     max_workers: int | None = None,
     cache: Path | None = None,
+    budget: int | None = None,
 ) -> list[Result]:
     """Run every method on every problem and from every starting point.
 
@@ -256,6 +260,8 @@ def collect(
             If ``None``, use as many as there are processors.
         cache: The file keeping the finished runs.
             If ``None``, keep none.
+        budget: The budget of every method.
+            If ``None``, use the budget of each method in the profiles.
 
     Returns:
         The outcome of every run, each carrying its history.
@@ -272,7 +278,7 @@ def collect(
             cache.parent.mkdir(parents=True, exist_ok=True)
 
         with ProcessPoolExecutor(max_workers, initializer=_single_threaded) as executor:
-            futures = [executor.submit(_run, task) for task in missing]
+            futures = [executor.submit(_run, task, budget) for task in missing]
             for future in as_completed(futures):
                 result = future.result()
                 done[_key(result)] = result
