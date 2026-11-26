@@ -538,10 +538,16 @@ evaluated box.
 \begin{figure}[t]
   \centering
   \input{figures/trust_region.tex}
-  \caption{Trust regions of radii one and two around the incumbent box (black),
-    with ten subdivisions per variable: the admitted boxes (shaded) differ from
-    the incumbent in at most $\Delta$ components. In two dimensions, a radius of
-    two admits the whole design space.}
+  \caption{Trust regions around the incumbent box (black), with ten
+    subdivisions per variable; the admitted boxes are shaded. Top: Hamming
+    distance, the admitted boxes differing from the incumbent in at most
+    $\Delta$ components; in two dimensions, a radius of two admits the whole
+    design space. Bottom: Euclidean distance between box centres, in interval
+    widths. Left to right: a ball of radius two; the diameter schedule at its
+    initial radius, whose smallest probe admits the boxes within the circle and
+    whose largest probe admits the whole design space (light shading); and the
+    union of the balls of radius $1.5$ around the evaluated boxes (grey and
+    black).}
   \label{fig:trust}
 \end{figure}
 

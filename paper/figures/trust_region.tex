@@ -1,23 +1,71 @@
-% Hamming trust regions of radius 1 and 2 around the incumbent (7,6),
-% ten subdivisions per variable.
-\begin{tikzpicture}[x=0.36cm,y=0.36cm,font=\small]
-  \foreach \panel/\radius/\shift in {a/1/0, b/2/13}{
-    \begin{scope}[xshift=\shift cm*0.36]
-      \foreach \i in {1,...,10}{
-        \foreach \j in {1,...,10}{
-          \pgfmathtruncatemacro{\changed}{(\i!=7)+(\j!=6)}
-          \ifnum\changed>\radius\relax
-            \draw[gray!50,fill=white] (\i-1,\j-1) rectangle ++(1,1);
-          \else
-            \draw[gray!60,fill=blue!25] (\i-1,\j-1) rectangle ++(1,1);
-          \fi
-        }
-      }
+% Trust regions around the incumbent (7,6), ten subdivisions per variable.
+% Row 1: Hamming radius 1 and 2. Row 2: Euclidean ball of radius 2, diameter
+% schedule (smallest probe R/(2 sqrt 2) = 4.5, largest R = 9 sqrt 2), and the
+% union of balls of radius 1.5 around the evaluated boxes. Distances are
+% between box centres, in interval widths.
+\begin{tikzpicture}[x=0.3cm,y=0.3cm,font=\small]
+  % \trcell{i}{j}{k}: draw box (i,j), 1-based; k = 1 admitted, 2 admitted by the
+  % largest probe only, 0 not admitted.
+  \newcommand{\trcell}[3]{%
+    \ifnum#3=1
+      \draw[gray!60,fill=blue!25] (#1-1,#2-1) rectangle ++(1,1);
+    \else\ifnum#3=2
+      \draw[gray!60,fill=blue!8] (#1-1,#2-1) rectangle ++(1,1);
+    \else
+      \draw[gray!50,fill=white] (#1-1,#2-1) rectangle ++(1,1);
+    \fi\fi}
+  \newcommand{\trframe}[1]{%
+    \draw (0,0) rectangle (10,10);
+    \node[above,align=center] at (5,10.1) {#1};}
+  % --- Hamming, radius 1 and 2
+  \foreach \radius/\shift in {1/6.5, 2/19.5}{
+    \begin{scope}[xshift=\shift*0.3cm, yshift=16*0.3cm]
+      \foreach \i in {1,...,10}{\foreach \j in {1,...,10}{
+        \pgfmathtruncatemacro{\changed}{(\i!=7)+(\j!=6)}
+        \pgfmathtruncatemacro{\in}{\changed<=\radius}
+        \trcell{\i}{\j}{\in}}}
       \draw[fill=black] (6,5) rectangle ++(1,1);
-      \draw (0,0) rectangle (10,10);
-      \node[below] at (5,-0.2) {$x_1$};
-      \node[left] at (-0.2,5) {$x_2$};
-      \node[above] at (5,10.1) {$\Delta = \radius$};
+      \trframe{Hamming, $\Delta = \radius$}
+    \end{scope}}
+  % --- Euclidean ball of radius 2 around the incumbent
+  \begin{scope}
+    \foreach \i in {1,...,10}{\foreach \j in {1,...,10}{
+      \pgfmathtruncatemacro{\in}{(\i-7)^2+(\j-6)^2<=4}
+      \trcell{\i}{\j}{\in}}}
+    \begin{scope}
+      \clip (0,0) rectangle (10,10);
+      \draw[blue!70!black,thick] (6.5,5.5) circle (2);
     \end{scope}
-  }
+    \draw[fill=black] (6,5) rectangle ++(1,1);
+    \trframe{Euclidean,\\ $R = 2$}
+  \end{scope}
+  % --- Euclidean, diameter schedule: smallest and largest probe
+  \begin{scope}[xshift=13*0.3cm]
+    \foreach \i in {1,...,10}{\foreach \j in {1,...,10}{
+      % Every box is within the largest probe, the diameter.
+      \pgfmathtruncatemacro{\in}{(\i-7)^2+(\j-6)^2<=20.25 ? 1 : 2}
+      \trcell{\i}{\j}{\in}}}
+    \begin{scope}
+      \clip (0,0) rectangle (10,10);
+      \draw[blue!70!black,thick] (6.5,5.5) circle (4.5);
+    \end{scope}
+    \draw[fill=black] (6,5) rectangle ++(1,1);
+    \trframe{Euclidean, diameter,\\ probes $4.5$ to $12.7$}
+  \end{scope}
+  % --- Union of balls of radius 1.5 around the evaluated boxes
+  \begin{scope}[xshift=26*0.3cm]
+    \foreach \i in {1,...,10}{\foreach \j in {1,...,10}{
+      \pgfmathtruncatemacro{\in}{min(min((\i-7)^2+(\j-6)^2,(\i-3)^2+(\j-3)^2),%
+        min((\i-3)^2+(\j-8)^2,(\i-9)^2+(\j-2)^2))<=2.25}
+      \trcell{\i}{\j}{\in}}}
+    \begin{scope}
+      \clip (0,0) rectangle (10,10);
+      \foreach \a/\b in {6.5/5.5, 2.5/2.5, 2.5/7.5, 8.5/1.5}{
+        \draw[blue!70!black,thick] (\a,\b) circle (1.5);}
+    \end{scope}
+    \foreach \a/\b in {2/2, 2/7, 8/1}{
+      \draw[fill=gray!70] (\a,\b) rectangle ++(1,1);}
+    \draw[fill=black] (6,5) rectangle ++(1,1);
+    \trframe{Euclidean, nearest box,\\ $R = 1.5$}
+  \end{scope}
 \end{tikzpicture}
