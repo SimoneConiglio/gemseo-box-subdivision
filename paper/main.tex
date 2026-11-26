@@ -783,7 +783,14 @@ with the baselines is the same in both dimensions, but its number of
 subdivisions, its trust-region radius and the headroom factor of the sweep were
 selected on these problems, from a first study of the variants with five
 starting points which are among the twenty of the final comparison, which
-introduces a bias in favour of the method. The comparisons of the variants and
+introduces a bias in favour of the method. The topology optimization problem
+was not used for these selections: the method was applied to it with nine
+probes and with sixteen probes, the challenger with the largest area in two
+dimensions (Table~\ref{tab:variants}), and with both numbers of probes it
+obtained a lower compliance than the multistart approach and the classic
+tunneling method for similar numbers of designs evaluated
+(Section~\ref{sec:cantilever} and Appendix~\ref{app:probes}), from one run of
+each method. The comparisons of the variants and
 with the baselines use twenty starting points per problem and paired
 statistical tests with a correction for multiple comparisons
 (Sections~\ref{sec:variants} and~\ref{sec:baselines}). The other comparisons use
@@ -1547,7 +1554,9 @@ a run.
 \paragraph{Limitations.} The following limitations apply to the results
 presented.
 (i) The density, the number of probes, the trust-region radius and the headroom
-factor of the sweep were selected on the problems on which they are evaluated.
+factor of the sweep were selected on the analytic problems on which they are
+evaluated; the topology optimization problem, which was not used for this
+selection, was solved by one run of each method.
 (ii) Several results correspond to runs stopped by the budget; for the Ackley
 function in five dimensions, doubling the budget changed the number of starting
 points reaching the optimum from one to four out of twenty, and further increases
@@ -1913,7 +1922,10 @@ probes, sixteen probes reaching it after fewer designs. After $55\,995$ designs,
 $C = 82.30$ is obtained with nine probes and $C = 82.48$ with sixteen. These
 differences, based on one run for each number of probes, cannot be distinguished
 from the variability between runs, and no advantage of sixteen probes is
-observed on this problem. With nine probes, the compliance obtained on the port,
+observed on this problem. With both numbers of probes, the compliance obtained
+after $55\,995$ designs is lower than that of the classic tunneling method,
+$C = 82.8$ after $56\,000$ designs on the same port, and than that of the
+multistart approach, $C = 83.0$ (Table~\ref{tab:cantilever}). With nine probes, the compliance obtained on the port,
 $C = 82.30$, differs from that of the reference implementation,
 $C = 82.1$, so that the results of the two implementations are not compared with
 each other.
