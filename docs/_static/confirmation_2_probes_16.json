@@ -1,0 +1,79 @@
+{
+ "method": "swept",
+ "challenger": "probes_16",
+ "seeds": [
+  2021,
+  2122,
+  2223,
+  2324,
+  2425,
+  2526,
+  2627,
+  2728,
+  2829,
+  2930,
+  3031,
+  3132,
+  3233,
+  3334,
+  3435,
+  3536,
+  3637,
+  3738,
+  3839,
+  3940
+ ],
+ "tests": [
+  {
+   "problem": "rastrigin",
+   "reached": [
+    20,
+    20
+   ],
+   "only_method": 0,
+   "only_challenger": 0,
+   "p_success": 1.0,
+   "p_success_holm": 1.0
+  },
+  {
+   "problem": "ackley",
+   "reached": [
+    20,
+    20
+   ],
+   "only_method": 0,
+   "only_challenger": 0,
+   "p_success": 1.0,
+   "p_success_holm": 1.0
+  },
+  {
+   "problem": "styblinski_tang",
+   "reached": [
+    20,
+    20
+   ],
+   "only_method": 0,
+   "only_challenger": 0,
+   "p_success": 1.0,
+   "p_success_holm": 1.0
+  },
+  {
+   "problem": "griewank",
+   "reached": [
+    0,
+    0
+   ],
+   "only_method": 0,
+   "only_challenger": 0,
+   "p_success": 1.0,
+   "p_success_holm": 1.0
+  }
+ ],
+ "area_method": 0.8493624999999998,
+ "area_challenger": 0.8946874999999999,
+ "difference": 0.04532499999999999,
+ "ci95": [
+  0.03217804687499996,
+  0.059307015625
+ ]
+}
