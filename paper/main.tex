@@ -437,19 +437,6 @@ and the same correction is applied to the cuts of the inequality constraints.
 The corrected slopes $\tilde s^{(i)}$ are then used in place of $s^{(i)}$ in the
 cuts~\eqref{eq:cuts} (Fig.~\ref{fig:repair}).
 
-\begin{figure}[t]
-  \centering
-  \input{figures/adaptive_repair.tex}
-  \caption{Adaptive repair of the cut built at the box $\alpha^{(i)}$,
-    schematic. The cut is evaluated at the other solved boxes. Where it exceeds
-    $v(\alpha^{(j)}) - \delta$, condition~\eqref{eq:adaptive} is violated, and
-    the corrected slope lowers it by the excess $r_{i,j}$ to
-    $v(\alpha^{(j)}) - \delta$; its values at the other boxes are unchanged. The
-    dotted segments only join the cut to its own box: since the boxes are
-    vertices of the relaxed polytope, the cut is not a line through them.}
-  \label{fig:repair}
-\end{figure}
-
 The two approaches can be combined in principle; they are used separately in
 this work. With a large value of $\kappa$, the cuts are valid by construction,
 but the lower bound of the master problem is decreased by approximately
@@ -479,12 +466,26 @@ the landscape.
   \label{fig:convexification}
 \end{figure}
 
+\begin{figure}[t]
+  \centering
+  \input{figures/adaptive_repair.tex}
+  \caption{Adaptive repair of the cut built at the box $\alpha^{(i)}$,
+    schematic. The cut is evaluated at the other solved boxes. Where it exceeds
+    $v(\alpha^{(j)}) - \delta$, condition~\eqref{eq:adaptive} is violated, and
+    the corrected slope lowers it by the excess $r_{i,j}$ to
+    $v(\alpha^{(j)}) - \delta$; its values at the other boxes are unchanged. The
+    dotted segments only join the cut to its own box: since the boxes are
+    vertices of the relaxed polytope, the cut is not a line through them.}
+  \label{fig:repair}
+\end{figure}
+
 \paragraph{Swept convexity.} Both $\kappa$ and $\delta$ are expressed in the
 units of the objective function, and have to be specified before any information
 on this function is available, whereas a suitable value depends on the range of
 the function. To avoid this calibration, the parallel probes of the master problem,
 which are already used to sweep the trust-region radius, are also used to sweep
-the convexity value. A sequence of values $\kappa_1 < \dots < \kappa_p$, referred
+the convexity value, which is by default the margin $\delta$ of the adaptive
+repair. A sequence of values $\delta_1 < \dots < \delta_p$, referred
 to as a ladder and distributed geometrically below an upper bound, is defined,
 and one value is assigned to each probe (Fig.~\ref{fig:sweep}). The values are paired with the radii so
 that the smallest radii are associated with the least corrected cuts and the
@@ -506,8 +507,9 @@ lower bound among the probes, which is degraded by the largest convexity values.
 \begin{figure}[t]
   \centering
   \input{figures/convexity_sweep.tex}
-  \caption{Swept convexity with four probes, schematic. The values of the
-    ladder are geometric below $\kappa_{\max}$, ten times the spread of the
+  \caption{Swept convexity margin $\delta$ of the adaptive repair with four
+    probes, schematic. The values of the
+    ladder are geometric below $\delta_{\max}$, ten times the spread of the
     objective values over the boxes already solved, and each probe starts at its
     own value, the radius of its trust region increasing with the value. A probe
     which proposes a box already solved is given the next value of the ladder,
@@ -1087,7 +1089,7 @@ Table~\ref{tab:variants}.
     \midrule
     fixed, margin 10                   & 0.497 $\cdot$ 183 $\cdot$ 10/20 & 3.814 $\cdot$ 270 $\cdot$ 10/20 \\
     fixed, margin 100                  & 0.000 $\cdot$ 541 $\cdot$ 19/20 & 0.000 $\cdot$ 528 $\cdot$ 17/20 \\
-    sweep, $\kappa_{\max} = 100$       & 0.000 $\cdot$ 539 $\cdot$ 20/20 & 0.000 $\cdot$ 517 $\cdot$ 19/20 \\
+    sweep, $\delta_{\max} = 100$       & 0.000 $\cdot$ 539 $\cdot$ 20/20 & 0.000 $\cdot$ 517 $\cdot$ 19/20 \\
     sweep, unbounded                   & 0.000 $\cdot$ 540 $\cdot$ 20/20 & 0.000 $\cdot$ 491 $\cdot$ 20/20 \\
     \bottomrule
   \end{tabular}
