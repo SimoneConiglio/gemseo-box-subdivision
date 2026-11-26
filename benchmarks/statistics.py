@@ -34,6 +34,16 @@ Area under the data profile, the secondary measure
   $95\%$ confidence interval from a bootstrap over the starting points, paired
   across methods. EGO, whose budget is $500$ evaluations, is left out of it.
 
+The variants of the method, run by ``python -m benchmarks.run_statistics
+--variants``, are compared with the configuration in the same way, the Holm
+correction running over the problems and the variants of each dimension. The
+configuration was fixed before these runs, and a variant replaces it only if it
+is clearly better: it succeeds significantly more often on some problem, or has
+a larger area with an interval excluding zero, and succeeds significantly less
+often on none (:func:`clearly_better`). A variant selected this way would be
+compared with the baselines on new starting points, the present ones having
+served to select it.
+
 The per-run results, with the history of the best value at the evaluations where
 it improves, are written to ``docs/_static/statistics.json``.
 
@@ -59,11 +69,15 @@ from benchmarks import data_profiles
 from benchmarks.problems import PROBLEMS
 from benchmarks.run_statistics import BASELINES
 from benchmarks.run_statistics import CACHE
+from benchmarks.run_statistics import CHALLENGERS
 from benchmarks.run_statistics import COMPARED
 from benchmarks.run_statistics import SEEDS
 
 OUTPUT = data_profiles.OUTPUT.with_name("statistics.json")
 """The file the per-run results and the statistics are written to."""
+
+SIGNIFICANCE = 0.05
+"""The level below which a corrected p-value is significant."""
 
 N_BOOTSTRAP = 10_000
 """The number of bootstrap samples of the starting points."""
@@ -160,7 +174,121 @@ def signed_rank(first: list[float], second: list[float]) -> float:
     return float(wilcoxon(first, second, zero_method="zsplit").pvalue)
 
 
-def main() -> None:  # noqa: PLR0914
+def compare(
+    table: dict[tuple[str, str, int], dict],
+    method: str,
+    others: tuple[str, ...],
+    problems: tuple[str, ...],
+) -> list[dict]:
+    """Compare a method with others, problem by problem, paired by starting point.
+
+    Args:
+        table: The outcome of each run, by method, problem and seed.
+        method: The method.
+        others: The methods it is compared with.
+        problems: The problems.
+
+    Returns:
+        The tests, their p-values corrected by Holm over all of them.
+    """
+    tests = []
+    for other in others:
+        for problem in problems:
+            ours = [table[method, problem, seed] for seed in SEEDS]
+            theirs = [table[other, problem, seed] for seed in SEEDS]
+            only_ours, only_theirs, p_success = mcnemar(
+                [r["reached"] for r in ours], [r["reached"] for r in theirs]
+            )
+            tests.append({
+                "baseline": other,
+                "problem": problem,
+                "reached": [
+                    sum(r["reached"] for r in ours),
+                    sum(r["reached"] for r in theirs),
+                ],
+                "median_gap": [
+                    median(r["gap"] for r in ours),
+                    median(r["gap"] for r in theirs),
+                ],
+                "only_method": only_ours,
+                "only_baseline": only_theirs,
+                "p_success": p_success,
+                "p_gap": signed_rank(
+                    [r["gap"] for r in ours], [r["gap"] for r in theirs]
+                ),
+            })
+
+    for key in ("p_success", "p_gap"):
+        for test, corrected in zip(
+            tests, holm([test[key] for test in tests]), strict=True
+        ):
+            test[f"{key}_holm"] = corrected
+    return tests
+
+
+def compare_areas(
+    table: dict[tuple[str, str, int], dict],
+    method: str,
+    others: tuple[str, ...],
+    problems: tuple[str, ...],
+) -> list[dict]:
+    """Compare the area of a method with those of others, with bootstrap intervals.
+
+    Args:
+        table: The outcome of each run, by method, problem and seed.
+        method: The method.
+        others: The methods it is compared with.
+        problems: The problems.
+
+    Returns:
+        The areas and the difference with each other method.
+    """
+    rng = default_rng(0)
+    samples = rng.integers(0, len(SEEDS), size=(N_BOOTSTRAP, len(SEEDS)))
+    areas = {
+        name: array([
+            mean([table[name, problem, seed]["area"] for problem in problems])
+            for seed in SEEDS
+        ])
+        for name in (method, *others)
+    }
+    area_tests = []
+    for other in others:
+        difference = areas[method] - areas[other]
+        boot = difference[samples].mean(axis=1)
+        area_tests.append({
+            "baseline": other,
+            "area_method": float(areas[method].mean()),
+            "area_baseline": float(areas[other].mean()),
+            "difference": float(difference.mean()),
+            "ci95": [float(percentile(boot, 2.5)), float(percentile(boot, 97.5))],
+        })
+    return area_tests
+
+
+def clearly_better(tests: list[dict], area_test: dict) -> bool:
+    """Return whether a challenger is clearly better than the configuration.
+
+    The tests compare the configuration with the challenger, so that the
+    challenger is clearly better when it succeeds significantly more often on
+    some problem and significantly less often on none, or when its area is
+    larger with an interval excluding zero and its success is significantly
+    lower on no problem.
+
+    Args:
+        tests: The tests of the configuration against the challenger.
+        area_test: The area test of the configuration against the challenger.
+
+    Returns:
+        Whether the challenger is clearly better.
+    """
+    significant = [t for t in tests if t["p_success_holm"] < SIGNIFICANCE]
+    better = any(t["only_baseline"] > t["only_method"] for t in significant)
+    worse = any(t["only_method"] > t["only_baseline"] for t in significant)
+    return not worse and (better or area_test["ci95"][1] < 0)
+
+
+def main() -> None:
     """Compute and write the statistics of both dimensions."""
     published = json.loads(data_profiles.OUTPUT.read_text(encoding="utf-8"))
     output = {"seeds": list(SEEDS), "dimensions": {}}
@@ -185,73 +313,42 @@ def main() -> None:  # noqa: PLR0914
                 "history": change_points(run["history"]),
             }
 
-        methods = (method, *BASELINES)
         problems = data_profiles.PROBLEM_NAMES
-        tests = []
-        for baseline in BASELINES:
-            for problem in problems:
-                ours = [table[method, problem, seed] for seed in SEEDS]
-                theirs = [table[baseline, problem, seed] for seed in SEEDS]
-                only_ours, only_theirs, p_success = mcnemar(
-                    [r["reached"] for r in ours], [r["reached"] for r in theirs]
-                )
-                tests.append({
-                    "baseline": baseline,
-                    "problem": problem,
-                    "reached": [
-                        sum(r["reached"] for r in ours),
-                        sum(r["reached"] for r in theirs),
-                    ],
-                    "median_gap": [
-                        median(r["gap"] for r in ours),
-                        median(r["gap"] for r in theirs),
-                    ],
-                    "only_method": only_ours,
-                    "only_baseline": only_theirs,
-                    "p_success": p_success,
-                    "p_gap": signed_rank(
-                        [r["gap"] for r in ours], [r["gap"] for r in theirs]
-                    ),
-                })
-
-        for key in ("p_success", "p_gap"):
-            for test, corrected in zip(
-                tests, holm([test[key] for test in tests]), strict=True
-            ):
-                test[f"{key}_holm"] = corrected
-
-        rng = default_rng(0)
-        samples = rng.integers(0, len(SEEDS), size=(N_BOOTSTRAP, len(SEEDS)))
-        areas = {}
-        for name in (method, *AREA_BASELINES):
-            per_seed = array([
-                mean([table[name, problem, seed]["area"] for problem in problems])
-                for seed in SEEDS
-            ])
-            areas[name] = per_seed
-        area_tests = []
-        for baseline in AREA_BASELINES:
-            difference = areas[method] - areas[baseline]
-            boot = difference[samples].mean(axis=1)
-            area_tests.append({
-                "baseline": baseline,
-                "area_method": float(areas[method].mean()),
-                "area_baseline": float(areas[baseline].mean()),
-                "difference": float(difference.mean()),
-                "ci95": [float(percentile(boot, 2.5)), float(percentile(boot, 97.5))],
-            })
-
-        output["dimensions"][str(dimension)] = {
-            "method": method,
-            "tests": tests,
-            "areas": area_tests,
-            "runs": [
-                {"method": m, "problem": p, "seed": s, **values}
-                for (m, p, s), values in sorted(table.items())
-                if m in methods
-            ],
-        }
+        tests = compare(table, method, BASELINES, problems)
+        area_tests = compare_areas(table, method, AREA_BASELINES, problems)
+        entry = {"method": method, "tests": tests, "areas": area_tests}
         _print(dimension, tests, area_tests)
+        complete = {
+            name
+            for name in CHALLENGERS[dimension]
+            if all((name, p, s) in table for p in problems for s in SEEDS)
+        }
+        challengers = tuple(n for n in CHALLENGERS[dimension] if n in complete)
+        if challengers:
+            variant_tests = compare(table, method, challengers, problems)
+            variant_areas = compare_areas(table, method, challengers, problems)
+            entry["variants"] = {
+                "tests": variant_tests,
+                "areas": variant_areas,
+                "clearly_better": [
+                    area["baseline"]
+                    for area in variant_areas
+                    if clearly_better(
+                        [t for t in variant_tests if t["baseline"] == area["baseline"]],
+                        area,
+                    )
+                ],
+            }
+            _print(dimension, variant_tests, variant_areas)
+            print("clearly better:", entry["variants"]["clearly_better"])  # noqa: T201
+
+        methods = {method, *BASELINES, *challengers}
+        entry["runs"] = [
+            {"method": m, "problem": p, "seed": s, **values}
+            for (m, p, s), values in sorted(table.items())
+            if m in methods and s in SEEDS
+        ]
+        output["dimensions"][str(dimension)] = entry
 
     OUTPUT.write_text(json.dumps(output) + "\n", encoding="utf-8")
 

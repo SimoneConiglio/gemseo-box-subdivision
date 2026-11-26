@@ -19,6 +19,7 @@ from __future__ import annotations
 import pytest
 
 from benchmarks.statistics import change_points
+from benchmarks.statistics import clearly_better
 from benchmarks.statistics import holm
 from benchmarks.statistics import mcnemar
 from benchmarks.statistics import run_area
@@ -52,3 +53,28 @@ def test_the_area_of_a_run_is_the_mean_fraction_of_targets() -> None:
 def test_the_history_keeps_only_the_improvements() -> None:
     """The change points must hold the first value and every improvement."""
     assert change_points([3.0, 3.0, 2.0, 2.0, 1.0]) == [[1, 3.0], [3, 2.0], [5, 1.0]]
+
+
+def _test(only_method: int, only_challenger: int, p_holm: float) -> dict:
+    """Return a test of the configuration against a challenger."""
+    return {
+        "only_method": only_method,
+        "only_baseline": only_challenger,
+        "p_success_holm": p_holm,
+    }
+
+
+@pytest.mark.parametrize(
+    ("tests", "upper", "expected"),
+    [
+        ([_test(0, 11, 0.01), _test(0, 0, 1.0)], 0.01, True),
+        ([_test(0, 11, 0.01), _test(9, 0, 0.04)], -0.01, False),
+        ([_test(0, 3, 0.9)], -0.01, True),
+        ([_test(0, 3, 0.9)], 0.01, False),
+    ],
+)
+def test_a_challenger_is_clearly_better_only_without_a_significant_loss(
+    tests: list[dict], upper: float, expected: bool
+) -> None:
+    """A significant gain or a larger area, and no significant loss."""
+    assert clearly_better(tests, {"ci95": [upper - 0.1, upper]}) is expected
