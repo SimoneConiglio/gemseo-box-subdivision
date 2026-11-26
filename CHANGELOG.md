@@ -30,6 +30,12 @@ and this project adheres to
 
 ### Added
 
+- `benchmarks/exploration_path.py`: the exploration of the swept method on the
+  Rastrigin function in two dimensions, drawn from the master problems recorded
+  during one run: the initial boxes and their values, the prediction of the
+  outer approximation in the trust region of each probe of the second iteration
+  with the box it selects, and the boxes solved during the run. It replaces
+  Fig. 9 of the paper.
 - `benchmarks/cantilever/port_box_subdivision.py`: the box subdivision on the
   short cantilever of a NumPy port of `GGP_main.m`, with the probes solved over
   several processes and every evaluation logged, so that runs with different

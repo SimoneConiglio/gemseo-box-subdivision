@@ -790,10 +790,23 @@ The enumeration of the boxes, in which the sub-problem of every box is solved wi
 the same formulation, is used as a reference, so that the comparison concerns only
 the exploration strategy. The results obtained for the Rastrigin function in two
 dimensions with $10\times 10$ boxes and twenty starting points are given in
-Table~\ref{tab:enum}, and one run is illustrated in Fig.~\ref{fig:solve}. The
+Table~\ref{tab:enum}. The
 optimum is obtained by the outer approximation after the solution of 12 to 32\%
 of the boxes, at a median cost of one quarter of that of the enumeration, and is
 reached from nineteen of the twenty starting points.
+
+The exploration of the configuration compared with the baselines
+(Section~\ref{sec:baselines}), with the swept convexity, four probes and ten
+subdivisions per variable, is illustrated for one starting point in
+Fig.~\ref{fig:solve}. The four initial boxes are those of a design of
+experiments including the box of the starting point. At the second iteration,
+the trust regions of the three probes with radii below two contain the boxes
+which differ from the incumbent in one component, and that of the fourth probe
+contains every box. The box selected moves away from the incumbent as the
+margin increases: the first probe selects an adjacent box, the second and the
+third probes boxes two and six intervals away, and the fourth probe a box which
+differs from the incumbent in both components. The global optimum is reached at
+the sixth iteration, in the 22nd box solved.
 
 \begin{table}[t]
   \centering
@@ -814,14 +827,18 @@ reached from nineteen of the twenty starting points.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.9\linewidth]{figures/solve_final.png}
-  \caption{Run of the method for the Rastrigin function, $n=2$. Left: solved
-    boxes (blue) with the path of the local optimizer from the centre of each
-    box, last box selected by the master problem (orange) and global optimum
-    (star). Right: best objective value as a function of the number of
-    equivalent evaluations. The global optimum is obtained in the seventh box,
-    after $154$ evaluations, none of the first six boxes improving on the local
-    minimum of $8.95$ obtained in the first one.}
+  \includegraphics[width=\linewidth]{figures/exploration.pdf}
+  \caption{Exploration of the method for the Rastrigin function, $n = 2$, swept
+    convexity, four probes and $10 \times 10$ boxes, one starting point. Top
+    left: boxes of the initial design of experiments, coloured by their value
+    $v$, the incumbent being outlined in black. Next four panels: master problem
+    of each probe at the second iteration, with its trust-region radius $\Delta$
+    and its margin $\delta$; the boxes of its trust region are coloured by the
+    prediction of the outer approximation, the boxes already solved are marked
+    by dots, and the box selected is outlined in blue. The boxes selected by the
+    previous probes of the iteration are excluded. Bottom right: boxes solved
+    during the run, coloured by their value and numbered by iteration, the global
+    optimum being marked by a star.}
   \label{fig:solve}
 \end{figure}
 
