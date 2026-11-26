@@ -1465,7 +1465,8 @@ approach, about 1\%, is nevertheless modest, and is based on a single run of eac
 method. Moreover, the global optimum of this problem is unknown, and no
 optimality certificate is provided by the method, so that the design with
 $C = 82.1$ can only be regarded as the best design found among those evaluated,
-without any claim of global optimality.
+without any claim of global optimality. The effect of the number of probes on
+this problem is examined in Appendix~\ref{app:probes}.
 
 %% ---------------------------------------------------------------------------
 \section{Discussion}\label{sec:discussion}
@@ -1839,6 +1840,46 @@ $2500$ evaluations and the calibrated margin.
     \bottomrule
   \end{tabular}
 \end{table}
+
+\section{Number of probes for the cantilever problem}\label{app:probes}
+
+The short cantilever problem of Section~\ref{sec:cantilever} was also solved with
+nine and sixteen probes on the NumPy port of the reference code used for the
+classic tunneling method, the other settings being unchanged and the probes
+being solved over four processes. Since the iteration limit of the master
+problem bounds its iterations and not the number of boxes, the two runs are
+compared at the same numbers of designs evaluated: $31\,070$ and $55\,995$, the
+numbers at which the run of Table~\ref{tab:cantilever} found its best design
+and stopped (Table~\ref{tab:probes}).
+
+\begin{table}[h]
+  \centering
+  \caption{Short cantilever problem on the NumPy port, one run for each number
+    of probes: best feasible compliance and number of designs evaluated until
+    the best design is found, for two numbers of designs evaluated.}
+  \label{tab:probes}
+  \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    & \multicolumn{2}{c}{$31\,070$ designs} & \multicolumn{2}{c}{$55\,995$ designs} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    probes & $C$ & to the best & $C$ & to the best \\
+    \midrule
+    9  & 82.58 & 24\,406 & 82.30 & 49\,032 \\
+    16 & 82.58 & 18\,641 & 82.48 & 53\,299 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+After $31\,070$ designs, the same compliance is obtained with both numbers of
+probes, sixteen probes reaching it after fewer designs. After $55\,995$ designs,
+$C = 82.30$ is obtained with nine probes and $C = 82.48$ with sixteen. These
+differences, based on one run for each number of probes, cannot be distinguished
+from the variability between runs, and no advantage of sixteen probes is
+observed on this problem. With nine probes, the compliance obtained on the port,
+$C = 82.30$, differs from that of the reference implementation,
+$C = 82.1$, so that the results of the two implementations are not compared with
+each other.
 
 \end{appendices}
 

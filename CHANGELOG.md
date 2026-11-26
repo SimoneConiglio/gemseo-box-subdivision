@@ -30,6 +30,12 @@ and this project adheres to
 
 ### Added
 
+- `benchmarks/cantilever/port_box_subdivision.py`: the box subdivision on the
+  short cantilever of a NumPy port of `GGP_main.m`, with the probes solved over
+  several processes and every evaluation logged, so that runs with different
+  numbers of probes are compared at the same number of designs evaluated. Nine
+  and sixteen probes are compared in Appendix D of the paper, one run each,
+  without an advantage of sixteen probes.
 - `benchmarks/paper_tables.py`: every other table of the paper, from the
   enumeration of the boxes to the effect of the budget, run again from the
   twenty starting points of the comparison with the baselines, with the same
