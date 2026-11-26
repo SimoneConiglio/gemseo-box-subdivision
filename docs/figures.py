@@ -1413,9 +1413,20 @@ def draw_variant_profiles(foreground: str):
         sharey=True,
         squeeze=False,
     )
+    statistics = (
+        json.loads(STATISTICS.read_text(encoding="utf-8"))["dimensions"]
+        if STATISTICS.exists()
+        else {}
+    )
     for row, (dimension, entry) in zip(axes_grid, dimensions.items(), strict=True):
         profiles = entry["profiles"]
         budget = entry["budget"]
+        if "variants" in statistics.get(dimension, {}):
+            # The twenty starting points of the comparison of the variants
+            # with the configuration, against the same targets.
+            profiles = _profiles_of_the_runs(
+                statistics[dimension]["runs"], entry["targets"], budget
+            )
         for axes, names, title in (
             (row[0], EXPLORING, "how the master explores"),
             (row[1], RESOLVING, "what the subdivision resolves"),

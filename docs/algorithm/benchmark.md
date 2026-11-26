@@ -79,8 +79,9 @@ margin of $100$, is included as the reference that the sweep replaces.
 The variants are compared through data profiles. For each problem a sequence of
 twenty target values is defined, from a value reached early by every method down
 to the global optimum. The profile of a configuration is the fraction of the
-targets, over the four problems and five starting points, reached after a given
-number of evaluations. The targets and profiles are computed with
+targets, over the four problems and the starting points, reached after a given
+number of evaluations; the targets were generated from the five starting points
+of the first study. The targets and profiles are computed with
 [gemseo-benchmark](https://gitlab.com/gemseo/dev/gemseo-benchmark): the
 `TargetsGenerator` uses the pooled histories of all runs of a given dimension,
 variants and baselines together, so that the profiles of this section and of
@@ -100,7 +101,74 @@ reached over the budget, is used to rank the variants.
 :alt: Fraction of the targets reached by each variant of the method against the evaluations spent
 ```
 
-*Figure 1. Data profiles of the variants of the method.*
+*Figure 1. Data profiles of the variants of the method, twenty starting points.*
+
+### Twenty starting points
+
+Every variant is run from the twenty starting points of the
+[comparison with the baselines](#comparison-with-the-baselines) and paired by
+starting point with the configuration compared with them, swept with four probes
+and ten subdivisions per variable. The tests are those of the
+[paired tests](#paired-tests), the Holm correction running over the problems and
+the variants of each dimension. The configuration was fixed beforehand, from the
+[first study](#first-study-five-starting-points) below, and is kept unless a
+variant is clearly better: it succeeds significantly more often on some problem,
+or has a larger area with an interval excluding zero, and succeeds significantly
+less often on none (`benchmarks.statistics.clearly_better`). In five variables
+the variants without a mark use two subdivisions per variable, as in the first
+study, and so differ from the configuration also by the density.
+
+| variant | 2 variables: area | difference [95% CI] | success | 5 variables: area | difference [95% CI] | success |
+|---|---|---|---|---|---|---|
+| swept, 4 probes, 10 per variable (configuration) | $0.85$ | reference | | $0.61$ | reference | |
+| swept, 4 probes, 2 per variable | — | | | $0.51$ | $-0.10$ [$-0.14$, $-0.07$] | −R −A |
+| calibrated, margin 100 | $0.79$ | $-0.06$ [$-0.09$, $-0.04$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.08$] | −R −A |
+| swept, 8 probes | $0.86$ | $+0.00$ [$-0.01$, $+0.01$] |  | $0.53$ | $-0.09$ [$-0.12$, $-0.05$] | −R −A |
+| swept, 16 probes | $0.89$ | $+0.04$ [$+0.01$, $+0.05$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.09$] | −R −A |
+| swept, ladder up to 30 | $0.83$ | $-0.02$ [$-0.05$, $+0.01$] |  | $0.48$ | $-0.13$ [$-0.18$, $-0.09$] | −R −A |
+| swept, ladder up to 10 | $0.71$ | $-0.15$ [$-0.21$, $-0.09$] | −A | $0.46$ | $-0.15$ [$-0.19$, $-0.11$] | −R −A |
+| swept, ladder up to 10, 10 per variable¹ | — | | | $0.58$ | $-0.03$ [$-0.07$, $+0.00$] | −S |
+| swept, proposed density | $0.53$ | $-0.33$ [$-0.36$, $-0.29$] | −R −A | $0.18$ | $-0.43$ [$-0.46$, $-0.40$] | −R −A |
+| swept, proposed density, scans free | $0.69$ | $-0.16$ [$-0.19$, $-0.13$] | −A | $0.56$ | $-0.05$ [$-0.09$, $-0.02$] | −A |
+| swept, 2 levels of 4 | $0.77$ | $-0.08$ [$-0.10$, $-0.07$] | −A | $0.43$ | $-0.19$ [$-0.22$, $-0.15$] | −R −A −S |
+| swept, deep hierarchy | $0.67$ | $-0.18$ [$-0.20$, $-0.17$] | −R −A | $0.57$ | $-0.04$ [$-0.07$, $-0.01$] | −R |
+| swept, Euclidean, diameter¹ | $0.84$ | $-0.01$ [$-0.03$, $+0.01$] |  | $0.62$ | $+0.01$ [$-0.02$, $+0.05$] |  |
+| swept, Euclidean, nearest box¹ | $0.78$ | $-0.07$ [$-0.10$, $-0.04$] |  | $0.43$ | $-0.19$ [$-0.22$, $-0.15$] | −S |
+
+*Table 2. Area under the data profile, difference with the configuration and
+its paired bootstrap interval, and the problems on which the success differs
+significantly (R Rastrigin, A Ackley, S Styblinski-Tang, G Griewank; + more
+often, − less often than the configuration). ¹ Ten subdivisions per variable in
+both dimensions.*
+
+No variant is clearly better in five variables: the Euclidean trust region with
+the diameter schedule is the only one whose interval contains a positive
+difference, $+0.01$ [$-0.02$, $+0.05$]; every variant with two subdivisions per
+variable reaches the optimum of Rastrigin and Ackley significantly less often.
+In two variables sixteen probes are, on the area only ($+0.04$ [$+0.01$,
+$+0.05$]), with the same success on every problem. Selected among eleven on the
+same starting points, this variant was run again with the configuration from
+twenty new ones (`python -m benchmarks.confirm_challenger 2 probes_16`): the
+difference is $+0.045$ [$+0.032$, $+0.059$], both reaching the optimum of
+Rastrigin, Ackley and Styblinski-Tang from all twenty and that of Griewank from
+none. Sixteen probes reach the targets sooner, not more often. Since they could
+not be run with ten subdivisions per variable in five variables (see below), the
+configuration with four probes is kept in both dimensions.
+
+The variants take about an hour and a half on four processes, after the runs of
+the comparison with the baselines:
+
+```shell
+OMP_NUM_THREADS=1 python -m benchmarks.run_statistics --variants
+python -m benchmarks.statistics
+python -m benchmarks.confirm_challenger 2 probes_16
+python docs/figures.py variant_profiles
+```
+
+### First study, five starting points
+
+The configuration was chosen from the following study, with the five first
+starting points, on which the targets were generated.
 
 | variant | 2 variables: area | at 250 | at 1000 | 5 variables: area | at 625 | at 2500 |
 |---------|------|-----|------|------|-----|------|
@@ -119,7 +187,7 @@ reached over the budget, is used to rank the variants.
 | swept, Euclidean, diameter¹ | $0.88$ | 88% | 99% | $0.61$ | 51% | 84% |
 | swept, Euclidean, nearest box¹ | $0.85$ | 70% | 99% | $0.49$ | 30% | 72% |
 
-*Table 2. Area under the data profile and fraction of targets reached at a
+*Table 2b. Area under the data profile and fraction of targets reached at a
 quarter and at the whole budget. In two variables ten subdivisions per variable
 is the default, so the corresponding rows are omitted. ¹ The Euclidean trust
 region of the [usage](usage.md#euclidean-trust-region), with ten subdivisions per
@@ -130,7 +198,7 @@ targets, rerun by `python -m benchmarks.run_late_variants`.*
 **Probes.** In two variables, sixteen probes reach $99\%$ of the targets after
 $250$ evaluations, against $90\%$ for four probes, and reach the optimum of
 Rastrigin, Ackley and Styblinski-Tang from all starting points; this is the
-highest area of Table 2. Eight probes lie in between. In five variables with two
+highest area of Table 2b. Eight probes lie in between. In five variables with two
 subdivisions per variable, the area is between $0.49$ and $0.52$ whatever the
 number of probes: with two subdivisions per variable no box separates the basins
 of Rastrigin or Ackley, so that the choice among boxes does not matter. The
@@ -139,7 +207,7 @@ values four, eight and sixteen avoid the degradation observed with six probes in
 
 The cost of the master is not counted in the budget. Sixteen probes with ten
 subdivisions per variable in five dimensions (fifty binaries) were excluded from
-Table 2: half of the runs had not spent their $2500$ evaluations after five
+Table 2b: half of the runs had not spent their $2500$ evaluations after five
 hours of wall time, each probe requiring a mixed-integer solve, and the other
 half reached the optimum of Rastrigin and Ackley from one starting point of
 five, against two and three for four probes. This overhead is negligible only

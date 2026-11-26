@@ -720,11 +720,13 @@ starting points.
 \paragraph{Limitations of the protocol.} The configuration of the method compared
 with the baselines is the same in both dimensions, but its number of
 subdivisions, its trust-region radius and the headroom factor of the sweep were
-selected on these problems, among variants evaluated on the same runs, which
-introduces a bias in favour of the method. The comparison with the baselines
-uses twenty starting points per problem and paired statistical tests
-(Section~\ref{sec:baselines}), but the other comparisons use between three and
-eight starting points, which is too few for statistical tests, and the cost of
+selected on these problems, from a first study of the variants with five
+starting points which are among the twenty of the final comparison, which
+introduces a bias in favour of the method. The comparisons of the variants and
+with the baselines use twenty starting points per problem and paired
+statistical tests (Sections~\ref{sec:variants} and~\ref{sec:baselines}), but
+the other comparisons use between three and eight starting points, which is too
+few for statistical tests, and the cost of
 the master problem is not included in the budget. The results presented below therefore
 characterize the method on the problems studied, and an assessment of its general
 performance would require an independent set of test problems and a protocol
@@ -805,44 +807,58 @@ studied rather than a general rule.
 
 \subsection{Variants of the method}\label{sec:variants}
 
-Each variant differs from the swept configuration by one setting. The swept
-configuration uses four probes, a ladder bounded by the spread of the objective
-values, and ten subdivisions per variable in two dimensions and two in five
-dimensions. The configuration with a calibrated margin $\delta = 100$ is included
-for comparison. The budget is $500n$ equivalent evaluations, and four problems
-with five starting points each are considered. The main results are given in
-Table~\ref{tab:variants} and the data profiles in Fig.~\ref{fig:variants}.
+Each variant differs from the configuration compared with the baselines, the
+swept convexity with four probes, a ladder bounded by the spread of the
+objective values and ten subdivisions per variable, by one setting, with one
+exception: in five dimensions, the variants without a mark in
+Table~\ref{tab:variants} use two subdivisions per variable, so that they differ
+from the configuration also by the density. The configuration with a calibrated
+margin $\delta = 100$ is included for comparison. The budget is $500n$
+equivalent evaluations, and each variant is run on the four problems from the
+twenty starting points of Section~\ref{sec:baselines}, so that it is paired with
+the configuration by starting point and compared with it by the tests of that
+section, the Holm correction running over the problems and the variants of each
+dimension. The configuration was fixed before these runs, from a first study
+with five starting points, and is kept unless a variant is clearly better: a
+significantly higher success on some problem, or a larger area with a
+confidence interval excluding zero, and a significantly lower success on none.
+Sixteen probes with ten subdivisions per variable in five dimensions was not
+run, a run taking several hours with fifty binary variables. The results are
+given in Table~\ref{tab:variants} and the data profiles in
+Fig.~\ref{fig:variants}.
 
 \begin{table}[t]
   \centering
-  \caption{Area under the data profile and fraction of the targets reached at a
-    quarter of the budget and at the end of the budget ($500n$ evaluations). In
-    two dimensions, ten subdivisions per variable is the default setting, and the
-    corresponding row is therefore not repeated. $^1$ Ten subdivisions per variable
-    in both dimensions, to be compared with the row with ten subdivisions per
-    variable in five dimensions; profiled against the same targets, which were
-    generated without these runs.}
+  \caption{Variants of the method, twenty starting points: area under the data
+    profile, difference with the area of the configuration with its $95\%$
+    bootstrap confidence interval, and problems on which the success differs
+    significantly from that of the configuration (R: Rastrigin, A: Ackley, S:
+    Styblinski--Tang, G: Griewank; $+$: more often, $-$: less often). In five
+    dimensions, the variants without a mark use two subdivisions per variable,
+    and $^1$ marks ten subdivisions per variable in both dimensions.}
   \label{tab:variants}
-  \small
-  \begin{tabular}{lrrrrrr}
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \begin{tabular}{lrlrrll}
     \toprule
     & \multicolumn{3}{c}{$n = 2$} & \multicolumn{3}{c}{$n = 5$} \\
     \cmidrule(lr){2-4}\cmidrule(lr){5-7}
-    variant & area & $\tfrac14$ & end & area & $\tfrac14$ & end \\
+    variant & area & difference & success & area & difference & success \\
     \midrule
-    swept, 4 probes                 & 0.87 & 90\% & 99\% & 0.51 & 56\% & 56\% \\
-    calibrated, margin 100          & 0.83 & 85\% & 94\% & 0.50 & 54\% & 54\% \\
-    swept, 8 probes                 & 0.88 & 85\% & 99\% & 0.52 & 55\% & 57\% \\
-    swept, 16 probes                & 0.92 & 99\% & 99\% & 0.49 & 38\% & 56\% \\
-    swept, ladder up to 30          & 0.88 & 92\% & 96\% & 0.47 & 50\% & 50\% \\
-    swept, ladder up to 10          & 0.73 & 78\% & 78\% & 0.46 & 49\% & 50\% \\
-    swept, 10 per variable          & ---  & ---  & ---  & 0.64 & 62\% & 84\% \\
-    swept, proposed density         & 0.51 & 44\% & 64\% & 0.19 & 8\%  & 31\% \\
-    \quad scans not charged         & 0.75 & 75\% & 83\% & 0.58 & 49\% & 70\% \\
-    swept, 2 levels of 4            & 0.77 & 75\% & 85\% & 0.43 & 44\% & 44\% \\
-    swept, deep hierarchy           & 0.67 & 68\% & 75\% & 0.60 & 56\% & 77\% \\
-    swept, Euclidean, diameter$^1$  & 0.88 & 88\% & 99\% & 0.61 & 51\% & 84\% \\
-    swept, Euclidean, nearest box$^1$ & 0.85 & 70\% & 99\% & 0.49 & 30\% & 72\% \\
+    swept, 4 probes, configuration       & 0.85 & \multicolumn{1}{c}{reference} & & 0.61 & \multicolumn{1}{c}{reference} & \\
+    \quad 2 per variable                 & --- & & & 0.51 & $-0.10$ [$-0.14$, $-0.07$] & $-$R $-$A \\
+    calibrated, margin 100               & 0.79 & $-0.06$ [$-0.09$, $-0.04$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.08$] & $-$R $-$A \\
+    swept, 8 probes                      & 0.86 & $+0.00$ [$-0.01$, $+0.01$] &  & 0.53 & $-0.09$ [$-0.12$, $-0.05$] & $-$R $-$A \\
+    swept, 16 probes                     & 0.89 & $+0.04$ [$+0.01$, $+0.05$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.09$] & $-$R $-$A \\
+    swept, ladder up to 30               & 0.83 & $-0.02$ [$-0.05$, $+0.01$] &  & 0.48 & $-0.13$ [$-0.18$, $-0.09$] & $-$R $-$A \\
+    swept, ladder up to 10               & 0.71 & $-0.15$ [$-0.21$, $-0.09$] & $-$A & 0.46 & $-0.15$ [$-0.19$, $-0.11$] & $-$R $-$A \\
+    \quad 10 per variable$^1$              & --- & & & 0.58 & $-0.03$ [$-0.07$, $+0.00$] & $-$S \\
+    swept, proposed density              & 0.53 & $-0.33$ [$-0.36$, $-0.29$] & $-$R $-$A & 0.18 & $-0.43$ [$-0.46$, $-0.40$] & $-$R $-$A \\
+    \quad scans not charged              & 0.69 & $-0.16$ [$-0.19$, $-0.13$] & $-$A & 0.56 & $-0.05$ [$-0.09$, $-0.02$] & $-$A \\
+    swept, 2 levels of 4                 & 0.77 & $-0.08$ [$-0.10$, $-0.07$] & $-$A & 0.43 & $-0.19$ [$-0.22$, $-0.15$] & $-$R $-$A $-$S \\
+    swept, deep hierarchy                & 0.67 & $-0.18$ [$-0.20$, $-0.17$] & $-$R $-$A & 0.57 & $-0.04$ [$-0.07$, $-0.01$] & $-$R \\
+    swept, Euclidean, diameter$^1$       & 0.84 & $-0.01$ [$-0.03$, $+0.01$] &  & 0.62 & $+0.01$ [$-0.02$, $+0.05$] &  \\
+    swept, Euclidean, nearest box$^1$    & 0.78 & $-0.07$ [$-0.10$, $-0.04$] &  & 0.43 & $-0.19$ [$-0.22$, $-0.15$] & $-$S \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -851,46 +867,55 @@ Table~\ref{tab:variants} and the data profiles in Fig.~\ref{fig:variants}.
   \centering
   \includegraphics[width=\linewidth]{figures/variant_profiles.pdf}
   \caption{Data profiles of the variants of the method in two and five
-    dimensions. Dashed lines: variants with ten subdivisions per variable in
-    five dimensions. Purple: Euclidean trust region, with the diameter schedule
-    (solid or dashed) and around the nearest evaluated box (dotted).}
+    dimensions, twenty starting points. Dashed lines: variants with ten
+    subdivisions per variable in five dimensions. Purple: Euclidean trust
+    region, with the diameter schedule (solid or dashed) and around the nearest
+    evaluated box (dotted).}
   \label{fig:variants}
 \end{figure}
 
-\paragraph{Number of probes.} In two dimensions, 99\% of the targets are reached
-after a quarter of the budget with sixteen probes, against 90\% with four probes.
-In five dimensions with two subdivisions per variable,
-the number of probes has no significant influence, since no box separates the
-basins of the Rastrigin and Ackley functions.
+\paragraph{Number of probes.} In two dimensions, the area with sixteen probes is
+larger than that of the configuration, by $0.04$ [$0.01$, $0.05$], with the same
+success on every problem. Since this variant was selected among eleven on the
+same starting points, it was run again with the configuration from twenty other
+starting points: the difference of area is $0.045$ [$0.032$, $0.059$], and both
+reach the optimum of the Rastrigin, Ackley and Styblinski--Tang functions from
+all of them and that of the Griewank function from none. Sixteen probes
+therefore reach the targets earlier in two dimensions without reaching the
+optimum more often. With eight probes, the area is that of the configuration.
 
-\paragraph{Upper bound of the ladder.} With an upper bound of $10$, the fraction
-of the targets reached at the end of the budget decreases from 99\% to 78\% in
-two dimensions, and the area from $0.87$ to $0.73$.
+\paragraph{Upper bound of the ladder.} With an upper bound of $10$, the area
+decreases by $0.15$ in both dimensions, and the optimum of the Ackley function in
+two dimensions is reached less often. With an upper bound of $30$, no
+difference is significant in two dimensions.
 
-\paragraph{Calibrated margin.} The area under the profile of the swept
-configuration, which uses no convexity value, is larger than that of the
-calibrated configuration in both dimensions.
+\paragraph{Calibrated margin.} The area of the calibrated configuration is
+smaller than that of the swept configuration in two dimensions, by $0.06$, with
+no significant difference of success.
 
-\paragraph{Density.} In five dimensions, the configuration with ten subdivisions
-per variable gives the best results, with the largest final fraction of targets
-(84\%) among all configurations; over twenty starting points, its final
-fraction, $85\%$, is also larger than that of every baseline
-(Table~\ref{tab:profiles}). The cost of the basin count used to estimate the
-density exceeds the budget for most problems. Even when this cost is not
-counted, the estimated density gives worse results than the fixed one, since
-more than sixty subdivisions per variable are proposed for the Ackley function
-(Section~\ref{sec:density-results}).
+\paragraph{Density.} In five dimensions, every variant which differs from the
+configuration by the number of probes, the ladder or the margin, and uses two
+subdivisions per variable, reaches the optimum of the Rastrigin and Ackley functions significantly
+less often than the configuration, which reaches them from eleven and thirteen
+starting points. The cost of the basin count used to estimate the density
+exceeds the budget for most problems. Even when this cost is not counted, the
+estimated density gives a smaller area than the fixed one in both dimensions,
+since more than sixty subdivisions per variable are proposed for the Ackley
+function (Section~\ref{sec:density-results}).
 
-\paragraph{Extensions.} The multi-resolution encoding gives a smaller area than
-the reference configuration in both dimensions. The deep hierarchy ranks second
-in five dimensions.
+\paragraph{Extensions.} The multi-resolution encoding and the deep hierarchy
+give smaller areas than the configuration in both dimensions.
 
-\paragraph{Euclidean trust region.} With the diameter schedule, the area is
-equal to that of the reference configuration in two dimensions ($0.88$ against
-$0.87$), and smaller in five dimensions with ten subdivisions per variable
-($0.61$ against $0.64$), the final fraction of the targets being the same
-($84\%$). The union of balls around the evaluated boxes gives smaller areas in
-both dimensions.
+\paragraph{Euclidean trust region.} With the diameter schedule, no difference
+with the configuration is significant in either dimension. The union of balls
+around the evaluated boxes gives smaller areas in both dimensions.
+
+\paragraph{Choice of the configuration.} No variant is clearly better than the
+configuration in five dimensions. In two dimensions, sixteen probes are, on the
+area only; since this variant could not be run in five dimensions with ten
+subdivisions per variable, the configuration with four probes is kept for the
+comparison with the baselines, so that the same configuration is used in both
+dimensions.
 
 \subsection{Density of the subdivision}\label{sec:density-results}
 

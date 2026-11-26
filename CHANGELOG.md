@@ -37,6 +37,14 @@ and this project adheres to
   under the data profile; the per-run results are in
   `docs/_static/statistics.json`, and Tables 6 to 8 of the benchmark page and
   the data profiles of the baselines are drawn from them.
+- `python -m benchmarks.run_statistics --variants` runs every variant from the
+  same twenty starting points, `benchmarks.statistics` compares each with the
+  configuration and names those clearly better, and
+  `benchmarks/confirm_challenger.py` reruns a selected one on twenty new
+  starting points; the variants table of the paper and Table 2 of the benchmark
+  page, and Figure 1, are drawn from these runs. Sixteen probes are confirmed
+  better on the area in two variables, not on the success, and the
+  configuration with four probes is kept.
 - `benchmarks/tunneling.py`, the classic tunneling method of Levy and Montalvo
   (1985) as a baseline, with SLSQP in both phases, analytic gradients of the
   tunneling function charged to the same budgeted counter, and settings fixed
