@@ -1200,8 +1200,8 @@ A budget of $500n$ evaluations is large for industrial applications, and does no
 allow the use of Bayesian optimization, whose computational cost grows cubically
 with the number of samples. All methods are therefore compared in
 Table~\ref{tab:small} with a budget of $500$ evaluations and three starting
-points, the method being used in its swept configuration, i.e. without any
-problem-specific setting.
+points, the method being used in the configuration of
+Section~\ref{sec:baselines}, swept with ten subdivisions per variable.
 
 \begin{table}[t]
   \centering
@@ -1220,23 +1220,24 @@ problem-specific setting.
     Ackley           & 2 & 0.00 $\cdot$ 3/3 & 9.58 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 3/3 & 0.32 & 0.00 $\cdot$ 3/3 \\
     Styblinski--Tang & 2 & 0.00 $\cdot$ 3/3 $\cdot$ 334 & 0.00 $\cdot$ 3/3 & 0.00 $\cdot$ 2/3 & 0.00 $\cdot$ 3/3 & 0.29 $\cdot$ 29$\ddagger$ & 0.00 $\cdot$ 3/3 \\
     Griewank         & 2 & 0.007 & 0.067 & 0.048 & 0.009 & 0.008 & 0.027 \\
-    Rastrigin        & 5 & 8.57 & 9.95 & 11.20 & 4.98 & 1.99 & 4.97 \\
-    Ackley           & 5 & 14.43 & 17.06 & 0.05 & 0.11 & 2.90 & 4.25 \\
-    Styblinski--Tang & 5 & 0.00 $\cdot$ 3/3 & 14.14 $\cdot$ 1/3 & 0.003 & 0.00 $\cdot$ 3/3 & 0.14 $\cdot$ 219$\ddagger$ & 14.14 $\cdot$ 1/3 \\
-    Griewank         & 5 & 0.061 & 0.096 & 0.381 & 0.011 & 0.104 & 0.340 \\
+    Rastrigin        & 5 & 5.11 & 9.95 & 11.20 & 4.98 & 1.99 & 4.97 \\
+    Ackley           & 5 & 18.56 & 17.06 & 0.05 & 0.11 & 2.90 & 4.25 \\
+    Styblinski--Tang & 5 & 0.0002 & 14.14 $\cdot$ 1/3 & 0.003 & 0.00 $\cdot$ 3/3 & 0.14 $\cdot$ 219$\ddagger$ & 14.14 $\cdot$ 1/3 \\
+    Griewank         & 5 & 0.281 & 0.096 & 0.381 & 0.011 & 0.104 & 0.340 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 With this budget, the best result for the Rastrigin function in five dimensions,
 which is the most difficult multimodal case, is obtained by EGO, with a distance
-of $1.99$ against $4.98$ for DIRECT and $8.57$ for the method. When few
+of $1.99$ against $4.98$ for DIRECT and $5.11$ for the method. When few
 evaluations are available and the number of basins is large, a surrogate model
 built on the whole history is thus more effective than methods that do not reuse
-this information. When the subdivision does not separate the
-basins within the budget, as for the Rastrigin and Ackley functions in five
-dimensions, the results of the method are among the worst. When it does, as for
-the Styblinski--Tang function, they are among the best.
+this information. In five dimensions, the fifty binary variables of the method
+cannot be identified with the cuts of $500$ evaluations: all its runs are stopped
+by the budget, and its results for the Ackley and Griewank functions are among
+the worst. For the Styblinski--Tang function, two of its three runs end
+$2\cdot 10^{-4}$ from the optimum.
 
 \subsection{Application to topology optimization}\label{sec:cantilever}
 

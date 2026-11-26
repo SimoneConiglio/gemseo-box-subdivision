@@ -36,6 +36,7 @@ from statistics import median
 
 from benchmarks.baselines import METHODS
 from benchmarks.baselines import run
+from benchmarks.baselines import run_swept_box_subdivision
 from benchmarks.problems import PROBLEMS
 
 logging.disable(logging.CRITICAL)
@@ -43,6 +44,12 @@ logging.disable(logging.CRITICAL)
 BUDGET = 500
 SEEDS = (11, 101, 202)
 PROBLEM_NAMES = ("rastrigin", "ackley", "styblinski_tang", "griewank")
+
+SWEPT_SUBDIVISIONS = 10
+"""The subdivisions per variable of the swept configuration, in every dimension.
+
+The configuration compared with the baselines in the data profiles, so that both
+comparisons use the same one; the default would be two in five variables."""
 
 print(
     f"Budget {BUDGET} equivalent evaluations, median over {len(SEEDS)} "
@@ -63,7 +70,17 @@ for dimension in (2, 5):
             gaps = []
             costs = []
             for seed in SEEDS:
-                outcome = run(method, problem, dimension, seed, BUDGET)
+                if method == "box_subdivision_swept":
+                    outcome = run_swept_box_subdivision(
+                        problem,
+                        dimension,
+                        seed,
+                        BUDGET,
+                        True,
+                        n_subdivisions=SWEPT_SUBDIVISIONS,
+                    )
+                else:
+                    outcome = run(method, problem, dimension, seed, BUDGET)
                 gaps.append(outcome.gap(optimum))
                 costs.append(outcome.cost_adjoint)
 

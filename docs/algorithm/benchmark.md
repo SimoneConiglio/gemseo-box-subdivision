@@ -525,21 +525,23 @@ all of them can afford and which corresponds to an expensive objective, where a
 few hundred evaluations make up the whole budget. Table 8 gives, for four
 problems in two and five dimensions and three starting points, the median
 distance to the optimum and the number of starting points from which it is
-reached. The box subdivision uses the swept configuration, i.e. no tuned
-setting. The calibrated configuration gives the same distances on all rows and
-differs only in the number of starting points: $2/3$ instead of $3/3$ on Ackley
-in two dimensions and on Styblinski-Tang in five.
+reached. The box subdivision uses the configuration of the
+[comparison with the baselines](#comparison-with-the-baselines), swept with ten
+subdivisions per variable in both dimensions. With the default two subdivisions
+per variable in five dimensions, its distances there were $8.57$ on Rastrigin,
+$14.43$ on Ackley, $0.00$ from three starting points of three on Styblinski-Tang
+and $0.061$ on Griewank.
 
-| problem | $n$ | box subdivision, swept | multistart | CMA-ES | DIRECT | EGO | tunneling |
-|---------|-----|------------------------|------------|--------|--------|-----|-----------|
+| problem | $n$ | box subdivision, swept, 10 per variable | multistart | CMA-ES | DIRECT | EGO | tunneling |
+|---------|-----|-----------------------------------------|------------|--------|--------|-----|-----------|
 | Rastrigin | 2 | $0.00$ · 3/3 · 457 | $0.00$ · 2/3 | $1.00$ | $0.00$ · 3/3 | $0.00$ · 2/3 | $1.99$ |
 | Ackley | 2 | $0.00$ · 3/3 | $9.58$ | $0.00$ · 3/3 | $0.00$ · 3/3 | $0.32$ | $0.00$ · 3/3 |
 | Styblinski-Tang | 2 | $0.00$ · 3/3 · 334 | $0.00$ · 3/3 | $0.00$ · 2/3 | $0.00$ · 3/3 | $0.29$ · 29‡ | $0.00$ · 3/3 |
 | Griewank | 2 | $0.007$ | $0.067$ | $0.048$ | $0.009$ | $0.008$ | $0.027$ |
-| Rastrigin | 5 | $8.57$ | $9.95$ | $11.20$ | $4.98$ | $1.99$ | $4.97$ |
-| Ackley | 5 | $14.43$ | $17.06$ | $0.05$ | $0.11$ | $2.90$ | $4.25$ |
-| Styblinski-Tang | 5 | $0.00$ · 3/3 | $14.14$ · 1/3 | $0.003$ | $0.00$ · 3/3 | $0.14$ · 219‡ | $14.14$ · 1/3 |
-| Griewank | 5 | $0.061$ | $0.096$ | $0.381$ | $0.011$ | $0.104$ | $0.340$ |
+| Rastrigin | 5 | $5.11$ | $9.95$ | $11.20$ | $4.98$ | $1.99$ | $4.97$ |
+| Ackley | 5 | $18.56$ | $17.06$ | $0.05$ | $0.11$ | $2.90$ | $4.25$ |
+| Styblinski-Tang | 5 | $0.0002$ | $14.14$ · 1/3 | $0.003$ | $0.00$ · 3/3 | $0.14$ · 219‡ | $14.14$ · 1/3 |
+| Griewank | 5 | $0.281$ | $0.096$ | $0.381$ | $0.011$ | $0.104$ | $0.340$ |
 
 *Table 8. Median distance to the optimum and number of starting points reaching
 it at a budget of $500$ evaluations; a third number is the cost of a run that
@@ -557,13 +559,13 @@ and $219$ evaluations, its expected improvement having vanished.*
 ```
 
 *Figure 5. Distance reached at $500$ evaluations (top) and run time (bottom).
-The figure shows the calibrated configuration of the box subdivision; its run
-time depends on the machine, so that a configuration timed elsewhere cannot be
-added. The two configurations differ in the top row only in the two cells
-mentioned above.*
+The figure shows the calibrated configuration of the box subdivision with the
+default density, two subdivisions per variable in five dimensions; its run time
+depends on the machine, so that a configuration timed elsewhere cannot be
+added.*
 
 At this budget EGO obtains the smallest distance on the hardest multimodal
-case, Rastrigin in five dimensions, $1.99$ against $4.98$ for DIRECT and $8.57$
+case, Rastrigin in five dimensions, $1.99$ against $4.98$ for DIRECT and $5.11$
 for the box subdivision, and on Griewank in two dimensions. With few
 evaluations and many basins, a surrogate model built on the whole history is
 more effective than the methods that do not reuse it. Its own computation time
@@ -572,12 +574,13 @@ subdivision on the same problem, and is not counted in Table 8; it becomes
 negligible only for an objective that is expensive to evaluate.
 
 The box subdivision reaches the optimum of Styblinski-Tang in two dimensions
-after $334$ evaluations, terminating on its own criterion. In five dimensions it
-reaches it from all starting points but uses the whole budget, whereas the
-calibrated configuration terminates after $458$ evaluations and reaches it from
-two. When the subdivision does not separate the basins, $500$ evaluations are
-not sufficient: Rastrigin in five variables requires the $2103$ evaluations of
-Table 3, and no method reaches its optimum at this budget.
+after $334$ evaluations, terminating on its own criterion. In five dimensions,
+the fifty binary variables of ten subdivisions per variable cannot be identified
+with the cuts of $500$ evaluations: every run is stopped by the budget, two of
+the three Styblinski-Tang runs end $2.2 \cdot 10^{-4}$ from the optimum, and the
+results on Ackley and Griewank are worse than with two subdivisions per variable.
+Rastrigin in five variables requires the $2103$ evaluations of Table 3, and no
+method reaches its optimum at this budget.
 
 Tunneling, added to both tables after the other methods, reaches the optimum
 of Styblinski-Tang and Ackley in two variables from all or all but one starting
