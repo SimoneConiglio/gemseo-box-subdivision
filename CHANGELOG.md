@@ -30,6 +30,13 @@ and this project adheres to
 
 ### Added
 
+- `benchmarks/run_statistics.py` and `benchmarks/statistics.py`: the comparison
+  with the baselines from twenty starting points per problem, with the exact
+  McNemar test on the success, the Wilcoxon signed-rank test on the final
+  distance, both corrected by Holm, and a paired bootstrap interval on the area
+  under the data profile; the per-run results are in
+  `docs/_static/statistics.json`, and Tables 6 to 8 of the benchmark page and
+  the data profiles of the baselines are drawn from them.
 - `benchmarks/tunneling.py`, the classic tunneling method of Levy and Montalvo
   (1985) as a baseline, with SLSQP in both phases, analytic gradients of the
   tunneling function charged to the same budgeted counter, and settings fixed

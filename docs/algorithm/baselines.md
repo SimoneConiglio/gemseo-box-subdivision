@@ -218,9 +218,11 @@ two phases are certain. The method's
 own stopping rule ends a run when every tunneling search from a minimizer has
 failed, after a fixed number of searches. The benchmark sets no such number, so
 that the run stops at its budget like the other methods. With two searches per
-variable, run apart as a check of sensitivity, the distances of Tables 6 and 8
-are unchanged except on Griewank in five variables, $0.160$ instead of
-$0.123$, while the median costs of the two-dimensional runs of Table 6 fall to
+variable, run apart as a check of sensitivity from the first five starting
+points of [Table 6](benchmark.md#comparison-with-the-baselines) and from those
+of Table 9, the distances are unchanged except on Griewank in five variables,
+$0.160$ instead of $0.123$, while the median costs of the two-dimensional runs
+over the budget of $500$ evaluations per variable fall to
 between $477$ and $603$ evaluations of their $1000$.
 
 **On the cantilever.** The constrained short cantilever of the

@@ -66,8 +66,9 @@ master, selects the formulation and sets the trust region.
 On the Rastrigin function in two dimensions with $100$ boxes, the method reaches
 the optimum after solving 20 to 36 boxes, at about one third of the cost of
 solving all of them. In five dimensions, with ten subdivisions per variable, it
-reaches the optimum from all starting points for $1920$ evaluations; none of the
-baselines reaches it at the budgets tested.
+reaches the optimum from all three starting points of the density study, and
+from eleven of twenty in the paired comparison with the baselines, none of which
+reaches it from any.
 
 The subdivision must separate the basins of the landscape. The master grows with
 the number of one-hot binaries and not with the number of boxes, so that five

@@ -18,11 +18,12 @@ within the selected box.
 ## Summary of the results
 
 The method is suited to landscapes with a moderate number of well-separated
-basins. When the subdivision separates them, it reaches the optimum with fewer
-evaluations than the baselines, for instance $789$ evaluations on
-Styblinski-Tang in five variables against $2340$ for the multistart and $2505$
-for DIRECT, and at between a quarter and a third of the cost of the enumeration
-of the boxes. When the subdivision does not separate the basins, its results are
+basins. When the subdivision separates them, it reaches the optimum at between
+a quarter and a third of the cost of the enumeration of the boxes, and on
+Rastrigin in five variables from eleven of twenty starting points, where no
+baseline reaches it from any, a difference significant against each of them
+(see [the paired tests](benchmark.md#paired-tests)). DIRECT reaches the targets
+of the data profiles earlier in both dimensions. When the subdivision does not separate the basins, its results are
 the worst of the four methods compared, and no setting was found to compensate.
 
 The size of the master is determined by the number of binaries rather than by

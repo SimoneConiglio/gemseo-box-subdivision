@@ -36,6 +36,7 @@ transparency, and the data profiles are drawn from the file
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -1288,6 +1289,8 @@ def draw_density(foreground: str):  # noqa: ARG001
 
 
 DATA_PROFILES = Path(__file__).parent / "_static" / "data_profiles.json"
+STATISTICS = DATA_PROFILES.with_name("statistics.json")
+"""The per-run results over twenty starting points, of the baseline comparison."""
 """The profiles written by ``python -m benchmarks.data_profiles``."""
 
 BASELINE_LABELS = {
@@ -1304,6 +1307,42 @@ def _read_profiles() -> dict:
     import json
 
     return json.loads(DATA_PROFILES.read_text(encoding="utf-8"))
+
+
+def _profiles_of_the_runs(
+    runs: list[dict], targets: dict[str, list[float]], budget: int
+) -> dict[str, list[list[float]]]:
+    """Return the profile of each method from its runs and the published targets.
+
+    Args:
+        runs: The runs, with the history of the best value at each change.
+        targets: The target values of each problem.
+        budget: The budget of the panel.
+
+    Returns:
+        The evaluation and the fraction of the targets at each change, by method.
+    """
+    profiles = {}
+    for method in {run["method"] for run in runs}:
+        own = [run for run in runs if run["method"] == method]
+        steps: dict[int, list[tuple[int, float]]] = {}
+        for index, run in enumerate(own):
+            problem_targets = targets[run["problem"]]
+            for evaluation, value in run["history"]:
+                fraction = sum(value <= t for t in problem_targets) / len(
+                    problem_targets
+                )
+                steps.setdefault(int(evaluation), []).append((index, fraction))
+        current = [0.0] * len(own)
+        points = []
+        for evaluation in sorted(steps):
+            for index, fraction in steps[evaluation]:
+                current[index] = fraction
+            points.append([evaluation, sum(current) / len(own)])
+        end = max(run["cost"] for run in own)
+        points.append([min(max(end, points[-1][0]), budget), points[-1][1]])
+        profiles[method] = points
+    return profiles
 
 
 def _plot_profile(axes, points, **settings) -> None:  # noqa: ANN001
@@ -1459,8 +1498,19 @@ def draw_data_profiles(foreground: str):
         1, len(dimensions), figsize=(9.6, 3.6), sharey=True, squeeze=False
     )
     axes_row = axes_grid[0]
+    statistics = (
+        json.loads(STATISTICS.read_text(encoding="utf-8"))["dimensions"]
+        if STATISTICS.exists()
+        else {}
+    )
     for axes, (dimension, entry) in zip(axes_row, dimensions.items(), strict=True):
         profiles = entry["profiles"]
+        if dimension in statistics:
+            # The twenty starting points of the paired statistics replace the
+            # five of the published profiles, against the same targets.
+            profiles = _profiles_of_the_runs(
+                statistics[dimension]["runs"], entry["targets"], entry["budget"]
+            )
         _plot_profile(
             axes,
             profiles[COMPARED[dimension]],

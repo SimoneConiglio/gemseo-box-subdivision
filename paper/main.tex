@@ -721,9 +721,11 @@ starting points.
 with the baselines is the same in both dimensions, but its number of
 subdivisions, its trust-region radius and the headroom factor of the sweep were
 selected on these problems, among variants evaluated on the same runs, which
-introduces a bias in favour of the method. The number
-of starting points, between three and eight, is small, and the cost of the master
-problem is not included in the budget. The results presented below therefore
+introduces a bias in favour of the method. The comparison with the baselines
+uses twenty starting points per problem and paired statistical tests
+(Section~\ref{sec:baselines}), but the other comparisons use between three and
+eight starting points, which is too few for statistical tests, and the cost of
+the master problem is not included in the budget. The results presented below therefore
 characterize the method on the problems studied, and an assessment of its general
 performance would require an independent set of test problems and a protocol
 defined in advance.
@@ -871,7 +873,8 @@ calibrated configuration in both dimensions.
 
 \paragraph{Density.} In five dimensions, the configuration with ten subdivisions
 per variable gives the best results, with the largest final fraction of targets
-(84\%) among all configurations, including the baselines
+(84\%) among all configurations; over twenty starting points, its final
+fraction, $85\%$, is also larger than that of every baseline
 (Table~\ref{tab:profiles}). The cost of the basin count used to estimate the
 density exceeds the budget for most problems. Even when this cost is not
 counted, the estimated density gives worse results than the fixed one, since
@@ -921,8 +924,9 @@ in agreement with the upper bound of Section~\ref{sec:density}.
 
 With ten subdivisions per variable, i.e. $10^5$ boxes and $50$ binary variables,
 the optimum of the Rastrigin function in five dimensions is reached from all
-starting points with about $2100$ evaluations, whereas it is not reached by any of
-the baselines with the budgets considered (Section~\ref{sec:baselines}). With more
+three starting points with about $2100$ evaluations, and from eleven out of
+twenty in Section~\ref{sec:baselines}, whereas it is not reached by any of the
+baselines with the budgets considered. With more
 than ten subdivisions, the distance to the optimum increases while the cost
 decreases, which indicates that the runs terminate prematurely, since eighty
 binary variables cannot be identified with about fifty cuts. Conversely, the
@@ -1089,35 +1093,77 @@ unchanged, since both configurations terminate on their own stopping criteria.
 
 The same configuration of the method is used in both dimensions for the
 comparison: the swept convexity with four probes and ten subdivisions per
-variable, which is the default configuration in two dimensions and the default
-configuration with ten subdivisions per variable in five dimensions, the
-density being the one selected on these problems (Section~\ref{sec:protocol}). The results obtained for each problem are given in
-Table~\ref{tab:baselines}, and the data profiles in Table~\ref{tab:profiles} and
-Fig.~\ref{fig:profiles}. EGO is run with a budget of $500$ evaluations, which is
-the largest budget compatible with the cost of its surrogate model.
+variable, the density being the one selected on these problems
+(Section~\ref{sec:protocol}). Each method is run from twenty starting points per
+problem, the same for all methods. The results obtained for each problem are
+given in Table~\ref{tab:baselines}, the paired tests in Table~\ref{tab:tests},
+and the data profiles in Table~\ref{tab:profiles} and Fig.~\ref{fig:profiles}.
+EGO is run with a budget of $500$ evaluations, which is the largest budget
+compatible with the cost of its surrogate model.
+
+The two methods of each comparison are paired by starting point. The success,
+i.e. a distance to the optimum below the tolerance of the benchmark, is compared
+by the exact McNemar test, a binomial test on the starting points from which
+exactly one of the two methods reaches the optimum, and the final distance by
+the Wilcoxon signed-rank test. The $p$-values of each dimension are corrected by
+the Holm procedure over the four problems and the five baselines, and a
+difference is called significant below $0.05$ after correction. The area under
+the data profile is computed against the targets of Section~\ref{sec:protocol},
+which were generated from the runs of the first five starting points, and its difference with each baseline is given with a $95\%$ confidence interval
+obtained by a bootstrap over the starting points, paired across methods. These
+two measures were fixed before the runs were made. DIRECT, which uses no
+starting point, gives the same run from every starting point, so that the
+comparison with DIRECT is a comparison with a single result and its interval
+reflects only the variability of the method.
 
 \begin{table}[t]
   \centering
   \caption{Comparison of the method, swept with ten subdivisions per variable,
-    with the baselines,
-    $500n$ equivalent evaluations, five starting points: median distance $\cdot$
-    median cost $\cdot$ number of starting points from which the optimum is
-    reached.}
+    with the baselines, $500n$ equivalent evaluations, twenty starting points:
+    median distance $\cdot$ median cost $\cdot$ number of starting points from
+    which the optimum is reached. $\ddagger$ EGO is run with $500$
+    evaluations.}
   \label{tab:baselines}
+  \scriptsize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{lrllllll}
+    \toprule
+    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & tunneling & EGO$\ddagger$ \\
+    \midrule
+    Rastrigin        & 2 & 0.00 $\cdot$ 538 $\cdot$ 20   & 1.00 $\cdot$ 1000 $\cdot$ 9 & 1.00 $\cdot$ 625 $\cdot$ 4   & 0.00 $\cdot$ 649 $\cdot$ 20  & 1.99 $\cdot$ 1000 $\cdot$ 0  & 0.00 $\cdot$ 500 $\cdot$ 12 \\
+    Ackley           & 2 & 0.00 $\cdot$ 575 $\cdot$ 20   & 0.00 $\cdot$ 1000 $\cdot$ 12 & 0.00 $\cdot$ 751 $\cdot$ 20 & 0.00 $\cdot$ 417 $\cdot$ 20  & 0.00 $\cdot$ 1000 $\cdot$ 19 & 0.32 $\cdot$ 500 $\cdot$ 0 \\
+    Styblinski--Tang & 2 & 0.00 $\cdot$ 348 $\cdot$ 20   & 0.00 $\cdot$ 1000 $\cdot$ 20 & 0.00 $\cdot$ 532 $\cdot$ 12 & 0.00 $\cdot$ 1011 $\cdot$ 20 & 0.00 $\cdot$ 1000 $\cdot$ 20 & 0.00 $\cdot$ 500 $\cdot$ 20 \\
+    Griewank         & 2 & 0.007 $\cdot$ 628 $\cdot$ 0  & 0.027 $\cdot$ 1000 $\cdot$ 1 & 0.047 $\cdot$ 766 $\cdot$ 1 & 0.007 $\cdot$ 1011 $\cdot$ 0 & 0.027 $\cdot$ 1000 $\cdot$ 1 & 0.024 $\cdot$ 500 $\cdot$ 2 \\
+    Rastrigin        & 5 & 0.00 $\cdot$ 1756 $\cdot$ 11  & 5.97 $\cdot$ 2500 $\cdot$ 0 & 4.97 $\cdot$ 1749 $\cdot$ 0  & 4.98 $\cdot$ 461 $\cdot$ 0   & 4.97 $\cdot$ 2500 $\cdot$ 0  & 3.99 $\cdot$ 500 $\cdot$ 0 \\
+    Ackley           & 5 & 0.00 $\cdot$ 2500 $\cdot$ 13  & 9.28 $\cdot$ 2500 $\cdot$ 0 & 0.00 $\cdot$ 1921 $\cdot$ 19 & 0.11 $\cdot$ 353 $\cdot$ 0   & 2.32 $\cdot$ 2500 $\cdot$ 4  & 1.40 $\cdot$ 500 $\cdot$ 0 \\
+    Styblinski--Tang & 5 & 0.00 $\cdot$ 842 $\cdot$ 18   & 0.00 $\cdot$ 2326 $\cdot$ 20 & 14.14 $\cdot$ 1409 $\cdot$ 8 & 0.00 $\cdot$ 2505 $\cdot$ 20 & 0.00 $\cdot$ 2500 $\cdot$ 15 & 0.00 $\cdot$ 500 $\cdot$ 20 \\
+    Griewank         & 5 & 0.027 $\cdot$ 2200 $\cdot$ 0 & 0.046 $\cdot$ 2500 $\cdot$ 0 & 0.028 $\cdot$ 1681 $\cdot$ 0 & 0.011 $\cdot$ 397 $\cdot$ 0 & 0.070 $\cdot$ 2500 $\cdot$ 0 & 0.064 $\cdot$ 500 $\cdot$ 0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{Paired comparison of the success, twenty starting points: number of
+    starting points from which only the method reaches the optimum $-$ number
+    from which only the baseline does, with the $p$-value of the exact McNemar
+    test after Holm correction. Bold: significant at $0.05$. ---: no
+    discordant starting point.}
+  \label{tab:tests}
   \scriptsize
   \setlength{\tabcolsep}{3pt}
   \begin{tabular}{lrlllll}
     \toprule
-    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & tunneling \\
+    problem & $n$ & multistart & CMA-ES & DIRECT & tunneling & EGO \\
     \midrule
-    Rastrigin        & 2 & 0.00 $\cdot$ 457 $\cdot$ 5/5   & 1.00 $\cdot$ 1000 $\cdot$ 2/5 & 2.06 $\cdot$ 619 $\cdot$ 0/5  & 0.00 $\cdot$ 649 $\cdot$ 5/5 & 1.00 $\cdot$ 1000 $\cdot$ 0/5 \\
-    Ackley           & 2 & 0.00 $\cdot$ 613 $\cdot$ 5/5   & 0.00 $\cdot$ 1000 $\cdot$ 4/5 & 0.00 $\cdot$ 757 $\cdot$ 5/5  & 0.00 $\cdot$ 417 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 4/5 \\
-    Styblinski--Tang & 2 & 0.00 $\cdot$ 334 $\cdot$ 5/5   & 0.00 $\cdot$ 1000 $\cdot$ 5/5 & 0.00 $\cdot$ 529 $\cdot$ 3/5  & 0.00 $\cdot$ 1011 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 5/5 \\
-    Griewank         & 2 & 0.007 $\cdot$ 556 $\cdot$ 0/5  & 0.010 $\cdot$ 1000 $\cdot$ 0/5 & 0.030 $\cdot$ 775 $\cdot$ 0/5 & 0.007 $\cdot$ 1011 $\cdot$ 0/5 & 0.007 $\cdot$ 1000 $\cdot$ 0/5 \\
-    Rastrigin        & 5 & 1.00 $\cdot$ 1650 $\cdot$ 2/5  & 5.97 $\cdot$ 2500 $\cdot$ 0/5 & 8.95 $\cdot$ 1497 $\cdot$ 0/5 & 4.98 $\cdot$ 461 $\cdot$ 0/5 & 4.97 $\cdot$ 2500 $\cdot$ 0/5 \\
-    Ackley           & 5 & 0.00 $\cdot$ 2500 $\cdot$ 3/5  & 8.01 $\cdot$ 2500 $\cdot$ 0/5 & 0.00 $\cdot$ 2001 $\cdot$ 5/5 & 0.11 $\cdot$ 353 $\cdot$ 0/5 & 2.32 $\cdot$ 2500 $\cdot$ 2/5 \\
-    Styblinski--Tang & 5 & 0.00 $\cdot$ 789 $\cdot$ 5/5   & 0.00 $\cdot$ 2340 $\cdot$ 5/5 & 0.00 $\cdot$ 1401 $\cdot$ 3/5 & 0.00 $\cdot$ 2505 $\cdot$ 5/5 & 0.00 $\cdot$ 2500 $\cdot$ 3/5 \\
-    Griewank         & 5 & 0.027 $\cdot$ 2118 $\cdot$ 0/5 & 0.047 $\cdot$ 2500 $\cdot$ 0/5 & 0.030 $\cdot$ 1641 $\cdot$ 0/5 & 0.011 $\cdot$ 397 $\cdot$ 0/5 & 0.123 $\cdot$ 2500 $\cdot$ 0/5 \\
+    Rastrigin        & 2 & \textbf{11$-$0}, 0.017 & \textbf{16$-$0}, 0.001 & ---               & \textbf{20$-$0}, $<$0.001 & 8$-$0, 0.125 \\
+    Ackley           & 2 & 8$-$0, 0.125           & ---                    & ---               & 1$-$0, 1.000              & \textbf{20$-$0}, $<$0.001 \\
+    Styblinski--Tang & 2 & ---                    & 8$-$0, 0.125           & ---               & ---                       & --- \\
+    Griewank         & 2 & 0$-$1, 1.000           & 0$-$1, 1.000           & ---               & 0$-$1, 1.000              & 0$-$2, 1.000 \\
+    Rastrigin        & 5 & \textbf{11$-$0}, 0.017 & \textbf{11$-$0}, 0.017 & \textbf{11$-$0}, 0.017 & \textbf{11$-$0}, 0.017 & \textbf{11$-$0}, 0.017 \\
+    Ackley           & 5 & \textbf{13$-$0}, 0.005 & 0$-$6, 0.312           & \textbf{13$-$0}, 0.005 & 11$-$2, 0.247         & \textbf{13$-$0}, 0.005 \\
+    Styblinski--Tang & 5 & 0$-$2, 1.000           & 11$-$1, 0.076          & 0$-$2, 1.000      & 4$-$1, 1.000              & 0$-$2, 1.000 \\
+    Griewank         & 5 & ---                    & ---                    & ---               & ---                       & --- \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1125,30 +1171,32 @@ the largest budget compatible with the cost of its surrogate model.
 \begin{table}[t]
   \centering
   \caption{Area under the data profile and fraction of the targets reached at a
-    tenth, a quarter and a half of the budget and at the end of the budget.
+    tenth, a quarter and a half of the budget and at the end of the budget,
+    twenty starting points, and difference of the area of the method with that
+    of each baseline, with its $95\%$ bootstrap confidence interval.
     $\ddagger$ Value at the end of the budget of EGO, i.e. $500$ evaluations,
     which in five dimensions is less than a quarter of the budget of the other
-    methods; no area is given for EGO. Tunneling is profiled against the same
-    targets, which were generated without its runs.}
+    methods; no area is given for EGO.}
   \label{tab:profiles}
-  \small
-  \begin{tabular}{rlrrrrr}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{rlrrrrrl}
     \toprule
-    $n$ & method & area & $\tfrac1{10}$ & $\tfrac14$ & $\tfrac12$ & end \\
+    $n$ & method & area & $\tfrac1{10}$ & $\tfrac14$ & $\tfrac12$ & end & difference \\
     \midrule
-    2 & box subdivision                   & 0.87 & 43\% & 90\% & 96\% & 99\% \\
-    2 & multistart                        & 0.73 & 46\% & 64\% & 78\% & 92\% \\
-    2 & CMA-ES                            & 0.73 & 60\% & 70\% & 78\% & 78\% \\
-    2 & DIRECT                            & 0.90 & 69\% & 84\% & 99\% & 99\% \\
-    2 & EGO, 500 evaluations              & ---  & 74\% & 84\% & 86\% & 86\%$\ddagger$ \\
-    2 & tunneling                         & 0.79 & 66\% & 75\% & 84\% & 90\% \\
+    2 & box subdivision      & 0.85 & 32\% & 86\% & 98\% & 99\% & \\
+    2 & multistart           & 0.73 & 46\% & 67\% & 79\% & 90\% & $+0.12$ [$+0.09$, $+0.15$] \\
+    2 & CMA-ES               & 0.72 & 52\% & 69\% & 79\% & 80\% & $+0.13$ [$+0.08$, $+0.19$] \\
+    2 & DIRECT               & 0.90 & 69\% & 84\% & 99\% & 99\% & $-0.04$ [$-0.06$, $-0.03$] \\
+    2 & tunneling            & 0.74 & 55\% & 68\% & 79\% & 87\% & $+0.11$ [$+0.07$, $+0.15$] \\
+    2 & EGO, 500 evaluations & ---  & 73\% & 82\% & 85\% & 85\%$\ddagger$ & \\
     \midrule
-    5 & box subdivision                   & 0.64 & 30\% & 62\% & 73\% & 84\% \\
-    5 & multistart                        & 0.51 & 37\% & 50\% & 54\% & 60\% \\
-    5 & CMA-ES                            & 0.68 & 54\% & 67\% & 76\% & 78\% \\
-    5 & DIRECT                            & 0.76 & 75\% & 79\% & 79\% & 79\% \\
-    5 & EGO, 500 evaluations              & ---  & 59\% & ---  & ---  & 64\%$\ddagger$ \\
-    5 & tunneling                         & 0.68 & 43\% & 67\% & 76\% & 77\% \\
+    5 & box subdivision      & 0.61 & 25\% & 51\% & 70\% & 85\% & \\
+    5 & multistart           & 0.52 & 40\% & 50\% & 56\% & 61\% & $+0.09$ [$+0.05$, $+0.13$] \\
+    5 & CMA-ES               & 0.64 & 42\% & 61\% & 72\% & 74\% & $-0.02$ [$-0.06$, $+0.02$] \\
+    5 & DIRECT               & 0.76 & 75\% & 79\% & 79\% & 79\% & $-0.15$ [$-0.18$, $-0.11$] \\
+    5 & tunneling            & 0.65 & 40\% & 61\% & 71\% & 76\% & $-0.03$ [$-0.07$, $+0.01$] \\
+    5 & EGO, 500 evaluations & ---  & 61\% & ---  & ---  & 69\%$\ddagger$ & \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1157,42 +1205,44 @@ the largest budget compatible with the cost of its surrogate model.
   \centering
   \includegraphics[width=\linewidth]{figures/data_profiles.pdf}
   \caption{Data profiles of the method, swept with ten subdivisions per
-    variable, and of the
-    baselines. The end of the budget of EGO is marked on its curve. Tunneling
-    (dashed) is profiled against targets generated without its runs.}
+    variable, and of the baselines, twenty starting points. The end of the
+    budget of EGO is marked on its curve. Tunneling is dashed.}
   \label{fig:profiles}
 \end{figure}
 
-In two dimensions, 90\% of the targets are reached by the method within a quarter
-of the budget, against 84\% for DIRECT, which reaches 99\% at half of the budget
-against 96\% for the method, so that the area of DIRECT is slightly larger
-($0.90$ against $0.87$). The method reaches the optimum of the Rastrigin, Ackley
-and Styblinski--Tang functions from all starting points; DIRECT does so at a
-lower cost for the Ackley function ($417$ against $613$ evaluations) and at a
-higher cost for the Rastrigin and Styblinski--Tang functions.
+In five dimensions, the optimum of the Rastrigin function is reached by the
+method from eleven starting points out of twenty, and by none of the baselines
+from any starting point; the difference is significant against each baseline.
+That of the Ackley function is reached from thirteen starting points, against
+none for the multistart algorithm, DIRECT and EGO, with significant
+differences, four for tunneling and nineteen for CMA-ES; these last two
+differences are not significant. For the Styblinski--Tang function, the method
+reaches the optimum from eighteen starting points, CMA-ES from eight, and the
+other baselines from fifteen to twenty, with no significant difference. In two
+dimensions, the method reaches the optimum of the Rastrigin, Ackley and
+Styblinski--Tang functions from all starting points, as DIRECT does, and the
+difference is significant on the Rastrigin function against the multistart
+algorithm, CMA-ES and tunneling, and on the Ackley function against EGO. The
+optimum of the Griewank function is reached from at most two starting points by
+any method in either dimension. The final distances to it are smaller with the
+method than with the multistart algorithm, CMA-ES, tunneling and EGO in two
+dimensions, and larger than with DIRECT in five dimensions ($0.027$ against
+$0.011$), these differences being significant. For the Ackley function in five
+dimensions, the final distances are significantly smaller with CMA-ES. The other
+significant differences of final distance found by the signed-rank test either
+agree with those of the success or are below $10^{-4}$ on problems whose optimum
+is reached by both methods, and are not discussed.
 
-In five dimensions, the largest fraction of targets is reached by DIRECT during
-most of the run, and the method remains behind DIRECT and CMA-ES up to about
-$1900$ evaluations, with final fractions of 84\%, 79\% and 78\% respectively. The
-method is the only one with which the optimum of the Rastrigin function in five
-dimensions is reached, from two starting points out of five, and the optimum of
-the Styblinski--Tang function is reached from all starting points with $789$
-evaluations, against $2340$ for the multistart algorithm and $2505$ for DIRECT.
-Better results are obtained with CMA-ES for the Ackley function, whose single
-broad basin is well suited to a method based on the adaptation of a search
-distribution. For the Griewank function, the optimum is not reached by any
-method, and the smallest distance is obtained by DIRECT at the lowest cost.
-
-Tunneling reaches the optimum of the Ackley and Styblinski--Tang functions in two
-dimensions from four and five starting points out of five, but not that of the
-Rastrigin function, for which it ends at a local minimum $1.00$ away from the
-optimum. In five dimensions, it reaches the optimum of the Ackley and
-Styblinski--Tang functions from two and three starting points, and not that of
-the Rastrigin function. The area under its profile is $0.79$ in two dimensions,
-between CMA-ES and DIRECT, and $0.68$ in five dimensions, equal to that of CMA-ES
-and larger than that of the method ($0.64$). Most of its targets are reached
-within half of the budget, $76\%$, against $77\%$ at the end of the budget and
-$84\%$ for the method.
+The area of the method is larger than those of the multistart algorithm, CMA-ES
+and tunneling in two dimensions, and than that of the multistart algorithm in
+five dimensions. It is smaller than that of DIRECT in both dimensions, by $0.04$
+and $0.15$: DIRECT reaches the targets earlier, while the method reaches the
+optimum from as many starting points in two dimensions, and in five dimensions
+from more starting points for the Rastrigin and Ackley functions and from two
+fewer for the Styblinski--Tang function. In five dimensions, the confidence intervals of the differences with
+CMA-ES and tunneling contain zero. The method reaches $25\%$ of the targets at a
+tenth of the budget, the lowest fraction of all methods in both dimensions, and
+$85\%$ at the end of the budget in five dimensions, the largest fraction.
 
 \subsection{Comparison with a budget of 500 evaluations}\label{sec:small}
 
@@ -1333,9 +1383,8 @@ can be found that separates the basins with fewer binary variables than the
 number of sub-problems allowed by the budget. Under this condition, the optimum
 is reached at a fifth to a third of the cost of the enumeration of the boxes
 (Table~\ref{tab:enum}), the optimum of the Rastrigin function in five dimensions
-is reached only by the method, and that of the Styblinski--Tang function in five
-dimensions from all starting points with fewer evaluations than the other methods
-which reach it from all starting points (Table~\ref{tab:baselines}). Since the size of the master
+is reached only by the method, from eleven starting points out of twenty
+(Tables~\ref{tab:baselines} and~\ref{tab:tests}). Since the size of the master
 problem depends on the number of binary variables and not on the number of
 boxes, $10^5$ boxes can be handled in five dimensions. When no such subdivision
 exists, the results are among the worst of the methods compared

@@ -394,29 +394,29 @@ criteria.
 ## Comparison with the baselines
 
 The method is used in the same configuration in both dimensions: swept
-convexity, four probes and ten subdivisions per variable, which is the default
-in two variables and the default with ten subdivisions per variable in five. It
-uses no convexity value chosen for these problems; its density was selected on
-them. The runs are those of the data profiles: four
-problems, five starting points, and $500$ equivalent evaluations per variable
-with adjoint gradients. Each cell of Table 6 gives the median distance to the
-optimum, the median cost, and the number of starting points from which the
-optimum is reached.
+convexity, four probes and ten subdivisions per variable. It uses no convexity
+value chosen for these problems; its density was selected on them. Every method
+is run on the four problems from twenty starting points, the same for all
+methods (the five of the data profiles and fifteen more), with $500$ equivalent
+evaluations per variable and adjoint gradients; EGO gets the $500$ evaluations
+its surrogate model can afford. Each cell of Table 6 gives the median distance
+to the optimum, the median cost, and the number of starting points out of twenty
+from which the optimum is reached.
 
-| problem | $n$ | box subdivision, swept, 10 per variable | multistart | CMA-ES | DIRECT | tunneling |
-|---------|-----|-----------------------------------------|------------|--------|--------|-----------|
-| Rastrigin | 2 | $0.00$ · 457 · 5/5 | $1.00$ · 1000 · 2/5 | $2.06$ · 619 · 0/5 | $0.00$ · 649 · 5/5 | $1.00$ · 1000 · 0/5 |
-| Ackley | 2 | $0.00$ · 613 · 5/5 | $0.00$ · 1000 · 4/5 | $0.00$ · 757 · 5/5 | $0.00$ · 417 · 5/5 | $0.00$ · 1000 · 4/5 |
-| Styblinski-Tang | 2 | $0.00$ · 334 · 5/5 | $0.00$ · 1000 · 5/5 | $0.00$ · 529 · 3/5 | $0.00$ · 1011 · 5/5 | $0.00$ · 1000 · 5/5 |
-| Griewank | 2 | $0.007$ · 556 · 0/5 | $0.010$ · 1000 · 0/5 | $0.030$ · 775 · 0/5 | $0.007$ · 1011 · 0/5 | $0.007$ · 1000 · 0/5 |
-| Rastrigin | 5 | $1.00$ · 1650 · 2/5 | $5.97$ · 2500 · 0/5 | $8.95$ · 1497 · 0/5 | $4.98$ · 461 · 0/5 | $4.97$ · 2500 · 0/5 |
-| Ackley | 5 | $0.00$ · 2500 · 3/5 | $8.01$ · 2500 · 0/5 | $0.00$ · 2001 · 5/5 | $0.11$ · 353 · 0/5 | $2.32$ · 2500 · 2/5 |
-| Styblinski-Tang | 5 | $0.00$ · 789 · 5/5 | $0.00$ · 2340 · 5/5 | $0.00$ · 1401 · 3/5 | $0.00$ · 2505 · 5/5 | $0.00$ · 2500 · 3/5 |
-| Griewank | 5 | $0.027$ · 2118 · 0/5 | $0.047$ · 2500 · 0/5 | $0.030$ · 1641 · 0/5 | $0.011$ · 397 · 0/5 | $0.123$ · 2500 · 0/5 |
+| problem | $n$ | box subdivision | multistart | CMA-ES | DIRECT | tunneling | EGO‡ |
+|---------|-----|-----------------|------------|--------|--------|-----------|------|
+| Rastrigin | 2 | $0.00$ · 538 · 20 | $1.00$ · 1000 · 9 | $1.00$ · 625 · 4 | $0.00$ · 649 · 20 | $1.99$ · 1000 · 0 | $0.00$ · 500 · 12 |
+| Ackley | 2 | $0.00$ · 575 · 20 | $0.00$ · 1000 · 12 | $0.00$ · 751 · 20 | $0.00$ · 417 · 20 | $0.00$ · 1000 · 19 | $0.32$ · 500 · 0 |
+| Styblinski-Tang | 2 | $0.00$ · 348 · 20 | $0.00$ · 1000 · 20 | $0.00$ · 532 · 12 | $0.00$ · 1011 · 20 | $0.00$ · 1000 · 20 | $0.00$ · 500 · 20 |
+| Griewank | 2 | $0.007$ · 628 · 0 | $0.027$ · 1000 · 1 | $0.047$ · 766 · 1 | $0.007$ · 1011 · 0 | $0.027$ · 1000 · 1 | $0.024$ · 500 · 2 |
+| Rastrigin | 5 | $0.00$ · 1756 · 11 | $5.97$ · 2500 · 0 | $4.97$ · 1749 · 0 | $4.98$ · 461 · 0 | $4.97$ · 2500 · 0 | $3.99$ · 500 · 0 |
+| Ackley | 5 | $0.00$ · 2500 · 13 | $9.28$ · 2500 · 0 | $0.00$ · 1921 · 19 | $0.11$ · 353 · 0 | $2.32$ · 2500 · 4 | $1.40$ · 500 · 0 |
+| Styblinski-Tang | 5 | $0.00$ · 842 · 18 | $0.00$ · 2326 · 20 | $14.14$ · 1409 · 8 | $0.00$ · 2505 · 20 | $0.00$ · 2500 · 15 | $0.00$ · 500 · 20 |
+| Griewank | 5 | $0.027$ · 2200 · 0 | $0.046$ · 2500 · 0 | $0.028$ · 1681 · 0 | $0.011$ · 397 · 0 | $0.070$ · 2500 · 0 | $0.064$ · 500 · 0 |
 
-*Table 6. Box subdivision and baselines, $500$ equivalent evaluations per
-variable. The tunneling column was added after the others, from the same
-starting points; see [annex B](baselines.md#tunneling).*
+*Table 6. Box subdivision, swept with ten subdivisions per variable, and
+baselines, $500$ equivalent evaluations per variable, twenty starting points.
+‡ $500$ evaluations.*
 
 ```{image} ../_static/figures/results.svg
 :class: only-light
@@ -428,12 +428,52 @@ starting points; see [annex B](baselines.md#tunneling).*
 :alt: Cost of the method and of each baseline on each problem, with the optima reached
 ```
 
-*Figure 3. Cost and number of optima reached for each method and problem.*
+*Figure 3. Cost and number of optima reached for each method and problem, from
+the five starting points of the data profiles of the variants.*
 
-Figure 4 shows the same runs as data profiles, with the targets of the variants.
-EGO is added with the $500$ evaluations its surrogate model can afford; the end
-of its budget is marked on its curve, and all methods are compared at this
-budget in the [next section](#comparison-at-a-budget-of-500-evaluations).
+### Paired tests
+
+The runs of two methods from the same starting point are paired. The success is
+compared by the exact McNemar test, a binomial test on the starting points from
+which exactly one of the two reaches the optimum, and the final distance by the
+Wilcoxon signed-rank test. The $p$-values of each dimension are corrected by the
+Holm procedure over its four problems and five baselines. Both measures, the
+final distance and the area under the data profile, were fixed before the runs.
+DIRECT uses no starting point and gives the same run twenty times: against it,
+the tests compare the method with a single result.
+
+| problem | $n$ | multistart | CMA-ES | DIRECT | tunneling | EGO |
+|---------|-----|------------|--------|--------|-----------|-----|
+| Rastrigin | 2 | **11–0**, 0.017 | **16–0**, 0.001 | — | **20–0**, <0.001 | 8–0, 0.125 |
+| Ackley | 2 | 8–0, 0.125 | — | — | 1–0, 1.000 | **20–0**, <0.001 |
+| Styblinski-Tang | 2 | — | 8–0, 0.125 | — | — | — |
+| Griewank | 2 | 0–1, 1.000 | 0–1, 1.000 | — | 0–1, 1.000 | 0–2, 1.000 |
+| Rastrigin | 5 | **11–0**, 0.017 | **11–0**, 0.017 | **11–0**, 0.017 | **11–0**, 0.017 | **11–0**, 0.017 |
+| Ackley | 5 | **13–0**, 0.005 | 0–6, 0.312 | **13–0**, 0.005 | 11–2, 0.247 | **13–0**, 0.005 |
+| Styblinski-Tang | 5 | 0–2, 1.000 | 11–1, 0.076 | 0–2, 1.000 | 4–1, 1.000 | 0–2, 1.000 |
+| Griewank | 5 | — | — | — | — | — |
+
+*Table 7. Starting points from which only the method reaches the optimum – those
+from which only the baseline does, and the McNemar $p$-value after Holm
+correction; bold below $0.05$, — when no starting point differs.*
+
+In five variables, the method is the only one that reaches the optimum of
+Rastrigin, from eleven starting points of twenty, a significant difference with
+every baseline. On Ackley it reaches it from thirteen, against none for the
+multistart, DIRECT and EGO (significant), four for tunneling and nineteen for
+CMA-ES (not significant). On Styblinski-Tang no difference is significant. In
+two variables, the method and DIRECT reach the optimum of Rastrigin, Ackley and
+Styblinski-Tang from all starting points; the method is significantly better on
+Rastrigin than the multistart, CMA-ES and tunneling, and on Ackley than EGO. No
+method reaches the optimum of Griewank from more than two starting points; the
+final distance is significantly smaller with the method than with the multistart,
+CMA-ES, tunneling and EGO in two variables, and larger than with DIRECT in five
+($0.027$ against $0.011$). On Ackley in five variables, CMA-ES ends significantly
+closer to the optimum. The other significant differences of final distance agree
+with those of the success, or are below $10^{-4}$ between runs that both reach
+the optimum.
+
+### Data profiles
 
 ```{image} ../_static/figures/data_profiles.svg
 :class: only-light
@@ -445,48 +485,39 @@ budget in the [next section](#comparison-at-a-budget-of-500-evaluations).
 :alt: Fraction of the targets reached by the method and each baseline against the evaluations spent
 ```
 
-*Figure 4. Data profiles of the method, swept with ten subdivisions per variable,
-and of the baselines; tunneling,
-added after the others, is dashed.*
+*Figure 4. Data profiles of the method, swept with ten subdivisions per
+variable, and of the baselines, twenty starting points, against the targets of
+the variants; the end of the budget of EGO is marked on its curve, tunneling is
+dashed.*
 
-| $n$ | method | area | at a tenth | at a quarter | at a half | at the budget |
-|-----|--------|------|------------|--------------|-----------|---------------|
-| 2 | box subdivision | $0.87$ | 43% | 90% | 96% | 99% |
-| 2 | multistart | $0.73$ | 46% | 64% | 78% | 92% |
-| 2 | CMA-ES | $0.73$ | 60% | 70% | 78% | 78% |
-| 2 | DIRECT | $0.90$ | 69% | 84% | 99% | 99% |
-| 2 | EGO, 500 evaluations | — | 74% | 84% | 86% | 86%‡ |
-| 2 | tunneling | $0.79$ | 66% | 75% | 84% | 90% |
-| 5 | box subdivision | $0.64$ | 30% | 62% | 73% | 84% |
-| 5 | multistart | $0.51$ | 37% | 50% | 54% | 60% |
-| 5 | CMA-ES | $0.68$ | 54% | 67% | 76% | 78% |
-| 5 | DIRECT | $0.76$ | 75% | 79% | 79% | 79% |
-| 5 | EGO, 500 evaluations | — | 59% | — | — | 64%‡ |
-| 5 | tunneling | $0.68$ | 43% | 67% | 76% | 77% |
+| $n$ | method | area | at a tenth | at a quarter | at a half | at the budget | area difference [95% CI] |
+|-----|--------|------|------------|--------------|-----------|---------------|--------------------------|
+| 2 | box subdivision | $0.85$ | 32% | 86% | 98% | 99% | |
+| 2 | multistart | $0.73$ | 46% | 67% | 79% | 90% | $+0.12$ [$+0.09$, $+0.15$] |
+| 2 | CMA-ES | $0.72$ | 52% | 69% | 79% | 80% | $+0.13$ [$+0.08$, $+0.19$] |
+| 2 | DIRECT | $0.90$ | 69% | 84% | 99% | 99% | $-0.04$ [$-0.06$, $-0.03$] |
+| 2 | tunneling | $0.74$ | 55% | 68% | 79% | 87% | $+0.11$ [$+0.07$, $+0.15$] |
+| 2 | EGO, 500 evaluations | — | 73% | 82% | 85% | 85%‡ | |
+| 5 | box subdivision | $0.61$ | 25% | 51% | 70% | 85% | |
+| 5 | multistart | $0.52$ | 40% | 50% | 56% | 61% | $+0.09$ [$+0.05$, $+0.13$] |
+| 5 | CMA-ES | $0.64$ | 42% | 61% | 72% | 74% | $-0.02$ [$-0.06$, $+0.02$] |
+| 5 | DIRECT | $0.76$ | 75% | 79% | 79% | 79% | $-0.15$ [$-0.18$, $-0.11$] |
+| 5 | tunneling | $0.65$ | 40% | 61% | 71% | 76% | $-0.03$ [$-0.07$, $+0.01$] |
+| 5 | EGO, 500 evaluations | — | 61% | — | — | 69%‡ | |
 
-*Table 7. Area under the data profile and fraction of targets reached at a
-tenth, a quarter, a half and the whole budget. ‡ At the EGO budget of $500$,
-which in five variables is less than a quarter of the budget of the other
-methods; no area is given for EGO. Tunneling is profiled against the same
-targets, which were generated without its runs.*
+*Table 8. Area under the data profile, fraction of targets reached at a tenth, a
+quarter, a half and the whole budget, and difference of the area of the method
+with that of each baseline, with a bootstrap interval over the starting points,
+paired across methods. ‡ At the EGO budget of $500$, which in five variables is
+less than a quarter of the budget of the other methods; no area is given for
+EGO.*
 
-In two variables, the method reaches $90\%$ of the targets within a quarter of
-the budget ($250$ evaluations), against $84\%$ for DIRECT, which reaches $99\%$
-at half the budget against $96\%$ for the method, so that the area of DIRECT is
-slightly larger ($0.90$ against $0.87$). The method reaches the optimum of
-Rastrigin, Ackley and Styblinski-Tang from all starting points; DIRECT does so at
-a lower cost on Ackley ($417$ against $613$ evaluations) and at a higher cost on
-Rastrigin and Styblinski-Tang.
-
-In five variables, DIRECT has the highest fraction of targets for most of the
-budget: $75\%$ after $250$ evaluations, then $79\%$ until the end. The method is behind DIRECT and CMA-ES until $1890$
-evaluations and ends at $84\%$. It is the only method that reaches the optimum
-of Rastrigin in five variables, from two starting points of five, and it reaches
-the optimum of Styblinski-Tang from all starting points for $789$ evaluations,
-against $2340$ for the multistart and $2505$ for DIRECT. On Ackley, CMA-ES
-reaches the optimum from all starting points and the method from three; on
-Griewank no method reaches it, DIRECT obtaining the smallest distance at a
-lower cost.
+The area of the method is larger than those of the multistart, CMA-ES and
+tunneling in two variables, and than that of the multistart in five. It is
+smaller than that of DIRECT in both, which reaches the targets earlier; in five
+variables the intervals against CMA-ES and tunneling contain zero. The method
+has the lowest fraction of targets at a tenth of the budget in both dimensions,
+and the highest at the end of the budget in five variables, $85\%$.
 
 The last target is the global optimum on all problems in two variables and on
 three of the four in five. On Griewank in five variables no run reaches the
@@ -495,19 +526,20 @@ methods with one another rather than with the optimum.
 
 :::{warning}
 The configuration is the same in both dimensions, but its density was selected
-on the same problems and runs on which it is scored, among variants measured
-once each, which biases the comparison in its favour. The sweep removes the
-convexity margin from the settings to be tuned, but not the density. A claim on
-the general performance of the method requires a separate set of test problems
-and a protocol fixed in advance.
+on the same problems, among variants measured from five starting points, which
+biases the comparison in its favour. The sweep removes the convexity margin from
+the settings to be tuned, but not the density. A claim on the general
+performance of the method requires a separate set of test problems and a
+protocol fixed in advance.
 :::
 
-The study takes a few hours, mostly for EGO, and resumes from its last state
-when interrupted:
+The runs take a few hours with one process per core, mostly for EGO and for the
+method in five variables, and resume from their cache when interrupted:
 
 ```shell
-python -m benchmarks.data_profiles   # writes docs/_static/data_profiles.json
-python docs/figures.py variant_profiles data_profiles results
+OMP_NUM_THREADS=1 python -m benchmarks.run_statistics  # runs, cached in benchmarks/.statistics
+python -m benchmarks.statistics                        # writes docs/_static/statistics.json
+python docs/figures.py data_profiles
 ```
 
 ## Comparison at a budget of 500 evaluations
@@ -522,7 +554,7 @@ method.
 
 The same methods are therefore compared at a budget of $500$ evaluations, which
 all of them can afford and which corresponds to an expensive objective, where a
-few hundred evaluations make up the whole budget. Table 8 gives, for four
+few hundred evaluations make up the whole budget. Table 9 gives, for four
 problems in two and five dimensions and three starting points, the median
 distance to the optimum and the number of starting points from which it is
 reached. The box subdivision uses the configuration of the
@@ -543,7 +575,7 @@ and $0.061$ on Griewank.
 | Styblinski-Tang | 5 | $0.0002$ | $14.14$ · 1/3 | $0.003$ | $0.00$ · 3/3 | $0.14$ · 219‡ | $14.14$ · 1/3 |
 | Griewank | 5 | $0.281$ | $0.096$ | $0.381$ | $0.011$ | $0.104$ | $0.340$ |
 
-*Table 8. Median distance to the optimum and number of starting points reaching
+*Table 9. Median distance to the optimum and number of starting points reaching
 it at a budget of $500$ evaluations; a third number is the cost of a run that
 terminated before the budget. ‡ EGO terminated on its own criterion after $29$
 and $219$ evaluations, its expected improvement having vanished.*
@@ -570,7 +602,7 @@ for the box subdivision, and on Griewank in two dimensions. With few
 evaluations and many basins, a surrogate model built on the whole history is
 more effective than the methods that do not reuse it. Its own computation time
 is, however, about a hundred times larger, $444$ seconds against $3$ for the box
-subdivision on the same problem, and is not counted in Table 8; it becomes
+subdivision on the same problem, and is not counted in Table 9; it becomes
 negligible only for an objective that is expensive to evaluate.
 
 The box subdivision reaches the optimum of Styblinski-Tang in two dimensions
@@ -582,26 +614,22 @@ results on Ackley and Griewank are worse than with two subdivisions per variable
 Rastrigin in five variables requires the $2103$ evaluations of Table 3, and no
 method reaches its optimum at this budget.
 
-Tunneling, added to both tables after the other methods, reaches the optimum
-of Styblinski-Tang and Ackley in two variables from all or all but one starting
-point, but not that of Rastrigin, where it stays at a local minimum, $1.00$
-from the optimum in Table 6 and $1.99$ in Table 8. In five variables it
-reaches the optimum from two and three of the five starting points on Ackley
-and Styblinski-Tang in Table 6, and from one of the three on Styblinski-Tang in
-Table 8. Its area under the data profile is $0.79$ in two variables, above the
-multistart and CMA-ES ($0.73$) and below DIRECT ($0.90$) and the box subdivision
-($0.87$), and $0.68$ in five, equal to CMA-ES, above the
-box subdivision ($0.64$) and the multistart ($0.51$) and below DIRECT ($0.76$).
-Its targets are reached early and hardly any after half the budget, $76\%$
-then and $77\%$ at its end, against $84\%$ at the end for the box subdivision.
-Having no stopping rule in this setting, its runs spend the whole budget. Its
+Tunneling reaches the optimum of Styblinski-Tang and Ackley in two variables
+from all or all but one of the twenty starting points, but not that of
+Rastrigin, where it stays at a local minimum, $1.99$ from the optimum in both
+Table 6 and Table 9. In five variables it reaches the optimum from four and
+fifteen of the twenty starting points on Ackley and Styblinski-Tang in Table 6,
+and from one of the three on Styblinski-Tang in Table 9. Its area under the data
+profile is $0.74$ in two variables, below the box subdivision by $0.11$, and
+$0.65$ in five, where the interval of the difference with the box subdivision
+contains zero (Table 8). Having no stopping rule in this setting, its runs spend the whole budget. Its
 settings are fixed choices, some recalled from the literature without the
 original articles at hand (see [annex B](baselines.md#tunneling)), none of them
 tuned on these problems. A
 run of $500$ evaluations takes about $0.2$ seconds and one of $2500$ about one
 second. Both protocols are rerun by `python -m benchmarks.run_tunneling`.
 
-Tables 6 and 8 address different situations: Table 8 the case of scarce
+Tables 6 and 9 address different situations: Table 9 the case of scarce
 evaluations, typical of industrial problems, and Table 6 the case of a budget
 large enough to afford the densities the box subdivision requires.
 
@@ -695,7 +723,7 @@ run. The driver is `benchmarks/cantilever/classic_tunneling.py`.
 | box subdivision, 9 probes, 63 boxes | $82.1$ | $4.420$ | 31070 | 55995 |
 | classic tunneling, 4 searches in parallel² | $82.8$ | $4.429$ | 44072 | 56000 |
 
-*Table 9. Short cantilever: best feasible compliance, number of designs
+*Table 10. Short cantilever: best feasible compliance, number of designs
 evaluated until the best one was found, and total number of designs evaluated.
 ¹ Designs of the runs from initial designs 0 to 8, the best being found by
 run 8; the runs are executed in parallel. ² Added after the other rows, on a
@@ -774,7 +802,7 @@ process, took $5980$ of the designs.
 
 *Figure 7. Classic tunneling on the short cantilever. Left: the best design
 found. Right: the best feasible compliance against the designs analysed by all
-processes, with the final values of Table 9 at the designs where they were
+processes, with the final values of Table 10 at the designs where they were
 reached. The data is in `docs/_static/cantilever_tunneling.json`.*
 
 The result depends on the MMA settings. With a move limit of $0.1$ and
