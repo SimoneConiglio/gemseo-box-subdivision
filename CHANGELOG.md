@@ -45,6 +45,11 @@ and this project adheres to
   page, and Figure 1, are drawn from these runs. Sixteen probes are confirmed
   better on the area in two variables, not on the success, and the
   configuration with four probes is kept.
+- `benchmarks/small_budget_statistics.py`: the comparison at $500$ evaluations
+  from the twenty starting points with the paired tests, written to
+  `docs/_static/small_budget.json`; `data_profiles.collect` takes a budget for
+  every method. Table 9 of the benchmark page and the table of the paper are
+  drawn from it.
 - `benchmarks/tunneling.py`, the classic tunneling method of Levy and Montalvo
   (1985) as a baseline, with SLSQP in both phases, analytic gradients of the
   tunneling function charged to the same budgeted counter, and settings fixed
