@@ -39,15 +39,21 @@
   \node[pkg, fit=(benders) (master) (milp)] (oa) {};
   \node[pkgname] at (oa.west) {gemseo-bilevel-outer-\\approximation};
 
-  % --- GEMSEO and the solvers of the sub-problem.
+  % --- GEMSEO and its solver of the sub-problem.
   \node[cls, below=1.4cm of benders] (adapter)
     {scenario adapter\\a sub-problem\\per box};
   \node[cls, right=0.5cm of adapter] (chain)
     {\code{MDOChain}\\\code{BoxMapping} $\to$ disciplines};
   \node[cls, right=0.5cm of chain] (nlp)
-    {NLP solver\\SLSQP or MMA (gemseo-mma)};
+    {NLP solver\\SLSQP};
   \node[pkg, fit=(adapter) (chain) (nlp)] (gemseo) {};
   \node[pkgname] at (gemseo.west) {GEMSEO};
+
+  % --- gemseo-mma, a separate plugin.
+  \node[cls, below=1.3cm of nlp] (mma) {NLP solver\\MMA};
+  \node[pkg, fit=(mma)] (mmapkg) {};
+  \node[font=\footnotesize\bfseries, anchor=south west] at (mmapkg.north west)
+    {gemseo-mma};
 
   % --- Flows.
   \draw[flow] (input) -- (input |- scenario.north);
@@ -67,4 +73,5 @@
     node[data, right] {$v(\alpha^{(i)})$, $s^{(i)}$} ([xshift=4mm]master.south);
   \draw[flow] (adapter) -- (chain);
   \draw[flow, <->] (chain) -- (nlp);
+  \draw[flow, <->] (chain.south) |- (mma.west);
 \end{tikzpicture}
