@@ -28,3 +28,4 @@
 
 # The runs of the data profiles, kept so that a study resumes.
 benchmarks/.data_profiles/
+benchmarks/.statistics/
