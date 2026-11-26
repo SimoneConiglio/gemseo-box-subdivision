@@ -435,7 +435,20 @@ $D_i\,\mu_i$ is the correction of minimum Euclidean norm with this property. The
 boxes whose sub-problem is infeasible are included among the $N$ solved boxes,
 and the same correction is applied to the cuts of the inequality constraints.
 The corrected slopes $\tilde s^{(i)}$ are then used in place of $s^{(i)}$ in the
-cuts~\eqref{eq:cuts}.
+cuts~\eqref{eq:cuts} (Fig.~\ref{fig:repair}).
+
+\begin{figure}[t]
+  \centering
+  \input{figures/adaptive_repair.tex}
+  \caption{Adaptive repair of the cut built at the box $\alpha^{(i)}$,
+    schematic. The cut is evaluated at the other solved boxes. Where it exceeds
+    $v(\alpha^{(j)}) - \delta$, condition~\eqref{eq:adaptive} is violated, and
+    the corrected slope lowers it by the excess $r_{i,j}$ to
+    $v(\alpha^{(j)}) - \delta$; its values at the other boxes are unchanged. The
+    dotted segments only join the cut to its own box: since the boxes are
+    vertices of the relaxed polytope, the cut is not a line through them.}
+  \label{fig:repair}
+\end{figure}
 
 The two approaches can be combined in principle; they are used separately in
 this work. With a large value of $\kappa$, the cuts are valid by construction,
@@ -473,7 +486,7 @@ the function. To avoid this calibration, the parallel probes of the master probl
 which are already used to sweep the trust-region radius, are also used to sweep
 the convexity value. A sequence of values $\kappa_1 < \dots < \kappa_p$, referred
 to as a ladder and distributed geometrically below an upper bound, is defined,
-and one value is assigned to each probe. The values are paired with the radii so
+and one value is assigned to each probe (Fig.~\ref{fig:sweep}). The values are paired with the radii so
 that the smallest radii are associated with the least corrected cuts and the
 largest radii with the most corrected ones, and each iteration therefore
 proposes both boxes close to the incumbent and distant boxes. When a probe
@@ -489,6 +502,19 @@ and similar. It is dimensionless and can therefore be applied to other problems,
 contrary to an absolute margin. It should be noted that the sweep does
 not restore the optimality test, since the master problem retains the smallest
 lower bound among the probes, which is degraded by the largest convexity values.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/convexity_sweep.tex}
+  \caption{Swept convexity with four probes, schematic. The values of the
+    ladder are geometric below $\kappa_{\max}$, ten times the spread of the
+    objective values over the boxes already solved, and each probe starts at its
+    own value, the radius of its trust region increasing with the value. A probe
+    which proposes a box already solved is given the next value of the ladder,
+    at the cost of one mixed-integer solution and without evaluation of the
+    objective function.}
+  \label{fig:sweep}
+\end{figure}
 
 \subsection{Trust region of the master problem}\label{sec:trust}
 
@@ -591,9 +617,24 @@ applied to the restriction of $f$ to each maximal feasible interval of the line.
 
 \subsection{Extensions}\label{sec:extensions}
 
-Three extensions related to the limits on the density were also studied. They
-are evaluated in Section~\ref{sec:extensions-results} and are not used by
-default.
+Three extensions related to the limits on the density were also studied
+(Fig.~\ref{fig:subdivision-variants}). They are evaluated in
+Section~\ref{sec:extensions-results} and are not used by default.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/subdivision_variants.tex}
+  \caption{Extensions of the subdivision in two dimensions, the selected box
+    being dark. Top left: subdivision of $x_1$ only, $x_2$ remaining a
+    continuous variable of the sub-problem; multi-resolution encoding with two
+    levels of four intervals, the $16 \times 16$ boxes being available to one
+    master problem, which selects the box by one digit per level and per
+    component, numbered from zero (top right); hierarchy with two levels of four
+    intervals, the box selected at the first level (light) being subdivided and
+    solved in turn (bottom left); and deep hierarchy, every variable being
+    halved at each of three levels (bottom right).}
+  \label{fig:subdivision-variants}
+\end{figure}
 
 \paragraph{Partial subdivision.} Only the variables in which the objective
 function is multimodal are subdivided, the other variables being treated as

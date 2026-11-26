@@ -1,0 +1,56 @@
+% Adaptive repair of one cut (Fig. adaptive-repair). The cut built at the box
+% i = 2 is evaluated at the other solved boxes; where it exceeds v - delta, the
+% repaired slope lowers it to v - delta, and the other values are unchanged.
+% Values: v = (5.0, 3.2, 4.1, 1.8, 3.2, 2.0, 4.4), delta = 0.4, cut values
+% (1.7, 3.2, 5.1, 3.7, 2.6, 1.6, 3.5); the boxes 3 and 4 are violated.
+\begin{tikzpicture}
+  \begin{axis}[
+      width=0.68\linewidth, height=0.4\linewidth,
+      xmin=0.4, xmax=7.6, ymin=0.6, ymax=6.2,
+      xtick={1,...,7},
+      xticklabels={$\alpha^{(1)}$,$\alpha^{(i)}$,$\alpha^{(3)}$,$\alpha^{(4)}$,
+                   $\alpha^{(5)}$,$\alpha^{(6)}$,$\alpha^{(7)}$},
+      ytick=\empty,
+      xlabel={solved boxes}, ylabel={value},
+      axis lines=left, tick align=outside, clip=false,
+      legend style={draw=none, fill=none, font=\footnotesize,
+                    at={(1.02,0.5)}, anchor=west},
+      legend cell align=left,
+    ]
+    % Margin delta below every observed value.
+    \foreach \j/\v in {1/5.0, 3/4.1, 4/1.8, 5/3.2, 6/2.0, 7/4.4}{
+      \edef\temp{\noexpand\draw[black!45, thick]
+        (axis cs:\j-0.18,\v-0.4) -- (axis cs:\j+0.18,\v-0.4);}
+      \temp}
+    \addlegendimage{black!45, thick}
+    \addlegendentry{$v(\alpha^{(j)}) - \delta$}
+    % Cut before the repair, joined to its own box for readability.
+    \foreach \j/\c in {1/1.7, 3/5.1, 4/3.7, 5/2.6, 6/1.6, 7/3.5}{
+      \edef\temp{\noexpand\draw[black!30, densely dotted]
+        (axis cs:2,3.2) -- (axis cs:\j,\c);}
+      \temp}
+    \addplot[only marks, mark=o, mark size=2.2pt, black]
+      coordinates {(1,1.7) (5,2.6) (6,1.6) (7,3.5)};
+    \addlegendentry{cut, condition satisfied}
+    \addplot[only marks, mark=o, mark size=2.2pt, red!75!black, thick]
+      coordinates {(3,5.1) (4,3.7)};
+    \addlegendentry{cut, condition violated}
+    \addplot[only marks, mark=square*, mark size=2pt, blue!70!black]
+      coordinates {(3,3.7) (4,1.4)};
+    \addlegendentry{repaired cut}
+    \addplot[only marks, mark=*, mark size=2.2pt, black]
+      coordinates {(1,5.0) (2,3.2) (3,4.1) (4,1.8) (5,3.2) (6,2.0) (7,4.4)};
+    \addlegendentry{$v(\alpha^{(j)})$}
+    % Corrections r_ij of the violated conditions.
+    \draw[-{Stealth[length=2mm]}, blue!70!black, thick]
+      (axis cs:3,4.95) -- (axis cs:3,3.85);
+    \draw[-{Stealth[length=2mm]}, blue!70!black, thick]
+      (axis cs:4,3.55) -- (axis cs:4,1.55);
+    \node[font=\footnotesize, anchor=west, blue!70!black] at (axis cs:3.05,4.45)
+      {$r_{i,3}$};
+    \node[font=\footnotesize, anchor=west, blue!70!black] at (axis cs:4.05,2.6)
+      {$r_{i,4}$};
+    \node[font=\footnotesize, anchor=south] at (axis cs:2,3.35)
+      {cut built here};
+  \end{axis}
+\end{tikzpicture}

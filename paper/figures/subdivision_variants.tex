@@ -1,0 +1,64 @@
+% Variants of the subdivision in two dimensions (Fig. subdivision-variants):
+% partial subdivision, multi-resolution encoding with two levels of four
+% intervals, hierarchy with two levels of four intervals, and deep hierarchy of
+% three levels of two intervals. The selected box is dark, the boxes reachable
+% by one master problem are drawn, and the coarse box containing the selected
+% box is light.
+\begin{tikzpicture}[x=0.3cm, y=0.3cm, font=\footnotesize]
+  \tikzset{
+    fine/.style={black!25, very thin},
+    coarse/.style={black, semithick},
+    chosen/.style={fill=blue!60!black},
+    parent/.style={fill=blue!12},
+  }
+  \newcommand{\panel}[1]{%
+    \draw[coarse] (0,0) rectangle (16,16);
+    \node[below, align=center, text width=5.6cm] at (8,-0.6) {#1};}
+  % --- Partial subdivision: x1 in eight intervals, x2 continuous.
+  \begin{scope}
+    \fill[chosen] (10,0) rectangle (12,16);
+    \foreach \i in {2,4,...,14}{\draw[coarse] (\i,0) -- (\i,16);}
+    \panel{partial subdivision, $x_1$ only}
+    \node[left] at (0,8) {$x_2$};
+    \node[above] at (8,16) {$x_1$};
+  \end{scope}
+  % --- Multi-resolution: two levels of four intervals, 16 x 16 boxes in one
+  % master problem, the box given by one digit per level and per component.
+  \begin{scope}[xshift=6.6cm]
+    \fill[parent] (8,4) rectangle (12,8);
+    \fill[chosen] (9,6) rectangle (10,7);
+    \foreach \i in {1,...,15}{
+      \draw[fine] (\i,0) -- (\i,16);
+      \draw[fine] (0,\i) -- (16,\i);}
+    \foreach \i in {4,8,12}{
+      \draw[coarse] (\i,0) -- (\i,16);
+      \draw[coarse] (0,\i) -- (16,\i);}
+    \panel{multi-resolution, digits $(2,1)$ and $(1,2)$}
+  \end{scope}
+  % --- Hierarchy: a coarse subdivision of four intervals, then the promising
+  % box subdivided again into four.
+  \begin{scope}[yshift=-7.2cm]
+    \fill[parent] (8,4) rectangle (12,8);
+    \fill[chosen] (9,6) rectangle (10,7);
+    \foreach \i in {9,10,11}{
+      \draw[fine, black!45] (\i,4) -- (\i,8);
+      \draw[fine, black!45] (8,\i-4) -- (12,\i-4);}
+    \foreach \i in {4,8,12}{
+      \draw[coarse] (\i,0) -- (\i,16);
+      \draw[coarse] (0,\i) -- (16,\i);}
+    \panel{hierarchy, two levels of four}
+  \end{scope}
+  % --- Deep hierarchy: every variable halved at each of three levels.
+  \begin{scope}[xshift=6.6cm, yshift=-7.2cm]
+    \fill[parent] (8,0) rectangle (16,8);
+    \fill[blue!25] (8,4) rectangle (12,8);
+    \fill[chosen] (10,6) rectangle (12,8);
+    \draw[coarse] (8,0) -- (8,16);
+    \draw[coarse] (0,8) -- (16,8);
+    \draw[coarse] (12,0) -- (12,8);
+    \draw[coarse] (8,4) -- (16,4);
+    \draw[coarse] (10,4) -- (10,8);
+    \draw[coarse] (8,6) -- (12,6);
+    \panel{deep hierarchy, three levels of two}
+  \end{scope}
+\end{tikzpicture}

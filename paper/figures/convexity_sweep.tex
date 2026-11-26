@@ -1,0 +1,30 @@
+% Swept convexity with four probes (Fig. sweep). The rungs are geometric, so
+% that they are equally spaced on the logarithmic axis; the probe k starts at
+% the rung k with the k-th radius, and the probe 2 climbs one rung because the
+% box it proposed has already been solved.
+\begin{tikzpicture}[x=2.1cm, y=1.0cm, font=\footnotesize]
+  % Logarithmic axis of the convexity value.
+  \draw[-{Stealth[length=2mm]}] (0.3,0.4) -- (0.3,4.7)
+    node[above] {convexity value ($\log$ scale)};
+  \foreach \k in {1,...,4}{
+    \draw[black!25] (0.3,\k) -- (4.6,\k);
+    \node[left] at (0.3,\k) {$\kappa_{\k}$};}
+  \draw[black, dashed] (0.3,4) -- (4.6,4);
+  \node[anchor=west, align=left] at (4.62,4)
+    {$\kappa_4 = \kappa_{\max}$\\$= 10\times$ spread of the\\values observed};
+  % Probes, each at its own rung and radius.
+  \foreach \k/\radius in {1/{\Delta/2}, 2/{\Delta_2}, 3/{\Delta_3}, 4/{\Delta}}{
+    \node[draw, circle, fill=blue!25, inner sep=2pt] (p\k) at (\k,\k) {};
+    \node[below, align=center] at (\k,0.35)
+      {probe \k\\radius $\radius$};}
+  % Probe 2 proposes a solved box and climbs to the next rung.
+  \node[draw, circle, fill=white, inner sep=2pt] (q2) at (2,3) {};
+  \draw[-{Stealth[length=2mm]}, red!75!black, thick] (p2) -- (q2);
+  \node[anchor=east, align=right, red!75!black, fill=white, inner sep=1pt] at (1.9,2.75)
+    {box already solved:\\one more MILP,\\no evaluation};
+  % Pairing of the radii and the rungs.
+  \draw[blue!60!black, thick, densely dashed, -{Stealth[length=2mm]}]
+    (1.15,0.95) -- (3.85,3.6);
+  \node[anchor=north west, align=left, blue!60!black] at (2.5,1.6)
+    {larger radius,\\more corrected cuts};
+\end{tikzpicture}
