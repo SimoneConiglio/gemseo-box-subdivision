@@ -803,8 +803,20 @@ def draw_sampling(foreground: str):
     return figure
 
 
+COMPARED = {"2": "swept", "5": "density_10"}
+"""The configuration compared with the baselines, by dimension.
+
+The same in both: the swept convexity, four probes and ten subdivisions per
+variable, the default in two variables and the default with ten subdivisions in
+five, rather than the best variant of each dimension.
+"""
+
+COMPARED_LABEL = "box subdivision, swept, 10 per variable"
+"""The label of the configuration compared with the baselines."""
+
+
 def draw_results(foreground: str):
-    """Draw the cost of the best variant and of the baselines, per problem."""
+    """Draw the cost of the method and of the baselines, per problem."""
     data = _read_profiles()
     names = {"rastrigin": "Rastrigin", "ackley": "Ackley"}
     names |= {"styblinski_tang": "Styblinski", "griewank": "Griewank"}
@@ -813,7 +825,7 @@ def draw_results(foreground: str):
     ]
     labels = [f"{names[problem]} {dimension}" for problem, dimension in cells]
     hues = series(foreground)
-    methods = {"best variant": None} | {
+    methods = {"box subdivision": None} | {
         name: label for name, label in BASELINE_LABELS.items() if name != "egobox"
     }
     figure, axes = plt.subplots(figsize=(8.6, 3.6))
@@ -823,7 +835,7 @@ def draw_results(foreground: str):
         values, reached, budgets = [], [], []
         for problem, dimension in cells:
             entry = data["dimensions"][dimension]
-            name = entry["ranking"][0] if label is None else method
+            name = COMPARED[dimension] if label is None else method
             _, cost, count = entry["summary"][name][problem]
             values.append(cost)
             reached.append(count)
@@ -834,7 +846,7 @@ def draw_results(foreground: str):
             values,
             width,
             color=hues[index],
-            label="box subdivision, best variant" if label is None else label,
+            label=COMPARED_LABEL if label is None else label,
         )
         for bar, count, cost, budget in zip(
             bars, reached, values, budgets, strict=True
@@ -1439,7 +1451,7 @@ def draw_variant_profiles(foreground: str):
 
 
 def draw_data_profiles(foreground: str):
-    """Draw the best variant against the baselines, one panel per dimension."""
+    """Draw the method against the baselines, one panel per dimension."""
     data = _read_profiles()
     hues = series(foreground)
     dimensions = data["dimensions"]
@@ -1449,13 +1461,12 @@ def draw_data_profiles(foreground: str):
     axes_row = axes_grid[0]
     for axes, (dimension, entry) in zip(axes_row, dimensions.items(), strict=True):
         profiles = entry["profiles"]
-        best = entry["ranking"][0]
         _plot_profile(
             axes,
-            profiles[best],
+            profiles[COMPARED[dimension]],
             color=hues[0],
             linewidth=2.2,
-            label=f"box subdivision: {data['labels'][best]}",
+            label=COMPARED_LABEL,
         )
         for hue, (name, label) in zip(hues[1:], BASELINE_LABELS.items(), strict=True):
             _plot_profile(axes, profiles[name], color=hue, label=label)

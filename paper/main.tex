@@ -718,10 +718,10 @@ on these problems, and it was added after the other baselines, from the same
 starting points.
 
 \paragraph{Limitations of the protocol.} The configuration of the method compared
-with the baselines was selected as the best of up to twelve variants evaluated on
-the same problems and runs, each variant being run once, which introduces a bias
-in favour of the method. The number of subdivisions, the trust-region radius and
-the headroom factor of the sweep were also selected on these problems. The number
+with the baselines is the same in both dimensions, but its number of
+subdivisions, its trust-region radius and the headroom factor of the sweep were
+selected on these problems, among variants evaluated on the same runs, which
+introduces a bias in favour of the method. The number
 of starting points, between three and eight, is small, and the cost of the master
 problem is not included in the budget. The results presented below therefore
 characterize the method on the problems studied, and an assessment of its general
@@ -1087,17 +1087,19 @@ unchanged, since both configurations terminate on their own stopping criteria.
 
 \subsection{Comparison with the baselines}\label{sec:baselines}
 
-The best variant of Table~\ref{tab:variants} is used for the comparison, i.e.
-sixteen probes in two dimensions and ten subdivisions per variable in five
-dimensions, both with swept convexity, subject to the bias mentioned in
-Section~\ref{sec:protocol}. The results obtained for each problem are given in
+The same configuration of the method is used in both dimensions for the
+comparison: the swept convexity with four probes and ten subdivisions per
+variable, which is the default configuration in two dimensions and the default
+configuration with ten subdivisions per variable in five dimensions, the
+density being the one selected on these problems (Section~\ref{sec:protocol}). The results obtained for each problem are given in
 Table~\ref{tab:baselines}, and the data profiles in Table~\ref{tab:profiles} and
 Fig.~\ref{fig:profiles}. EGO is run with a budget of $500$ evaluations, which is
 the largest budget compatible with the cost of its surrogate model.
 
 \begin{table}[t]
   \centering
-  \caption{Comparison of the best variant of the method with the baselines,
+  \caption{Comparison of the method, swept with ten subdivisions per variable,
+    with the baselines,
     $500n$ equivalent evaluations, five starting points: median distance $\cdot$
     median cost $\cdot$ number of starting points from which the optimum is
     reached.}
@@ -1108,10 +1110,10 @@ the largest budget compatible with the cost of its surrogate model.
     \toprule
     problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & tunneling \\
     \midrule
-    Rastrigin        & 2 & 0.00 $\cdot$ 908 $\cdot$ 5/5   & 1.00 $\cdot$ 1000 $\cdot$ 2/5 & 2.06 $\cdot$ 619 $\cdot$ 0/5  & 0.00 $\cdot$ 649 $\cdot$ 5/5 & 1.00 $\cdot$ 1000 $\cdot$ 0/5 \\
-    Ackley           & 2 & 0.00 $\cdot$ 1000 $\cdot$ 5/5  & 0.00 $\cdot$ 1000 $\cdot$ 4/5 & 0.00 $\cdot$ 757 $\cdot$ 5/5  & 0.00 $\cdot$ 417 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 4/5 \\
-    Styblinski--Tang & 2 & 0.00 $\cdot$ 553 $\cdot$ 5/5   & 0.00 $\cdot$ 1000 $\cdot$ 5/5 & 0.00 $\cdot$ 529 $\cdot$ 3/5  & 0.00 $\cdot$ 1011 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 5/5 \\
-    Griewank         & 2 & 0.007 $\cdot$ 1000 $\cdot$ 0/5 & 0.010 $\cdot$ 1000 $\cdot$ 0/5 & 0.030 $\cdot$ 775 $\cdot$ 0/5 & 0.007 $\cdot$ 1011 $\cdot$ 0/5 & 0.007 $\cdot$ 1000 $\cdot$ 0/5 \\
+    Rastrigin        & 2 & 0.00 $\cdot$ 457 $\cdot$ 5/5   & 1.00 $\cdot$ 1000 $\cdot$ 2/5 & 2.06 $\cdot$ 619 $\cdot$ 0/5  & 0.00 $\cdot$ 649 $\cdot$ 5/5 & 1.00 $\cdot$ 1000 $\cdot$ 0/5 \\
+    Ackley           & 2 & 0.00 $\cdot$ 613 $\cdot$ 5/5   & 0.00 $\cdot$ 1000 $\cdot$ 4/5 & 0.00 $\cdot$ 757 $\cdot$ 5/5  & 0.00 $\cdot$ 417 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 4/5 \\
+    Styblinski--Tang & 2 & 0.00 $\cdot$ 334 $\cdot$ 5/5   & 0.00 $\cdot$ 1000 $\cdot$ 5/5 & 0.00 $\cdot$ 529 $\cdot$ 3/5  & 0.00 $\cdot$ 1011 $\cdot$ 5/5 & 0.00 $\cdot$ 1000 $\cdot$ 5/5 \\
+    Griewank         & 2 & 0.007 $\cdot$ 556 $\cdot$ 0/5  & 0.010 $\cdot$ 1000 $\cdot$ 0/5 & 0.030 $\cdot$ 775 $\cdot$ 0/5 & 0.007 $\cdot$ 1011 $\cdot$ 0/5 & 0.007 $\cdot$ 1000 $\cdot$ 0/5 \\
     Rastrigin        & 5 & 1.00 $\cdot$ 1650 $\cdot$ 2/5  & 5.97 $\cdot$ 2500 $\cdot$ 0/5 & 8.95 $\cdot$ 1497 $\cdot$ 0/5 & 4.98 $\cdot$ 461 $\cdot$ 0/5 & 4.97 $\cdot$ 2500 $\cdot$ 0/5 \\
     Ackley           & 5 & 0.00 $\cdot$ 2500 $\cdot$ 3/5  & 8.01 $\cdot$ 2500 $\cdot$ 0/5 & 0.00 $\cdot$ 2001 $\cdot$ 5/5 & 0.11 $\cdot$ 353 $\cdot$ 0/5 & 2.32 $\cdot$ 2500 $\cdot$ 2/5 \\
     Styblinski--Tang & 5 & 0.00 $\cdot$ 789 $\cdot$ 5/5   & 0.00 $\cdot$ 2340 $\cdot$ 5/5 & 0.00 $\cdot$ 1401 $\cdot$ 3/5 & 0.00 $\cdot$ 2505 $\cdot$ 5/5 & 0.00 $\cdot$ 2500 $\cdot$ 3/5 \\
@@ -1134,14 +1136,14 @@ the largest budget compatible with the cost of its surrogate model.
     \toprule
     $n$ & method & area & $\tfrac1{10}$ & $\tfrac14$ & $\tfrac12$ & end \\
     \midrule
-    2 & box subdivision, 16 probes        & 0.92 & 56\% & 99\% & 99\% & 99\% \\
+    2 & box subdivision                   & 0.87 & 43\% & 90\% & 96\% & 99\% \\
     2 & multistart                        & 0.73 & 46\% & 64\% & 78\% & 92\% \\
     2 & CMA-ES                            & 0.73 & 60\% & 70\% & 78\% & 78\% \\
     2 & DIRECT                            & 0.90 & 69\% & 84\% & 99\% & 99\% \\
     2 & EGO, 500 evaluations              & ---  & 74\% & 84\% & 86\% & 86\%$\ddagger$ \\
     2 & tunneling                         & 0.79 & 66\% & 75\% & 84\% & 90\% \\
     \midrule
-    5 & box subdivision, 10 per variable  & 0.64 & 30\% & 62\% & 73\% & 84\% \\
+    5 & box subdivision                   & 0.64 & 30\% & 62\% & 73\% & 84\% \\
     5 & multistart                        & 0.51 & 37\% & 50\% & 54\% & 60\% \\
     5 & CMA-ES                            & 0.68 & 54\% & 67\% & 76\% & 78\% \\
     5 & DIRECT                            & 0.76 & 75\% & 79\% & 79\% & 79\% \\
@@ -1154,19 +1156,20 @@ the largest budget compatible with the cost of its surrogate model.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/data_profiles.pdf}
-  \caption{Data profiles of the best variant of the method and of the
+  \caption{Data profiles of the method, swept with ten subdivisions per
+    variable, and of the
     baselines. The end of the budget of EGO is marked on its curve. Tunneling
     (dashed) is profiled against targets generated without its runs.}
   \label{fig:profiles}
 \end{figure}
 
-In two dimensions, 99\% of the targets are reached by the method within a quarter
-of the budget, against 84\% for DIRECT, which reaches the same fraction at half of
-the budget. However, the runs of the method continue to propose boxes after the
-optimum has been found and use the whole budget for the Ackley function, whereas
-DIRECT terminates after $417$ evaluations. The speed at which the targets are
-reached and the cost at termination therefore lead to different rankings of the
-methods.
+In two dimensions, 90\% of the targets are reached by the method within a quarter
+of the budget, against 84\% for DIRECT, which reaches 99\% at half of the budget
+against 96\% for the method, so that the area of DIRECT is slightly larger
+($0.90$ against $0.87$). The method reaches the optimum of the Rastrigin, Ackley
+and Styblinski--Tang functions from all starting points; DIRECT does so at a
+lower cost for the Ackley function ($417$ against $613$ evaluations) and at a
+higher cost for the Rastrigin and Styblinski--Tang functions.
 
 In five dimensions, the largest fraction of targets is reached by DIRECT during
 most of the run, and the method remains behind DIRECT and CMA-ES up to about

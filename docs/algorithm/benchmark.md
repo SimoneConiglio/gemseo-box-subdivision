@@ -393,21 +393,22 @@ criteria.
 
 ## Comparison with the baselines
 
-The method is used in its best variant of Table 2, which differs between the
-two dimensions: sixteen probes in two variables and ten subdivisions per
-variable in five, both with swept convexity, so that neither uses a convexity
-value chosen for these problems. The runs are those of the data profiles: four
+The method is used in the same configuration in both dimensions: swept
+convexity, four probes and ten subdivisions per variable, which is the default
+in two variables and the default with ten subdivisions per variable in five. It
+uses no convexity value chosen for these problems; its density was selected on
+them. The runs are those of the data profiles: four
 problems, five starting points, and $500$ equivalent evaluations per variable
 with adjoint gradients. Each cell of Table 6 gives the median distance to the
 optimum, the median cost, and the number of starting points from which the
 optimum is reached.
 
-| problem | $n$ | box subdivision, best variant | multistart | CMA-ES | DIRECT | tunneling |
-|---------|-----|-------------------------------|------------|--------|--------|-----------|
-| Rastrigin | 2 | $0.00$ · 908 · 5/5 | $1.00$ · 1000 · 2/5 | $2.06$ · 619 · 0/5 | $0.00$ · 649 · 5/5 | $1.00$ · 1000 · 0/5 |
-| Ackley | 2 | $0.00$ · 1000 · 5/5 | $0.00$ · 1000 · 4/5 | $0.00$ · 757 · 5/5 | $0.00$ · 417 · 5/5 | $0.00$ · 1000 · 4/5 |
-| Styblinski-Tang | 2 | $0.00$ · 553 · 5/5 | $0.00$ · 1000 · 5/5 | $0.00$ · 529 · 3/5 | $0.00$ · 1011 · 5/5 | $0.00$ · 1000 · 5/5 |
-| Griewank | 2 | $0.007$ · 1000 · 0/5 | $0.010$ · 1000 · 0/5 | $0.030$ · 775 · 0/5 | $0.007$ · 1011 · 0/5 | $0.007$ · 1000 · 0/5 |
+| problem | $n$ | box subdivision, swept, 10 per variable | multistart | CMA-ES | DIRECT | tunneling |
+|---------|-----|-----------------------------------------|------------|--------|--------|-----------|
+| Rastrigin | 2 | $0.00$ · 457 · 5/5 | $1.00$ · 1000 · 2/5 | $2.06$ · 619 · 0/5 | $0.00$ · 649 · 5/5 | $1.00$ · 1000 · 0/5 |
+| Ackley | 2 | $0.00$ · 613 · 5/5 | $0.00$ · 1000 · 4/5 | $0.00$ · 757 · 5/5 | $0.00$ · 417 · 5/5 | $0.00$ · 1000 · 4/5 |
+| Styblinski-Tang | 2 | $0.00$ · 334 · 5/5 | $0.00$ · 1000 · 5/5 | $0.00$ · 529 · 3/5 | $0.00$ · 1011 · 5/5 | $0.00$ · 1000 · 5/5 |
+| Griewank | 2 | $0.007$ · 556 · 0/5 | $0.010$ · 1000 · 0/5 | $0.030$ · 775 · 0/5 | $0.007$ · 1011 · 0/5 | $0.007$ · 1000 · 0/5 |
 | Rastrigin | 5 | $1.00$ · 1650 · 2/5 | $5.97$ · 2500 · 0/5 | $8.95$ · 1497 · 0/5 | $4.98$ · 461 · 0/5 | $4.97$ · 2500 · 0/5 |
 | Ackley | 5 | $0.00$ · 2500 · 3/5 | $8.01$ · 2500 · 0/5 | $0.00$ · 2001 · 5/5 | $0.11$ · 353 · 0/5 | $2.32$ · 2500 · 2/5 |
 | Styblinski-Tang | 5 | $0.00$ · 789 · 5/5 | $0.00$ · 2340 · 5/5 | $0.00$ · 1401 · 3/5 | $0.00$ · 2505 · 5/5 | $0.00$ · 2500 · 3/5 |
@@ -419,12 +420,12 @@ starting points; see [annex B](baselines.md#tunneling).*
 
 ```{image} ../_static/figures/results.svg
 :class: only-light
-:alt: Cost of the best variant and of each baseline on each problem, with the optima reached
+:alt: Cost of the method and of each baseline on each problem, with the optima reached
 ```
 
 ```{image} ../_static/figures/results-dark.svg
 :class: only-dark
-:alt: Cost of the best variant and of each baseline on each problem, with the optima reached
+:alt: Cost of the method and of each baseline on each problem, with the optima reached
 ```
 
 *Figure 3. Cost and number of optima reached for each method and problem.*
@@ -436,26 +437,27 @@ budget in the [next section](#comparison-at-a-budget-of-500-evaluations).
 
 ```{image} ../_static/figures/data_profiles.svg
 :class: only-light
-:alt: Fraction of the targets reached by the best variant and each baseline against the evaluations spent
+:alt: Fraction of the targets reached by the method and each baseline against the evaluations spent
 ```
 
 ```{image} ../_static/figures/data_profiles-dark.svg
 :class: only-dark
-:alt: Fraction of the targets reached by the best variant and each baseline against the evaluations spent
+:alt: Fraction of the targets reached by the method and each baseline against the evaluations spent
 ```
 
-*Figure 4. Data profiles of the best variant and of the baselines; tunneling,
+*Figure 4. Data profiles of the method, swept with ten subdivisions per variable,
+and of the baselines; tunneling,
 added after the others, is dashed.*
 
 | $n$ | method | area | at a tenth | at a quarter | at a half | at the budget |
 |-----|--------|------|------------|--------------|-----------|---------------|
-| 2 | box subdivision, 16 probes | $0.92$ | 56% | 99% | 99% | 99% |
+| 2 | box subdivision | $0.87$ | 43% | 90% | 96% | 99% |
 | 2 | multistart | $0.73$ | 46% | 64% | 78% | 92% |
 | 2 | CMA-ES | $0.73$ | 60% | 70% | 78% | 78% |
 | 2 | DIRECT | $0.90$ | 69% | 84% | 99% | 99% |
 | 2 | EGO, 500 evaluations | — | 74% | 84% | 86% | 86%‡ |
 | 2 | tunneling | $0.79$ | 66% | 75% | 84% | 90% |
-| 5 | box subdivision, 10 per variable | $0.64$ | 30% | 62% | 73% | 84% |
+| 5 | box subdivision | $0.64$ | 30% | 62% | 73% | 84% |
 | 5 | multistart | $0.51$ | 37% | 50% | 54% | 60% |
 | 5 | CMA-ES | $0.68$ | 54% | 67% | 76% | 78% |
 | 5 | DIRECT | $0.76$ | 75% | 79% | 79% | 79% |
@@ -468,18 +470,16 @@ which in five variables is less than a quarter of the budget of the other
 methods; no area is given for EGO. Tunneling is profiled against the same
 targets, which were generated without its runs.*
 
-In two variables, the method with sixteen probes reaches $99\%$ of the targets
-within a quarter of the budget ($250$ evaluations), against $84\%$ for DIRECT,
-which reaches the same fraction at half the budget. It reaches the optimum of
-Rastrigin, Ackley and Styblinski-Tang from all starting points. Its runs,
-however, continue to propose boxes after the optimum has been found and spend
-the whole budget on Ackley, whereas DIRECT terminates after $417$ evaluations.
-The data profile measures how early a target is reached, the cost column when a
-run terminates, and the two criteria rank the methods differently.
+In two variables, the method reaches $90\%$ of the targets within a quarter of
+the budget ($250$ evaluations), against $84\%$ for DIRECT, which reaches $99\%$
+at half the budget against $96\%$ for the method, so that the area of DIRECT is
+slightly larger ($0.90$ against $0.87$). The method reaches the optimum of
+Rastrigin, Ackley and Styblinski-Tang from all starting points; DIRECT does so at
+a lower cost on Ackley ($417$ against $613$ evaluations) and at a higher cost on
+Rastrigin and Styblinski-Tang.
 
 In five variables, DIRECT has the highest fraction of targets for most of the
-budget: $75\%$ after $250$ evaluations, then $79\%$ until the end. The method
-with ten subdivisions per variable is behind DIRECT and CMA-ES until $1890$
+budget: $75\%$ after $250$ evaluations, then $79\%$ until the end. The method is behind DIRECT and CMA-ES until $1890$
 evaluations and ends at $84\%$. It is the only method that reaches the optimum
 of Rastrigin in five variables, from two starting points of five, and it reaches
 the optimum of Styblinski-Tang from all starting points for $789$ evaluations,
@@ -494,10 +494,10 @@ optimum, so the last target is the best value found by any run; it compares the
 methods with one another rather than with the optimum.
 
 :::{warning}
-The best variant was selected on the same problems and runs on which it is
-scored, as the best of up to twelve variants measured once each, which biases
-the comparison in its favour. The sweep removes the convexity margin from the
-settings to be tuned, but not the number of probes or the density. A claim on
+The configuration is the same in both dimensions, but its density was selected
+on the same problems and runs on which it is scored, among variants measured
+once each, which biases the comparison in its favour. The sweep removes the
+convexity margin from the settings to be tuned, but not the density. A claim on
 the general performance of the method requires a separate set of test problems
 and a protocol fixed in advance.
 :::
@@ -586,8 +586,8 @@ from the optimum in Table 6 and $1.99$ in Table 8. In five variables it
 reaches the optimum from two and three of the five starting points on Ackley
 and Styblinski-Tang in Table 6, and from one of the three on Styblinski-Tang in
 Table 8. Its area under the data profile is $0.79$ in two variables, above the
-multistart and CMA-ES ($0.73$) and below DIRECT ($0.90$) and the best variant
-of the box subdivision ($0.92$), and $0.68$ in five, equal to CMA-ES, above the
+multistart and CMA-ES ($0.73$) and below DIRECT ($0.90$) and the box subdivision
+($0.87$), and $0.68$ in five, equal to CMA-ES, above the
 box subdivision ($0.64$) and the multistart ($0.51$) and below DIRECT ($0.76$).
 Its targets are reached early and hardly any after half the budget, $76\%$
 then and $77\%$ at its end, against $84\%$ at the end for the box subdivision.
