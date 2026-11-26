@@ -363,7 +363,7 @@ Styblinski-Tang, which reach the optimum from fifteen and sixteen starting
 points. On `partly_multimodal` the three unimodal components are left undivided,
 and the optimum is reached from all starting points for a median of $990$
 evaluations, against none with two subdivisions of every variable
-([annex D](extensions.md#partial-subdivision)).
+([annex D](extensions.md#subdivision-of-a-subset-of-the-variables)).
 
 The budget implied by the proposal, $\sum_j m_j$ sub-problems, is of the order
 of the measured cost: $2000$ against a median of $1757$ on Rastrigin, $400$
