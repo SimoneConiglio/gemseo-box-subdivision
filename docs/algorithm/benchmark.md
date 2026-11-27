@@ -192,6 +192,7 @@ starting points, on which the targets were generated.
 | swept, deep hierarchy | $0.67$ | 68% | 75% | $0.60$ | 56% | 77% |
 | swept, Euclidean, diameter¹ | $0.88$ | 88% | 99% | $0.61$ | 51% | 84% |
 | swept, Euclidean, nearest box¹ | $0.85$ | 70% | 99% | $0.49$ | 30% | 72% |
+| swept, 16 probes, 10 per variable² | — | — | — | $0.45$ | 36% | 64% |
 
 *Table 2b. Area under the data profile and fraction of targets reached at a
 quarter and at the whole budget. In two variables ten subdivisions per variable
@@ -199,7 +200,8 @@ is the default, so the corresponding rows are omitted. ¹ The Euclidean trust
 region of the [usage](usage.md#euclidean-trust-region), with ten subdivisions per
 variable in both dimensions, to be compared in five variables with the row
 "swept, 10 per variable"; added after the others and profiled against the same
-targets, rerun by `python -m benchmarks.run_late_variants`.*
+targets, rerun by `python -m benchmarks.run_late_variants`. ² Added in the same
+way, in five variables only.*
 
 **Probes.** In two variables, sixteen probes reach $99\%$ of the targets after
 $250$ evaluations, against $90\%$ for four probes, and reach the optimum of
