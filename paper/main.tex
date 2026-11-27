@@ -715,7 +715,11 @@ problem is a mixed-integer linear program, solved by OR-Tools or by SciPy
   \label{fig:architecture}
 \end{figure}
 
-Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$, so
+The initial boxes, one per probe, are those of a Latin hypercube design
+\citep{mckay1979} over the interval indices, optimized by simulated annealing
+for the centred $L^2$ discrepancy \citep{hickernell1998}, as implemented in
+OpenTURNS \citep{baudin2017}, the box of the starting point replacing one of
+them. Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$, so
 that the result does not depend on the order in which the boxes are solved. The
 two safeguards against non-convexity of Section~\ref{sec:convexification} are
 used separately: when one of them is selected, the parameter of the other one is
@@ -837,9 +841,9 @@ The exploration of the configuration compared with the baselines
 (Section~\ref{sec:baselines}), with the swept convexity, four probes and ten
 subdivisions per variable, is illustrated for one starting point in
 Fig.~\ref{fig:solve}, from one of the twenty starting points, whose box lies
-away from the other initial boxes. The four initial boxes are those of an
-optimized Latin hypercube design over the interval indices, one of them being
-replaced by the box of the starting point. At the second iteration, the trust
+away from the other initial boxes. The four initial boxes are those of the
+optimized Latin hypercube design of Section~\ref{sec:implementation}, one of
+them being replaced by the box of the starting point. At the second iteration, the trust
 regions of the three probes with radii below two contain the boxes which differ
 from the incumbent in one component, and that of the fourth probe contains every
 box. The first probe proposes the incumbent, which has already been solved, and
