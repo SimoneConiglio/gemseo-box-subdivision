@@ -778,6 +778,21 @@ since it has no other stopping rule. Its settings are fixed choices, not tuned
 on these problems, and it was added after the other baselines, from the same
 starting points.
 
+\paragraph{Statistical tests.} Every method is run from the same twenty starting
+points per problem, so that two methods are paired by starting point. The
+success, i.e. a distance to the optimum below the tolerance of the benchmark, is
+compared by the exact McNemar test \citep{mcnemar1947}, a binomial test on the
+starting points from which exactly one of the two methods reaches the optimum,
+and the final distance by the Wilcoxon signed-rank test \citep{wilcoxon1945}.
+When several comparisons are made, the $p$-values are corrected by the Holm
+procedure \citep{holm1979}, which controls the probability of at least one false
+rejection among them: the $k$ $p$-values are sorted in increasing order, the
+$i$-th one is multiplied by $k - i + 1$ and bounded by one, and the corrected
+values are made non-decreasing. A difference is called significant when its $p$-value, corrected
+where stated, is below $0.05$. The difference between the areas under two data
+profiles is given with a $95\%$ confidence interval obtained by a bootstrap
+\citep{efron1979} over the starting points, paired across methods.
+
 \paragraph{Limitations of the protocol.} The configuration of the method compared
 with the baselines is the same in both dimensions, but its number of
 subdivisions, its trust-region radius and the headroom factor of the sweep were
@@ -791,12 +806,10 @@ obtained a lower compliance than the multistart approach and the classic
 tunneling method for similar numbers of designs evaluated
 (Section~\ref{sec:cantilever} and Appendix~\ref{app:probes}), from one run of
 each method. The comparisons of the variants and
-with the baselines use twenty starting points per problem and paired
-statistical tests with a correction for multiple comparisons
+with the baselines use the Holm correction
 (Sections~\ref{sec:variants} and~\ref{sec:baselines}). The other comparisons use
-the same twenty starting points, and a difference of success between two of
-their configurations is called significant when the exact McNemar test gives a
-$p$-value below $0.05$, without correction for multiple comparisons. The cost of
+the exact McNemar test on the success without correction for multiple
+comparisons. The cost of
 the master problem is not included in the budget. The results presented below therefore
 characterize the method on the problems studied, and an assessment of its general
 performance would require an independent set of test problems and a protocol
@@ -910,9 +923,9 @@ from the configuration also by the density. The configuration with a calibrated
 margin $\delta = 100$ is included for comparison. The budget is $500n$
 equivalent evaluations, and each variant is run on the four problems from the
 twenty starting points of Section~\ref{sec:baselines}, so that it is paired with
-the configuration by starting point and compared with it by the tests of that
-section, the Holm correction running over the problems and the variants of each
-dimension. The configuration was fixed before these runs, from a first study
+the configuration by starting point and compared with it by the tests of
+Section~\ref{sec:protocol}, the Holm correction running over the problems and the
+variants of each dimension. The configuration was fixed before these runs, from a first study
 with five starting points, and is kept unless a variant is clearly better: a
 significantly higher success on some problem, or a larger area with a
 confidence interval excluding zero, and a significantly lower success on none.
@@ -1233,16 +1246,12 @@ and the data profiles in Table~\ref{tab:profiles} and Fig.~\ref{fig:profiles}.
 EGO is run with a budget of $500$ evaluations, which is the largest budget
 compatible with the cost of its surrogate model.
 
-The two methods of each comparison are paired by starting point. The success,
-i.e. a distance to the optimum below the tolerance of the benchmark, is compared
-by the exact McNemar test, a binomial test on the starting points from which
-exactly one of the two methods reaches the optimum, and the final distance by
-the Wilcoxon signed-rank test. The $p$-values of each dimension are corrected by
-the Holm procedure over the four problems and the five baselines, and a
-difference is called significant below $0.05$ after correction. The area under
+The success and the final distance are compared by the tests of
+Section~\ref{sec:protocol}, the $p$-values of each dimension being corrected by
+the Holm procedure over the four problems and the five baselines. The area under
 the data profile is computed against the targets of Section~\ref{sec:protocol},
-which were generated from the runs of the first five starting points, and its difference with each baseline is given with a $95\%$ confidence interval
-obtained by a bootstrap over the starting points, paired across methods. These
+which were generated from the runs of the first five starting points, and its
+difference with each baseline is given with its paired bootstrap interval. These
 two measures were fixed before the runs were made. DIRECT, which uses no
 starting point, gives the same run from every starting point, so that the
 comparison with DIRECT is a comparison with a single result and its interval
