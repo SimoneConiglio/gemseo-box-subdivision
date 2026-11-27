@@ -1424,7 +1424,10 @@ RESOLVING = (
 )
 """The variants changing what the subdivision resolves, a hue each."""
 
-AT_DENSITY_10 = {"density_10_ceiling_10": "ceiling_10"}
+AT_DENSITY_10 = {
+    "density_10_ceiling_10": "ceiling_10",
+    "density_10_probes_16": "probes_16",
+}
 """The exploring variants measured again at ten subdivisions per variable."""
 
 EUCLIDEAN_VARIANTS = {

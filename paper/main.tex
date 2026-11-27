@@ -932,8 +932,7 @@ twenty starting points of Section~\ref{sec:baselines}, so that it is paired with
 the configuration by starting point and compared with it by the tests of
 Section~\ref{sec:protocol}, the Holm correction running over the problems and the
 variants of each dimension.
-Sixteen probes with ten subdivisions per variable in five dimensions was not
-run, a run taking several hours with fifty binary variables. The results are
+The results are
 given in Table~\ref{tab:variants} and the data profiles in
 Fig.~\ref{fig:variants}.
 
@@ -960,6 +959,7 @@ Fig.~\ref{fig:variants}.
     calibrated, margin 100               & 0.79 & $-0.06$ [$-0.09$, $-0.04$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.08$] & $-$R $-$A \\
     swept, 8 probes                      & 0.86 & $+0.00$ [$-0.01$, $+0.01$] &  & 0.53 & $-0.09$ [$-0.12$, $-0.05$] & $-$R $-$A \\
     swept, 16 probes                     & 0.89 & $+0.04$ [$+0.01$, $+0.05$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.09$] & $-$R $-$A \\
+    \quad 10 per variable$^1$              & --- & & & 0.41 & $-0.20$ [$-0.23$, $-0.17$] & $-$A \\
     swept, ladder up to 30               & 0.83 & $-0.02$ [$-0.05$, $+0.01$] &  & 0.48 & $-0.13$ [$-0.18$, $-0.09$] & $-$R $-$A \\
     swept, ladder up to 10               & 0.71 & $-0.15$ [$-0.21$, $-0.09$] & $-$A & 0.46 & $-0.15$ [$-0.19$, $-0.11$] & $-$R $-$A \\
     \quad 10 per variable$^1$              & --- & & & 0.58 & $-0.03$ [$-0.07$, $+0.00$] & $-$S \\
@@ -992,7 +992,10 @@ starting points: the difference of area is $0.045$ [$0.032$, $0.059$], and both
 reach the optimum of the Rastrigin, Ackley and Styblinski--Tang functions from
 all of them and that of the Griewank function from none. Sixteen probes
 therefore reach the targets earlier in two dimensions without reaching the
-optimum more often. With eight probes, the area is that of the configuration.
+optimum more often. In five dimensions with ten subdivisions per variable,
+sixteen probes decrease the area by $0.20$ [$0.17$, $0.23$], and the optimum of
+the Ackley function is reached significantly less often, from one starting point
+against thirteen. With eight probes, the area is that of the configuration.
 
 \paragraph{Upper bound of the ladder.} With an upper bound of $10$, the area
 decreases by $0.15$ in both dimensions, and the optimum of the Ackley function in
@@ -1021,11 +1024,11 @@ with the configuration is significant in either dimension. The union of balls
 around the evaluated boxes gives smaller areas in both dimensions.
 
 \paragraph{Choice of the configuration.} No variant is clearly better than the
-configuration in five dimensions. In two dimensions, sixteen probes are, on the
-area only; since this variant could not be run in five dimensions with ten
-subdivisions per variable, the configuration with four probes is kept for the
-comparison with the baselines, so that the same configuration is used in both
-dimensions.
+configuration in five dimensions. In two dimensions, sixteen probes are better
+on the area only, and in five dimensions with ten subdivisions per variable they
+are worse on the area and on the success for the Ackley function. The
+configuration with four probes is therefore kept for the comparison with the
+baselines in both dimensions.
 
 \subsection{Density of the subdivision}\label{sec:density-results}
 

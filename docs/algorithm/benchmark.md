@@ -128,6 +128,7 @@ study, and so differ from the configuration also by the density.
 | calibrated, margin 100 | $0.79$ | $-0.06$ [$-0.09$, $-0.04$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.08$] | −R −A |
 | swept, 8 probes | $0.86$ | $+0.00$ [$-0.01$, $+0.01$] |  | $0.53$ | $-0.09$ [$-0.12$, $-0.05$] | −R −A |
 | swept, 16 probes | $0.89$ | $+0.04$ [$+0.01$, $+0.05$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.09$] | −R −A |
+| swept, 16 probes, 10 per variable¹ | — | | | $0.41$ | $-0.20$ [$-0.23$, $-0.17$] | −A |
 | swept, ladder up to 30 | $0.83$ | $-0.02$ [$-0.05$, $+0.01$] |  | $0.48$ | $-0.13$ [$-0.18$, $-0.09$] | −R −A |
 | swept, ladder up to 10 | $0.71$ | $-0.15$ [$-0.21$, $-0.09$] | −A | $0.46$ | $-0.15$ [$-0.19$, $-0.11$] | −R −A |
 | swept, ladder up to 10, 10 per variable¹ | — | | | $0.58$ | $-0.03$ [$-0.07$, $+0.00$] | −S |
@@ -154,9 +155,11 @@ same starting points, this variant was run again with the configuration from
 twenty new ones (`python -m benchmarks.confirm_challenger 2 probes_16`): the
 difference is $+0.045$ [$+0.032$, $+0.059$], both reaching the optimum of
 Rastrigin, Ackley and Styblinski-Tang from all twenty and that of Griewank from
-none. Sixteen probes reach the targets sooner, not more often. Since they could
-not be run with ten subdivisions per variable in five variables (see below), the
-configuration with four probes is kept in both dimensions.
+none. Sixteen probes reach the targets sooner, not more often. In five
+variables with ten subdivisions per variable, they lower the area by $0.20$
+[$0.17$, $0.23$] and reach the optimum of Ackley from one starting point against
+thirteen, a significant difference, so the configuration with four probes is
+kept in both dimensions.
 
 The variants take about an hour and a half on four processes, after the runs of
 the comparison with the baselines:
@@ -209,12 +212,12 @@ values four, eight and sixteen avoid the degradation observed with six probes in
 [annex D](extensions.md#number-of-probes).
 
 The cost of the master is not counted in the budget. Sixteen probes with ten
-subdivisions per variable in five dimensions (fifty binaries) were excluded from
-Table 2b: half of the runs had not spent their $2500$ evaluations after five
-hours of wall time, each probe requiring a mixed-integer solve, and the other
-half reached the optimum of Rastrigin and Ackley from one starting point of
-five, against two and three for four probes. This overhead is negligible only
-when an evaluation of the objective is expensive.
+subdivisions per variable in five dimensions (fifty binaries) were first
+excluded from this study for their cost: with an earlier version of the master,
+half of the runs had not spent their $2500$ evaluations after five hours of wall
+time. With the current version a run takes from a quarter of a minute to four
+minutes, and the variant was added afterwards, to Table 2 from twenty starting
+points and to Table 2b against the published targets.
 
 **Upper bound of the ladder.** A ladder bounded by $10$ gives the fastest start
 in two variables, $63\%$ of the targets after $100$ evaluations against $43\%$,
