@@ -308,6 +308,15 @@ VARIANTS: dict[str, tuple[str, Callable[[Problem, int, int, int], Result]]] = {
         "swept, Euclidean, nearest box",
         partial(run_swept, "euclidean_nearest", trust_region=EUCLIDEAN_NEAREST),
     ),
+    "density_10_probes_16": (
+        "swept, 10 per variable, 16 probes",
+        partial(
+            run_swept,
+            "density_10_probes_16",
+            n_subdivisions=10,
+            n_parallel_points=16,
+        ),
+    ),
     "density_10_euclidean_diameter": (
         "swept, 10 per variable, Euclidean, diameter",
         partial(
