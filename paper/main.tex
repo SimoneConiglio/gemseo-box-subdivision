@@ -1340,50 +1340,14 @@ calibrated on this function.
 \subsection{Extensions}\label{sec:extensions-results}
 
 The extensions of Section~\ref{sec:extensions} were evaluated in five dimensions
-with a budget of $2500$ equivalent evaluations and the calibrated margin. The
-detailed results are given in Appendix~\ref{app:extensions}.
-
-\paragraph{Partial subdivision.} For the partly multimodal function, the optimum
-is reached from all starting points when only the two variables of the Rastrigin
-function are divided into ten intervals, and from none of them with a coarse
-subdivision of the five variables (Table~\ref{tab:partial}). A subdivision which
-does not correspond exactly to the multimodal variables can also succeed:
-dividing three variables into four intervals ($12$ binary variables) reaches the
-optimum from seventeen starting points with a median of $758$ evaluations,
-against twenty with $990$ evaluations when two variables are divided into ten
-($20$ binary variables), a difference of success which is not significant. The
-cost depends mainly on the number of binary variables.
-
-\paragraph{Multi-resolution encoding.} With two levels of four intervals, a
-resolution of sixteen intervals per variable is obtained with forty binary
-variables instead of eighty (Table~\ref{tab:multires}). Compared with sixteen
-subdivisions with the standard encoding, the results are similar for the
-Rastrigin function and worse for the Ackley and Styblinski--Tang functions, the
-optimum of the latter being reached from two starting points out of twenty
-instead of ten. For the same resolution and number of binary variables, two
-levels of four intervals give smaller median distances than four levels of two
-intervals for the three functions. This is consistent with the additive cut
-model, which becomes less accurate as the number of levels increases.
-
-\paragraph{Hierarchies.} With the deep hierarchy, in which every variable is
-divided into two intervals at each of four levels, the optimum of the Ackley
-function in five dimensions is reached from twelve starting points out of
-twenty, against one with ten subdivisions per variable, and the runs terminate
-on their own criterion. For the Rastrigin function, the results are worse than
-with a single subdivision, and for the Styblinski--Tang function, the optimum is
-reached as often as with two subdivisions per variable, at three times the cost
-(Table~\ref{tab:hierarchies}). The best-first search, which is the only variant
-able to revise the choice of a box, gives the worst results for the Rastrigin function. A budget which provides fifty
-cuts to a single cut model provides only five cuts to each of ten models, which
-are then not sufficiently determined to rank the boxes.
-
-\paragraph{Influence of the budget.} Since several of these comparisons involve
-runs stopped by the budget, the most sensitive one was repeated with two and four
-times the budget (Table~\ref{tab:budget}). The optimum of the Ackley function is
-then reached with ten subdivisions per variable from four starting points out of
-twenty instead of one, and with the deep hierarchy from twelve in both cases, a
-difference which remains significant. Beyond twice the budget, the results are
-unchanged, since both configurations terminate on their own stopping criteria.
+with a budget of $2500$ equivalent evaluations and the calibrated margin, and
+are detailed in Appendix~\ref{app:extensions}. The subdivision of the multimodal
+variables only reaches the optimum of the partly multimodal function from all
+starting points, whereas a coarse subdivision of every variable reaches it from
+none. The multi-resolution encoding and the hierarchies do not improve on the
+flat subdivision, except the deep hierarchy on the Ackley function, whose
+optimum it reaches from twelve starting points out of twenty against one, the
+cuts of a parent box being lost at each refinement.
 
 \subsection{Comparison with the baselines}\label{sec:baselines}
 
@@ -2120,6 +2084,48 @@ default.
 
 The results of this appendix were obtained in five dimensions with a budget of
 $2500$ evaluations and the calibrated margin.
+
+\paragraph{Partial subdivision.} For the partly multimodal function, the optimum
+is reached from all starting points when only the two variables of the Rastrigin
+function are divided into ten intervals, and from none of them with a coarse
+subdivision of the five variables (Table~\ref{tab:partial}). A subdivision which
+does not correspond exactly to the multimodal variables can also succeed:
+dividing three variables into four intervals ($12$ binary variables) reaches the
+optimum from seventeen starting points with a median of $758$ evaluations,
+against twenty with $990$ evaluations when two variables are divided into ten
+($20$ binary variables), a difference of success which is not significant. The
+cost depends mainly on the number of binary variables.
+
+\paragraph{Multi-resolution encoding.} With two levels of four intervals, a
+resolution of sixteen intervals per variable is obtained with forty binary
+variables instead of eighty (Table~\ref{tab:multires}). Compared with sixteen
+subdivisions with the standard encoding, the results are similar for the
+Rastrigin function and worse for the Ackley and Styblinski--Tang functions, the
+optimum of the latter being reached from two starting points out of twenty
+instead of ten. For the same resolution and number of binary variables, two
+levels of four intervals give smaller median distances than four levels of two
+intervals for the three functions. This is consistent with the additive cut
+model, which becomes less accurate as the number of levels increases.
+
+\paragraph{Hierarchies.} With the deep hierarchy, in which every variable is
+divided into two intervals at each of four levels, the optimum of the Ackley
+function in five dimensions is reached from twelve starting points out of
+twenty, against one with ten subdivisions per variable, and the runs terminate
+on their own criterion. For the Rastrigin function, the results are worse than
+with a single subdivision, and for the Styblinski--Tang function, the optimum is
+reached as often as with two subdivisions per variable, at three times the cost
+(Table~\ref{tab:hierarchies}). The best-first search, which is the only variant
+able to revise the choice of a box, gives the worst results for the Rastrigin function. A budget which provides fifty
+cuts to a single cut model provides only five cuts to each of ten models, which
+are then not sufficiently determined to rank the boxes.
+
+\paragraph{Influence of the budget.} Since several of these comparisons involve
+runs stopped by the budget, the most sensitive one was repeated with two and four
+times the budget (Table~\ref{tab:budget}). The optimum of the Ackley function is
+then reached with ten subdivisions per variable from four starting points out of
+twenty instead of one, and with the deep hierarchy from twelve in both cases, a
+difference which remains significant. Beyond twice the budget, the results are
+unchanged, since both configurations terminate on their own stopping criteria.
 
 \begin{table}[h]
   \centering
