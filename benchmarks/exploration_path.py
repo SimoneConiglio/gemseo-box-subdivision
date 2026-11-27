@@ -26,7 +26,7 @@ itself, so that the figure shows what the master problem solved:
   approximation in every box of its trust region and the box it selects;
 - the boxes solved during the whole run, in the order of the rounds.
 
-    python benchmarks/exploration_path.py --seed 0 \
+    python benchmarks/exploration_path.py --seed 12 \
         --out paper/figures/exploration.pdf
 """
 
@@ -180,7 +180,16 @@ def draw(masters: list[dict[str, Any]], path: Path) -> None:
 
     width = 1.0
     initial = masters[0]["solved"]
-    second = [m for m in masters if len(m["solved"]) == len(initial)]
+    # A probe proposing a box already solved climbs the ladder at the same
+    # radius: its solves are grouped, and the last one is the box it proposes.
+    probes: list[list[dict[str, Any]]] = []
+    for master in masters:
+        if len(master["solved"]) != len(initial):
+            continue
+        if probes and probes[-1][-1]["radius"] == master["radius"]:
+            probes[-1].append(master)
+        else:
+            probes.append([master])
     final = masters[-1]["solved"]
     incumbent = min(initial, key=operator.itemgetter(2))
 
@@ -228,7 +237,8 @@ def draw(masters: list[dict[str, Any]], path: Path) -> None:
     ).ax.tick_params(labelsize=6)
 
     # Probes of the second round: prediction in the trust region, box selected.
-    for k, master in enumerate(second[:4], start=1):
+    for k, solves in enumerate(probes[:4], start=1):
+        master = solves[-1]
         axis = axes[k]
         prediction = np.array(master["prediction"])
         admitted = np.array(master["admitted"])
@@ -236,8 +246,9 @@ def draw(masters: list[dict[str, Any]], path: Path) -> None:
         pnorm = plt.Normalize(shown.min(), shown.max())
         frame(
             axis,
-            f"probe {k}: $\\Delta = {master['radius']:.2g}$, "
-            f"$\\delta = {master['delta']:.3g}$",
+            f"probe {k}: $\\Delta = {master['radius']:.2g}$, $\\delta = "
+            + " \\to ".join(f"{solve['delta']:.3g}" for solve in solves)
+            + "$",
         )
         for i in range(N_SUBDIVISIONS):
             for j in range(N_SUBDIVISIONS):
@@ -300,7 +311,7 @@ def draw(masters: list[dict[str, Any]], path: Path) -> None:
 def main() -> None:
     """Parse the command line, run and draw."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--seed", type=int, default=12)
     parser.add_argument("--out", type=Path, default=Path("exploration.pdf"))
     parser.add_argument("--json", type=Path)
     args = parser.parse_args()

@@ -836,15 +836,17 @@ reached from nineteen of the twenty starting points.
 The exploration of the configuration compared with the baselines
 (Section~\ref{sec:baselines}), with the swept convexity, four probes and ten
 subdivisions per variable, is illustrated for one starting point in
-Fig.~\ref{fig:solve}. The four initial boxes are those of a design of
-experiments including the box of the starting point. At the second iteration,
-the trust regions of the three probes with radii below two contain the boxes
-which differ from the incumbent in one component, and that of the fourth probe
-contains every box. The box selected moves away from the incumbent as the
-margin increases: the first probe selects an adjacent box, the second and the
-third probes boxes two and six intervals away, and the fourth probe a box which
-differs from the incumbent in both components. The global optimum is reached at
-the sixth iteration, in the 22nd box solved.
+Fig.~\ref{fig:solve}, from one of the twenty starting points, whose box lies
+away from the other initial boxes. The four initial boxes are those of an
+optimized Latin hypercube design over the interval indices, one of them being
+replaced by the box of the starting point. At the second iteration, the trust
+regions of the three probes with radii below two contain the boxes which differ
+from the incumbent in one component, and that of the fourth probe contains every
+box. The first probe proposes the incumbent, which has already been solved, and
+selects an adjacent box with the next value of the ladder; the second and the
+third probes select boxes three and two intervals away from the incumbent, and
+the fourth probe a box which differs from it in both components. The global
+optimum is reached at the fifth iteration, in the 18th box solved.
 
 \begin{table}[t]
   \centering
@@ -871,7 +873,9 @@ the sixth iteration, in the 22nd box solved.
     left: boxes of the initial design of experiments, coloured by their value
     $v$, the incumbent being outlined in black. Next four panels: master problem
     of each probe at the second iteration, with its trust-region radius $\Delta$
-    and its margin $\delta$; the boxes of its trust region are coloured by the
+    and its margin $\delta$, an arrow marking a value of the ladder replaced by
+    the next one after a box already solved was proposed; the boxes of its
+    trust region are coloured by the
     prediction of the outer approximation, the boxes already solved are marked
     by dots, and the box selected is outlined in blue. The boxes selected by the
     previous probes of the iteration are excluded. Bottom right: boxes solved
