@@ -30,6 +30,19 @@ and this project adheres to
 
 ### Added
 
+- `benchmarks/run_review.py`: ablations of the master problem, a random choice
+  of the boxes within the trust region (`random_box`) and cut slopes set to zero
+  before the repair (`zero_slopes`), and baselines spending their budget, DIRECT
+  without local bias (`direct_global`) and IPOP-CMA-ES (`ipop_cmaes`), compared
+  with the configuration from the twenty starting points; summaries in
+  `docs/_static/review.json`.
+- Variants of five variables at ten subdivisions per variable: the calibrated
+  margin, eight and sixteen probes and the ladder up to 30
+  (`density_10_margin_100`, `density_10_probes_8`, `density_10_probes_16`,
+  `density_10_ceiling_30`), profiled against the published targets.
+- `benchmarks/cantilever/polish.py`: MMA without the box bounds from the best
+  design of a cantilever run, with the number of subdivided variables on a face
+  of their box.
 - `benchmarks/exploration_path.py`: the exploration of the swept method on the
   Rastrigin function in two dimensions, drawn from the master problems recorded
   during one run: the initial boxes and their values, the prediction of the
