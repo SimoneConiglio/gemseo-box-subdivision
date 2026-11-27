@@ -474,7 +474,15 @@ then reduces the excesses without cancelling them, and may also modify the
 conditions which were satisfied. Moreover, the condition is enforced only at the
 boxes already solved, and lowering a cut there may raise it at a box not yet
 solved, including the box of the global minimum. The repair is therefore a
-heuristic correction of the slopes, without validity guarantee. The boxes whose
+heuristic correction of the slopes, without validity guarantee. On the
+Rastrigin function, with the configuration of Section~\ref{sec:baselines} and
+the twenty starting points of the experiments, a median of $13\%$ of the
+conditions~\eqref{eq:adaptive} between solved boxes remain violated after the
+repair in two dimensions, and $16\%$ in five dimensions, over the master
+problems of a run; while the box of the global minimizer has not been solved,
+the lower envelope of the cuts at this box exceeds the incumbent value in a
+median of $20\%$ of the master problems in two dimensions and $78\%$ in five,
+so that the master problem ranks this box after the incumbent. The boxes whose
 sub-problem is infeasible are included among the solved boxes, and the cuts of
 the constraint violation are corrected in the same way, the condition requiring
 that the cut of the violation built at one box does not overestimate the
@@ -1509,27 +1517,30 @@ $32\%$ of the targets in two dimensions and $25\%$ in five, the lowest fractions
 of all methods in both dimensions, and
 $85\%$ at the end of the budget in five dimensions, the largest fraction.
 
-\subsection{Ablation of the master problem and baselines spending the budget}\label{sec:ablation}
+\subsection{Ablation of the master problem and additional baselines}\label{sec:ablation}
 
-Two ablations of the configuration are compared with it in
+Three ablations of the configuration are compared with it in
 Table~\ref{tab:ablation}, from the same twenty starting points and with the
-same tests, the Holm correction running over the four problems and the four
+same tests, the Holm correction running over the four problems and the seven
 methods of the table. In the first one, the master problem is replaced by a
 random choice, for each probe, among the boxes not yet solved within its trust
 region, the radii, the probes and the stopping rules being unchanged. In the
-second one, the slopes of the cuts are set to zero before the repair, so that
-the cuts are built from the observed values only. Two baselines which stop on
-their own criterion well before the budget in Table~\ref{tab:baselines} are also
-run so that they spend it: DIRECT without its local bias and with its tolerances
-set to zero, and CMA-ES with restarts doubling the population
-\citep{auger2005}. Since SciPy checks the number of evaluations of DIRECT only
-between iterations, this variant exceeds the budget by up to $30\%$, which
-favours it.
+second and the third ones, the slopes of the cuts are set to zero, or replaced
+by random vectors of the same norm, before the repair. Four baselines are also
+added: two which stop on their own criterion well before the budget in
+Table~\ref{tab:baselines} and are run so that they spend it, DIRECT without its
+local bias and with its tolerances set to zero, and CMA-ES with restarts
+doubling the population \citep{auger2005}; the multistart algorithm with ten
+starting points instead of fifty, which gives each local optimization five
+times more evaluations; and multilevel single linkage \citep{rinnooykan1987}, in
+its low-discrepancy variant from NLopt, with SLSQP as local optimizer. Since
+SciPy checks the number of evaluations of DIRECT only between iterations, its
+variant exceeds the budget by up to $30\%$, which favours it.
 
 \begin{table}[t]
   \centering
-  \caption{Ablations of the master problem and baselines spending the budget,
-    twenty starting points: area under the data profile, difference with the
+  \caption{Ablations of the master problem and additional baselines, twenty
+    starting points: area under the data profile, difference with the
     configuration and its $95\%$ bootstrap interval, and number of starting
     points from which the optimum of the Rastrigin, Ackley, Styblinski--Tang and
     Griewank functions is reached. Bold: success significantly different from
@@ -1543,37 +1554,44 @@ favours it.
     \toprule
     $n$ & method & area & difference & reached (R, A, S, G) \\
     \midrule
-    2 & configuration                  & 0.85 & reference                       & 20, 20, 20, 0 \\
+    2 & configuration                  & 0.85 & reference                  & 20, 20, 20, 0 \\
     2 & random box in the trust region & 0.83 & $-0.02$ [$-0.05$, $+0.01$] & 20, 20, 20, 0 \\
     2 & slopes set to zero             & 0.85 & $-0.01$ [$-0.03$, $+0.01$] & 20, 20, 20, 0 \\
+    2 & random slopes                  & 0.84 & $-0.01$ [$-0.03$, $+0.01$] & 20, 20, 20, 0 \\
     2 & DIRECT, not locally biased$^\ast$ & 0.83 & $-0.02$ [$-0.04$, $-0.01$] & 20, 0, 20, 0 \\
     2 & IPOP-CMA-ES                    & 0.74 & $-0.11$ [$-0.16$, $-0.07$] & \textbf{5}, 20, 14, 1 \\
+    2 & multistart, 10 starting points & 0.78 & $-0.07$ [$-0.12$, $-0.02$] & \textbf{6}, \textbf{10}, 20, 1 \\
+    2 & MLSL                           & 0.83 & $-0.02$ [$-0.04$, $-0.00$] & 20, 18, 20, 0 \\
     \midrule
-    5 & configuration                  & 0.61 & reference                       & 11, 13, 18, 0 \\
-    5 & random box in the trust region & 0.52 & $-0.09$ [$-0.12$, $-0.06$] & 9, \textbf{4}, 20, 0 \\
+    5 & configuration                  & 0.61 & reference                  & 11, 13, 18, 0 \\
+    5 & random box in the trust region & 0.52 & $-0.09$ [$-0.12$, $-0.06$] & 9, 4, 20, 0 \\
     5 & slopes set to zero             & 0.58 & $-0.03$ [$-0.07$, $+0.00$] & 13, 8, 19, 0 \\
+    5 & random slopes                  & 0.58 & $-0.04$ [$-0.07$, $-0.01$] & 9, 5, 19, 0 \\
     5 & DIRECT, not locally biased$^\ast$ & 0.68 & $+0.06$ [$+0.03$, $+0.10$] & 0, 0, 0, 0 \\
     5 & IPOP-CMA-ES                    & 0.64 & $+0.03$ [$-0.01$, $+0.07$] & \textbf{0}, 19, 14, 0 \\
+    5 & multistart, 10 starting points & 0.45 & $-0.16$ [$-0.20$, $-0.12$] & \textbf{0}, \textbf{0}, 8, 0 \\
+    5 & MLSL                           & 0.47 & $-0.14$ [$-0.17$, $-0.11$] & \textbf{0}, \textbf{0}, 20, 0 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-In two dimensions, neither ablation changes the results: the random choice of
-the boxes within the trust region and the cuts without slopes reach the optimum
-of the Rastrigin, Ackley and Styblinski--Tang functions from all starting points,
-and their areas do not differ significantly from that of the configuration.
-With $100$ boxes, the trust region and the probes therefore suffice to explore
-the subdivision within the budget, and the master problem does not contribute to
-the results. In five dimensions, the random choice decreases the area by
-$0.09$ [$0.06$, $0.12$], and the optimum of the Ackley function is reached from
-four starting points against thirteen, a significant difference; the optimum of
-the Rastrigin function is reached from nine starting points against eleven. The
-selection of the boxes by the master problem therefore contributes to the
-results when the number of boxes, $10^5$, is large with respect to the number
-of sub-problems. Setting the slopes to zero changes neither the success nor,
-significantly, the area in five dimensions: the ranking of the boxes is mainly
-obtained from the observed values through the repair, and the post-optimal
-slopes contribute little on these problems.
+In two dimensions, no ablation changes the results: the random choice of the
+boxes within the trust region and the cuts without slopes or with random slopes
+reach the optimum of the Rastrigin, Ackley and Styblinski--Tang functions from
+all starting points, and their areas do not differ significantly from that of
+the configuration. With $100$ boxes, the trust region and the probes therefore
+suffice to explore the subdivision within the budget, and the master problem
+does not contribute to the results. In five dimensions, the random choice
+decreases the area by $0.09$ [$0.06$, $0.12$], and the optimum of the Ackley
+function is reached from four starting points against thirteen, a difference
+which is not significant after the correction over the seven methods ($p =
+0.078$); the selection of the boxes by the master problem therefore contributes
+to the area when the number of boxes, $10^5$, is large with respect to the
+number of sub-problems. Setting the slopes to zero, or replacing them by random
+ones, changes the success neither in two nor in five dimensions, and decreases
+the area in five dimensions by $0.03$ to $0.04$: the ranking of the boxes is
+mainly obtained from the observed values through the repair, and the
+post-optimal slopes contribute little on these problems.
 
 DIRECT without local bias reaches the targets earlier than the method in five
 dimensions, but the optimum of none of the four functions, from any starting
@@ -1581,9 +1599,13 @@ point; with its local bias, it reaches that of the Styblinski--Tang function
 (Table~\ref{tab:baselines}). IPOP-CMA-ES reaches the optimum of the Ackley
 function in five dimensions from nineteen starting points, against thirteen for
 the method, a difference which is not significant, and that of the Rastrigin
-function from none, against eleven. The optimum of the Rastrigin function in five
-dimensions is therefore reached by the method only, among the methods compared
-with the budget of $2500$ evaluations, EGO being limited to $500$.
+function from none, against eleven. With ten starting points, the multistart
+algorithm stops before the budget, its local optimizations converging, and
+reaches the optima less often than the method; MLSL reaches those of the
+Rastrigin and Ackley functions in two dimensions, but neither in five
+dimensions. The optimum of the Rastrigin function in five dimensions is
+therefore reached by the method only, among the methods compared with the budget
+of $2500$ evaluations, EGO being limited to $500$.
 
 \subsection{Comparison with a budget of 500 evaluations}\label{sec:small}
 
