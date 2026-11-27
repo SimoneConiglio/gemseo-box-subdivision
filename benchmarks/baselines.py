@@ -501,6 +501,88 @@ def run_direct(
     return _result("direct", problem, dimension, seed, counter, adjoint)
 
 
+def run_direct_global(
+    problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
+) -> Result:
+    """Run DIRECT without its local bias and without its stopping tolerances.
+
+    The original DIRECT of Jones et al. (``locally_biased=False``), with the
+    volume and length tolerances set to zero, so that it stops on its budget.
+
+    Args:
+        problem: The problem.
+        dimension: The number of design variables.
+        seed: Recorded for the report; DIRECT does not use it.
+        budget: The budget in objective evaluations.
+        adjoint: Unused, DIRECT using no gradient.
+
+    Returns:
+        The outcome of the run.
+    """
+    from scipy.optimize import direct
+
+    counter = Counter(problem)
+    bounds = list(
+        zip(
+            full(dimension, problem.lower_bound),
+            full(dimension, problem.upper_bound),
+            strict=True,
+        )
+    )
+    with suppress(BudgetExceededError):
+        direct(
+            counter.objective,
+            bounds,
+            maxfun=budget,
+            maxiter=budget,
+            locally_biased=False,
+            vol_tol=0.0,
+            len_tol=0.0,
+        )
+
+    return _result("direct_global", problem, dimension, seed, counter, adjoint)
+
+
+def run_ipop_cmaes(
+    problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
+) -> Result:
+    """Run CMA-ES with restarts doubling the population (IPOP-CMA-ES).
+
+    The restarts go on until the budget is spent.
+
+    Args:
+        problem: The problem.
+        dimension: The number of design variables.
+        seed: The seed of the strategy.
+        budget: The budget in objective evaluations.
+        adjoint: Unused, CMA-ES using no gradient.
+
+    Returns:
+        The outcome of the run.
+    """
+    import cma
+
+    counter = BudgetedCounter(problem, dimension, budget, adjoint)
+    lower, upper = problem.lower_bound, problem.upper_bound
+    with suppress(BudgetExceededError):
+        cma.fmin(
+            counter.objective,
+            _starting_point(problem, dimension, seed),
+            (upper - lower) / 4.0,
+            options={
+                "bounds": [lower, upper],
+                "seed": seed,
+                "verbose": -9,
+                "verb_disp": 0,
+                "verb_log": 0,
+            },
+            restarts=100,
+            incpopsize=2,
+        )
+
+    return _result("ipop_cmaes", problem, dimension, seed, counter, adjoint)
+
+
 def run_egobox(
     problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
 ) -> Result:
@@ -637,6 +719,8 @@ RUNNERS = {
     "direct": run_direct,
     "egobox": run_egobox,
     "tunneling": run_tunneling,
+    "direct_global": run_direct_global,
+    "ipop_cmaes": run_ipop_cmaes,
 }
 """The runner of each method."""
 

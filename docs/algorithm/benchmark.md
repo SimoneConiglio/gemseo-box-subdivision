@@ -348,9 +348,9 @@ distance and median cost.
 | --------- | -------------- | ---------- | ----- | ------ | --------- |
 | Rastrigin | 10 ×5 | 50 | $0.00$ | 1757 | 15/20 |
 | Styblinski-Tang | 2 ×5 | 10 | $0.00$ | 481 | 16/20 |
-| `partly_multimodal` | 10 10 1 1 1 | 23 | $0.00$ | 990 | 20/20 |
+| `partly_multimodal` | 10 10 1 1 1 | 20 | $0.00$ | 990 | 20/20 |
 | Griewank | 19 13 11 7 9 | 59 | $0.034$ | 3631 | 0/20 |
-| Ackley | 63 ×5, *unresolved* | 314 | $14.72$ | 3170 | 0/20 |
+| Ackley | 62–63 each, *unresolved* | ≈ 314 | $14.72$ | 3170 | 0/20 |
 
 *Table 4. Proposed density, $n = 5$.*
 

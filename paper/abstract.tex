@@ -12,15 +12,22 @@ have to be corrected. A convexification constant and an adaptive repair of the
 slopes are compared, and a sweep of the convexity value over the parallel probes
 of the master is introduced to avoid its calibration. The influence of the
 trust region of the master and of the subdivision density is also studied. The
-method is assessed on four analytic test functions in two and five dimensions
+method is assessed on four analytic test functions in two and five dimensions,
+and on a fifth, partly multimodal one for the subdivision of some variables,
 against the enumeration of the boxes, multistart, CMA-ES, DIRECT, efficient
-global optimization and tunneling, and is applied to a feature-based topology optimization
-problem with 108 design variables. For the analytic functions, whose global
-minimum is known, this minimum is reached at an eighth to a third of the cost of
-the enumeration, and the minimum of the Rastrigin function in five dimensions is
-reached only by the proposed method, when the subdivision separates the basins of
-attraction. For the topology optimization problem, whose
-global optimum is unknown, the best design found has a compliance of 82.1,
-against 84.0 for the solution obtained from the reference initial design and
-83.0 for a multistart approach with the same number of local optimizations and
-82.8 for the classic tunneling method with the same budget.
+global optimization and tunneling, and is applied to a feature-based topology
+optimization problem with 108 design variables. For the Rastrigin function in
+two dimensions, the global minimum is reached from 19 of 20 starting points at
+an eighth to a third of the cost of the enumeration of the boxes. With a budget
+of 2500 evaluations, the minimum of the Rastrigin function in five dimensions is
+reached from 11 of 20 starting points by the proposed method and by none of the
+baselines, efficient global optimization being limited to 500 evaluations, when
+the subdivision separates the basins of attraction; with 500 evaluations, it is
+reached by no method. Replacing the master problem by a random choice of boxes
+within the trust region gives the same results in two dimensions and lower ones
+in five. For the topology optimization problem, whose global optimum is
+unknown, single runs give a best compliance of 82.1, against 84.0 from the
+reference initial design and 83.0 for a multistart approach with the same
+number of local optimizations; on a second implementation, compliances of 82.3
+and 82.5 are obtained with nine and sixteen probes, against 82.8 for the classic
+tunneling method with the same budget.

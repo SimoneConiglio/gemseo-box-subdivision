@@ -1427,6 +1427,9 @@ RESOLVING = (
 AT_DENSITY_10 = {
     "density_10_ceiling_10": "ceiling_10",
     "density_10_probes_16": "probes_16",
+    "density_10_margin_100": "margin_100",
+    "density_10_probes_8": "probes_8",
+    "density_10_ceiling_30": "ceiling_30",
 }
 """The exploring variants measured again at ten subdivisions per variable."""
 
@@ -1590,7 +1593,7 @@ def draw_data_profiles(foreground: str):
             axes,
             dimension,
             entry["budget"],
-            f"best target the optimum on {optimal} of {len(data['problems'])}",
+            f"global minimum reached on {optimal} of {len(data['problems'])} problems",
         )
         axes.set_xlabel("equivalent evaluations")
         axes.legend(fontsize=7, loc="lower right")

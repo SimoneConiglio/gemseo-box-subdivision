@@ -134,16 +134,20 @@ LATE_VARIANTS = {
         "density_10_euclidean_diameter",
         "density_10_euclidean_nearest",
         "density_10_probes_16",
+        "density_10_margin_100",
+        "density_10_probes_8",
+        "density_10_ceiling_30",
     ),
 }
 """The variants added after the targets were published, by dimension.
 
 The Euclidean trust regions, in two variables at the default density and in five
 at ten subdivisions per variable, the density at which the trust region decides
-which basin is reached, and sixteen probes in five variables at ten subdivisions
-per variable. As :data:`.LATE_BASELINES`, they are profiled against the
-published targets and kept out of the pool of histories the targets are
-generated from; see :mod:`benchmarks.run_late_variants`.
+which basin is reached, and in five variables the number of probes, the ladder
+and the calibrated margin at ten subdivisions per variable. As
+:data:`.LATE_BASELINES`, they are profiled against the published targets and
+kept out of the pool of histories the targets are generated from; see
+:mod:`benchmarks.run_late_variants`.
 """
 
 N_TARGETS = 20

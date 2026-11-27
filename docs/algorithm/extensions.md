@@ -271,7 +271,7 @@ the ladder of scan rates stopping when the count no longer increases.
 | Ackley | 62 62 62 63 63 | 312 | 25 350 | no |
 | Styblinski-Tang | 2 2 2 2 2 | 10 | 1250 | yes |
 | Griewank | 19 13 11 5 8 | 56 | 12 525 | yes |
-| `partly_multimodal` | 10 10 1 1 1 | 23 | 6100 | yes |
+| `partly_multimodal` | 10 10 1 1 1 | 20 | 6100 | yes |
 
 *Table D.5. Estimated densities, $n = 5$.*
 
@@ -302,7 +302,7 @@ budget of the proposal.
 | --------- | --------- | ---------- | ----------- | ----- | ------ | --------- |
 | Rastrigin | proposed, 10 ×5 | 50 | 2000 | $0.00$ | 1757 | 15/20 |
 | Rastrigin | 2 ×5 | 10 | 400 | $4.98$ | 866 | 0/20 |
-| Ackley | proposed, 63 ×5 | 314 | 12 560 | $14.72$ | 3170 | 0/20 |
+| Ackley | proposed, 62–63 each | ≈ 314 | 12 560 | $14.72$ | 3170 | 0/20 |
 | Ackley | 2 ×5 | 10 | 400 | $14.43$ | 674 | 0/20 |
 | Ackley | 10 ×5 | 50 | 2000 | $4.95$ | 2620 | 4/20 |
 | Styblinski-Tang | proposed, 2 ×5 | 10 | 400 | $0.00$ | 481 | 16/20 |
@@ -310,7 +310,7 @@ budget of the proposal.
 | Griewank | proposed, 19 13 11 7 9 | 59 | 2360 | $0.034$ | 3631 | 0/20 |
 | Griewank | 2 ×5 | 10 | 400 | $0.061$ | 1015 | 0/20 |
 | Griewank | 10 ×5, earlier study | 50 | 2000 | $0.027$ | 3166 | 0/3 |
-| `partly_multimodal` | proposed, 10 10 1 1 1 | 23 | 920 | $0.00$ | 990 | 20/20 |
+| `partly_multimodal` | proposed, 10 10 1 1 1 | 20 | 920 | $0.00$ | 990 | 20/20 |
 | `partly_multimodal` | 2 ×5 | 10 | 400 | $1.99$ | 506 | 0/20 |
 | `partly_multimodal` | 10 ×5, earlier study | 50 | 2000 | $0.00$ | 1554 | 3/3 |
 

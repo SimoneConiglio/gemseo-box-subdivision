@@ -128,7 +128,111 @@ def run_swept(
     return replace(result, method=name)
 
 
-def run_calibrated(problem: Problem, dimension: int, seed: int, budget: int) -> Result:
+@contextmanager
+def _master_replaced(mode: str, seed: int) -> Iterator[None]:
+    """Replace a part of the master problem, for an ablation.
+
+    Args:
+        mode: ``"random_box"`` to select a box at random among the boxes not yet
+            solved within the trust region of the probe, instead of solving the
+            mixed-integer program; ``"zero_slopes"`` to set the slopes of the
+            cuts to zero before the repair, so that the cuts carry only the
+            values observed.
+        seed: The seed of the random selection.
+
+    Yields:
+        Nothing.
+    """
+    from gemseo_bilevel_outer_approximation.algos.opt.core import (  # noqa: PLC0415
+        outer_approximation_optimizer as core,
+    )
+    from numpy import argmax  # noqa: PLC0415
+    from numpy import inf  # noqa: PLC0415
+    from numpy import zeros_like  # noqa: PLC0415
+    from numpy.random import default_rng  # noqa: PLC0415
+
+    original = core.OuterApproximationOptimizer._solve_milp
+    rng = default_rng(seed)
+
+    def blocks(self) -> list[int]:
+        """Return the size of each one-hot group, in the order of alpha."""
+        return [
+            self.n_catalogues[name]
+            for name in self.design_space.variable_names
+            if not self.design_space.hypercube[name]
+            for _ in range(self.n_members[name])
+        ]
+
+    def random_box(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        excluded = {tuple(a) for group in (args[1], args[9], args[11]) for a in group}
+        incumbent = array(args[13], dtype=float)
+        radius = int(kwargs.get("current_step", args[-1]) + 1e-9)
+        sizes = blocks(self)
+        starts = [sum(sizes[:k]) for k in range(len(sizes))]
+        current = [
+            int(argmax(incumbent[b : b + m]))
+            for b, m in zip(starts, sizes, strict=True)
+        ]
+        for _ in range(10_000):
+            changed = rng.choice(
+                len(sizes), size=int(rng.integers(1, radius + 1)), replace=False
+            )
+            alpha = zeros_like(incumbent)
+            for k, (b, m) in enumerate(zip(starts, sizes, strict=True)):
+                index = current[k]
+                if k in changed and m > 1:
+                    index = int(rng.choice([i for i in range(m) if i != current[k]]))
+                alpha[b + index] = 1.0
+            if tuple(alpha) not in excluded:
+                return alpha, -inf, True
+        return incumbent, -inf, True
+
+    def zero_slopes(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        args = list(args)
+        args[0] = [zeros_like(array(s, dtype=float)) for s in args[0]]
+        args[10] = [zeros_like(array(s, dtype=float)) for s in args[10]]
+        return original(self, *args, **kwargs)
+
+    core.OuterApproximationOptimizer._solve_milp = (
+        random_box if mode == "random_box" else zero_slopes
+    )
+    try:
+        yield
+    finally:
+        core.OuterApproximationOptimizer._solve_milp = original
+
+
+def run_ablation(
+    mode: str, problem: Problem, dimension: int, seed: int, budget: int
+) -> Result:
+    """Run the configuration with a part of its master problem replaced.
+
+    Args:
+        mode: The part replaced, see :func:`._master_replaced`.
+        problem: The problem.
+        dimension: The number of design variables.
+        seed: The seed of the starting point and of the random selection.
+        budget: The budget in equivalent evaluations.
+
+    Returns:
+        The outcome of the run.
+    """
+    n_subdivisions = 10 if dimension == 5 else 0
+    with _master_replaced(mode, seed):
+        result = run_swept_box_subdivision(
+            problem, dimension, seed, budget, True, n_subdivisions=n_subdivisions
+        )
+    return replace(result, method=mode)
+
+
+def run_calibrated(
+    problem: Problem,
+    dimension: int,
+    seed: int,
+    budget: int,
+    n_subdivisions: int = 0,
+    name: str = "margin_100",
+) -> Result:
     """Run the calibrated configuration, the convexity margin set to 100.
 
     Args:
@@ -136,12 +240,17 @@ def run_calibrated(problem: Problem, dimension: int, seed: int, budget: int) -> 
         dimension: The number of design variables.
         seed: The seed of the starting point.
         budget: The budget in equivalent evaluations.
+        n_subdivisions: The number of subdivisions per variable.
+            If zero, use :func:`.default_n_subdivisions`.
+        name: The name of the variant.
 
     Returns:
         The outcome of the run.
     """
-    result = run_box_subdivision(problem, dimension, seed, budget, True)
-    return replace(result, method="margin_100")
+    result = run_box_subdivision(
+        problem, dimension, seed, budget, True, n_subdivisions=n_subdivisions
+    )
+    return replace(result, method=name)
 
 
 def run_proposed_density(
@@ -308,6 +417,20 @@ VARIANTS: dict[str, tuple[str, Callable[[Problem, int, int, int], Result]]] = {
         "swept, Euclidean, nearest box",
         partial(run_swept, "euclidean_nearest", trust_region=EUCLIDEAN_NEAREST),
     ),
+    "density_10_margin_100": (
+        "calibrated, margin 100, 10 per variable",
+        partial(run_calibrated, n_subdivisions=10, name="density_10_margin_100"),
+    ),
+    "density_10_probes_8": (
+        "swept, 10 per variable, 8 probes",
+        partial(
+            run_swept, "density_10_probes_8", n_subdivisions=10, n_parallel_points=8
+        ),
+    ),
+    "density_10_ceiling_30": (
+        "swept, 10 per variable, ladder up to 30",
+        partial(run_swept, "density_10_ceiling_30", n_subdivisions=10, max_value=30.0),
+    ),
     "density_10_probes_16": (
         "swept, 10 per variable, 16 probes",
         partial(
@@ -317,6 +440,11 @@ VARIANTS: dict[str, tuple[str, Callable[[Problem, int, int, int], Result]]] = {
             n_parallel_points=16,
         ),
     ),
+    "random_box": (
+        "random box in the trust region",
+        partial(run_ablation, "random_box"),
+    ),
+    "zero_slopes": ("slopes set to zero", partial(run_ablation, "zero_slopes")),
     "density_10_euclidean_diameter": (
         "swept, 10 per variable, Euclidean, diameter",
         partial(
