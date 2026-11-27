@@ -1622,7 +1622,13 @@ dimensions, which none of the baselines reached, was found. For the short
 cantilever problem of the generalized geometry projection, whose global optimum
 is unknown, the best design found has a compliance of $82.1$, against $84.0$ for
 the design obtained from the reference initial design, $83.0$ for a multistart
-approach and $82.8$ for the classic tunneling method with the same budget. The
+approach and $82.8$ for the classic tunneling method with the same budget. This
+problem was not used to select the configuration of the method, and on the NumPy
+port of the reference code used for the tunneling method, the method obtained
+compliances of $82.30$ and $82.48$ with nine and sixteen probes for a similar
+budget, also lower than those of the multistart and tunneling approaches. These
+comparisons rest on one run of each method, and their repetition from several
+initial designs is required before a general advantage can be claimed. The
 reliability of
 the method depends on the safeguard against non-convexity and on a small
 trust region measured in number of changed components; both lead to wrong
