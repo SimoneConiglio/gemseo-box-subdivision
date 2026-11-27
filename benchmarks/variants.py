@@ -137,7 +137,8 @@ def _master_replaced(mode: str, seed: int) -> Iterator[None]:
             solved within the trust region of the probe, instead of solving the
             mixed-integer program; ``"zero_slopes"`` to set the slopes of the
             cuts to zero before the repair, so that the cuts carry only the
-            values observed.
+            values observed; ``"random_slopes"`` to replace each slope by a
+            random vector of the same norm before the repair.
         seed: The seed of the random selection.
 
     Yields:
@@ -187,15 +188,28 @@ def _master_replaced(mode: str, seed: int) -> Iterator[None]:
                 return alpha, -inf, True
         return incumbent, -inf, True
 
+    def random_slopes(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        args = list(args)
+        for k in (0, 10):
+            args[k] = [
+                rng.standard_normal(array(s).size).reshape(array(s).shape)
+                * float((array(s, dtype=float) ** 2).sum() ** 0.5)
+                / max(array(s).size, 1) ** 0.5
+                for s in args[k]
+            ]
+        return original(self, *args, **kwargs)
+
     def zero_slopes(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
         args = list(args)
         args[0] = [zeros_like(array(s, dtype=float)) for s in args[0]]
         args[10] = [zeros_like(array(s, dtype=float)) for s in args[10]]
         return original(self, *args, **kwargs)
 
-    core.OuterApproximationOptimizer._solve_milp = (
-        random_box if mode == "random_box" else zero_slopes
-    )
+    core.OuterApproximationOptimizer._solve_milp = {
+        "random_box": random_box,
+        "zero_slopes": zero_slopes,
+        "random_slopes": random_slopes,
+    }[mode]
     try:
         yield
     finally:
@@ -445,6 +459,10 @@ VARIANTS: dict[str, tuple[str, Callable[[Problem, int, int, int], Result]]] = {
         partial(run_ablation, "random_box"),
     ),
     "zero_slopes": ("slopes set to zero", partial(run_ablation, "zero_slopes")),
+    "random_slopes": (
+        "slopes drawn at random",
+        partial(run_ablation, "random_slopes"),
+    ),
     "density_10_euclidean_diameter": (
         "swept, 10 per variable, Euclidean, diameter",
         partial(

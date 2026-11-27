@@ -583,6 +583,76 @@ def run_ipop_cmaes(
     return _result("ipop_cmaes", problem, dimension, seed, counter, adjoint)
 
 
+def run_multistart_10(
+    problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
+) -> Result:
+    """Run the multistart algorithm with ten starting points.
+
+    With fifty starting points, a local optimization is given about twenty
+    evaluations in two variables; ten starting points give it five times more.
+
+    Args:
+        problem: The problem.
+        dimension: The number of design variables.
+        seed: The seed of the design of experiments of the starting points.
+        budget: The budget in equivalent objective evaluations.
+        adjoint: Whether a gradient costs one objective evaluation.
+
+    Returns:
+        The outcome of the run.
+    """
+    from dataclasses import replace as replace_result  # noqa: PLC0415
+
+    result = run_multistart(problem, dimension, seed, budget, adjoint, n_start=10)
+    return replace_result(result, method="multistart_10")
+
+
+def run_mlsl(
+    problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
+) -> Result:
+    """Run multilevel single linkage with SLSQP as local optimizer.
+
+    The low-discrepancy variant of NLopt (``G_MLSL_LDS``), whose local searches
+    use the gradient, until the budget is spent.
+
+    Args:
+        problem: The problem.
+        dimension: The number of design variables.
+        seed: The seed of NLopt.
+        budget: The budget in equivalent objective evaluations.
+        adjoint: Whether a gradient costs one objective evaluation.
+
+    Returns:
+        The outcome of the run.
+    """
+    import nlopt  # noqa: PLC0415
+
+    counter = BudgetedCounter(problem, dimension, budget, adjoint)
+    nlopt.srand(seed)
+
+    def objective(x, gradient):  # noqa: ANN001, ANN202
+        try:
+            value = counter.objective(x)
+            if gradient.size:
+                gradient[:] = counter.gradient(x)
+        except BudgetExceededError:
+            raise nlopt.ForcedStop from None
+        return float(value)
+
+    local = nlopt.opt(nlopt.LD_SLSQP, dimension)
+    local.set_xtol_rel(1e-8)
+    optimizer = nlopt.opt(nlopt.G_MLSL_LDS, dimension)
+    optimizer.set_local_optimizer(local)
+    optimizer.set_min_objective(objective)
+    optimizer.set_lower_bounds(full(dimension, problem.lower_bound))
+    optimizer.set_upper_bounds(full(dimension, problem.upper_bound))
+    optimizer.set_maxeval(budget)
+    with suppress(nlopt.ForcedStop, BudgetExceededError, RuntimeError):
+        optimizer.optimize(_starting_point(problem, dimension, seed))
+
+    return _result("mlsl", problem, dimension, seed, counter, adjoint)
+
+
 def run_egobox(
     problem: Problem, dimension: int, seed: int, budget: int, adjoint: bool
 ) -> Result:
@@ -721,6 +791,8 @@ RUNNERS = {
     "tunneling": run_tunneling,
     "direct_global": run_direct_global,
     "ipop_cmaes": run_ipop_cmaes,
+    "multistart_10": run_multistart_10,
+    "mlsl": run_mlsl,
 }
 """The runner of each method."""
 

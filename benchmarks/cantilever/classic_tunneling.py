@@ -571,6 +571,10 @@ def run(args: argparse.Namespace) -> dict:
     found_minima = [e for e in previous if e["event"] == "minimum"]
     minima: list[np.ndarray] = [np.asarray(e["x"]) for e in found_minima[:-1]]
     x = problem.x_init.copy()
+    if args.start_seed is not None:
+        from port_box_subdivision import random_start  # noqa: PLC0415
+
+        x = random_start(x, args.start_seed)
     successes = sum(e["event"] == "tunneled" for e in previous)
     searches = sum(e["event"] == "search" for e in previous)
     try:
@@ -791,6 +795,7 @@ def main() -> None:
     parser.add_argument("--processes", type=int, default=SETTINGS.processes)
     parser.add_argument("--max-iter", type=int, default=SETTINGS.max_iter)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--start-seed", type=int)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--out", type=Path, default=Path("benchmarks/box_subdivision"))
     args = parser.parse_args()

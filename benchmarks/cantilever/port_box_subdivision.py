@@ -71,11 +71,15 @@ FREE = "x_free"
 """The variables of every sub-problem."""
 
 
-def load_problem(backend: str):  # noqa: ANN201
+def load_problem(backend: str, start_seed: int | None = None):  # noqa: ANN201
     """Return the cantilever of a module defining ``Cantilever``.
 
     Args:
         backend: The path of the module.
+        start_seed: The seed of a random initial design, whose bar positions and
+            angles are drawn uniformly within their bounds, the other variables
+            being those of the reference initial design; ``None`` for the
+            reference initial design.
 
     Returns:
         The problem.
@@ -83,7 +87,38 @@ def load_problem(backend: str):  # noqa: ANN201
     spec = importlib.util.spec_from_file_location("cantilever_backend", backend)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.Cantilever()
+    problem = module.Cantilever()
+    if start_seed is not None:
+        problem.x_init = random_start(problem.x_init, start_seed)
+    return problem
+
+
+def random_start(x_init: np.ndarray, seed: int) -> np.ndarray:
+    """Return a design whose bar positions and angles are drawn at random.
+
+    Args:
+        x_init: The reference initial design, in ``[0, 1]``.
+        seed: The seed of the draw.
+
+    Returns:
+        The design.
+    """
+    x = np.array(x_init, dtype=float)
+    poses = pose_indices(x.size)
+    x[poses] = np.random.default_rng(seed).uniform(0.0, 1.0, poses.size)
+    return x
+
+
+def pose_indices(size: int) -> np.ndarray:
+    """Return the indices of the bar positions and angles.
+
+    Args:
+        size: The number of design variables.
+
+    Returns:
+        The indices.
+    """
+    return np.array([c * VPC + s for c in range(size // VPC) for s in POSE])
 
 
 def create_discipline(problem, out: Path):  # noqa: ANN001, ANN201
@@ -170,7 +205,7 @@ def run(args: argparse.Namespace) -> None:
     from gemseo_box_subdivision import SweptBoxSubdivisionSettings  # noqa: PLC0415
 
     args.out.mkdir(parents=True, exist_ok=True)
-    problem = load_problem(args.backend)
+    problem = load_problem(args.backend, args.start_seed)
     discipline, split, free = create_discipline(problem, args.out)
     design_space = create_design_space()
     for name, indices in ((SPLIT, split), (FREE, free)):
@@ -275,6 +310,7 @@ def main() -> None:
     parser.add_argument("--processes", type=int, default=4)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--budget", type=int)
+    parser.add_argument("--start-seed", type=int)
     parser.add_argument("--summarize", action="store_true")
     args = parser.parse_args()
     if args.summarize:

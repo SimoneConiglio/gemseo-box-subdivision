@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import json
 import sys
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -644,7 +645,7 @@ def draw_partial_refinement(foreground: str):
     return figure
 
 
-def draw_problems(foreground: str):
+def draw_problems(foreground: str, label: bool = True):
     """Draw the benchmark problems in two dimensions."""
     problems = (
         ("Rastrigin", rastrigin, -4.1, 5.9, (0.0, 0.0)),
@@ -680,11 +681,13 @@ def draw_problems(foreground: str):
         axes.set_yticks([])
         axes.set_aspect("equal")
 
-    figure.supxlabel(
-        "logarithmic colour scale, the star marking the global optimum",
-        color=foreground,
-        fontsize=8.5,
-    )
+    if label:
+        # The manuscript says this in its caption instead.
+        figure.supxlabel(
+            "logarithmic colour scale, the star marking the global optimum",
+            color=foreground,
+            fontsize=8.5,
+        )
     return figure
 
 
@@ -1887,6 +1890,7 @@ PAPER = Path(__file__).parents[1] / "paper" / "figures"
 """The figures of the manuscript drawn by this module, in the light theme."""
 
 PAPER_FIGURES = {
+    "problems": partial(draw_problems, label=False),
     "data_profiles": draw_data_profiles,
     "variant_profiles": draw_variant_profiles,
 }

@@ -19,16 +19,19 @@ Two ablations of the configuration compared with the baselines:
 - ``random_box``: the master problem replaced by a random choice among the
   boxes not yet solved within the trust region of each probe;
 - ``zero_slopes``: the slopes of the cuts set to zero before the repair, so that
-  the cuts carry only the values observed.
+  the cuts carry only the values observed;
+- ``random_slopes``: each slope replaced by a random vector of the same norm.
 
 Two baselines run so that they spend their budget:
 
 - ``direct_global``: DIRECT without its local bias and stopping tolerances;
-- ``ipop_cmaes``: CMA-ES with restarts doubling the population.
+- ``ipop_cmaes``: CMA-ES with restarts doubling the population;
+- ``multistart_10``: the multistart algorithm with ten starting points;
+- ``mlsl``: multilevel single linkage with SLSQP as local optimizer.
 
 Each is run from the twenty starting points of :mod:`benchmarks.run_statistics`
 and compared with the configuration by the tests of :mod:`benchmarks.statistics`,
-the Holm correction running over the four problems and these four methods. The
+the Holm correction running over the four problems and these methods. The
 runs are kept in ``benchmarks/.statistics/review-{n}.jsonl``, the summaries in
 ``docs/_static/review.json``.
 
@@ -54,7 +57,15 @@ from benchmarks.statistics import compare
 from benchmarks.statistics import compare_areas
 from benchmarks.statistics import run_area
 
-METHODS = ("random_box", "zero_slopes", "direct_global", "ipop_cmaes")
+METHODS = (
+    "random_box",
+    "zero_slopes",
+    "random_slopes",
+    "direct_global",
+    "ipop_cmaes",
+    "multistart_10",
+    "mlsl",
+)
 """The ablations and the baselines spending their budget."""
 
 OUTPUT = data_profiles.OUTPUT.with_name("review.json")

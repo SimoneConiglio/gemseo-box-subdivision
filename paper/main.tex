@@ -931,7 +931,7 @@ defined in advance.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/problems.png}
+  \includegraphics[width=\linewidth]{figures/problems.pdf}
   \caption{The five test problems in two dimensions, on a logarithmic colour
     scale; the star marks the global minimizer.}
   \label{fig:problems}
@@ -1185,7 +1185,8 @@ Section~\ref{sec:density}.
     median distance to the optimum $\cdot$ median cost $\cdot$ number of starting
     points out of twenty from which the optimum is reached (when non-zero).
     $\dagger$ Median run stopped by the budget, for which the distance is an
-    upper bound.}
+    upper bound. In parentheses: number of runs stopped by the budget, when
+    non-zero.}
   \label{tab:density}
   \small
   \begin{tabular}{rrrllll}
@@ -1194,9 +1195,9 @@ Section~\ref{sec:density}.
     \midrule
     2  & 10  & $32$            & 4.98 $\cdot$ 866                & 14.43 $\cdot$ 674                    & 0.00 $\cdot$ 481 $\cdot$ 16/20  & 0.06 $\cdot$ 1015 \\
     4  & 20  & $10^3$          & 6.70 $\cdot$ 801                & 12.63 $\cdot$ 1270                   & 0.00 $\cdot$ 749 $\cdot$ 19/20  & 0.22 $\cdot$ 1349 \\
-    10 & 50  & $10^5$          & 0.00 $\cdot$ 1757 $\cdot$ 15/20 & 6.30 $\cdot$ 2500$\dagger$ $\cdot$ 1/20 & 0.00 $\cdot$ 582 $\cdot$ 15/20  & 0.05 $\cdot$ 2500$\dagger$ \\
-    16 & 80  & $10^6$          & 1.99 $\cdot$ 1780 $\cdot$ 1/20  & 5.53 $\cdot$ 2500$\dagger$ $\cdot$ 3/20 & 0.13 $\cdot$ 864 $\cdot$ 10/20  & 0.06 $\cdot$ 2500$\dagger$ \\
-    24 & 120 & $8\cdot 10^6$   & 2.86 $\cdot$ 1834 $\cdot$ 1/20  & 8.90 $\cdot$ 2500$\dagger$           & 0.13 $\cdot$ 1122 $\cdot$ 8/20  & 0.08 $\cdot$ 2500$\dagger$ \\
+    10 & 50  & $10^5$          & 0.00 $\cdot$ 1757 $\cdot$ 15/20 & 6.30 $\cdot$ 2500$\dagger$ (14) $\cdot$ 1/20 & 0.00 $\cdot$ 582 $\cdot$ 15/20  & 0.05 $\cdot$ 2500$\dagger$ (15) \\
+    16 & 80  & $10^6$          & 1.99 $\cdot$ 1780 $\cdot$ 1/20  & 5.53 $\cdot$ 2500$\dagger$ (19) $\cdot$ 3/20 & 0.13 $\cdot$ 864 $\cdot$ 10/20  & 0.06 $\cdot$ 2500$\dagger$ (19) \\
+    24 & 120 & $8\cdot 10^6$   & 2.86 $\cdot$ 1834 (2) $\cdot$ 1/20  & 8.90 $\cdot$ 2500$\dagger$ (20)           & 0.13 $\cdot$ 1122 $\cdot$ 8/20  & 0.08 $\cdot$ 2500$\dagger$ (18) \\
     \bottomrule
   \end{tabular}
 \end{table}
