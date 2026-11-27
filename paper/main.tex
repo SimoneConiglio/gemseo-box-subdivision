@@ -873,8 +873,8 @@ The results of this section are detailed in Appendix~\ref{app:tuning}. The
 useful range of the convexification constant becomes narrower as the dimension
 increases: for the Rastrigin function, the median distance to the optimum is
 zero for four of the five values tested in two dimensions, and for none of them
-in five dimensions, where the optimum is reached from at most five starting
-points out of twenty (Table~\ref{tab:constant}). With ten subdivisions in five
+in five dimensions, where no value reaches the optimum from more than 5 of the
+20 starting points (Table~\ref{tab:constant}). With ten subdivisions in five
 dimensions, it is reached from fifteen starting points with the adaptive repair
 and four probes (Table~\ref{tab:density}); the adaptive repair is therefore used
 by default, although this comparison also differs by the number of probes. Its
@@ -1789,8 +1789,8 @@ number of probes (Table~\ref{tab:margin}). For the Ackley function, whose range
 is smaller than the calibrated margin, the optimum is reached most often for
 intermediate values of the margin (Table~\ref{tab:margin-ackley}). The
 convexification constant has a useful range bounded on both sides, and in five
-dimensions none of the values tested reaches the optimum from more than five
-starting points out of twenty (Table~\ref{tab:constant}). The Hamming distance
+dimensions none of the values tested reaches the optimum from more than 5 of the
+20 starting points (Table~\ref{tab:constant}). The Hamming distance
 with a radius of one reaches the optimum of the Rastrigin and Ackley functions
 from all starting points at the lowest cost among the metrics of
 Table~\ref{tab:metric}, and the ordinal distance reaches it as often but at a
