@@ -656,10 +656,16 @@ The admissible values of the subdivision density $m_j$ are bounded from above
 and from below.
 
 \paragraph{Upper bound.} With a budget of a few thousand evaluations, a few dozen
-sub-problems can be solved, which provides a few dozen cuts to identify a cut
-model with $\sum_j m_j$ coefficients. The admissible density is therefore
-limited by the ratio between the number of binary variables and the number of
-affordable cuts, and not by the number of boxes.
+sub-problems can be solved. The cut model is defined by the values and slopes of
+the solved boxes, and the displacements between boxes span a space of dimension
+at most $\sum_j (m_j - 1)$ (Section~\ref{sec:convexification}): as long as fewer
+boxes have been solved, the repair cannot determine the slopes in all the
+directions of the box selection, and the ranking of the boxes not yet solved
+rests on the margin and on the post-optimal slopes rather than on the observed
+values. This heuristic argument bounds the admissible density by the ratio
+between the number of binary variables and the number of affordable
+sub-problems, and not by the number of boxes; it is assessed empirically in
+Section~\ref{sec:density-results}.
 
 \paragraph{Lower bound.} The subdivision must separate the basins of attraction.
 For instance, minima one unit apart over a range of ten require about ten
@@ -1828,12 +1834,24 @@ optimization problem has a single volume constraint.
 (v) The evaluation of the analytic functions takes a few microseconds, whereas
 the method is intended for sub-problems whose solution takes minutes; neither
 the cost of the master problem nor that of the surrogate model of efficient
-global optimization is included in the budget. A comparison on an expensive
+global optimization is included in the budget. On the Rastrigin and Ackley
+functions, a run of the configuration solves $58$ to $117$ mixed-integer
+programs, which take from $1.4$ to $17$ seconds in all, i.e. $20$ to
+$190$ milliseconds each and most of the wall-clock time of these runs. A comparison on an expensive
 objective function is required to compare the method with Bayesian optimization.
 (vi) Only the classic tunneling method was compared, with settings which were
 not tuned; the variant applied with the geometry projection method
 \citep{zhang2018tunneling}, and the filled function and deflation methods, were
 not included in the comparison.
+(vii) In two dimensions, the master problem does not contribute to the results,
+a random choice of the boxes within the trust region being as effective
+(Section~\ref{sec:ablation}); the post-optimal slopes contribute little once
+the cuts are repaired.
+(viii) On the topology optimization problem, the method behaves as a local
+search over the poses of a few bars, and was compared neither with a
+basin-hopping method nor over several runs; the sensitivity of the compliances
+to the mesh was not assessed, and the bars and their orientations are
+interchangeable, which the subdivision does not account for.
 
 \paragraph{Future work.} Six directions of research follow from these results:
 a least-squares repair with non-negative coefficients, which cannot increase a
