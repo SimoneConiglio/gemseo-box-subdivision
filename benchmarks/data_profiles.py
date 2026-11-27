@@ -123,22 +123,25 @@ VARIANTS = {
     # Two subdivisions per variable, the default in five, resolve the basins of
     # two problems of four, so the ladder is measured again at the density that
     # resolves Rastrigin; in two variables the default is ten. Sixteen probes
-    # at that density is left out: with fifty binaries a master iteration of
-    # sixteen probes is so slow that half its runs had not spent their budget
-    # after five hours, and the half that had were worse than four probes.
+    # at that density was added later, as a late variant.
     5: (*FLAT_VARIANTS, "density_10", "density_10_ceiling_10"),
 }
 """The variants of each dimension."""
 
 LATE_VARIANTS = {
     2: ("euclidean_diameter", "euclidean_nearest"),
-    5: ("density_10_euclidean_diameter", "density_10_euclidean_nearest"),
+    5: (
+        "density_10_euclidean_diameter",
+        "density_10_euclidean_nearest",
+        "density_10_probes_16",
+    ),
 }
 """The variants added after the targets were published, by dimension.
 
 The Euclidean trust regions, in two variables at the default density and in five
 at ten subdivisions per variable, the density at which the trust region decides
-which basin is reached. As :data:`.LATE_BASELINES`, they are profiled against the
+which basin is reached, and sixteen probes in five variables at ten subdivisions
+per variable. As :data:`.LATE_BASELINES`, they are profiled against the
 published targets and kept out of the pool of histories the targets are
 generated from; see :mod:`benchmarks.run_late_variants`.
 """
