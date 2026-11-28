@@ -1428,93 +1428,11 @@ point, so that the comparison with DIRECT is a comparison with a single result:
 its tests are given for information only, and its interval reflects only the
 variability of the method.
 
-\begin{table}[t]
-  \centering
-  \caption{Comparison of the method, swept with ten subdivisions per variable,
-    with the baselines, $500n$ equivalent evaluations, twenty starting points:
-    median distance $\cdot$ median cost $\cdot$ number of starting points from
-    which the optimum is reached. $\ddagger$ EGO is run with $500$
-    evaluations.}
-  \label{tab:baselines}
-  \scriptsize
-  \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{lrllllll}
-    \toprule
-    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & tunneling & EGO$\ddagger$ \\
-    \midrule
-    Rastrigin        & 2 & 0.00 $\cdot$ 538 $\cdot$ 20   & 1.00 $\cdot$ 1000 $\cdot$ 9 & 1.00 $\cdot$ 625 $\cdot$ 4   & 0.00 $\cdot$ 649 $\cdot$ 20  & 1.99 $\cdot$ 1000 $\cdot$ 0  & 0.00 $\cdot$ 500 $\cdot$ 12 \\
-    Ackley           & 2 & 0.00 $\cdot$ 575 $\cdot$ 20   & 0.00 $\cdot$ 1000 $\cdot$ 12 & 0.00 $\cdot$ 751 $\cdot$ 20 & 0.00 $\cdot$ 417 $\cdot$ 20  & 0.00 $\cdot$ 1000 $\cdot$ 19 & 0.32 $\cdot$ 500 $\cdot$ 0 \\
-    Styblinski--Tang & 2 & 0.00 $\cdot$ 348 $\cdot$ 20   & 0.00 $\cdot$ 1000 $\cdot$ 20 & 0.00 $\cdot$ 532 $\cdot$ 12 & 0.00 $\cdot$ 1011 $\cdot$ 20 & 0.00 $\cdot$ 1000 $\cdot$ 20 & 0.00 $\cdot$ 500 $\cdot$ 20 \\
-    Griewank         & 2 & 0.007 $\cdot$ 628 $\cdot$ 0  & 0.027 $\cdot$ 1000 $\cdot$ 1 & 0.047 $\cdot$ 766 $\cdot$ 1 & 0.007 $\cdot$ 1011 $\cdot$ 0 & 0.027 $\cdot$ 1000 $\cdot$ 1 & 0.024 $\cdot$ 500 $\cdot$ 2 \\
-    Rastrigin        & 5 & 0.00 $\cdot$ 1756 $\cdot$ 11  & 5.97 $\cdot$ 2500 $\cdot$ 0 & 4.97 $\cdot$ 1749 $\cdot$ 0  & 4.98 $\cdot$ 461 $\cdot$ 0   & 4.97 $\cdot$ 2500 $\cdot$ 0  & 3.99 $\cdot$ 500 $\cdot$ 0 \\
-    Ackley           & 5 & 0.00 $\cdot$ 2500 $\cdot$ 13  & 9.28 $\cdot$ 2500 $\cdot$ 0 & 0.00 $\cdot$ 1921 $\cdot$ 19 & 0.11 $\cdot$ 353 $\cdot$ 0   & 2.32 $\cdot$ 2500 $\cdot$ 4  & 1.40 $\cdot$ 500 $\cdot$ 0 \\
-    Styblinski--Tang & 5 & 0.00 $\cdot$ 842 $\cdot$ 18   & 0.00 $\cdot$ 2326 $\cdot$ 20 & 14.14 $\cdot$ 1409 $\cdot$ 8 & 0.00 $\cdot$ 2505 $\cdot$ 20 & 0.00 $\cdot$ 2500 $\cdot$ 15 & 0.00 $\cdot$ 500 $\cdot$ 20 \\
-    Griewank         & 5 & 0.027 $\cdot$ 2200 $\cdot$ 0 & 0.046 $\cdot$ 2500 $\cdot$ 0 & 0.028 $\cdot$ 1681 $\cdot$ 0 & 0.011 $\cdot$ 397 $\cdot$ 0 & 0.070 $\cdot$ 2500 $\cdot$ 0 & 0.064 $\cdot$ 500 $\cdot$ 0 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\input{tables/baselines.tex}
 
-\begin{table}[t]
-  \centering
-  \caption{Paired comparison of the success, twenty starting points: number of
-    starting points from which only the method reaches the optimum $-$ number
-    from which only the baseline does, with the $p$-value of the exact McNemar
-    test after Holm correction. Bold: significant at $0.05$. ---: no
-    discordant starting point. $^\ast$ DIRECT gives the same run from every
-    starting point, so that the test compares the runs of the method with a
-    single result; it is given for information and not marked as
-    significant.}
-  \label{tab:tests}
-  \scriptsize
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabular}{lrlllll}
-    \toprule
-    problem & $n$ & multistart & CMA-ES & DIRECT & tunneling & EGO \\
-    \midrule
-    Rastrigin        & 2 & \textbf{11$-$0}, 0.017 & \textbf{16$-$0}, 0.001 & ---               & \textbf{20$-$0}, $<$0.001 & 8$-$0, 0.125 \\
-    Ackley           & 2 & 8$-$0, 0.125           & ---                    & ---               & 1$-$0, 1.000              & \textbf{20$-$0}, $<$0.001 \\
-    Styblinski--Tang & 2 & ---                    & 8$-$0, 0.125           & ---               & ---                       & --- \\
-    Griewank         & 2 & 0$-$1, 1.000           & 0$-$1, 1.000           & ---               & 0$-$1, 1.000              & 0$-$2, 1.000 \\
-    Rastrigin        & 5 & \textbf{11$-$0}, 0.017 & \textbf{11$-$0}, 0.017 & 11$-$0, 0.017$^\ast$ & \textbf{11$-$0}, 0.017 & \textbf{11$-$0}, 0.017 \\
-    Ackley           & 5 & \textbf{13$-$0}, 0.005 & 0$-$6, 0.312           & 13$-$0, 0.005$^\ast$ & 11$-$2, 0.247         & \textbf{13$-$0}, 0.005 \\
-    Styblinski--Tang & 5 & 0$-$2, 1.000           & 11$-$1, 0.076          & 0$-$2, 1.000      & 4$-$1, 1.000              & 0$-$2, 1.000 \\
-    Griewank         & 5 & ---                    & ---                    & ---               & ---                       & --- \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\input{tables/tests.tex}
 
-\begin{table}[t]
-  \centering
-  \caption{Area under the data profile and fraction of the targets reached at a
-    tenth, a quarter and a half of the budget and at the end of the budget,
-    twenty starting points, and difference of the area of the method with that
-    of each baseline, with its $95\%$ bootstrap confidence interval.
-    $\ddagger$ Value at the end of the budget of EGO, i.e. $500$ evaluations,
-    which in five dimensions is less than a quarter of the budget of the other
-    methods; no area is given for EGO.}
-  \label{tab:profiles}
-  \scriptsize
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabular}{rlrrrrrl}
-    \toprule
-    $n$ & method & area & $\tfrac1{10}$ & $\tfrac14$ & $\tfrac12$ & end & difference \\
-    \midrule
-    2 & box subdivision      & 0.85 & 32\% & 86\% & 98\% & 99\% & \\
-    2 & multistart           & 0.73 & 46\% & 67\% & 79\% & 90\% & $+0.12$ [$+0.09$, $+0.15$] \\
-    2 & CMA-ES               & 0.72 & 52\% & 69\% & 79\% & 80\% & $+0.13$ [$+0.08$, $+0.19$] \\
-    2 & DIRECT               & 0.90 & 69\% & 84\% & 99\% & 99\% & $-0.04$ [$-0.06$, $-0.03$] \\
-    2 & tunneling            & 0.74 & 55\% & 68\% & 79\% & 87\% & $+0.11$ [$+0.07$, $+0.15$] \\
-    2 & EGO, 500 evaluations & ---  & 73\% & 82\% & 85\% & 85\%$\ddagger$ & \\
-    \midrule
-    5 & box subdivision      & 0.61 & 25\% & 51\% & 70\% & 85\% & \\
-    5 & multistart           & 0.52 & 40\% & 50\% & 56\% & 61\% & $+0.09$ [$+0.05$, $+0.13$] \\
-    5 & CMA-ES               & 0.64 & 42\% & 61\% & 72\% & 74\% & $-0.02$ [$-0.06$, $+0.02$] \\
-    5 & DIRECT               & 0.76 & 75\% & 79\% & 79\% & 79\% & $-0.15$ [$-0.18$, $-0.11$] \\
-    5 & tunneling            & 0.65 & 40\% & 61\% & 71\% & 76\% & $-0.03$ [$-0.07$, $+0.01$] \\
-    5 & EGO, 500 evaluations & ---  & 61\% & ---  & ---  & 69\%$\ddagger$ & \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\input{tables/profiles.tex}
 
 \begin{figure}[t]
   \centering
@@ -1680,29 +1598,7 @@ starting points of Section~\ref{sec:baselines} and by the same paired tests, the
 method being used in the configuration of that section, swept with ten
 subdivisions per variable.
 
-\begin{table}[t]
-  \centering
-  \caption{Budget of $500$ evaluations, twenty starting points: median distance
-    to the optimum $\cdot$ number of starting points from which the optimum is
-    reached, and median cost when it is smaller than the budget.}
-  \label{tab:small}
-  \scriptsize
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabular}{lrllllll}
-    \toprule
-    problem & $n$ & box subdivision & multistart & CMA-ES & DIRECT & tunneling & EGO \\
-    \midrule
-    Rastrigin        & 2 & 0.00 $\cdot$ 20 & 1.00 $\cdot$ 6 & 1.00 $\cdot$ 4 & 0.00 $\cdot$ 20 & 1.99 $\cdot$ 0 & 0.00 $\cdot$ 12 \\
-    Ackley           & 2 & 0.00 $\cdot$ 19 & 3.57 $\cdot$ 2 & 0.00 $\cdot$ 20 & 0.00 $\cdot$ 20 $\cdot$ 417 & 0.00 $\cdot$ 13 & 0.32 $\cdot$ 0 \\
-    Styblinski--Tang & 2 & 0.00 $\cdot$ 20 $\cdot$ 348 & 0.00 $\cdot$ 20 & 0.00 $\cdot$ 12 & 0.00 $\cdot$ 20 & 0.00 $\cdot$ 20 & 0.00 $\cdot$ 20 \\
-    Griewank         & 2 & 0.007 $\cdot$ 0 & 0.053 $\cdot$ 1 & 0.052 $\cdot$ 1 & 0.009 $\cdot$ 0 & 0.027 $\cdot$ 0 & 0.024 $\cdot$ 2 \\
-    Rastrigin        & 5 & 6.47 $\cdot$ 0 & 9.95 $\cdot$ 0 & 11.20 $\cdot$ 0 & 4.98 $\cdot$ 0 $\cdot$ 461 & 4.97 $\cdot$ 0 & 3.99 $\cdot$ 0 \\
-    Ackley           & 5 & 16.70 $\cdot$ 0 & 16.30 $\cdot$ 0 & 0.05 $\cdot$ 0 & 0.11 $\cdot$ 0 $\cdot$ 353 & 6.09 $\cdot$ 2 & 1.40 $\cdot$ 0 \\
-    Styblinski--Tang & 5 & 6.03 $\cdot$ 10 & 7.15 $\cdot$ 9 & 14.14 $\cdot$ 6 & 0.00 $\cdot$ 20 & 14.14 $\cdot$ 7 & 0.00 $\cdot$ 20 \\
-    Griewank         & 5 & 0.440 $\cdot$ 0 & 0.097 $\cdot$ 0 & 0.276 $\cdot$ 0 & 0.011 $\cdot$ 0 $\cdot$ 397 & 0.221 $\cdot$ 0 & 0.064 $\cdot$ 0 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\input{tables/small.tex}
 
 In two dimensions, the method reaches the optimum of the Rastrigin, Ackley and
 Styblinski--Tang functions from twenty, nineteen and twenty starting points,

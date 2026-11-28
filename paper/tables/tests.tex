@@ -1,0 +1,34 @@
+\begin{table}[t]
+  \centering
+  \caption{Paired comparison of the success, twenty starting points:
+    number of starting points from which only the method reaches the
+    optimum $-$ number from which only the baseline does, with the
+    $p$-value of the exact McNemar test after Holm correction over the
+    four problems and the baselines of each dimension. Bold: significant
+    at $0.05$. ---: no discordant starting point. $^\ast$ The same run
+    from every starting point, so that the test compares the runs of the
+    method with a single result; it is given for information and not
+    marked as significant.}
+  \label{tab:tests}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lllll}
+    \toprule
+    baseline & Rastrigin & Ackley & Styblinski--Tang & Griewank \\
+    \midrule
+    \multicolumn{5}{l}{$n = 2$} \\
+    multistart, 50 starts & \textbf{11$-$0}, 0.017 & 8$-$0, 0.125 & --- & 0$-$1, 1.000 \\
+    CMA-ES & \textbf{16$-$0}, $<$0.001 & --- & 8$-$0, 0.125 & 0$-$1, 1.000 \\
+    DIRECT & --- & --- & --- & --- \\
+    tunneling & \textbf{20$-$0}, $<$0.001 & 1$-$0, 1.000 & --- & 0$-$1, 1.000 \\
+    EGO & 8$-$0, 0.125 & \textbf{20$-$0}, $<$0.001 & --- & 0$-$2, 1.000 \\
+    \midrule
+    \multicolumn{5}{l}{$n = 5$} \\
+    multistart, 50 starts & \textbf{11$-$0}, 0.017 & \textbf{13$-$0}, 0.005 & 0$-$2, 1.000 & --- \\
+    CMA-ES & \textbf{11$-$0}, 0.017 & 0$-$6, 0.312 & 11$-$1, 0.076 & --- \\
+    DIRECT & 11$-$0, 0.017$^\ast$ & 13$-$0, 0.005$^\ast$ & 0$-$2, 1.000$^\ast$ & --- \\
+    tunneling & \textbf{11$-$0}, 0.017 & 11$-$2, 0.247 & 4$-$1, 1.000 & --- \\
+    EGO & \textbf{11$-$0}, 0.017 & \textbf{13$-$0}, 0.005 & 0$-$2, 1.000 & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}

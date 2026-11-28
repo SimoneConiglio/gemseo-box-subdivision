@@ -52,8 +52,22 @@ SEEDS = (*data_profiles.SEEDS, *range(505, 2000, 101))
 COMPARED = {2: "swept", 5: "density_10"}
 """The configuration of the method compared with the baselines, by dimension."""
 
-BASELINES = ("multistart", "cmaes", "direct", "tunneling", "egobox")
-"""The baselines, EGO last in this list although the runner starts it first."""
+BASELINES = (
+    "multistart",
+    "multistart_10",
+    "cmaes",
+    "ipop_cmaes",
+    "direct",
+    "direct_global",
+    "mlsl",
+    "tunneling",
+    "egobox",
+)
+"""The baselines, EGO last in this list although the runner starts it first.
+
+The multistart algorithm with ten starting points, IPOP-CMA-ES, DIRECT without
+local bias and MLSL were added after the others, from the same starting points.
+"""
 
 CHALLENGERS = {
     dimension: tuple(

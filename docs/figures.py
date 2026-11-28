@@ -1340,6 +1340,15 @@ BASELINE_LABELS = {
 }
 """The label of each baseline of the data profiles."""
 
+LATE_BASELINE_STYLES = {
+    "multistart_10": ("multistart", "--", "multistart, 10 starting points"),
+    "ipop_cmaes": ("cmaes", "--", "IPOP-CMA-ES"),
+    "direct_global": ("direct", "--", "DIRECT, not locally biased"),
+    "mlsl": ("tunneling", ":", "MLSL"),
+}
+"""The baselines added later: the baseline whose hue they take, their line
+style and their label."""
+
 
 def _read_profiles() -> dict:
     """Return what ``python -m benchmarks.data_profiles`` wrote."""
@@ -1591,6 +1600,18 @@ def draw_data_profiles(foreground: str):
                 label="tunneling",
             )
 
+        hue_of = dict(zip(BASELINE_LABELS, hues[1:], strict=False))
+        hue_of["tunneling"] = LATE_HUES[foreground]
+        for name, (parent, style, label) in LATE_BASELINE_STYLES.items():
+            if name in profiles:
+                _plot_profile(
+                    axes,
+                    profiles[name],
+                    color=hue_of[parent],
+                    linestyle=style,
+                    label=label,
+                )
+
         optimal = len(entry["best_target_is_the_optimum"])
         _profile_axes(
             axes,
@@ -1599,7 +1620,7 @@ def draw_data_profiles(foreground: str):
             f"global minimum reached on {optimal} of {len(data['problems'])} problems",
         )
         axes.set_xlabel("equivalent evaluations")
-        axes.legend(fontsize=7, loc="lower right")
+        axes.legend(fontsize=6, loc="lower right", ncols=2)
 
     axes_row[0].set_ylabel("targets reached")
     figure.tight_layout()

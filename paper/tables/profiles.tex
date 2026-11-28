@@ -1,0 +1,33 @@
+\begin{table}[t]
+  \centering
+  \caption{Area under the data profile and fraction of the targets
+    reached at a tenth, a quarter and a half of the budget and at the end
+    of the budget, twenty starting points, and difference of the area of
+    the method with that of each baseline, with its $95\%$ bootstrap
+    confidence interval. $\ddagger$ Value at the end of the budget of EGO,
+    i.e. $500$ evaluations, which in five dimensions is less than a
+    quarter of the budget of the other methods; no area is given for
+    EGO.}
+  \label{tab:profiles}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{rlrrrrrl}
+    \toprule
+    $n$ & method & area & $\tfrac1{10}$ & $\tfrac14$ & $\tfrac12$ & end & difference \\
+    \midrule
+    2 & box subdivision & 0.85 & 32\% & 86\% & 98\% & 99\% &  \\
+    2 & multistart, 50 starts & 0.73 & 46\% & 67\% & 79\% & 90\% & $+0.12$ [$+0.09$, $+0.15$] \\
+    2 & CMA-ES & 0.72 & 52\% & 69\% & 79\% & 80\% & $+0.13$ [$+0.08$, $+0.19$] \\
+    2 & DIRECT & 0.90 & 69\% & 84\% & 99\% & 99\% & $-0.04$ [$-0.06$, $-0.03$] \\
+    2 & tunneling & 0.74 & 55\% & 68\% & 79\% & 87\% & $+0.11$ [$+0.07$, $+0.15$] \\
+    2 & EGO, 500 evaluations & --- & 73\% & 82\% & 85\% & 85\%$\ddagger$ &  \\
+    \midrule
+    5 & box subdivision & 0.61 & 25\% & 51\% & 70\% & 85\% &  \\
+    5 & multistart, 50 starts & 0.52 & 40\% & 50\% & 56\% & 61\% & $+0.09$ [$+0.05$, $+0.13$] \\
+    5 & CMA-ES & 0.64 & 42\% & 61\% & 72\% & 74\% & $-0.02$ [$-0.06$, $+0.02$] \\
+    5 & DIRECT & 0.76 & 75\% & 79\% & 79\% & 79\% & $-0.15$ [$-0.18$, $-0.11$] \\
+    5 & tunneling & 0.64 & 40\% & 61\% & 71\% & 76\% & $-0.03$ [$-0.07$, $+0.01$] \\
+    5 & EGO, 500 evaluations & --- & 61\% & --- & --- & 69\%$\ddagger$ &  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
