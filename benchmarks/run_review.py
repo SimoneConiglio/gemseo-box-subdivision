@@ -12,9 +12,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-"""Run the ablations of the master and the baselines spending their budget.
+"""Run the ablations of the master problem.
 
-Two ablations of the configuration compared with the baselines:
+Three ablations of the configuration compared with the baselines:
 
 - ``random_box``: the master problem replaced by a random choice among the
   boxes not yet solved within the trust region of each probe;
@@ -22,12 +22,8 @@ Two ablations of the configuration compared with the baselines:
   the cuts carry only the values observed;
 - ``random_slopes``: each slope replaced by a random vector of the same norm.
 
-Two baselines run so that they spend their budget:
-
-- ``direct_global``: DIRECT without its local bias and stopping tolerances;
-- ``ipop_cmaes``: CMA-ES with restarts doubling the population;
-- ``multistart_10``: the multistart algorithm with ten starting points;
-- ``mlsl``: multilevel single linkage with SLSQP as local optimizer.
+The baselines spending their budget, first run here, belong to the main
+comparison of :mod:`benchmarks.run_statistics`.
 
 Each is run from the twenty starting points of :mod:`benchmarks.run_statistics`
 and compared with the configuration by the tests of :mod:`benchmarks.statistics`,
@@ -57,15 +53,7 @@ from benchmarks.statistics import compare
 from benchmarks.statistics import compare_areas
 from benchmarks.statistics import run_area
 
-METHODS = (
-    "random_box",
-    "zero_slopes",
-    "random_slopes",
-    "direct_global",
-    "ipop_cmaes",
-    "multistart_10",
-    "mlsl",
-)
+METHODS = ("random_box", "zero_slopes", "random_slopes")
 """The ablations and the baselines spending their budget."""
 
 OUTPUT = data_profiles.OUTPUT.with_name("review.json")

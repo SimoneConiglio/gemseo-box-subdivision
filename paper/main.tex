@@ -923,13 +923,18 @@ minimum.
 
 The following baselines are considered: the multistart algorithm of GEMSEO with
 $50$ starting points drawn by a Latin hypercube design, whose seed is that of
-the starting point, and SLSQP as local optimizer, which is also the optimizer of
+the starting point, and with $10$ starting points, which gives each local
+optimization five times more evaluations, both with SLSQP as local optimizer, which is also the optimizer of
 the sub-problems, so that the comparison concerns only the choice of the starting
 regions; CMA-ES \citep{hansen2001,hansen2016}, started from the starting point
 with an initial standard deviation equal to a quarter of the range of the
-variables, without restart; DIRECT \citep{jones1993}, as implemented in SciPy
-\citep{virtanen2020} with its default settings, i.e. the locally biased variant,
-which ignores the starting point; efficient global optimization (EGO)
+variables, without restart, and with restarts doubling the population
+(IPOP-CMA-ES) \citep{auger2005}; DIRECT \citep{jones1993}, as implemented in
+SciPy \citep{virtanen2020}, which ignores the starting point, with its default
+settings, i.e. the locally biased variant, and without local bias and with its
+tolerances set to zero, so that it spends the budget; multilevel single linkage
+(MLSL) \citep{rinnooykan1987}, in the low-discrepancy variant of NLopt with
+SLSQP as local optimizer; efficient global optimization (EGO)
 \citep{jones1998}, as implemented in \code{egobox} \citep{lafage2022}, from an
 initial design of $5n$ points whose seed is that of the starting point; and the
 classic tunneling method \citep{levy1985}, which alternates SLSQP minimizations
@@ -939,10 +944,12 @@ budget since it has no other stopping rule. The pole strength starts at one and
 is increased by $0.1$, up to ten, until the tunneling function descends, the
 perturbation is $1\%$ of the range of each variable, and one mobile pole per
 variable is placed in a tunneling search before it is abandoned. These settings
-are fixed choices, not tuned on these problems, and the method was added after
-the other baselines, from the same starting points. The multistart and CMA-ES
-baselines are not tuned to the budget either; a variant of DIRECT without local
-bias and CMA-ES with restarts are considered in Section~\ref{sec:ablation}. A
+are fixed choices, not tuned on these problems. Tunneling, the multistart
+algorithm with ten starting points, IPOP-CMA-ES, DIRECT without local bias and
+MLSL were added after the other baselines, from the same starting points. Since
+SciPy checks the number of evaluations of DIRECT only between iterations, its
+variant without local bias exceeds the budget by up to $30\%$, which favours
+it. A
 gradient is counted as one evaluation of the objective function, as with an
 adjoint method, so that an evaluation of the value and the gradient counts as
 two; this convention favours the gradient-based methods over CMA-ES, DIRECT and
@@ -1417,7 +1424,7 @@ compatible with the cost of its surrogate model.
 
 The success and the final distance are compared by the tests of
 Section~\ref{sec:protocol}, the $p$-values of each dimension being corrected by
-the Holm procedure over the four problems and the five baselines. The area under
+the Holm procedure over the four problems and the nine baselines. The area under
 the data profile is computed against the targets of Section~\ref{sec:protocol},
 and its difference with each baseline is given with its paired bootstrap
 interval. The tests, the measures and the targets were fixed before the runs
@@ -1448,69 +1455,67 @@ variability of the method.
 
 In five dimensions, the optimum of the Rastrigin function is reached by the
 method from eleven starting points out of twenty, and by none of the baselines
-from any starting point; the difference is significant against each baseline.
-That of the Ackley function is reached from thirteen starting points, against
-none for the multistart algorithm, DIRECT and EGO, with significant
-differences, four for tunneling and nineteen for CMA-ES; these last two
-differences are not significant. For the Styblinski--Tang function, the method
-reaches the optimum from eighteen starting points, CMA-ES from eight, and the
-other baselines from fifteen to twenty, with no significant difference. In two
-dimensions, the method reaches the optimum of the Rastrigin, Ackley and
-Styblinski--Tang functions from all starting points, as DIRECT does, and the
-difference is significant on the Rastrigin function against the multistart
-algorithm, CMA-ES and tunneling, and on the Ackley function against EGO. The
-optimum of the Griewank function is reached from at most two starting points by
-any method in either dimension. The final distances to it are smaller with the
-method than with the multistart algorithm, CMA-ES, tunneling and EGO in two
-dimensions, and larger than with DIRECT in five dimensions ($0.027$ against
-$0.011$), these differences being significant. For the Ackley function in five
-dimensions, the final distances are significantly smaller with CMA-ES. The other
-significant differences of final distance found by the signed-rank test either
-agree with those of the success or are below $10^{-4}$ on problems whose optimum
-is reached by both methods, and are not discussed.
+from any starting point, including the variants spending the whole budget; the
+difference is significant against each of them, DIRECT apart, whose tests are
+given for information. That of the Ackley function is reached from thirteen
+starting points, against none for the multistart algorithm with fifty or ten
+starting points, DIRECT in both variants, MLSL and EGO, four for tunneling, and
+nineteen for CMA-ES and IPOP-CMA-ES; the differences with the multistart
+algorithm, MLSL and EGO are significant, and those with tunneling, CMA-ES and
+IPOP-CMA-ES are not. For the Styblinski--Tang function, the method reaches the
+optimum from eighteen starting points, and the baselines from none for DIRECT
+without local bias to twenty for the multistart algorithm, DIRECT, MLSL and EGO,
+with no significant difference. In two dimensions, the method reaches the
+optimum of the Rastrigin, Ackley and Styblinski--Tang functions from all
+starting points, as DIRECT does, and the difference is significant on the
+Rastrigin function against the multistart algorithm with fifty or ten starting
+points, CMA-ES, IPOP-CMA-ES and tunneling, and on the Ackley function against
+EGO. The optimum of the Griewank function is reached from at most two starting
+points by any method in either dimension. The final distances to it are smaller
+with the method than with every baseline but DIRECT in two dimensions, and
+larger than with DIRECT in five dimensions ($0.027$ against $0.011$), these
+differences being significant. For the Ackley function in five dimensions, the
+final distances are significantly smaller with CMA-ES and IPOP-CMA-ES. The
+other significant differences of final distance found by the signed-rank test
+either agree with those of the success or are below $10^{-4}$ on problems whose
+optimum is reached by both methods, and are not discussed.
 
-The area of the method is larger than those of the multistart algorithm, CMA-ES
-and tunneling in two dimensions, and than that of the multistart algorithm in
-five dimensions. It is smaller than that of DIRECT in both dimensions, by $0.04$
-and $0.15$: DIRECT reaches the targets earlier, while the method reaches the
-optimum from as many starting points in two dimensions, and in five dimensions
-from more starting points for the Rastrigin and Ackley functions and from two
-fewer for the Styblinski--Tang function. In five dimensions, the confidence intervals of the differences with
-CMA-ES and tunneling contain zero. At a tenth of the budget, the method reaches
-$32\%$ of the targets in two dimensions and $25\%$ in five, the lowest fractions
-of all methods in both dimensions, and
-$85\%$ at the end of the budget in five dimensions, the largest fraction.
+The area of the method is larger than those of all baselines in two dimensions
+except DIRECT, by $0.02$ against MLSL and DIRECT without local bias and by
+$0.07$ to $0.13$ against the others, and than those of the multistart algorithm
+and MLSL in five dimensions. It is smaller than that of DIRECT in both
+dimensions, by $0.04$ and $0.15$, and than that of DIRECT without local bias in
+five dimensions, by $0.06$: DIRECT reaches the targets earlier, while the
+method reaches the optimum from as many starting points in two dimensions, and
+in five dimensions from more starting points for the Rastrigin and Ackley
+functions and from two fewer for the Styblinski--Tang function than DIRECT, and
+than DIRECT without local bias for all three. In five dimensions, the
+confidence intervals of the differences with CMA-ES, IPOP-CMA-ES and tunneling
+contain zero. With ten starting points, the multistart algorithm stops before
+the budget, its local optimizations converging. At a tenth of the budget, the
+method reaches $32\%$ of the targets in two dimensions and $25\%$ in five, the
+lowest fractions of all methods in both dimensions, and $85\%$ at the end of the
+budget in five dimensions, the largest fraction.
 
-\subsection{Ablation of the master problem and additional baselines}\label{sec:ablation}
+\subsection{Ablation of the master problem}\label{sec:ablation}
 
 Three ablations of the configuration are compared with it in
 Table~\ref{tab:ablation}, from the same twenty starting points and with the
-same tests, the Holm correction running over the four problems and the seven
-methods of the table. In the first one, the master problem is replaced by a
-random choice, for each probe, among the boxes not yet solved within its trust
-region, the radii, the probes and the stopping rules being unchanged. In the
-second and the third ones, the slopes of the cuts are set to zero, or replaced
-by random vectors of the same norm, before the repair. Four baselines are also
-added: two which stop on their own criterion well before the budget in
-Table~\ref{tab:baselines} and are run so that they spend it, DIRECT without its
-local bias and with its tolerances set to zero, and CMA-ES with restarts
-doubling the population \citep{auger2005}; the multistart algorithm with ten
-starting points instead of fifty, which gives each local optimization five
-times more evaluations; and multilevel single linkage \citep{rinnooykan1987}, in
-its low-discrepancy variant from NLopt, with SLSQP as local optimizer. Since
-SciPy checks the number of evaluations of DIRECT only between iterations, its
-variant exceeds the budget by up to $30\%$, which favours it.
+same tests, the Holm correction running over the four problems and the three
+ablations. In the first one, the master problem is replaced by a random choice,
+for each probe, among the boxes not yet solved within its trust region, the
+radii, the probes and the stopping rules being unchanged. In the second and the
+third ones, the slopes of the cuts are set to zero, or replaced by random
+vectors of the same norm, before the repair.
 
 \begin{table}[t]
   \centering
-  \caption{Ablations of the master problem and additional baselines, twenty
-    starting points: area under the data profile, difference with the
-    configuration and its $95\%$ bootstrap interval, and number of starting
-    points from which the optimum of the Rastrigin, Ackley, Styblinski--Tang and
-    Griewank functions is reached. Bold: success significantly different from
-    that of the configuration after Holm correction. $^\ast$ Deterministic, the
-    same run from every starting point; its differences are given for
-    information only.}
+  \caption{Ablations of the master problem, twenty starting points: area under
+    the data profile, difference with the configuration and its $95\%$
+    bootstrap interval, and number of starting points from which the optimum of
+    the Rastrigin, Ackley, Styblinski--Tang and Griewank functions is reached.
+    Bold: success significantly different from that of the configuration after
+    Holm correction.}
   \label{tab:ablation}
   \scriptsize
   \setlength{\tabcolsep}{2.5pt}
@@ -1522,19 +1527,11 @@ variant exceeds the budget by up to $30\%$, which favours it.
     2 & random box in the trust region & 0.83 & $-0.02$ [$-0.05$, $+0.01$] & 20, 20, 20, 0 \\
     2 & slopes set to zero             & 0.85 & $-0.01$ [$-0.03$, $+0.01$] & 20, 20, 20, 0 \\
     2 & random slopes                  & 0.84 & $-0.01$ [$-0.03$, $+0.01$] & 20, 20, 20, 0 \\
-    2 & DIRECT, not locally biased$^\ast$ & 0.83 & $-0.02$ [$-0.04$, $-0.01$] & 20, 0, 20, 0 \\
-    2 & IPOP-CMA-ES                    & 0.74 & $-0.11$ [$-0.16$, $-0.07$] & \textbf{5}, 20, 14, 1 \\
-    2 & multistart, 10 starting points & 0.78 & $-0.07$ [$-0.12$, $-0.02$] & \textbf{6}, \textbf{10}, 20, 1 \\
-    2 & MLSL                           & 0.83 & $-0.02$ [$-0.04$, $-0.00$] & 20, 18, 20, 0 \\
     \midrule
     5 & configuration                  & 0.61 & reference                  & 11, 13, 18, 0 \\
-    5 & random box in the trust region & 0.52 & $-0.09$ [$-0.12$, $-0.06$] & 9, 4, 20, 0 \\
+    5 & random box in the trust region & 0.52 & $-0.09$ [$-0.12$, $-0.06$] & 9, \textbf{4}, 20, 0 \\
     5 & slopes set to zero             & 0.58 & $-0.03$ [$-0.07$, $+0.00$] & 13, 8, 19, 0 \\
     5 & random slopes                  & 0.58 & $-0.04$ [$-0.07$, $-0.01$] & 9, 5, 19, 0 \\
-    5 & DIRECT, not locally biased$^\ast$ & 0.68 & $+0.06$ [$+0.03$, $+0.10$] & 0, 0, 0, 0 \\
-    5 & IPOP-CMA-ES                    & 0.64 & $+0.03$ [$-0.01$, $+0.07$] & \textbf{0}, 19, 14, 0 \\
-    5 & multistart, 10 starting points & 0.45 & $-0.16$ [$-0.20$, $-0.12$] & \textbf{0}, \textbf{0}, 8, 0 \\
-    5 & MLSL                           & 0.47 & $-0.14$ [$-0.17$, $-0.11$] & \textbf{0}, \textbf{0}, 20, 0 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1547,29 +1544,16 @@ the configuration. With $100$ boxes, the trust region and the probes therefore
 suffice to explore the subdivision within the budget, and the master problem
 does not contribute to the results. In five dimensions, the random choice
 decreases the area by $0.09$ [$0.06$, $0.12$], and the optimum of the Ackley
-function is reached from four starting points against thirteen, a difference
-which is not significant after the correction over the seven methods ($p =
-0.078$); the selection of the boxes by the master problem therefore contributes
-to the area when the number of boxes, $10^5$, is large with respect to the
+function is reached from four starting points against thirteen, a significant
+difference; the selection of the boxes by the master problem therefore
+contributes when the number of boxes, $10^5$, is large with respect to the
 number of sub-problems. Setting the slopes to zero, or replacing them by random
 ones, changes the success neither in two nor in five dimensions, and decreases
 the area in five dimensions by $0.03$ to $0.04$: the ranking of the boxes is
 mainly obtained from the observed values through the repair, and the
-post-optimal slopes contribute little on these problems.
-
-DIRECT without local bias reaches the targets earlier than the method in five
-dimensions, but the optimum of none of the four functions, from any starting
-point; with its local bias, it reaches that of the Styblinski--Tang function
-(Table~\ref{tab:baselines}). IPOP-CMA-ES reaches the optimum of the Ackley
-function in five dimensions from nineteen starting points, against thirteen for
-the method, a difference which is not significant, and that of the Rastrigin
-function from none, against eleven. With ten starting points, the multistart
-algorithm stops before the budget, its local optimizations converging, and
-reaches the optima less often than the method; MLSL reaches those of the
-Rastrigin and Ackley functions in two dimensions, but neither in five
-dimensions. The optimum of the Rastrigin function in five dimensions is
-therefore reached by the method only, among the methods compared with the budget
-of $2500$ evaluations, EGO being limited to $500$.
+post-optimal slopes contribute little on these problems. These conclusions
+concern problems of two and five variables; the trend with the dimension is
+examined in Section~\ref{sec:dimensions}.
 
 \subsection{Stopping of the runs}\label{sec:stopping-results}
 
@@ -1602,19 +1586,23 @@ subdivisions per variable.
 
 In two dimensions, the method reaches the optimum of the Rastrigin, Ackley and
 Styblinski--Tang functions from twenty, nineteen and twenty starting points,
-significantly more often than the multistart algorithm on the Rastrigin and
-Ackley functions, than CMA-ES and tunneling on the Rastrigin function, and than
-EGO on the Ackley function. In five dimensions, the optimum of the Rastrigin
-function is reached by no method; the median distance is $3.99$ for EGO,
-$4.97$ for tunneling, $4.98$ for DIRECT and $6.47$ for the method, and no
-difference between the method and a baseline is significant. The fifty binary
-variables of the method cannot be identified with the cuts of $500$
-evaluations: all its runs are stopped by the budget, the optimum of the
-Styblinski--Tang function is reached from ten starting points, significantly
-fewer than the twenty of DIRECT and EGO, and its final distances to the optimum
-of the Ackley function are significantly larger than those of CMA-ES, DIRECT,
-EGO and tunneling, and to that of the Griewank function than those of the
-multistart algorithm, DIRECT and EGO.
+significantly more often than the multistart algorithm with fifty starting
+points on the Rastrigin and Ackley functions, than the multistart algorithm with
+ten starting points, CMA-ES, IPOP-CMA-ES and tunneling on the Rastrigin function,
+and than EGO on the Ackley function; DIRECT reaches them as often, and MLSL from
+nineteen, eighteen and twenty starting points. In five dimensions, the optimum
+of the Rastrigin function is reached by no method; the median distance is
+$3.99$ for EGO, $4.97$ for tunneling, $4.98$ for DIRECT and $6.47$ for the
+method, and no difference of success between the method and a baseline is
+significant. The fifty binary variables of the method cannot be identified with
+the cuts of $500$ evaluations: all its runs are stopped by the budget, the
+optimum of the Styblinski--Tang function is reached from ten starting points,
+against twenty for DIRECT and EGO, a difference which is not significant after
+the correction over the nine baselines, and its final distances to the optimum
+of the Ackley function are significantly larger than those of CMA-ES,
+IPOP-CMA-ES, DIRECT in both variants, EGO and tunneling, and to that of the
+Griewank function than those of the multistart algorithm, DIRECT in both
+variants and EGO.
 
 \subsection{Application to topology optimization}\label{sec:cantilever}
 
