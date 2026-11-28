@@ -26,6 +26,8 @@ points of :mod:`benchmarks.run_statistics`:
 - the multistart algorithm, CMA-ES and IPOP-CMA-ES, DIRECT with and without its
   local bias, MLSL and the classic tunneling method.
 
+Each run is made in a process of its own, since CBC, which solves the master
+problems, aborts on some of the larger ones; such a run counts as a failure.
 EGO, limited to $500$ evaluations by the cost of its surrogate model, is not run.
 The targets of the data profiles of each dimension are generated from the runs
 of all these methods. The method is compared with each other one by the tests of
@@ -80,6 +82,7 @@ METHODS = (
 
 REFERENCE = "swept"
 """The method the others are compared with in 10 and 20 variables."""
+
 
 OUTPUT = data_profiles.OUTPUT.with_name("dimensions.json")
 """The file of the summaries."""
@@ -150,13 +153,12 @@ def _five_variables() -> dict:
 
 
 def _collect(dimension: int) -> list:
-    """Run the missing runs of a dimension, surviving the aborts of the solver.
+    """Run the missing runs of a dimension, each in a process of its own.
 
     CBC may abort in C++ on the larger master problems, which kills the process
-    and breaks the pool; the finished runs being cached, the pool is started
-    again, and the runs still missing after a few attempts are run one by one
-    in processes of their own, a run whose process aborts being recorded in
-    :data:`ABORTS` and counted as not reaching the optimum.
+    making the run; each run is therefore made in a process of its own, four at
+    a time, and a run whose process aborts is recorded in :data:`ABORTS` and
+    counted as a failure.
 
     Args:
         dimension: The number of design variables.
@@ -166,47 +168,46 @@ def _collect(dimension: int) -> list:
     """
     import subprocess  # noqa: PLC0415
     import sys  # noqa: PLC0415
-    from concurrent.futures.process import BrokenProcessPool  # noqa: PLC0415
+    from concurrent.futures import ThreadPoolExecutor  # noqa: PLC0415
 
     cache = CACHE / f"dimensions-{dimension}.jsonl"
-    for _ in range(5):
-        try:
-            return data_profiles.collect(
-                dimension, METHODS, seeds=SEEDS, cache=cache, budget=BUDGET
-            )
-        except BrokenProcessPool:  # noqa: PERF203
-            continue
-    done = {
-        (r["method"], r["problem"], r["seed"])
-        for r in map(json.loads, cache.read_text().splitlines())
-    }
-    aborts = json.loads(ABORTS.read_text()) if ABORTS.exists() else []
-    for method in METHODS:
-        for problem in data_profiles.PROBLEM_NAMES:
-            for seed in SEEDS:
-                if (method, problem, seed) in done:
-                    continue
-                code = (
-                    "from benchmarks import data_profiles;"
-                    "from pathlib import Path;"
-                    f"data_profiles.collect({dimension}, ({method!r},),"
-                    f" problem_names=({problem!r},), seeds=({seed},),"
-                    f" max_workers=1, cache=Path({str(cache)!r}), budget={BUDGET})"
-                )
-                if subprocess.run([sys.executable, "-c", code], check=False).returncode:
-                    aborts.append([dimension, method, problem, seed])
-    ABORTS.write_text(json.dumps(aborts) + "\n")
-    return (
-        data_profiles.collect(
-            dimension,
-            tuple(METHODS),
-            seeds=SEEDS,
-            cache=cache,
-            budget=BUDGET,
-        )
-        if not aborts
-        else _finished(cache)
+    done = (
+        {
+            (r["method"], r["problem"], r["seed"])
+            for r in map(json.loads, cache.read_text().splitlines())
+        }
+        if cache.exists()
+        else set()
     )
+    aborts = json.loads(ABORTS.read_text()) if ABORTS.exists() else []
+    known = {tuple(a) for a in aborts}
+    tasks = [
+        (method, problem, seed)
+        for method in METHODS
+        for problem in data_profiles.PROBLEM_NAMES
+        for seed in SEEDS
+        if (method, problem, seed) not in done
+        and (dimension, method, problem, seed) not in known
+    ]
+
+    def run(task: tuple[str, str, int]) -> tuple | None:
+        method, problem, seed = task
+        code = (
+            "from benchmarks import data_profiles;"
+            "from pathlib import Path;"
+            f"data_profiles.collect({dimension}, ({method!r},),"
+            f" problem_names=({problem!r},), seeds=({seed},),"
+            f" max_workers=1, cache=Path({str(cache)!r}), budget={BUDGET})"
+        )
+        process = subprocess.run(
+            [sys.executable, "-c", code], check=False, capture_output=True
+        )
+        return None if process.returncode == 0 else (dimension, *task)
+
+    with ThreadPoolExecutor(4) as executor:
+        aborts += [list(a) for a in executor.map(run, tasks) if a is not None]
+    ABORTS.write_text(json.dumps(aborts) + "\n")
+    return _finished(cache)
 
 
 def _finished(cache) -> list:  # noqa: ANN001
