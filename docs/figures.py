@@ -1632,6 +1632,78 @@ def draw_data_profiles(foreground: str):
     return figure
 
 
+DIMENSIONS_FILE = STATISTICS.with_name("dimensions.json")
+"""The summaries of :mod:`benchmarks.run_dimensions`."""
+
+DIMENSION_LABELS = {
+    "swept": ("box subdivision, 2 per variable", "-"),
+    "density_10": ("box subdivision, 10 per variable", "--"),
+    "multistart": ("multistart", "-"),
+    "cmaes": ("CMA-ES", "-"),
+    "ipop_cmaes": ("IPOP-CMA-ES", "--"),
+    "direct": ("DIRECT", "-"),
+    "direct_global": ("DIRECT, not locally biased", "--"),
+    "mlsl": ("MLSL", ":"),
+    "tunneling": ("tunneling", "-"),
+}
+"""The label and line style of each method of the figure of the dimensions."""
+
+
+def draw_dimensions(foreground: str):
+    """Draw the area and the successes of each method against the dimension."""
+    data = json.loads(DIMENSIONS_FILE.read_text(encoding="utf-8"))
+    dimensions = sorted(int(n) for n in data)
+    hues = series(foreground)
+    hue_of = {
+        "swept": hues[0],
+        "density_10": hues[0],
+        "multistart": hues[1],
+        "cmaes": hues[2],
+        "ipop_cmaes": hues[2],
+        "direct": hues[3],
+        "direct_global": hues[3],
+        "mlsl": LATE_HUES[foreground],
+        "tunneling": hues[4],
+    }
+    figure, (left, right) = plt.subplots(1, 2, figsize=(9.6, 3.4))
+    for name, (label, style) in DIMENSION_LABELS.items():
+        areas, successes = [], []
+        for n in dimensions:
+            entry = data[str(n)]["summary"].get(name)
+            areas.append(entry["area"] if entry else float("nan"))
+            successes.append(
+                sum(
+                    entry[p]["reached"]
+                    for p in ("rastrigin", "ackley", "styblinski_tang", "griewank")
+                )
+                if entry
+                else float("nan")
+            )
+        width = 2.2 if name in {"swept", "density_10"} else 1.3
+        for axes, values in ((left, areas), (right, successes)):
+            axes.plot(
+                dimensions,
+                values,
+                marker="o",
+                markersize=3.5,
+                linestyle=style,
+                linewidth=width,
+                color=hue_of[name],
+                label=label,
+            )
+    for axes, title in (
+        (left, "area under the data profile"),
+        (right, "runs reaching the optimum, out of 80"),
+    ):
+        axes.set_xticks(dimensions)
+        axes.set_xlabel("number of variables")
+        axes.set_title(title, fontsize=9)
+        axes.grid(alpha=0.25)
+    right.legend(fontsize=6.5, loc="upper right", ncols=1)
+    figure.tight_layout()
+    return figure
+
+
 SOLVE_SEED = 11
 """The seed of the starting point of the animated run."""
 
@@ -1917,6 +1989,7 @@ PAPER = Path(__file__).parents[1] / "paper" / "figures"
 
 PAPER_FIGURES = {
     "problems": partial(draw_problems, label=False),
+    "dimensions": draw_dimensions,
     "data_profiles": draw_data_profiles,
     "variant_profiles": partial(
         draw_variant_profiles,

@@ -1378,6 +1378,110 @@ post-optimal slopes contribute little on these problems. These conclusions
 concern problems of two and five variables; the trend with the dimension is
 examined in Section~\ref{sec:dimensions}.
 
+\subsection{Trend with the dimension}\label{sec:dimensions}
+
+The comparisons in two and five dimensions favour DIRECT, whose data profile
+rises earliest. To determine whether this persists as the dimension grows, the
+method and the baselines were run in $10$ and $20$ dimensions with the budget of
+five dimensions, $2500$ equivalent evaluations, so that the evaluations per
+variable decrease as the dimension increases. The method is run with the default
+density of two subdivisions per variable, i.e.\ $20$ and $40$ binary variables,
+and with ten, i.e.\ $100$ and $200$ binary variables. EGO, limited to $500$
+evaluations, is not run. The runs are made from the twenty starting points of
+Section~\ref{sec:baselines}, the targets of the data profiles of each dimension
+being generated from the runs of all methods in that dimension, so that the
+areas rank the methods within a dimension but are not comparable between
+dimensions. The tests of Section~\ref{sec:protocol} compare each method with the
+method at two subdivisions per variable, the Holm correction running over the
+four problems and the other methods. CBC aborted on one of the $1760$ master
+problems of these runs, in ten dimensions with ten subdivisions per variable,
+and this run is counted as a failure. The results are given in
+Table~\ref{tab:dimensions} and Fig.~\ref{fig:dimensions}, with those of five
+dimensions, which have the same budget.
+
+\begin{table}[t]
+  \centering
+  \caption{Methods with a budget of $2500$ evaluations in five, ten and twenty
+    dimensions, twenty starting points: area under the data profile and number
+    of starting points from which the optimum of the Rastrigin, Ackley,
+    Styblinski--Tang and Griewank functions is reached. The areas are computed
+    against the targets of each dimension.}
+  \label{tab:dimensions}
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \begin{tabular}{lrcrcrc}
+    \toprule
+    & \multicolumn{2}{c}{$n = 5$} & \multicolumn{2}{c}{$n = 10$} & \multicolumn{2}{c}{$n = 20$} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+    method & area & R, A, S, G & area & R, A, S, G & area & R, A, S, G \\
+    \midrule
+    box subdivision, 2 per variable  & 0.51 & 0, 0, 19, 0  & 0.30 & 0, 0, 19, 0 & 0.52 & 0, 0, 10, 0 \\
+    box subdivision, 10 per variable & 0.61 & 11, 13, 18, 0 & 0.26 & 0, 0, 18, 0 & 0.22 & 0, 0, 1, 0 \\
+    multistart                       & 0.52 & 0, 0, 20, 0  & 0.40 & 0, 0, 2, 19 & 0.42 & 0, 0, 0, 20 \\
+    CMA-ES                           & 0.64 & 0, 19, 8, 0  & 0.41 & 0, 20, 1, 7 & 0.34 & 0, 0, 0, 9 \\
+    IPOP-CMA-ES                      & 0.64 & 0, 19, 14, 0 & 0.41 & 0, 20, 1, 7 & 0.34 & 0, 0, 0, 8 \\
+    DIRECT                           & 0.76 & 0, 0, 20, 0  & 0.38 & 0, 0, 0, 0  & 0.37 & 0, 0, 0, 0 \\
+    DIRECT, not locally biased       & 0.68 & 0, 0, 0, 0   & 0.23 & 0, 0, 0, 0  & 0.24 & 0, 0, 0, 0 \\
+    MLSL                             & 0.47 & 0, 0, 20, 0  & 0.49 & 0, 0, 0, 20 & 0.44 & 0, 0, 0, 20 \\
+    tunneling                        & 0.64 & 0, 4, 15, 0  & 0.33 & 0, 1, 0, 3  & 0.50 & 0, 0, 0, 15 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/dimensions.pdf}
+  \caption{Area under the data profile and number of runs reaching the optimum
+    over the four problems and twenty starting points, with a budget of $2500$
+    evaluations, against the number of variables. The areas are computed
+    against the targets of each dimension, and rank the methods within a
+    dimension only.}
+  \label{fig:dimensions}
+\end{figure}
+
+The advantage of DIRECT does not persist. In five dimensions, it has the largest
+area, $0.76$, and reaches the optimum of the Styblinski--Tang function from every
+starting point; in ten and twenty dimensions, its area falls to the middle of the
+methods, and it reaches no optimum. Without its local bias, it has the smallest
+areas. Its samples, a few hundred in five dimensions, no longer resolve the
+landscape when the boxes of its partition multiply with the dimension. Two
+classes of problems then separate the methods. The Styblinski--Tang function,
+with two basins per variable and $2^n$ local minima, is solved by the method with
+two subdivisions per variable from nineteen starting points in ten dimensions
+and ten in twenty, whereas the baselines reach its optimum from at most two
+starting points in ten dimensions and from none in twenty; in ten dimensions the
+differences are significant against every baseline, and in twenty they are not
+after the correction over the forty comparisons, the raw $p$-values being below
+$0.002$. The Griewank function, whose local minima become shallower as the
+dimension increases, is solved by the multistart algorithm and MLSL from almost
+every starting point, by tunneling from fifteen in twenty dimensions, and by the
+method from none, its boxes not separating
+these minima. The optima of the Rastrigin function and, in twenty dimensions,
+of the Ackley function are reached by no method, CMA-ES reaching that of the
+Ackley function in ten dimensions from every starting point. In twenty
+dimensions, the method has the largest area, $0.52$, larger than those of all
+baselines but tunneling, whose interval contains zero, and its median distance
+to the optimum of the Rastrigin function is $12.9$, against $37$ to $92$ for the
+baselines. In ten dimensions, its area, $0.30$, is smaller than those of the
+multistart algorithm, CMA-ES, IPOP-CMA-ES, DIRECT and MLSL.
+
+With ten subdivisions per variable, the method collapses as the dimension
+increases: its area is the smallest of the methods in twenty dimensions, and the
+optimum of the Styblinski--Tang function is reached from one starting point, the
+$200$ binary variables being far more numerous than the sub-problems the budget
+allows, as anticipated in Section~\ref{sec:density}. The ablations of
+Section~\ref{sec:ablation}, run in ten and twenty dimensions with two
+subdivisions per variable, show the same trend as in two and five dimensions:
+setting the slopes to zero changes the area by at most $0.01$, whereas the
+random choice of the boxes within the trust region decreases it by $0.01$
+[$0.00$, $0.02$] in ten dimensions and by $0.05$ [$0.03$, $0.07$] in twenty. The
+contribution of the master problem therefore increases with the number of boxes.
+These results are consistent with the use of methods based on local
+optimizations when the variables are numerous and the budget is small, as in
+topology optimization; among them, the method contributes when the subdivision
+separates the basins with few binary variables, as for the Styblinski--Tang
+function.
+
 \subsection{Stopping of the runs}\label{sec:stopping-results}
 
 The criterion which ends each run of the configuration compared with the
