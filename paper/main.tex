@@ -1452,11 +1452,23 @@ and ten in twenty, whereas the baselines reach its optimum from at most two
 starting points in ten dimensions and from none in twenty; in ten dimensions the
 differences are significant against every baseline, and in twenty they are not
 after the correction over the forty comparisons, the raw $p$-values being below
-$0.002$. The Griewank function, whose local minima become shallower as the
-dimension increases, is solved by the multistart algorithm and MLSL from almost
-every starting point, by tunneling from fifteen in twenty dimensions, and by the
-method from none, its boxes not separating
-these minima. The optima of the Rastrigin function and, in twenty dimensions,
+$0.002$. Conversely, the Griewank function is solved by the multistart algorithm
+and MLSL from almost every starting point in ten and twenty dimensions, by
+tunneling from fifteen in twenty dimensions, and by the method from none. As
+shown by \citet{locatelli2003}, this function becomes easier for local searches
+as the dimension increases, its quadratic term dominating the product of
+cosines: a single SLSQP run from a random point of the design space reaches its
+global minimum in $39$ of $200$ trials in ten dimensions and $191$ of $200$ in
+twenty, and in none in two and five. The method does not benefit from this
+property. With two subdivisions per variable, the global minimizer lies in a
+single box among $2^n$, whose components all lie in the first interval, and
+which the trust region reaches only after several iterations from a random
+starting box; moreover, each box is solved once, from its centre, and in ten
+dimensions the local optimizer started from the centre of this box stops at a
+local minimum of value $0.77$, whereas in twenty dimensions it reaches the
+global minimum, the boxes adjacent to it giving values from $0.007$ to $0.03$.
+The subdivision therefore removes the diversity of the starting points on which
+the multistart approaches rely. The optima of the Rastrigin function and, in twenty dimensions,
 of the Ackley function are reached by no method, CMA-ES reaching that of the
 Ackley function in ten dimensions from every starting point. In twenty
 dimensions, the method has the largest area, $0.52$, larger than those of all
