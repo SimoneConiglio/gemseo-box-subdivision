@@ -21,7 +21,9 @@ points of :mod:`benchmarks.run_statistics`:
 
 - the swept configuration with the default density, two subdivisions per
   variable (``swept``), with eight and sixteen probes (``probes_8``,
-  ``probes_16``), and with ten subdivisions per variable (``density_10``);
+  ``probes_16``), and with ten subdivisions per variable (``density_10``), also
+  with eight and sixteen probes (``density_10_probes_8``,
+  ``density_10_probes_16``);
 - its ablations at the default density, a random box within the trust region
   (``random_box``) and slopes set to zero (``zero_slopes``);
 - the multistart algorithm, CMA-ES and IPOP-CMA-ES, DIRECT with and without its
@@ -71,6 +73,8 @@ METHODS = (
     "density_10",
     "probes_8",
     "probes_16",
+    "density_10_probes_8",
+    "density_10_probes_16",
     "random_box",
     "zero_slopes",
     "multistart",
