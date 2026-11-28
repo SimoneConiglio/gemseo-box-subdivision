@@ -84,6 +84,9 @@ REFERENCE = "swept"
 OUTPUT = data_profiles.OUTPUT.with_name("dimensions.json")
 """The file of the summaries."""
 
+ABORTS = CACHE / "dimensions-aborts.json"
+"""The runs whose process was aborted by the solver of the master problem."""
+
 
 def _table(runs: list[dict], targets: dict, dimension: int) -> dict:
     """Return the outcome of every run, keyed by method, problem and seed."""
@@ -146,19 +149,80 @@ def _five_variables() -> dict:
     return {"budget": BUDGET, "summary": summary}
 
 
+def _collect(dimension: int) -> list:
+    """Run the missing runs of a dimension, surviving the aborts of the solver.
+
+    CBC may abort in C++ on the larger master problems, which kills the process
+    and breaks the pool; the finished runs being cached, the pool is started
+    again, and the runs still missing after a few attempts are run one by one
+    in processes of their own, a run whose process aborts being recorded in
+    :data:`ABORTS` and counted as not reaching the optimum.
+
+    Args:
+        dimension: The number of design variables.
+
+    Returns:
+        The outcome of every run that finished.
+    """
+    import subprocess  # noqa: PLC0415
+    import sys  # noqa: PLC0415
+    from concurrent.futures.process import BrokenProcessPool  # noqa: PLC0415
+
+    cache = CACHE / f"dimensions-{dimension}.jsonl"
+    for _ in range(5):
+        try:
+            return data_profiles.collect(
+                dimension, METHODS, seeds=SEEDS, cache=cache, budget=BUDGET
+            )
+        except BrokenProcessPool:  # noqa: PERF203
+            continue
+    done = {
+        (r["method"], r["problem"], r["seed"])
+        for r in map(json.loads, cache.read_text().splitlines())
+    }
+    aborts = json.loads(ABORTS.read_text()) if ABORTS.exists() else []
+    for method in METHODS:
+        for problem in data_profiles.PROBLEM_NAMES:
+            for seed in SEEDS:
+                if (method, problem, seed) in done:
+                    continue
+                code = (
+                    "from benchmarks import data_profiles;"
+                    "from pathlib import Path;"
+                    f"data_profiles.collect({dimension}, ({method!r},),"
+                    f" problem_names=({problem!r},), seeds=({seed},),"
+                    f" max_workers=1, cache=Path({str(cache)!r}), budget={BUDGET})"
+                )
+                if subprocess.run([sys.executable, "-c", code], check=False).returncode:
+                    aborts.append([dimension, method, problem, seed])
+    ABORTS.write_text(json.dumps(aborts) + "\n")
+    return (
+        data_profiles.collect(
+            dimension,
+            tuple(METHODS),
+            seeds=SEEDS,
+            cache=cache,
+            budget=BUDGET,
+        )
+        if not aborts
+        else _finished(cache)
+    )
+
+
+def _finished(cache) -> list:  # noqa: ANN001
+    """Return the finished runs of a cache as results."""
+    from benchmarks.baselines import Result  # noqa: PLC0415
+
+    return [Result(**json.loads(line)) for line in cache.read_text().splitlines()]
+
+
 def main() -> None:
     """Run every method in 10 and 20 variables and write the summaries."""
     logging.disable(logging.CRITICAL)
     warnings.simplefilter("ignore")
     output = {"5": _five_variables()}
     for dimension in DIMENSIONS:
-        results = data_profiles.collect(
-            dimension,
-            METHODS,
-            seeds=SEEDS,
-            cache=CACHE / f"dimensions-{dimension}.jsonl",
-            budget=BUDGET,
-        )
+        results = _collect(dimension)
         print(f"{dimension} variables: {len(results)} runs", flush=True)  # noqa: T201
         targets = data_profiles.compute_targets(results)
         runs = [
@@ -168,6 +232,17 @@ def main() -> None:
             .splitlines()
         ]
         table = _table(runs, targets, dimension)
+        aborts = json.loads(ABORTS.read_text()) if ABORTS.exists() else []
+        for d, method, problem, seed in aborts:
+            if d == dimension and (method, problem, seed) not in table:
+                # A run aborted by the solver counts as a failure.
+                table[method, problem, seed] = {
+                    "gap": float("inf"),
+                    "cost": BUDGET,
+                    "reached": False,
+                    "area": 0.0,
+                    "history": [],
+                }
         problems = data_profiles.PROBLEM_NAMES
         others = tuple(m for m in METHODS if m != REFERENCE)
         tests = compare(table, REFERENCE, others, problems)
