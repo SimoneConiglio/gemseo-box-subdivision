@@ -1771,8 +1771,12 @@ conditions, the known global minimum of the Rastrigin function in five
 dimensions, which none of the baselines reached with a budget of $2500$
 evaluations, was found from eleven starting points out of twenty. In two
 dimensions, a random choice of the boxes within the trust region is as effective
-as the master problem, which contributes only in five dimensions, where the
-boxes are many with respect to the sub-problems. For the short
+as the master problem, which contributes in five and twenty dimensions, where the
+boxes are many with respect to the sub-problems. With the budget of five
+dimensions in ten and twenty dimensions, DIRECT loses the advantage it has in two
+and five, and the method with two subdivisions per variable alone reaches the
+optimum of the Styblinski--Tang function, whose basins it separates, whereas
+ten subdivisions per variable exceed what the budget can identify. For the short
 cantilever problem of the generalized geometry projection, whose global optimum
 is unknown and which was not used to select the configuration of the method,
 the best design found has a compliance of $82.1$, against $84.0$ for the design
