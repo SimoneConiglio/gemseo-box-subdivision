@@ -603,13 +603,9 @@ i.e. the number of modified components, and constraint~\eqref{eq:trust} becomes 
 \citep{fischetti2003}. A radius of one admits the boxes which differ from the
 incumbent in a single component, and a radius of $\Delta$ admits
 $\sum_{k=0}^{\Delta}\binom{n}{k}(m-1)^k$ boxes for $n$ components subdivided into
-$m$ intervals each (Fig.~\ref{fig:trust}). The Hamming distance treats the box
-selection as a categorical choice; an ordinal variant,
-$|c^\top\alpha - c^\top\bar\alpha| \le \Delta$, where $c$ denotes the vector of
-the interval indices, is compared with it in Section~\ref{sec:mechanisms}. This
-variant bounds the change of the sum of the interval indices over all
-components, so that boxes far from the incumbent are admitted when the shifts of
-their components compensate each other.
+$m$ intervals each (Fig.~\ref{fig:trust} in Appendix~\ref{app:variants}). The Hamming distance treats the box
+selection as a categorical choice; an ordinal and a Euclidean distance are
+considered in Appendix~\ref{app:variants}.
 
 The initial radius is set to $\Delta = 2$ (Section~\ref{sec:mechanisms}). The
 radius is multiplied by $0.7$ after every three consecutive iterations without
@@ -622,42 +618,6 @@ which differ from the incumbent in at most $\lfloor \Delta_q \rfloor$
 components. Once $\Delta = 1$, all probes have the same radius and differ only by
 their convexity value and by the boxes excluded by the previous probes.
 
-\paragraph{Euclidean trust region.} As an alternative, the Euclidean distance
-between the centre $c(\alpha)$ of a candidate box and that of the incumbent box
-can be bounded. In the design space scaled to the unit hypercube, the squared
-distance
-\begin{equation}\label{eq:euclidean}
-  \|c(\alpha) - c(\bar\alpha)\|^2
-  = \sum_j \sum_k \alpha_{j,k}\,\bigl(c_{j,k} - c_j(\bar\alpha)\bigr)^2,
-\end{equation}
-where $c_{j,k}$ denotes the centre of the interval $k$ of the component $j$, is
-linear in the one-hot variables, since one of them is equal to one for each
-component, so that the trust region remains a linear constraint of the master
-problem. Two schedules of the radius $R$ are considered. In the first one, $R$
-starts at a fixed value and follows the reduction rule of the Hamming radius. In
-the second one, $R$ starts at the diameter of the subdivision, so that the region
-initially covers every box, and the radii of the probes are distributed from
-$R/(2\sqrt{n})$ to $R$, with a lower bound of one interval width, which keeps the
-probes distinct. In a third variant, a candidate is admitted when it lies within
-the radius of any evaluated box rather than of the incumbent: the region is then
-a union of balls, which is expressed with one additional binary variable per
-evaluated box.
-
-\begin{figure}[t]
-  \centering
-  \input{figures/trust_region.tex}
-  \caption{Trust regions around the incumbent box (black), with ten
-    subdivisions per variable; the admitted boxes are shaded. Top: Hamming
-    distance, the admitted boxes differing from the incumbent in at most
-    $\Delta$ components; in two dimensions, a radius of two admits the whole
-    design space. Bottom: Euclidean distance between box centres, in interval
-    widths. Left to right: a ball of radius two; the diameter schedule at its
-    initial radius, whose smallest probe admits the boxes within the circle and
-    whose largest probe admits the whole design space (light shading); and the
-    union of the balls of radius $1.5$ around the evaluated boxes (grey and
-    black).}
-  \label{fig:trust}
-\end{figure}
 
 \subsection{Stopping criteria}\label{sec:stopping}
 
@@ -729,63 +689,6 @@ Section~\ref{sec:density-results}.
 For instance, minima one unit apart over a range of ten require about ten
 intervals. When the lower bound exceeds the upper bound, the method cannot be
 applied.
-
-\subsection{Extensions}\label{sec:extensions}
-
-Three extensions related to the limits on the density were also studied
-(Fig.~\ref{fig:subdivision-variants}). They are evaluated in
-Section~\ref{sec:extensions-results} and are not used by default.
-
-\begin{figure}[t]
-  \centering
-  \input{figures/subdivision_variants.tex}
-  \caption{Extensions of the subdivision in two dimensions, the selected box
-    being dark. Top left: subdivision of $x_1$ only, $x_2$ remaining a
-    continuous variable of the sub-problem; multi-resolution encoding with two
-    levels of four intervals, the $16 \times 16$ boxes being available to one
-    master problem, which selects the box by one digit per level and per
-    component, numbered from zero (top right); hierarchy with two levels of four
-    intervals, the box selected at the first level (light) being subdivided and
-    solved in turn (bottom left); and deep hierarchy, every variable being
-    halved at each of three levels (bottom right).}
-  \label{fig:subdivision-variants}
-\end{figure}
-
-\paragraph{Partial subdivision.} Only the variables in which the objective
-function is multimodal are subdivided, the other variables being treated as
-continuous variables of the sub-problems.
-
-\paragraph{Multi-resolution encoding.} The box is selected by one categorical
-variable per level of resolution, the levels providing the base-$m$ digits
-$d_k(\alpha_j) \in \{0,\dots,m-1\}$ of the interval index:
-\begin{equation}\label{eq:multires}
-  \ell_j(\alpha) = L_j + w_j \sum_{k=1}^{r} m^{-k}\, d_k(\alpha_j),
-  \qquad
-  u_j(\alpha) = \ell_j(\alpha) + w_j\, m^{-r},
-  \qquad w_j = U_j - L_j .
-\end{equation}
-With $r$ levels of $m$ intervals, a resolution of $m^r$ intervals per component
-is obtained with $rm$ binary variables. For instance, two levels of four
-intervals provide sixteen intervals per component with eight binary variables
-instead of sixteen. Since the width of a box does not depend on the digits, the
-Jacobian of the mapping is constant and the post-optimal sensitivity remains
-valid. The cut model is linear with respect to the digits and is therefore
-additive over the levels, so that the dependence of the effect of a fine digit
-on the value of a coarse digit cannot be represented. The trust-region radius is
-multiplied by $r$, since a change of interval may modify up to $r$ digits.
-
-\paragraph{Hierarchies of subdivisions.} A coarse subdivision is solved first,
-and a promising box is then subdivided and solved in turn. With two levels of
-$m^{(1)}$ and $m^{(2)}$ intervals, a resolution of $m^{(1)}m^{(2)}$ is obtained,
-while no master problem has more than $\sum_j m_j^{(k)}$ binary variables. Three
-variants are considered: a hierarchy with two levels; a deep hierarchy in which
-every variable is divided into two intervals at each of $d$ levels, with $2n$
-binary variables per level; and a best-first search which keeps the open boxes of
-all levels in a priority queue, similar to a spatial branch and bound method in
-which the relaxation is replaced by the cut model. Since the cuts of a parent box
-are expressed in the one-hot variables of its own subdivision, they are
-discarded at each refinement, and a new cut model has to be identified for each
-node.
 
 \subsection{Global convergence}\label{sec:convergence}
 
@@ -1124,7 +1027,8 @@ difference between the margins of $1$ and $3$ is significant without correction
 for multiple comparisons ($p = 0.031$), and none is significant after a Holm
 correction over the ten pairs. This dependence motivates the swept convexity.
 
-The ordinal trust region reaches the optimum as often as the Hamming distance
+The ordinal trust region (Appendix~\ref{app:variants}) reaches the optimum as
+often as the Hamming distance
 with a radius of one, at a higher cost (Table~\ref{tab:metric}). In five
 dimensions, a radius of one reaches the optimum of the Rastrigin function
 significantly less often than a radius of two, from seven starting points
@@ -1135,33 +1039,33 @@ points with radii of three and five, against fifteen with a radius of two
 (Table~\ref{tab:radius}). This radius is therefore a compromise for the problems
 studied rather than a general rule.
 
-\subsection{Variants of the method}\label{sec:variants}
+\subsection{Settings of the method}\label{sec:variants}
 
-Each variant differs from the configuration compared with the baselines, the
-swept convexity with four probes, a ladder bounded by the spread of the
-objective values and ten subdivisions per variable, by one setting, with one
-exception: in five dimensions, the variants without a mark in
-Table~\ref{tab:variants} use two subdivisions per variable, so that they differ
-from the configuration also by the density. The configuration with a calibrated
-margin $\delta = 100$ is included for comparison. The budget is $500n$
-equivalent evaluations, and each variant is run on the four problems from the
-twenty starting points of Section~\ref{sec:baselines}, so that it is paired with
-the configuration by starting point and compared with it by the tests of
-Section~\ref{sec:protocol}, the Holm correction running over the problems and the
-variants of each dimension.
-The results are
-given in Table~\ref{tab:variants} and the data profiles in
-Fig.~\ref{fig:variants}.
+The settings of the configuration compared with the baselines, the swept
+convexity with four probes, a ladder bounded by the spread of the objective
+values and ten subdivisions per variable, are varied one at a time in
+Table~\ref{tab:variants}: the density, the number of probes, the upper bound of
+the ladder and the calibrated margin $\delta = 100$. In five dimensions, they
+are varied at ten subdivisions per variable, the density being varied alone.
+The budget is $500n$ equivalent evaluations, and each variant is run on the four
+problems from the twenty starting points of Section~\ref{sec:baselines}, so
+that it is paired with the configuration by starting point and compared with it
+by the tests of Section~\ref{sec:protocol}, the Holm correction running over the
+problems and all the variants of each dimension, including those of
+Appendix~\ref{app:variants}. Other variants were investigated: an ordinal and
+a Euclidean trust region, the subdivision of some variables only, a
+multi-resolution encoding of the box selection and hierarchies of subdivisions.
+None of them is better than the configuration, and they are described and
+compared in Appendix~\ref{app:variants}.
 
 \begin{table}[t]
   \centering
-  \caption{Variants of the method, twenty starting points: area under the data
+  \caption{Settings of the method, twenty starting points: area under the data
     profile, difference with the area of the configuration with its $95\%$
     bootstrap confidence interval, and problems on which the success differs
     significantly from that of the configuration (R: Rastrigin, A: Ackley, S:
-    Styblinski--Tang, G: Griewank; $+$: more often, $-$: less often). In five
-    dimensions, the variants without a mark use two subdivisions per variable,
-    and $^1$ marks ten subdivisions per variable in both dimensions.}
+    Styblinski--Tang; $-$: less often). In five dimensions, the settings are
+    varied at ten subdivisions per variable, except the density.}
   \label{tab:variants}
   \scriptsize
   \setlength{\tabcolsep}{2.5pt}
@@ -1169,38 +1073,20 @@ Fig.~\ref{fig:variants}.
     \toprule
     & \multicolumn{3}{c}{$n = 2$} & \multicolumn{3}{c}{$n = 5$} \\
     \cmidrule(lr){2-4}\cmidrule(lr){5-7}
-    variant & area & difference & success & area & difference & success \\
+    setting & area & difference & success & area & difference & success \\
     \midrule
-    swept, 4 probes, configuration       & 0.85 & \multicolumn{1}{c}{reference} & & 0.61 & \multicolumn{1}{c}{reference} & \\
-    \quad 2 per variable                 & --- & & & 0.51 & $-0.10$ [$-0.14$, $-0.07$] & $-$R $-$A \\
-    calibrated, margin 100               & 0.79 & $-0.06$ [$-0.09$, $-0.04$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.08$] & $-$R $-$A \\
-    \quad 10 per variable$^1$              & --- & & & 0.52 & $-0.09$ [$-0.13$, $-0.06$] & $-$A \\
-    swept, 8 probes                      & 0.86 & $+0.00$ [$-0.01$, $+0.01$] &  & 0.53 & $-0.09$ [$-0.12$, $-0.05$] & $-$R $-$A \\
-    \quad 10 per variable$^1$              & --- & & & 0.50 & $-0.11$ [$-0.13$, $-0.09$] & \\
-    swept, 16 probes                     & 0.89 & $+0.04$ [$+0.01$, $+0.05$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.09$] & $-$R $-$A \\
-    \quad 10 per variable$^1$              & --- & & & 0.41 & $-0.20$ [$-0.23$, $-0.17$] & $-$A \\
-    swept, ladder up to 30               & 0.83 & $-0.02$ [$-0.05$, $+0.01$] &  & 0.48 & $-0.13$ [$-0.18$, $-0.09$] & $-$R $-$A \\
-    \quad 10 per variable$^1$              & --- & & & 0.62 & $+0.01$ [$-0.02$, $+0.03$] & $-$S \\
-    swept, ladder up to 10               & 0.71 & $-0.15$ [$-0.21$, $-0.09$] & $-$A & 0.46 & $-0.15$ [$-0.19$, $-0.11$] & $-$R $-$A \\
-    \quad 10 per variable$^1$              & --- & & & 0.58 & $-0.03$ [$-0.07$, $+0.00$] & $-$S \\
-    swept, 2 levels of 4                 & 0.77 & $-0.08$ [$-0.10$, $-0.07$] & $-$A & 0.43 & $-0.19$ [$-0.22$, $-0.15$] & $-$R $-$A $-$S \\
-    swept, deep hierarchy                & 0.67 & $-0.18$ [$-0.20$, $-0.17$] & $-$R $-$A & 0.57 & $-0.04$ [$-0.07$, $-0.01$] & $-$R \\
-    swept, Euclidean, diameter$^1$       & 0.84 & $-0.01$ [$-0.03$, $+0.01$] &  & 0.62 & $+0.01$ [$-0.02$, $+0.05$] &  \\
-    swept, Euclidean, nearest box$^1$    & 0.78 & $-0.07$ [$-0.10$, $-0.04$] &  & 0.43 & $-0.19$ [$-0.22$, $-0.15$] & $-$S \\
+    configuration                  & 0.85 & \multicolumn{1}{c}{reference} & & 0.61 & \multicolumn{1}{c}{reference} & \\
+    2 subdivisions per variable    & --- & & & 0.51 & $-0.10$ [$-0.14$, $-0.07$] & $-$R $-$A \\
+    8 probes                       & 0.86 & $+0.00$ [$-0.01$, $+0.01$] &  & 0.50 & $-0.11$ [$-0.13$, $-0.09$] & \\
+    16 probes                      & 0.89 & $+0.04$ [$+0.01$, $+0.05$] &  & 0.41 & $-0.20$ [$-0.23$, $-0.17$] & $-$A \\
+    ladder up to 30                & 0.83 & $-0.02$ [$-0.05$, $+0.01$] &  & 0.62 & $+0.01$ [$-0.02$, $+0.03$] & $-$S \\
+    ladder up to 10                & 0.71 & $-0.15$ [$-0.21$, $-0.09$] & $-$A & 0.58 & $-0.03$ [$-0.07$, $+0.00$] & $-$S \\
+    calibrated, margin 100         & 0.79 & $-0.06$ [$-0.09$, $-0.04$] &  & 0.52 & $-0.09$ [$-0.13$, $-0.06$] & $-$A \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figures/variant_profiles.pdf}
-  \caption{Data profiles of the variants of the method in two and five
-    dimensions, twenty starting points. Dashed lines: variants with ten
-    subdivisions per variable in five dimensions. Purple: Euclidean trust
-    region, with the diameter schedule (solid or dashed) and around the nearest
-    evaluated box (dotted).}
-  \label{fig:variants}
-\end{figure}
+
 
 \paragraph{Number of probes.} In two dimensions, the area with sixteen probes is
 larger than that of the configuration, by $0.04$ [$0.01$, $0.05$], with the same
@@ -1236,19 +1122,11 @@ Ackley function is reached from one starting point against thirteen, a
 significant difference, whereas that of the Rastrigin function is reached from
 fifteen against eleven, a difference which is not significant.
 
-\paragraph{Density.} In five dimensions, every variant which uses two
-subdivisions per variable reaches the optimum of the Rastrigin and Ackley
-functions significantly less often than the configuration, which reaches them
-from eleven and thirteen starting points. Since these variants also differ from
-the configuration by the density, their other differences are given at ten
-subdivisions per variable in the rows marked $^1$.
-
-\paragraph{Extensions.} The multi-resolution encoding and the deep hierarchy
-give smaller areas than the configuration in both dimensions.
-
-\paragraph{Euclidean trust region.} With the diameter schedule, no difference
-with the configuration is significant in either dimension. The union of balls
-around the evaluated boxes gives smaller areas in both dimensions.
+\paragraph{Density.} In five dimensions, two subdivisions per variable decrease
+the area by $0.10$, and the optimum of the Rastrigin and Ackley functions is no
+longer reached, against eleven and thirteen starting points for the
+configuration; with two subdivisions, the boxes do not separate the basins of
+these functions (Section~\ref{sec:density-results}).
 
 \paragraph{Choice of the configuration.} No variant is clearly better than the
 configuration in five dimensions. In two dimensions, sixteen probes are better
@@ -1354,18 +1232,6 @@ starting points with the swept convexity and from fifteen with the calibrated
 margin, a difference which is not significant. The calibrated margin represents
 $40\%$ of the range of the Rastrigin function and was calibrated on this
 function.
-
-\subsection{Extensions}\label{sec:extensions-results}
-
-The extensions of Section~\ref{sec:extensions} were evaluated in five dimensions
-with a budget of $2500$ equivalent evaluations and the calibrated margin, and
-are detailed in Appendix~\ref{app:extensions}. The subdivision of the multimodal
-variables only reaches the optimum of the partly multimodal function from all
-starting points, whereas a coarse subdivision of every variable reaches it from
-none. The multi-resolution encoding and the hierarchies do not improve on the
-flat subdivision, except the deep hierarchy on the Ackley function, whose
-optimum it reaches from twelve starting points out of twenty against one, the
-cuts of a parent box being lost at each refinement.
 
 \subsection{Comparison with the baselines}\label{sec:baselines}
 
@@ -1774,7 +1640,8 @@ interchangeable, which the subdivision does not account for.
 a least-squares repair with non-negative coefficients, which cannot increase a
 cut at any box for one-hot variables;
 a master problem defined over a growing set of boxes, in which the cuts are kept
-when a box is refined, so that the hierarchies become a lazy branch and bound
+when a box is refined, so that the hierarchies of Appendix~\ref{app:variants}
+become a lazy branch and bound
 procedure; the computation of a lower bound without the convexification term,
 which would provide a meaningful optimality gap; an estimation of the density
 before the run, which would follow the spacing of the basins of attraction
@@ -2009,10 +1876,178 @@ of the Rastrigin function is reached from at most 5 of the 20 starting points
 with the constant, against 15 with the adaptive repair, which is therefore used by
 default.
 
-\section{Extensions}\label{app:extensions}
+\section{Variants of the method}\label{app:variants}
 
-The results of this appendix were obtained in five dimensions with a budget of
-$2500$ evaluations and the calibrated margin.
+The variants of this appendix were investigated in addition to the settings of
+Section~\ref{sec:variants}. None of them is better than the configuration
+compared with the baselines.
+
+\subsection{Trust regions}
+
+The Hamming distance treats the box selection as a categorical choice. An
+ordinal variant, $|c^\top\alpha - c^\top\bar\alpha| \le \Delta$, where $c$ denotes
+the vector of the interval indices, bounds the change of the sum of the interval
+indices over all components, so that boxes far from the incumbent are admitted
+when the shifts of their components compensate each other; it is compared with
+the Hamming distance in Appendix~\ref{app:tuning}. The Euclidean distance
+between the centre $c(\alpha)$ of a candidate box and that of the incumbent box
+can be bounded. In the design space scaled to the unit hypercube, the squared
+distance
+\begin{equation}\label{eq:euclidean}
+  \|c(\alpha) - c(\bar\alpha)\|^2
+  = \sum_j \sum_k \alpha_{j,k}\,\bigl(c_{j,k} - c_j(\bar\alpha)\bigr)^2,
+\end{equation}
+where $c_{j,k}$ denotes the centre of the interval $k$ of the component $j$, is
+linear in the one-hot variables, since one of them is equal to one for each
+component, so that the trust region remains a linear constraint of the master
+problem. Two schedules of the radius $\rho$ are considered. In the first one, $\rho$
+starts at a fixed value and follows the reduction rule of the Hamming radius. In
+the second one, $\rho$ starts at the diameter of the subdivision, so that the region
+initially covers every box, and the radii of the probes are distributed from
+$\rho/(2\sqrt{n})$ to $\rho$, with a lower bound of one interval width, which keeps the
+probes distinct. In a third variant, a candidate is admitted when it lies within
+the radius of any evaluated box rather than of the incumbent: the region is then
+a union of balls, which is expressed with one additional binary variable per
+evaluated box.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/trust_region.tex}
+  \caption{Trust regions around the incumbent box (black), with ten
+    subdivisions per variable; the admitted boxes are shaded. Top: Hamming
+    distance, the admitted boxes differing from the incumbent in at most
+    $\Delta$ components; in two dimensions, a radius of two admits the whole
+    design space. Bottom: Euclidean distance between box centres, in interval
+    widths. Left to right: a ball of radius two; the diameter schedule at its
+    initial radius, whose smallest probe admits the boxes within the circle and
+    whose largest probe admits the whole design space (light shading); and the
+    union of the balls of radius $1.5$ around the evaluated boxes (grey and
+    black).}
+  \label{fig:trust}
+\end{figure}
+
+\subsection{Extensions of the subdivision}\label{sec:extensions}
+
+Three extensions related to the limits on the density were also studied
+(Fig.~\ref{fig:subdivision-variants}). They are compared in
+Appendix~\ref{app:extensions} and are not used by default.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/subdivision_variants.tex}
+  \caption{Extensions of the subdivision in two dimensions, the selected box
+    being dark. Top left: subdivision of $x_1$ only, $x_2$ remaining a
+    continuous variable of the sub-problem; multi-resolution encoding with two
+    levels of four intervals, the $16 \times 16$ boxes being available to one
+    master problem, which selects the box by one digit per level and per
+    component, numbered from zero (top right); hierarchy with two levels of four
+    intervals, the box selected at the first level (light) being subdivided and
+    solved in turn (bottom left); and deep hierarchy, every variable being
+    halved at each of three levels (bottom right).}
+  \label{fig:subdivision-variants}
+\end{figure}
+
+\paragraph{Partial subdivision.} Only the variables in which the objective
+function is multimodal are subdivided, the other variables being treated as
+continuous variables of the sub-problems.
+
+\paragraph{Multi-resolution encoding.} The box is selected by one categorical
+variable per level of resolution, the levels providing the base-$m$ digits
+$d_k(\alpha_j) \in \{0,\dots,m-1\}$ of the interval index:
+\begin{equation}\label{eq:multires}
+  \ell_j(\alpha) = L_j + w_j \sum_{k=1}^{r} m^{-k}\, d_k(\alpha_j),
+  \qquad
+  u_j(\alpha) = \ell_j(\alpha) + w_j\, m^{-r},
+  \qquad w_j = U_j - L_j .
+\end{equation}
+With $r$ levels of $m$ intervals, a resolution of $m^r$ intervals per component
+is obtained with $rm$ binary variables. For instance, two levels of four
+intervals provide sixteen intervals per component with eight binary variables
+instead of sixteen. Since the width of a box does not depend on the digits, the
+Jacobian of the mapping is constant and the post-optimal sensitivity remains
+valid. The cut model is linear with respect to the digits and is therefore
+additive over the levels, so that the dependence of the effect of a fine digit
+on the value of a coarse digit cannot be represented. The trust-region radius is
+multiplied by $r$, since a change of interval may modify up to $r$ digits.
+
+\paragraph{Hierarchies of subdivisions.} A coarse subdivision is solved first,
+and a promising box is then subdivided and solved in turn. With two levels of
+$m^{(1)}$ and $m^{(2)}$ intervals, a resolution of $m^{(1)}m^{(2)}$ is obtained,
+while no master problem has more than $\sum_j m_j^{(k)}$ binary variables. Three
+variants are considered: a hierarchy with two levels; a deep hierarchy in which
+every variable is divided into two intervals at each of $d$ levels, with $2n$
+binary variables per level; and a best-first search which keeps the open boxes of
+all levels in a priority queue, similar to a spatial branch and bound method in
+which the relaxation is replaced by the cut model. Since the cuts of a parent box
+are expressed in the one-hot variables of its own subdivision, they are
+discarded at each refinement, and a new cut model has to be identified for each
+node.
+
+\subsection{Comparison}\label{app:extensions}
+
+All the variants are compared with the configuration in
+Table~\ref{tab:variants-all}, with the protocol of Section~\ref{sec:variants},
+and their data profiles are given in Fig.~\ref{fig:variants}. In five
+dimensions, the variants without a mark use two subdivisions per variable.
+
+\begin{table}[t]
+  \centering
+  \caption{All variants of the method, twenty starting points: area under the data
+    profile, difference with the area of the configuration with its $95\%$
+    bootstrap confidence interval, and problems on which the success differs
+    significantly from that of the configuration (R: Rastrigin, A: Ackley, S:
+    Styblinski--Tang, G: Griewank; $+$: more often, $-$: less often). In five
+    dimensions, the variants without a mark use two subdivisions per variable,
+    and $^1$ marks ten subdivisions per variable in both dimensions.}
+  \label{tab:variants-all}
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \begin{tabular}{lrlrrll}
+    \toprule
+    & \multicolumn{3}{c}{$n = 2$} & \multicolumn{3}{c}{$n = 5$} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    variant & area & difference & success & area & difference & success \\
+    \midrule
+    swept, 4 probes, configuration       & 0.85 & \multicolumn{1}{c}{reference} & & 0.61 & \multicolumn{1}{c}{reference} & \\
+    \quad 2 per variable                 & --- & & & 0.51 & $-0.10$ [$-0.14$, $-0.07$] & $-$R $-$A \\
+    calibrated, margin 100               & 0.79 & $-0.06$ [$-0.09$, $-0.04$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.08$] & $-$R $-$A \\
+    \quad 10 per variable$^1$              & --- & & & 0.52 & $-0.09$ [$-0.13$, $-0.06$] & $-$A \\
+    swept, 8 probes                      & 0.86 & $+0.00$ [$-0.01$, $+0.01$] &  & 0.53 & $-0.09$ [$-0.12$, $-0.05$] & $-$R $-$A \\
+    \quad 10 per variable$^1$              & --- & & & 0.50 & $-0.11$ [$-0.13$, $-0.09$] & \\
+    swept, 16 probes                     & 0.89 & $+0.04$ [$+0.01$, $+0.05$] &  & 0.49 & $-0.12$ [$-0.16$, $-0.09$] & $-$R $-$A \\
+    \quad 10 per variable$^1$              & --- & & & 0.41 & $-0.20$ [$-0.23$, $-0.17$] & $-$A \\
+    swept, ladder up to 30               & 0.83 & $-0.02$ [$-0.05$, $+0.01$] &  & 0.48 & $-0.13$ [$-0.18$, $-0.09$] & $-$R $-$A \\
+    \quad 10 per variable$^1$              & --- & & & 0.62 & $+0.01$ [$-0.02$, $+0.03$] & $-$S \\
+    swept, ladder up to 10               & 0.71 & $-0.15$ [$-0.21$, $-0.09$] & $-$A & 0.46 & $-0.15$ [$-0.19$, $-0.11$] & $-$R $-$A \\
+    \quad 10 per variable$^1$              & --- & & & 0.58 & $-0.03$ [$-0.07$, $+0.00$] & $-$S \\
+    swept, 2 levels of 4                 & 0.77 & $-0.08$ [$-0.10$, $-0.07$] & $-$A & 0.43 & $-0.19$ [$-0.22$, $-0.15$] & $-$R $-$A $-$S \\
+    swept, deep hierarchy                & 0.67 & $-0.18$ [$-0.20$, $-0.17$] & $-$R $-$A & 0.57 & $-0.04$ [$-0.07$, $-0.01$] & $-$R \\
+    swept, Euclidean, diameter$^1$       & 0.84 & $-0.01$ [$-0.03$, $+0.01$] &  & 0.62 & $+0.01$ [$-0.02$, $+0.05$] &  \\
+    swept, Euclidean, nearest box$^1$    & 0.78 & $-0.07$ [$-0.10$, $-0.04$] &  & 0.43 & $-0.19$ [$-0.22$, $-0.15$] & $-$S \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/variant_profiles.pdf}
+  \caption{Data profiles of the variants of the method in two and five
+    dimensions, twenty starting points. Dashed lines: variants with ten
+    subdivisions per variable in five dimensions. Purple: Euclidean trust
+    region, with the diameter schedule (solid or dashed) and around the nearest
+    evaluated box (dotted).}
+  \label{fig:variants}
+\end{figure}
+
+\paragraph{Extensions.} The multi-resolution encoding and the deep hierarchy
+give smaller areas than the configuration in both dimensions.
+
+\paragraph{Euclidean trust region.} With the diameter schedule, no difference
+with the configuration is significant in either dimension. The union of balls
+around the evaluated boxes gives smaller areas in both dimensions.
+
+The extensions of the subdivision were evaluated in more detail in five
+dimensions with a budget of $2500$ evaluations and the calibrated margin.
 
 \paragraph{Partial subdivision.} For the partly multimodal function, the optimum
 is reached from all starting points when only the two variables of the Rastrigin
