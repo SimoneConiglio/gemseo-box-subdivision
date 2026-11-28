@@ -472,8 +472,9 @@ def run_direct(
 ) -> Result:
     """Run DIRECT, which is deterministic and ignores the starting point.
 
-    Its budget is enforced by its own ``maxfun``, which is exact. Raising from
-    its objective is not an option, since it is called from a C extension.
+    Its budget is enforced by its own ``maxfun``, the evaluations made beyond
+    it to end the current iteration being discarded. Raising from its objective
+    is not an option, since it is called from a C extension.
 
     Args:
         problem: The problem.
@@ -497,6 +498,8 @@ def run_direct(
     )
     with suppress(BudgetExceededError):
         direct(counter.objective, bounds, maxfun=budget, maxiter=budget)
+    # DIRECT ends its current iteration after maxfun evaluations.
+    counter.truncate(budget)
 
     return _result("direct", problem, dimension, seed, counter, adjoint)
 
@@ -539,6 +542,7 @@ def run_direct_global(
             vol_tol=0.0,
             len_tol=0.0,
         )
+    counter.truncate(budget)
 
     return _result("direct_global", problem, dimension, seed, counter, adjoint)
 

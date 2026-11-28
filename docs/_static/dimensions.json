@@ -270,7 +270,7 @@
     "styblinski_tang": {
      "reached": 20,
      "median_gap": 2.921038279168897e-05,
-     "median_cost": 2505.0
+     "median_cost": 2500.0
     },
     "griewank": {
      "reached": 0,
@@ -282,23 +282,23 @@
     "area": 0.676925,
     "rastrigin": {
      "reached": 0,
-     "median_gap": 5.262548120971104,
-     "median_cost": 3265.0
+     "median_gap": 5.391756861492766,
+     "median_cost": 2500.0
     },
     "ackley": {
      "reached": 0,
      "median_gap": 0.2494479113777186,
-     "median_cost": 2801.0
+     "median_cost": 2500.0
     },
     "styblinski_tang": {
      "reached": 0,
      "median_gap": 0.08423851174819674,
-     "median_cost": 2865.0
+     "median_cost": 2500.0
     },
     "griewank": {
      "reached": 0,
-     "median_gap": 0.00991306822192728,
-     "median_cost": 2533.0
+     "median_gap": 0.009954483518828883,
+     "median_cost": 2500.0
     }
    },
    "mlsl": {
@@ -633,22 +633,22 @@
     "rastrigin": {
      "reached": 0,
      "median_gap": 14.68667304539342,
-     "median_cost": 2875.0
+     "median_cost": 2500.0
     },
     "ackley": {
      "reached": 0,
      "median_gap": 5.960807208268218,
-     "median_cost": 3121.0
+     "median_cost": 2500.0
     },
     "styblinski_tang": {
      "reached": 0,
      "median_gap": 18.882905832029962,
-     "median_cost": 2865.0
+     "median_cost": 2500.0
     },
     "griewank": {
      "reached": 0,
-     "median_gap": 0.42634305723604193,
-     "median_cost": 2667.0
+     "median_gap": 0.5352006800093373,
+     "median_cost": 2500.0
     }
    },
    "mlsl": {
@@ -841,7 +841,7 @@
     "p_success": 1.0,
     "p_gap": 0.00012379786922627555,
     "p_success_holm": 1.0,
-    "p_gap_holm": 0.0029711488614306133
+    "p_gap_holm": 0.0028473509922043376
    },
    {
     "baseline": "probes_16",
@@ -931,7 +931,7 @@
     "p_success": 1.0,
     "p_gap": 0.0004488206370567378,
     "p_success_holm": 1.0,
-    "p_gap_holm": 0.009425233378191494
+    "p_gap_holm": 0.008976412741134757
    },
    {
     "baseline": "density_10_probes_8",
@@ -985,7 +985,7 @@
     "p_success": 1.0,
     "p_gap": 0.00013975815374142757,
     "p_success_holm": 1.0,
-    "p_gap_holm": 0.003214437536052834
+    "p_gap_holm": 0.003074679382311407
    },
    {
     "baseline": "density_10_probes_16",
@@ -1039,7 +1039,7 @@
     "p_success": 0.0390625,
     "p_gap": 0.0007486390630406775,
     "p_success_holm": 1.0,
-    "p_gap_holm": 0.01497278126081355
+    "p_gap_holm": 0.014224142197772873
    },
    {
     "baseline": "density_10_probes_16",
@@ -1057,7 +1057,7 @@
     "p_success": 1.0,
     "p_gap": 8.609160404929316e-05,
     "p_success_holm": 1.0,
-    "p_gap_holm": 0.0024966565174295015
+    "p_gap_holm": 0.0024105649133802083
    },
    {
     "baseline": "random_box",
@@ -1255,7 +1255,7 @@
     "p_success": 1.52587890625e-05,
     "p_gap": 0.00011111585449913125,
     "p_success_holm": 0.000701904296875,
-    "p_gap_holm": 0.0027778963624782815
+    "p_gap_holm": 0.00266678050797915
    },
    {
     "baseline": "multistart",
@@ -1273,7 +1273,7 @@
     "p_success": 3.814697265625e-06,
     "p_gap": 8.807368035275503e-05,
     "p_success_holm": 0.000202178955078125,
-    "p_gap_holm": 0.0024966565174295015
+    "p_gap_holm": 0.0024105649133802083
    },
    {
     "baseline": "cmaes",
@@ -1471,7 +1471,7 @@
     "p_success": 3.814697265625e-06,
     "p_gap": 0.0003929930264148809,
     "p_success_holm": 0.000202178955078125,
-    "p_gap_holm": 0.008645846581127381
+    "p_gap_holm": 0.008252853554712499
    },
    {
     "baseline": "direct",
@@ -1554,14 +1554,14 @@
     ],
     "median_gap": [
      0.3598040889124017,
-     0.42634305723604193
+     0.5352006800093373
     ],
     "only_method": 0,
     "only_baseline": 0,
     "p_success": 1.0,
-    "p_gap": 0.0017324584089027139,
+    "p_gap": 7.402320460146379e-05,
     "p_success_holm": 1.0,
-    "p_gap_holm": 0.032916709769151564
+    "p_gap_holm": 0.0023687425472468412
    },
    {
     "baseline": "mlsl",
@@ -1651,7 +1651,7 @@
     "p_success": 1.0,
     "p_gap": 8.720229793087962e-05,
     "p_success_holm": 1.0,
-    "p_gap_holm": 0.0024966565174295015
+    "p_gap_holm": 0.0024105649133802083
    },
    {
     "baseline": "tunneling",
@@ -1687,7 +1687,7 @@
     "p_success": 3.814697265625e-06,
     "p_gap": 0.00010262944757719752,
     "p_success_holm": 0.000202178955078125,
-    "p_gap_holm": 0.0026683656370071356
+    "p_gap_holm": 0.002565736189429938
    },
    {
     "baseline": "tunneling",
@@ -2135,22 +2135,22 @@
     "rastrigin": {
      "reached": 0,
      "median_gap": 46.57683392681548,
-     "median_cost": 2515.0
+     "median_cost": 2500.0
     },
     "ackley": {
      "reached": 0,
      "median_gap": 9.144953253295835,
-     "median_cost": 2601.0
+     "median_cost": 2500.0
     },
     "styblinski_tang": {
      "reached": 0,
      "median_gap": 451.5532029643172,
-     "median_cost": 2713.0
+     "median_cost": 2500.0
     },
     "griewank": {
      "reached": 0,
-     "median_gap": 0.9808722254823737,
-     "median_cost": 2751.0
+     "median_gap": 0.997671483998508,
+     "median_cost": 2500.0
     }
    },
    "mlsl": {
@@ -3056,7 +3056,7 @@
     ],
     "median_gap": [
      0.6028578558135466,
-     0.9808722254823737
+     0.997671483998508
     ],
     "only_method": 0,
     "only_baseline": 0,

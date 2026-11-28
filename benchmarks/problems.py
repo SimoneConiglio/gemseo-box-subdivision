@@ -326,6 +326,21 @@ class Counter:
         self.calls.append((True, self.best))
         return self.problem.gradient(x)
 
+    def truncate(self, budget: int) -> None:
+        """Discard the objective evaluations beyond a budget.
+
+        For the methods using no gradient which cannot be stopped from their
+        objective, such as DIRECT, which ends its current iteration after
+        ``maxfun`` evaluations.
+
+        Args:
+            budget: The budget in objective evaluations.
+        """
+        if self.n_objective > budget:
+            self.calls = self.calls[:budget]
+            self.n_objective = budget
+            self.best = self.calls[-1][1]
+
     def cost(self, dimension: int, adjoint: bool) -> int:
         """Return the equivalent number of objective evaluations.
 
