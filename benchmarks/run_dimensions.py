@@ -159,7 +159,7 @@ def _five_variables() -> dict:
     return {"budget": BUDGET, "summary": summary}
 
 
-def _collect(dimension: int) -> list:
+def _collect(dimension: int, cache=None) -> list:  # noqa: ANN001
     """Run the missing runs of a dimension, each in a process of its own.
 
     CBC may abort in C++ on the larger master problems, which kills the process
@@ -169,6 +169,8 @@ def _collect(dimension: int) -> list:
 
     Args:
         dimension: The number of design variables.
+        cache: The file of the runs;
+            if ``None``, ``dimensions-{dimension}.jsonl``.
 
     Returns:
         The outcome of every run that finished.
@@ -177,7 +179,8 @@ def _collect(dimension: int) -> list:
     import sys  # noqa: PLC0415
     from concurrent.futures import ThreadPoolExecutor  # noqa: PLC0415
 
-    cache = CACHE / f"dimensions-{dimension}.jsonl"
+    if cache is None:
+        cache = CACHE / f"dimensions-{dimension}.jsonl"
     done = (
         {
             (r["method"], r["problem"], r["seed"])
@@ -224,6 +227,33 @@ def _finished(cache) -> list:  # noqa: ANN001
     return [Result(**json.loads(line)) for line in cache.read_text().splitlines()]
 
 
+def _add_aborts(table: dict, dimension: int) -> None:
+    """Count the runs aborted by the solver of the master problem as failures."""
+    aborts = json.loads(ABORTS.read_text()) if ABORTS.exists() else []
+    for d, method, problem, seed in aborts:
+        if d == dimension and (method, problem, seed) not in table:
+            table[method, problem, seed] = {
+                "gap": float("inf"),
+                "cost": BUDGET,
+                "reached": False,
+                "area": 0.0,
+                "history": [],
+            }
+
+
+def _print(output: dict, dimension: int) -> None:
+    """Print the area, the success and the median distance of every method."""
+    for name, entry in output["summary"].items():
+        print(  # noqa: T201
+            f"{dimension:>3} {name:>14} area {entry['area']:.2f} "
+            + " ".join(
+                f"{p[:4]} {entry[p]['reached']:>2} {entry[p]['median_gap']:.3g}"
+                for p in data_profiles.PROBLEM_NAMES
+            ),
+            flush=True,
+        )
+
+
 def main() -> None:
     """Run every method in 10 and 20 variables and write the summaries."""
     logging.disable(logging.CRITICAL)
@@ -240,17 +270,7 @@ def main() -> None:
             .splitlines()
         ]
         table = _table(runs, targets, dimension)
-        aborts = json.loads(ABORTS.read_text()) if ABORTS.exists() else []
-        for d, method, problem, seed in aborts:
-            if d == dimension and (method, problem, seed) not in table:
-                # A run aborted by the solver counts as a failure.
-                table[method, problem, seed] = {
-                    "gap": float("inf"),
-                    "cost": BUDGET,
-                    "reached": False,
-                    "area": 0.0,
-                    "history": [],
-                }
+        _add_aborts(table, dimension)
         problems = data_profiles.PROBLEM_NAMES
         others = tuple(m for m in METHODS if m != REFERENCE)
         tests = compare(table, REFERENCE, others, problems)
@@ -261,15 +281,7 @@ def main() -> None:
             "tests": tests,
             "areas": areas,
         }
-        for name, entry in output[str(dimension)]["summary"].items():
-            print(  # noqa: T201
-                f"{dimension:>3} {name:>14} area {entry['area']:.2f} "
-                + " ".join(
-                    f"{p[:4]} {entry[p]['reached']:>2} {entry[p]['median_gap']:.3g}"
-                    for p in problems
-                ),
-                flush=True,
-            )
+        _print(output[str(dimension)], dimension)
     OUTPUT.write_text(json.dumps(output, indent=1) + "\n", encoding="utf-8")
 
 
