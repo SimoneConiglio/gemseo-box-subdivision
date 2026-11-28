@@ -1,0 +1,36 @@
+{
+ "2": {
+  "rastrigin": {
+   "lower bound": 19,
+   "unknown": 1
+  },
+  "ackley": {
+   "lower bound": 19,
+   "unknown": 1
+  },
+  "styblinski_tang": {
+   "lower bound": 20
+  },
+  "griewank": {
+   "lower bound": 20
+  }
+ },
+ "5": {
+  "rastrigin": {
+   "lower bound": 19,
+   "unknown": 1
+  },
+  "ackley": {
+   "lower bound": 7,
+   "budget": 13
+  },
+  "styblinski_tang": {
+   "lower bound": 17,
+   "unknown": 3
+  },
+  "griewank": {
+   "budget": 8,
+   "lower bound": 12
+  }
+ }
+}

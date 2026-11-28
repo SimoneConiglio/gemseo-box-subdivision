@@ -342,7 +342,7 @@ procedure is summarized in Algorithm~\ref{alg:bsoa}.
     \State solve the sub-problem in $\alpha^{(1)}$; store $(v^{(1)}, s^{(1)})$;
       incumbent $\bar\alpha \gets \alpha^{(1)}$
     \While{budget not exhausted and stopping criteria not met
-      (Section~\ref{sec:implementation})}
+      (Section~\ref{sec:stopping})}
       \State correct the slopes $s^{(i)}$ against non-convexity
         (Section~\ref{sec:convexification})
       \For{each probe $q = 1, \dots, p$ \textbf{in parallel}}
@@ -658,6 +658,55 @@ evaluated box.
   \label{fig:trust}
 \end{figure}
 
+\subsection{Stopping criteria}\label{sec:stopping}
+
+In outer approximation with valid cuts, the method stops when the lower bound
+given by the master problem reaches the upper bound given by the best solved
+box: no box not yet solved can then be better than the incumbent, which is the
+global optimum \citep{duran1986,fletcher1994}. Here, the cuts are not valid
+(Section~\ref{sec:convexification}) and the master problem is restricted to a
+trust region, so that this test only states that no box within the trust
+regions of the probes is predicted to improve on the incumbent. Six criteria
+are used, and the run stops as soon as one of them is met.
+\begin{enumerate}
+  \item \emph{Lower bound.} At each iteration, the lower bound is the smallest
+    optimal value $\eta^\ast$ of the master problems of the probes, each one
+    with its own trust region and convexity value. The run stops when
+    $\eta^\ast > \bar v + \epsilon$, where $\bar v$ denotes the incumbent value
+    and $\epsilon = 10^{-4}$ in the experiments: the cut model, as corrected by
+    every probe, predicts no improvement within any of the trust regions. Since
+    the repair lowers the cuts only at the boxes already solved, and may raise
+    them elsewhere (Section~\ref{sec:convexification}), this criterion can be
+    met while better boxes remain, within or outside the trust regions.
+  \item \emph{No new box.} The run stops when every box proposed by the probes
+    has already been solved, after the ladder has been climbed and the no-good
+    constraints have been added (Section~\ref{sec:convexification}): the
+    exploration of the trust regions is exhausted.
+  \item \emph{Infeasible master problem.} The run stops when no admissible box
+    remains for any probe, i.e. when the trust regions contain only boxes which
+    have been solved or excluded.
+  \item \emph{Stall.} The run stops when the incumbent value has not decreased
+    for ten consecutive iterations. Since the radius of the trust region is
+    reduced after every three of these iterations (Section~\ref{sec:trust}),
+    from $\Delta = 2$ to $1.4$ and then to its minimum of one, the last
+    iterations before this criterion explore the boxes adjacent to the
+    incumbent.
+  \item \emph{Iterations.} The run stops after a maximum number of iterations
+    of the master problem, set to $10\,000$ in the experiments so that it is
+    never met.
+  \item \emph{Repeated values.} The run stops when the last three boxes solved
+    give the same value, a criterion of the driver of the master problem in
+    GEMSEO, whose tolerances are set to zero. This happens when the local
+    optimizer converges to the same point, on a common face, from adjacent
+    boxes.
+\end{enumerate}
+In addition, the run is interrupted when the budget of evaluations is spent,
+which is not a criterion of the method but of the experiments. None of these
+criteria certifies the global optimality of the incumbent: the first one would
+only with valid cuts and without trust region, and the others only state that
+the exploration has stopped finding better boxes. The criterion which ends
+each run is reported in Section~\ref{sec:stopping-results}.
+
 \subsection{Density of the subdivision}\label{sec:density}
 
 The admissible values of the subdivision density $m_j$ are bounded from above
@@ -815,10 +864,7 @@ other, each one excluding by no-good constraints the boxes selected by the
 previous probes, and the sub-problems of the selected boxes are then solved, in
 parallel when several processes are available. The incumbent is the feasible
 box of smallest value, ties being resolved in favour of the box solved first. A
-run stops when the budget is spent, when the incumbent has not changed for ten
-iterations, when no probe proposes a box not yet solved, when the lower bound
-of the master problem exceeds the incumbent value, or after a maximum number of
-iterations of the master problem. The mixed-integer linear programs are solved
+run stops according to the criteria of Section~\ref{sec:stopping}. The mixed-integer linear programs are solved
 by CBC through OR-Tools, without time limit.
 Each sub-problem is started at the centre of its box, i.e. at $\xi = 1/2$, so
 that the result does not depend on the order in which the boxes are solved. The
@@ -1606,6 +1652,23 @@ Rastrigin and Ackley functions in two dimensions, but neither in five
 dimensions. The optimum of the Rastrigin function in five dimensions is
 therefore reached by the method only, among the methods compared with the budget
 of $2500$ evaluations, EGO being limited to $500$.
+
+\subsection{Stopping of the runs}\label{sec:stopping-results}
+
+The criterion which ends each run of the configuration compared with the
+baselines was recorded on the four problems from the twenty starting points.
+In two dimensions, $78$ of the $80$ runs end on the lower bound, i.e. when no
+probe predicts an improvement within its trust region, and the two others on
+repeated values. In five dimensions, $55$ runs end on the lower bound, $4$ on
+repeated values and $21$ on the budget, $13$ of them on the Ackley function and
+$8$ on the Griewank function. The stall, the absence of new boxes, the
+infeasibility of the master problem and the iteration limit end no run. The
+method therefore decides to stop on the prediction of its cut model, and not
+because the trust region has been exhausted. On the Rastrigin function, the
+runs stop after having reached the global optimum from all starting points in two
+dimensions, and without having reached it from nine starting points out of
+twenty in five dimensions (Table~\ref{tab:baselines}), which is the cost of a
+stopping test built on cuts which are not valid.
 
 \subsection{Comparison with a budget of 500 evaluations}\label{sec:small}
 
