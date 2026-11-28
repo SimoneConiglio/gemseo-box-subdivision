@@ -26,6 +26,8 @@
 \fi
 
 \usepackage{amsmath,amssymb}
+\ifsnjnl\else\usepackage{amsthm}\fi
+\ifdefined\proposition\else\newtheorem{proposition}{Proposition}\fi
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{multirow}
@@ -503,6 +505,62 @@ exceeds the value required to compensate the non-convexity, every box not yet
 solved is ranked before the incumbent, and the method tends towards an
 enumeration of the boxes. The constant therefore has a useful range bounded on
 both sides.
+
+The upper end of this range is the one under which the method converges to the
+global optimum, by exhausting the boxes. Let $R$ bound the range of $f$ over the
+design space, and $S$ the absolute values of the components of the slopes
+$s^{(i)}$.
+
+\begin{proposition}\label{prop:convergence}
+  Consider a problem~\eqref{eq:problem} without the constraints $g$, solved
+  with the convexification constant and without the adaptive repair, without
+  trust region, stall, budget, iteration limit or test on repeated values, the
+  boxes already solved being excluded by no-good constraints. Assume that
+  \begin{enumerate}
+    \item $\kappa \ge n_c\,(R/2 + S)$;
+    \item the global minimizer $x^\ast$ of $f$ is non-degenerate, i.e.\ the
+      Hessian of $f$ is positive definite at $x^\ast$, so that $f$ is strictly
+      convex in a ball centred on $x^\ast$;
+    \item the subdivision is fine enough for every box containing $x^\ast$ to
+      lie in this ball;
+    \item the local optimizer returns the minimizer of a strictly convex
+      function over a box, and a point of the box otherwise.
+  \end{enumerate}
+  Then the run solves every box, terminates after $\prod_j m_j$ sub-problems,
+  and returns $f(x^\ast)$.
+\end{proposition}
+
+\begin{proof}
+  Let $\alpha^{(j)}$ be a box differing from a solved box $\alpha^{(i)}$ in
+  $d \ge 1$ components. The displacement $\alpha^{(j)} - \alpha^{(i)}$ has one
+  component equal to $1$ and one equal to $-1$ in each of these $d$ components,
+  so that the slope term of the cut built at $\alpha^{(i)}$ is at most $2dS$,
+  while the convexification lowers it by $2d\kappa/n_c \ge d(R + 2S)$. Hence
+  $v(\alpha^{(i)}) + \tilde s^{(i)\top}(\alpha^{(j)} - \alpha^{(i)}) \le
+  v(\alpha^{(i)}) - dR \le \min_x f$: every cut is valid at every box, and lies
+  below the incumbent value at every box not yet solved. The lower bound of the
+  master problem therefore stays below the incumbent value as long as a box
+  remains to be solved, and since the solved boxes are excluded, every
+  iteration proposes boxes not yet solved, until the master problem is
+  infeasible, i.e.\ until all the $\prod_j m_j$ boxes are solved. By
+  assumptions 2 to 4, the sub-problem of a box containing $x^\ast$ returns
+  $f(x^\ast)$, and that of any other box a value of $f$, hence a value larger
+  than or equal to $f(x^\ast)$.
+\end{proof}
+
+The guarantee is that of an enumeration: under assumption 1, every box not yet
+solved is ranked before the incumbent, and the master problem only chooses the
+order in which the boxes are solved, at a worst-case cost of $\prod_j m_j$
+sub-problems. Assumptions 2 and 3 do not require $f$ to be unimodal in every
+box, which would fail near a saddle point however small the boxes, but only in
+the boxes of the global minimizer, the value returned in any other box being
+that of a point of the design space. Each ingredient which makes the method
+affordable removes the guarantee: a constant below the bound of assumption~1 or
+the adaptive repair, which no longer make the cuts valid at the boxes not yet
+solved, the trust region, which restricts the boxes proposed, and the stall, the
+test on repeated values and the budget, which stop the run before all boxes are
+solved. The method, as used in this work, is therefore a heuristic acceleration
+of a globally convergent enumeration.
 
 With the adaptive repair, the lower bound is not degraded by a uniform shift.
 Convexity is, however, enforced only with respect to the boxes already solved,
@@ -1784,8 +1842,10 @@ selection, was solved by one run of each method.
 function in five dimensions, doubling the budget changed the number of starting
 points reaching the optimum from one to four out of twenty, and further increases
 had no effect.
-(iii) No convergence guarantee is obtained: with a large convexification
-constant the optimality gap cannot close (Section~\ref{sec:convexification}),
+(iii) No convergence guarantee is obtained in the configurations used: the
+guarantee of Proposition~\ref{prop:convergence} requires solving every box;
+with a large convexification constant the optimality gap cannot close
+(Section~\ref{sec:convexification}),
 and with the adaptive repair the runs can terminate on their own criterion away
 from the optimum, as for the Rastrigin function in Table~\ref{tab:sweep-density}.
 (iv) The analytic problems are only bound constrained, and the topology
