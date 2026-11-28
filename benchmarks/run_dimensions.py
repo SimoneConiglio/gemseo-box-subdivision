@@ -20,7 +20,8 @@ increases. The methods are run on the four problems from the twenty starting
 points of :mod:`benchmarks.run_statistics`:
 
 - the swept configuration with the default density, two subdivisions per
-  variable (``swept``), and with ten (``density_10``);
+  variable (``swept``), with eight and sixteen probes (``probes_8``,
+  ``probes_16``), and with ten subdivisions per variable (``density_10``);
 - its ablations at the default density, a random box within the trust region
   (``random_box``) and slopes set to zero (``zero_slopes``);
 - the multistart algorithm, CMA-ES and IPOP-CMA-ES, DIRECT with and without its
@@ -68,6 +69,8 @@ BUDGET = 2500
 METHODS = (
     "swept",
     "density_10",
+    "probes_8",
+    "probes_16",
     "random_box",
     "zero_slopes",
     "multistart",
