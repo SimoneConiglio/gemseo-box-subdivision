@@ -69,6 +69,11 @@ The multistart algorithm with ten starting points, IPOP-CMA-ES, DIRECT without
 local bias and MLSL were added after the others, from the same starting points.
 """
 
+ESTIMATED_DENSITY = ("proposed_density", "proposed_density_free")
+"""The variants using the density estimated by the basin count, left out of the
+comparison of the variants: the estimate costs more than the budget and proposes
+worse densities than the fixed one, and is no longer part of the method."""
+
 CHALLENGERS = {
     dimension: tuple(
         name
@@ -76,7 +81,7 @@ CHALLENGERS = {
             *data_profiles.VARIANTS[dimension],
             *data_profiles.LATE_VARIANTS[dimension],
         )
-        if name != COMPARED[dimension]
+        if name != COMPARED[dimension] and name not in ESTIMATED_DENSITY
     )
     for dimension in data_profiles.DIMENSIONS
 }

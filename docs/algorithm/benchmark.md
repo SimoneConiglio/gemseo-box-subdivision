@@ -124,21 +124,19 @@ study, and so differ from the configuration also by the density.
 | variant | 2 variables: area | difference [95% CI] | success | 5 variables: area | difference [95% CI] | success |
 |---|---|---|---|---|---|---|
 | swept, 4 probes, 10 per variable (configuration) | $0.85$ | reference | | $0.61$ | reference | |
-| swept, 4 probes, 2 per variable | — | | | $0.51$ | $-0.10$ [$-0.14$, $-0.07$] | −A |
-| calibrated, margin 100 | $0.79$ | $-0.06$ [$-0.09$, $-0.04$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.08$] | −A |
+| swept, 4 probes, 2 per variable | — | | | $0.51$ | $-0.10$ [$-0.14$, $-0.07$] | −R −A |
+| calibrated, margin 100 | $0.79$ | $-0.06$ [$-0.09$, $-0.04$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.08$] | −R −A |
 | calibrated, margin 100, 10 per variable¹ | — | | | $0.52$ | $-0.09$ [$-0.13$, $-0.06$] | −A |
-| swept, 8 probes | $0.86$ | $+0.00$ [$-0.01$, $+0.01$] |  | $0.53$ | $-0.09$ [$-0.12$, $-0.05$] | −A |
+| swept, 8 probes | $0.86$ | $+0.00$ [$-0.01$, $+0.01$] |  | $0.53$ | $-0.09$ [$-0.12$, $-0.05$] | −R −A |
 | swept, 8 probes, 10 per variable¹ | — | | | $0.50$ | $-0.11$ [$-0.13$, $-0.09$] | |
-| swept, 16 probes | $0.89$ | $+0.04$ [$+0.01$, $+0.05$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.09$] | −A |
+| swept, 16 probes | $0.89$ | $+0.04$ [$+0.01$, $+0.05$] |  | $0.49$ | $-0.12$ [$-0.16$, $-0.09$] | −R −A |
 | swept, 16 probes, 10 per variable¹ | — | | | $0.41$ | $-0.20$ [$-0.23$, $-0.17$] | −A |
-| swept, ladder up to 30 | $0.83$ | $-0.02$ [$-0.05$, $+0.01$] |  | $0.48$ | $-0.13$ [$-0.18$, $-0.09$] | −A |
-| swept, ladder up to 30, 10 per variable¹ | — | | | $0.62$ | $+0.01$ [$-0.02$, $+0.03$] | |
-| swept, ladder up to 10 | $0.71$ | $-0.15$ [$-0.21$, $-0.09$] | −A | $0.46$ | $-0.15$ [$-0.19$, $-0.11$] | −A |
+| swept, ladder up to 30 | $0.83$ | $-0.02$ [$-0.05$, $+0.01$] |  | $0.48$ | $-0.13$ [$-0.18$, $-0.09$] | −R −A |
+| swept, ladder up to 30, 10 per variable¹ | — | | | $0.62$ | $+0.01$ [$-0.02$, $+0.03$] | −S |
+| swept, ladder up to 10 | $0.71$ | $-0.15$ [$-0.21$, $-0.09$] | −A | $0.46$ | $-0.15$ [$-0.19$, $-0.11$] | −R −A |
 | swept, ladder up to 10, 10 per variable¹ | — | | | $0.58$ | $-0.03$ [$-0.07$, $+0.00$] | −S |
-| swept, proposed density | $0.53$ | $-0.33$ [$-0.36$, $-0.29$] | −R −A | $0.18$ | $-0.43$ [$-0.46$, $-0.40$] | −A |
-| swept, proposed density, scans free | $0.69$ | $-0.16$ [$-0.19$, $-0.13$] | −A | $0.56$ | $-0.05$ [$-0.09$, $-0.02$] | −A |
-| swept, 2 levels of 4 | $0.77$ | $-0.08$ [$-0.10$, $-0.07$] | −A | $0.43$ | $-0.19$ [$-0.22$, $-0.15$] | −A −S |
-| swept, deep hierarchy | $0.67$ | $-0.18$ [$-0.20$, $-0.17$] | −R −A | $0.57$ | $-0.04$ [$-0.07$, $-0.01$] | |
+| swept, 2 levels of 4 | $0.77$ | $-0.08$ [$-0.10$, $-0.07$] | −A | $0.43$ | $-0.19$ [$-0.22$, $-0.15$] | −R −A −S |
+| swept, deep hierarchy | $0.67$ | $-0.18$ [$-0.20$, $-0.17$] | −R −A | $0.57$ | $-0.04$ [$-0.07$, $-0.01$] | −R |
 | swept, Euclidean, diameter¹ | $0.84$ | $-0.01$ [$-0.03$, $+0.01$] |  | $0.62$ | $+0.01$ [$-0.02$, $+0.05$] |  |
 | swept, Euclidean, nearest box¹ | $0.78$ | $-0.07$ [$-0.10$, $-0.04$] |  | $0.43$ | $-0.19$ [$-0.22$, $-0.15$] | −S |
 
@@ -152,9 +150,11 @@ No variant is clearly better in five variables: the Euclidean trust region with
 the diameter schedule is the only one whose interval contains a positive
 difference, $+0.01$ [$-0.02$, $+0.05$], with the ladder up to 30 at ten
 subdivisions per variable, $+0.01$ [$-0.02$, $+0.03$]; every variant with two
-subdivisions per variable reaches the optimum of Ackley significantly less
-often, and none reaches that of Rastrigin, a difference no longer significant
-after the Holm correction over the seventeen variants of five variables.
+subdivisions per variable reaches the optimum of Rastrigin and Ackley
+significantly less often, the Holm correction running over the fifteen variants
+of five variables; the variants using the density proposed by the basin count
+are left out of this comparison, the estimate costing more than the budget and
+proposing worse densities than the fixed one.
 In two variables sixteen probes are, on the area only ($+0.04$ [$+0.01$,
 $+0.05$]), with the same success on every problem. Selected among eleven on the
 same starting points, this variant was run again with the configuration from

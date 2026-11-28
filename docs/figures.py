@@ -1454,8 +1454,13 @@ EUCLIDEAN_VARIANTS = {
 """The variants of the Euclidean trust region, with their line styles."""
 
 
-def draw_variant_profiles(foreground: str):
-    """Draw the profiles of the variants, one row per dimension."""
+def draw_variant_profiles(foreground: str, exclude: tuple[str, ...] = ()):
+    """Draw the profiles of the variants, one row per dimension.
+
+    Args:
+        foreground: The colour of the text and of the configuration.
+        exclude: The variants not to draw.
+    """
     data = _read_profiles()
     labels = data["labels"]
     hues = series(foreground)
@@ -1493,7 +1498,7 @@ def draw_variant_profiles(foreground: str):
                 label=labels["swept"],
             )
             for hue, name in zip(hues, names, strict=False):
-                if name in profiles:
+                if name in profiles and name not in exclude:
                     _plot_profile(
                         axes,
                         profiles[name],
@@ -1913,7 +1918,10 @@ PAPER = Path(__file__).parents[1] / "paper" / "figures"
 PAPER_FIGURES = {
     "problems": partial(draw_problems, label=False),
     "data_profiles": draw_data_profiles,
-    "variant_profiles": draw_variant_profiles,
+    "variant_profiles": partial(
+        draw_variant_profiles,
+        exclude=("proposed_density", "proposed_density_free"),
+    ),
 }
 """The figures of the manuscript, by name, each written as a PDF."""
 
